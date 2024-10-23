@@ -4,7 +4,7 @@
 def artifactoryStr = 'art-p-01'
 artServer = Artifactory.server "${artifactoryStr}"
 buildInfo = Artifactory.newBuildInfo()
-def agentPython3Version = 'python_3.6.1'
+def agentPython3Version = 'python_3.10'
 def artifactVersion
 
 // Define a function to push packaged code to Artifactory
@@ -16,6 +16,9 @@ def pushToPyPiArtifactoryRepo_temp(String projectName, String version, String so
 
 // This section defines the Jenkins pipeline
 pipeline {
+
+    agent any
+
     libraries {
         lib('jenkins-pipeline-shared@feature/dap-ci-scripts')
     }
@@ -33,9 +36,6 @@ pipeline {
     options {
         skipDefaultCheckout true
     }
-
-    agent any
-
     stages {
         stage('Checkout') {
             agent { label 'download.jenkins.slave' }
@@ -63,7 +63,7 @@ pipeline {
                 unstash name: 'Checkout'
 
                 sh '''
-                PATH=$WORKSPACE/venv/bin:/usr/local/bin:$PATH
+                PATH=$WORKSPACE/venv/bin:/usr/local/bin:/root/.local/bin:$PATH
 
                 python3 -m pip install -U pip
                 pip3 install virtualenv
@@ -72,15 +72,11 @@ pipeline {
                     virtualenv venv
                 fi
                 . venv/bin/activate
+                export PIP_USER=false
 
-                python -m pip install -U pip
-                pip3 install pypandoc==1.7.5
-
-                # Remove pydoop from requirements before it's installed.
-                awk '!/pydoop.*/' requirements.txt > temp && mv temp requirements.txt
+                pip3 install pypandoc
 
                 pip3 install -r requirements.txt
-                pip3 install pyspark==2.4.0
 
                 pip3 freeze
 
@@ -105,27 +101,10 @@ pipeline {
                 sh '''
                 . venv/bin/activate
 
-                coverage run --branch --source=./${PROJECT_NAME} --omit=src/utils/hdfs_mods.py,src/utils/wrappers.py,src/utils/runlog.py,src/_version.py,src/pipeline.py \
-              -m pytest -ra ./tests --ignore=tests/test_utils/test_hdfs_mods.py
+                python3 -m pytest --junitxml "junit-report.xml" "./tests"
                 '''
-                /*
-                // Lines below create a coverage report for on Jenkins. Currently commented out
-                // as it gives errors when no imports are used in unit tests. import src.main
-                // causes pre-commit to complain. Easier to leave out for now.
-                coverage xml -o python_coverage.xml && coverage report -m --fail-under=${MIN_COVERAGE_PC}
 
-
-                cobertura autoUpdateHealth: false,
-                        autoUpdateStability: false,
-                        coberturaReportFile: 'python_coverage.xml',
-                        conditionalCoverageTargets: '70, 0, 0',
-                        failUnhealthy: false,
-                        failUnstable: false,
-                        lineCoverageTargets: '80, 0, 0',
-                        maxNumberOfBuilds: 0,
-                        methodCoverageTargets: '80, 0, 0',
-                        onlyStable: false,
-                        zoomCoverageChart: false */
+                junit testResults: 'junit-report.xml'
             }
         }
 
@@ -146,7 +125,9 @@ pipeline {
 
                 sh '''
                 . venv/bin/activate
-                pip3 install wheel==0.29.0
+                export PIP_USER=false
+                pip3 install setuptools
+                pip3 install wheel
                 python3 setup.py build bdist_wheel
                 '''
 
@@ -155,9 +136,6 @@ pipeline {
                 }
             }
         }
-
-
-
     }
 
 }

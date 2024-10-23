@@ -75,6 +75,10 @@ def all_data_construction(
 
     # Drop columns without constructed values
     construction_df = construction_df.dropna(axis="columns", how="all")
+    if "statusencoded" in construction_df.columns:
+        construction_df["statusencoded"] = (
+            construction_df["statusencoded"].astype(str).str.split(".").str[0]
+        )
 
     # Make a copy of the snapshot
     updated_snapshot_df = snapshot_df.copy()
@@ -83,6 +87,12 @@ def all_data_construction(
     updated_snapshot_df["is_constructed"] = False
     updated_snapshot_df["force_imputation"] = False
     construction_df["is_constructed"] = True
+    if "force_imputation" not in construction_df.columns:
+        construction_df["force_imputation"] = False
+    else:
+        construction_df["force_imputation"] = construction_df[
+            "force_imputation"
+        ].fillna(False)
 
     # Run GB specific actions
     if not is_northern_ireland:

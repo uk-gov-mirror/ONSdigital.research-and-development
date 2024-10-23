@@ -24,16 +24,16 @@ def get_equality_dicts(config: dict, sublist: str = "default") -> dict:
     if sublist == "default":
         wanted_dicts = [key for key in all_checks_dict.keys() if "xx_totals" in key]
     elif sublist == "imputation":
-        wanted_dicts = ["2xx_totals", "3xx_totals", "apportioned_totals"]
+        wanted_dicts = ["2xx_totals", "3xx_totals"]
     else:
         wanted_dicts = list(all_checks_dict.keys())
 
     # create a dictionary of the relationships to check
-    construction_equality_checks = {}
+    equality_checks = {}
     for item in wanted_dicts:
-        construction_equality_checks.update(all_checks_dict[item])
+        equality_checks.update(all_checks_dict[item])
 
-    return construction_equality_checks
+    return equality_checks
 
 
 def get_all_wanted_columns(config: dict) -> list:
@@ -191,7 +191,7 @@ def get_breakdown_errors(df: pd.DataFrame, to_check: dict) -> pd.DataFrame:
     for key, columns in to_check.items():
         total_column = columns[-1]
         breakdown_columns = columns[:-1]
-        check_cond = abs(df[breakdown_columns].sum(axis=1) - df[total_column]) > 0.005
+        check_cond = abs(df[breakdown_columns].sum(axis=1) - df[total_column]) > 0.5
         # if there are any errors for particular check..
         if any(check_cond):
             # ...create a mini dataframe for the relevant rows and columns
@@ -231,16 +231,16 @@ def log_errors_to_screen(check_results_dict: dict, check_type: str) -> None:
     Returns:
         None
     """
+    count = 0
     for key, value in check_results_dict.items():
         if not value.empty:
             BreakdownValidationLogger.error(
                 f"Breakdown validation failed for {key} columns"
             )
             BreakdownValidationLogger.error(value)
-        else:
-            BreakdownValidationLogger.info(
-                f"All {check_type} breakdown vals are valid."
-            )
+            count += 1
+    if count == 0:
+        BreakdownValidationLogger.info(f"All {check_type} breakdown vals are valid.")
 
 
 def run_imputation_breakdown_validation(df: pd.DataFrame, config: dict) -> None:

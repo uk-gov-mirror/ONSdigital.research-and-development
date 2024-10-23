@@ -1,17 +1,24 @@
 """Script that creates all directories"""
-# import os
+import os
 
-# from importlib import reload
+# Change to the project repository location
+my_wd = os.getcwd()
+my_repo = "research-and-development"
+if not my_wd.endswith(my_repo):
+    os.chdir(my_repo)
 
 from src.utils.helpers import tree_to_list
-import src.utils.local_file_mods as mods
-# reload(tree_to_list)
+import src.utils.s3_mods as mods
+from src.utils.singleton_boto import SingletonBoto
+
+boto3_client = SingletonBoto.get_client()
 
 
 def run_make_dirs():
-    root = "D:/data/res_dev"
+    root = "/bat/res_dev/project_data"
 
-    tree = {"2023_surveys": {
+    tree = {
+        "2021_surveys": {
             "BERD": {
                 "01_staging": {
                     "feather": {},
@@ -76,12 +83,13 @@ def run_make_dirs():
             "PNP": {
                 "01_staging": {},
             },
-        }
+        },
     }
-    dir_list = tree_to_list(tree, prefix=root)
+    dir_list = tree_to_list(tree, prefix=root, path_list=[])
     for s in dir_list:
         print(s)
         mods.rd_mkdir(s)
+    print(f"Created {len(dir_list)} directory(ies) succesfully.")
 
 
 if __name__ == "__main__":

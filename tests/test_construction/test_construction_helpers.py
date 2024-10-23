@@ -149,8 +149,8 @@ class TestPrepareShortToLong:
         expected_snapshot_output = self.create_expected_snapshot_output()
 
         # Run the function
-        snapshot_output = prepare_short_to_long(
-            input_snapshot_df, input_construction_df
+        snapshot_output, unique_references = prepare_short_to_long(
+            input_snapshot_df, input_construction_df, unique_references=[]
         )
 
         snapshot_output = snapshot_output.sort_values(

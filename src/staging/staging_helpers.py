@@ -145,7 +145,7 @@ def load_snapshot_feather(feather_file, read_feather):
 
 
 def load_val_snapshot_json(
-    frozen_snapshot_path: str, load_json: Callable, config: dict,
+    snapshot_path: str, load_json: Callable, config: dict,
 ) -> Tuple[pd.DataFrame, str]:
     """
     Loads and validates a snapshot of survey data from a JSON file.
@@ -158,7 +158,7 @@ def load_val_snapshot_json(
         responses dataframe against a combined schema.
 
     Args:
-        frozen_snapshot_path (str): The path to the JSON file containing the snapshot
+        snapshot_path (str): The path to the JSON file containing the snapshot
         data.
         load_json (function): The function to use to load the JSON file.
         config (dict): A dictionary containing configuration options.
@@ -171,7 +171,7 @@ def load_val_snapshot_json(
     StagingHelperLogger.info("Loading SPP snapshot data from json file")
 
     # Load data from JSON file
-    snapdata = load_json(frozen_snapshot_path)
+    snapdata = load_json(snapshot_path)
 
     contributors_df, responses_df = spp_parser.parse_snap_data(snapdata)
 
@@ -185,7 +185,7 @@ def load_val_snapshot_json(
     )
     val.validate_data_with_schema(responses_df, "./config/long_response.toml")
 
-    if config["global"]["platform"] == "hdfs" and config["global"]["dev_test"]:
+    if config["global"]["platform"] == "s3" and config["global"]["dev_test"]:
         responses_df["instance"] = 0
 
     # Data Transmutation
@@ -288,7 +288,7 @@ def stage_validate_harmonise_postcodes(
     postcode_mapper = config["mapping_paths"]["postcode_mapper"]
     check_file_exists(postcode_mapper, raise_error=True)
     postcode_mapper = read_csv(postcode_mapper)
-    
+
     # Validate the postcode column in the full_responses DataFrame
     full_responses, invalid_df = pcval.run_full_postcode_process(
         full_responses, postcode_mapper, config
@@ -302,14 +302,14 @@ def stage_validate_harmonise_postcodes(
     tdate = datetime.now().strftime("%y-%m-%d")
     survey_year = config["years"]["survey_year"]
     invalid_filename = (
-        f"{survey_year}_invalid_unrecognised_postcodes_{tdate}_v{run_id}.csv"
+        f"{survey_year}_invalid_postcodes_{tdate}_v{run_id}.csv"
     )
     write_csv(f"{pcodes_folder}/{invalid_filename}", invalid_df)
 
     # Log the end of postcode validation
     StagingHelperLogger.info("Finished PostCode Validation")
 
-    return full_responses, postcode_mapper,
+    return full_responses, postcode_mapper
 
 
 def filter_pnp_data(full_responses):

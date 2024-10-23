@@ -21,7 +21,6 @@ from src.estimation.estimation_main import run_estimation
 from src.site_apportionment.site_apportionment_main import run_site_apportionment
 from src.outputs.outputs_main import run_outputs
 
-
 MainLogger = logging.getLogger(__name__)
 
 
@@ -48,17 +47,19 @@ def run_pipeline(user_config_path, dev_config_path):
     platform = config["global"]["platform"]
 
     if platform == "s3":
+        # create singletion boto3 client object & pass in bucket string
+        from src.utils.singleton_boto import SingletonBoto
+
+        boto3_client = SingletonBoto.get_client(config)  # noqa
         from src.utils import s3_mods as mods
 
-        # Creating boto3 client and adding it to the config dict
-        config["client"] = mods.create_client(config)
     elif platform == "network":
         # If the platform is "network" or "hdfs", there is no need for a client.
         # Adding a client = None for consistency.
-        config["client"] = None
+        # config["client"] = None
         from src.utils import local_file_mods as mods
     elif platform == "hdfs":
-        config["client"] = None
+        # config["client"] = None
         from src.utils import hdfs_mods as mods
     else:
         MainLogger.error(f"The selected platform {platform} is wrong")
@@ -91,7 +92,6 @@ def run_pipeline(user_config_path, dev_config_path):
     MainLogger.info("Starting Staging and Validation...")
     (
         full_responses,
-        # secondary_full_responses,  # may be needed later for freezing
         manual_outliers,
         postcode_mapper,
         backdata,
@@ -111,7 +111,7 @@ def run_pipeline(user_config_path, dev_config_path):
     )
 
     # Freezing module
-    MainLogger.info("Starting Freezing...")
+    MainLogger.info("Starting Freezing module...")
     full_responses = run_freezing(
         full_responses,
         config,
@@ -120,7 +120,15 @@ def run_pipeline(user_config_path, dev_config_path):
         mods.rd_file_exists,
         run_id,
     )
-    MainLogger.info("Finished Freezing...")
+    MainLogger.info("Finished Freezing module...")
+
+    if config["global"]["load_updated_snapshot_for_comparison"]:
+        MainLogger.info("Finishing Pipeline .......................")
+
+        runlog_obj.write_runlog()
+        runlog_obj.mark_mainlog_passed()
+
+        return runlog_obj.time_taken
 
     MainLogger.info("Finished Data Ingest.")
 
@@ -194,7 +202,7 @@ def run_pipeline(user_config_path, dev_config_path):
         postcode_mapper,
         itl_mapper,
         config,
-     )
+    )
 
     # Outlier detection module
     MainLogger.info("Starting Outlier Detection...")
@@ -205,35 +213,25 @@ def run_pipeline(user_config_path, dev_config_path):
 
     # Estimation module
     MainLogger.info("Starting Estimation...")
-    estimated_responses_df, weighted_responses_df = run_estimation(
+    estimated_responses_df = run_estimation(
         outliered_responses_df, config, mods.rd_write_csv, run_id
     )
     MainLogger.info("Finished Estimation module.")
 
     # Data processing: Apportionment to sites
-    estimated_responses_df = run_site_apportionment(
-        estimated_responses_df,
-        config,
-        mods.rd_write_csv,
-        run_id,
-        "estimated",
+    apportioned_responses_df, intram_tot_dict = run_site_apportionment(
+        estimated_responses_df, config, mods.rd_write_csv, run_id
     )
-    weighted_responses_df = run_site_apportionment(
-        weighted_responses_df,
-        config,
-        mods.rd_write_csv,
-        run_id,
-        "weighted",
-    )
+
     MainLogger.info("Finished Site Apportionment module.")
 
     MainLogger.info("Starting Outputs...")
 
     run_outputs(
-        estimated_responses_df,
-        weighted_responses_df,
+        apportioned_responses_df,
         ni_full_responses,
         config,
+        intram_tot_dict,
         mods.rd_write_csv,
         run_id,
         pg_detailed,
