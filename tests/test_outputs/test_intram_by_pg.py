@@ -97,7 +97,7 @@ class TestIngramBYPg(object):
             "Notes"]
         gb_expcted_data = [
             ["Total", 31826985.8222, "Total q211 across all PG"],
-            ["Food products and beverages; Tobacco products", 282622.6444, 
+            ["Food products and beverages; Tobacco products", 282622.6444,
              "Total q211 for PG C"],
             ["Textiles, clothing and leather products", 79911.0, "Total q211 for PG D"],
             ["Pulp, paper and paper products; Printing; Wood and straw products", 0.0,
@@ -138,10 +138,16 @@ class TestIngramBYPg(object):
                                       columns=uk_expected_columns)
 
         # Act
-        gb_result = generate_intarm_by_pg(gb_input_data_df, ni_input_data_df,
-                                          pg_detailed_mapper, uk_output=False)
-        uk_result = generate_intarm_by_pg(gb_input_data_df, ni_input_data_df,
-                                          pg_detailed_mapper, uk_output=True)
+        gb_result = generate_intarm_by_pg(gb_input_data_df,
+                                          ni_input_data_df,
+                                          pg_detailed_mapper,
+                                          uk_output=False,
+                                          config=config)
+        uk_result = generate_intarm_by_pg(gb_input_data_df,
+                                          ni_input_data_df,
+                                          pg_detailed_mapper,
+                                          uk_output=True,
+                                          config=config)
 
         # Assert
         assert_frame_equal(gb_result[0], gb_expected_df)
