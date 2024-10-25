@@ -32,8 +32,8 @@ def output_intram_by_pg(
     Returns:
         intram_tot_dict (dict): Dictionary with the intramural totals.
     """
-    df_merge, value_tot = generate_intarm_by_pg(gb_df, ni_df, pg_detailed, uk_output)
-    save_output_intram_as_csv(df_merge, config, write_csv, run_id, uk_output)
+    df_merge, value_tot = generate_intarm_by_pg(gb_df, ni_df, pg_detailed, uk_output, config)
+    save_output_intram_as_csv(df_merge, config, write_csv, run_id, uk_output, config)
 
     # calculate the intram total for QA across different outputs
     intram_tot_dict[f"intram_by_pg_{'uk' if uk_output else 'gb'}"] = round(value_tot, 0)
@@ -45,7 +45,8 @@ def generate_intarm_by_pg(
         gb_df,
         ni_df,
         pg_detailed,
-        uk_output):
+        uk_output,
+        config):
     # assign columns for easier use
     key_col = "201"
     value_col = "211"
@@ -55,7 +56,6 @@ def generate_intarm_by_pg(
         gb_df = gb_df[cols_to_keep]
         ni_df = ni_df[cols_to_keep]
         # append the NI data to the GB data
-        # gb_df = gb_df.append(ni_df)
         gb_df = pd.concat([gb_df, ni_df], ignore_index=True)
 
     # Group by PG and aggregate intram
@@ -77,7 +77,8 @@ def generate_intarm_by_pg(
     # Select and rename the correct columns
     detail = "Detailed product groups (Alphabetical product groups A-AH)"
     notes = "Notes"
-    value_title = "2023 (Current period)"
+    survey_year = config["years"]["survey_year"]
+    value_title = f"{survey_year} (Current period)"
     df_merge = df_merge[[detail, value_col, notes]].rename(columns={
         value_col: value_title})
     return df_merge, value_tot
