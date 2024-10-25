@@ -55,7 +55,8 @@ def generate_intarm_by_pg(
         gb_df = gb_df[cols_to_keep]
         ni_df = ni_df[cols_to_keep]
         # append the NI data to the GB data
-        gb_df = gb_df.append(ni_df)
+        # gb_df = gb_df.append(ni_df)
+        gb_df = pd.concat([gb_df, ni_df], ignore_index=True)
 
     # Group by PG and aggregate intram
     df_agg = gb_df.groupby([key_col]).agg({value_col: "sum"}).reset_index()
