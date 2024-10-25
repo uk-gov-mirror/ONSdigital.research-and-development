@@ -1,5 +1,7 @@
 """Tests for intram_by_pg.py."""
 # Standard Library Imports
+
+from pandas.testing import assert_frame_equal 
 import pytest
 import os
 import logging
@@ -10,6 +12,7 @@ import pandas as pd
 
 # Local Imports
 from src.outputs.intram_by_pg import output_intram_by_pg
+from src.outputs.intram_by_pg import generate_intarm_by_pg
 from tests.test_outputs.conftest import read_config
 
 
@@ -21,24 +24,18 @@ LOCATION = config["global"]["platform"]
 TestLogger = logging.getLogger(__name__)
 
 
-class TestOutputIntramByPG(object):
-    """Tests for output_intram_by_pg."""
+class TestIngramBYPg(object):
 
-    def setup_tmp_dir(self, path: pathlib.Path, ni: bool = True) -> pathlib.Path:
-        """Set up the output directory given a temp path."""
-        # create output dirs
-        output_parent = os.path.join(path, "10_outputs")
-        output_child = os.path.join(
-            output_parent, f"output_intram_by_pg_{'gb' if not ni else 'uk'}"
-        )
-        os.makedirs(output_child)
-        return pathlib.Path(output_child)
+    # @pytest.mark.parametrize(
+    #    "ni, exp_out", ([False, exp_out_gb()], [True, exp_out_uk()]))
+    def test_output_intram_by_pg(self):
+        """Tests for output_intram_by_pg."""
+        # Arrange
 
-    @pytest.fixture(scope="function")
-    def input_data_gb(self) -> pd.DataFrame:
+        # Input dataframes
         """Fixture for gb input data for tests."""
-        columns = ["reference", "instance", "201", "211"]
-        data = [
+        gb_columns = ["reference", "instance", "201", "211"]
+        gb_data = [
             [1, 1, "AA", 4628363.6364],
             [1, 2, "AA", 0.0],
             [2, 1, "AA", 0.0],
@@ -48,16 +45,12 @@ class TestOutputIntramByPG(object):
             [6, 1, "AH", 26254673.0],
             [7, 1, "AD", 2196.1027],
             [8, 1, "C", 282622.6444],
-            [9, 1, "Z", 90163.1053],
-        ]
-        input_df = pd.DataFrame(data=data, columns=columns)
-        return input_df
+            [9, 1, "Z", 90163.1053]]
+        gb_input_data_df = pd.DataFrame(data=gb_data, columns=gb_columns)
 
-    @pytest.fixture(scope="function")
-    def input_data_ni(self) -> pd.DataFrame:
         """Fixture for NI input data for tests."""
-        columns = ["reference", "instance", "201", "211"]
-        data = [
+        ni_columns = ["reference", "instance", "201", "211"]
+        ni_data = [
             [1, 1, "C", 27.0],
             [1, 2, "G", 102.0],
             [2, 1, "AA", 250.0],
@@ -67,90 +60,95 @@ class TestOutputIntramByPG(object):
             [6, 1, "E", 41.0],
             [7, 1, "AA", 0.0],
             [8, 1, "AD", 143.0],
-            [9, 1, "J", 138.0],
-        ]
-        input_df = pd.DataFrame(data=data, columns=columns)
-        return input_df
+            [9, 1, "J", 138.0]]
+        ni_input_data_df = pd.DataFrame(data=ni_data, columns=ni_columns)
 
-    @pytest.fixture(scope="session")
-    def pg_detailed_df(self) -> pd.DataFrame:
         """pg_detailed mapper, including a subset of PGs"""
-        columns = [
+        mapper_columns = [
             "ranking",
             "pg_alpha",
             "Detailed product groups (Alphabetical product groups A-AH)",
-            "Notes",
-        ]
-        data = [
+            "Notes"]
+        mapper_data = [
             [1, "total", "Total", "Total q211 across all PG"],
-            [4, "C", "Food products and beverages; Tobacco products", "Total q211 for PG C"],
+            [4, "C", "Food products and beverages; Tobacco products",
+                "Total q211 for PG C"],
             [5, "D", "Textiles, clothing and leather products", "Total q211 for PG D"],
-            [6, "E", "Pulp, paper and paper products; Printing; Wood and straw products", "Total q211 for PG E"],
+            [6, "E",
+                "Pulp, paper and paper products; Printing; Wood and straw products",
+                "Total q211 for PG E"],
             [8, "G", "Chemicals and chemical products", "Total q211 for PG G"],
             [10, "I", "Rubber and plastic products", "Total q211 for PG I"],
             [11, "J", "Other non-metallic mineral products", "Total q211 for PG J"],
             [27, "Z", "Construction", "Total q211 for PG Z"],
             [28, "AA", "Wholesale and retail trade", "Total q211 for PG AA"],
-            [31, "AD", "Miscellaneous business activities; Technical testing and analysis", "Total q211 for PG AD"],
-            [35, "AH", "Software Development", "Total q211 for PG AH"]
-        ]
-        mapper = pd.DataFrame(data=data, columns=columns)
-        return mapper
+            [31, "AD",
+                "Miscellaneous business activities; Technical testing and analysis",
+                "Total q211 for PG AD"],
+            [35, "AH", "Software Development", "Total q211 for PG AH"]]
+        pg_detailed_mapper = pd.DataFrame(data=mapper_data, columns=mapper_columns)
 
-    def exp_out_gb():
+        # Expected output dataframes
+
         """The expected output of output_intram_by_pg (no NI data)."""
-        columns = [
+        gb_expcted_columns = [
             "Detailed product groups (Alphabetical product groups A-AH)",
             "2023 (Current period)",
-            "Notes",
-        ]
-        data = [
-            ["Total", 31826985.822200004, "Total q211 across all PG"],
-            ["Food products and beverages; Tobacco products", 282622.6444, "Total q211 for PG C"],
+            "Notes"]
+        gb_expcted_data = [
+            ["Total", 31826985.8222, "Total q211 across all PG"],
+            ["Food products and beverages; Tobacco products", 282622.6444, 
+             "Total q211 for PG C"],
             ["Textiles, clothing and leather products", 79911.0, "Total q211 for PG D"],
+            ["Pulp, paper and paper products; Printing; Wood and straw products", 0.0,
+             "Total q211 for PG E"],
+            ["Chemicals and chemical products", 0.0, "Total q211 for PG G"],
             ["Rubber and plastic products", 489056.3334, "Total q211 for PG I"],
+            ["Other non-metallic mineral products", 0.0, "Total q211 for PG J"],
             ["Construction", 90163.1053, "Total q211 for PG Z"],
             ["Wholesale and retail trade", 4628363.6364, "Total q211 for PG AA"],
-            ["Miscellaneous business activities; Technical testing and analysis", 2196.1027, "Total q211 for PG AD"],
-            ["Software Development", 26254673.0, "Total q211 for PG AH"]
-        ]
-        return pd.DataFrame(data=data, columns=columns)
+            ["Miscellaneous business activities; Technical testing and analysis",
+                2196.1027, "Total q211 for PG AD"],
+            ["Software Development", 26254673.0, "Total q211 for PG AH"]]
+        gb_expected_df = pd.DataFrame(data=gb_expcted_data,
+                                      columns=gb_expcted_columns)
 
-    def exp_out_uk():
         """The expected output of output_intram_by_pg (with NI data)."""
-        columns = [
+        uk_expected_columns = [
             "Detailed product groups (Alphabetical product groups A-AH)",
             "2023 (Current period)",
-            "Notes",
-        ]
-        data = [
+            "Notes"]
+        uk_expected_data = [
             ["Total", 31828339.822200004, "Total q211 across all PG"],
-            ["Food products and beverages; Tobacco products", 282649.6444, "Total q211 for PG C"],
+            ["Food products and beverages; Tobacco products", 282649.6444,
+             "Total q211 for PG C"],
             ["Textiles, clothing and leather products", 79929.0, "Total q211 for PG D"],
-            ["Pulp, paper and paper products; Printing; Wood and straw products", 41.0, "Total q211 for PG E"],
+            ["Pulp, paper and paper products; Printing; Wood and straw products", 41.0,
+             "Total q211 for PG E"],
             ["Chemicals and chemical products", 102.0, "Total q211 for PG G"],
             ["Rubber and plastic products", 489684.3334, "Total q211 for PG I"],
             ["Other non-metallic mineral products", 138.0, "Total q211 for PG J"],
             ["Construction", 90163.1053, "Total q211 for PG Z"],
             ["Wholesale and retail trade", 4628620.6364, "Total q211 for PG AA"],
-            ["Miscellaneous business activities; Technical testing and analysis", 2339.1027, "Total q211 for PG AD"],
-            ["Software Development", 26254673.0, "Total q211 for PG AH"]
-        ]
-        return pd.DataFrame(data=data, columns=columns)
+            ["Miscellaneous business activities; Technical testing and analysis",
+             2339.1027, "Total q211 for PG AD"],
+            ["Software Development", 26254673.0, "Total q211 for PG AH"]]
 
-    @pytest.mark.parametrize(
-        "ni, exp_out", ([False, exp_out_gb()], [True, exp_out_uk()])
-    )
-    def test_output_intram_by_pg(
-        self,
-        ni,
-        exp_out,
-        tmp_path,
-        input_data_gb,
-        input_data_ni,
-        pg_detailed_df,
-        write_csv_func,
-    ):
+        uk_expected_df = pd.DataFrame(data=uk_expected_data,
+                                      columns=uk_expected_columns)
+
+        # Act
+        gb_result = generate_intarm_by_pg(gb_input_data_df, ni_input_data_df,
+                                          pg_detailed_mapper, uk_output=False)
+        uk_result = generate_intarm_by_pg(gb_input_data_df, ni_input_data_df,
+                                          pg_detailed_mapper, uk_output=True)
+
+        # Assert
+        assert_frame_equal(gb_result[0], gb_expected_df)
+        assert_frame_equal(uk_result[0], uk_expected_df)
+
+        '''
+
         """Tests for output_intram_by_pg."""
         pth = self.setup_tmp_dir(pathlib.Path(tmp_path), ni)
         # alter path so that tests pass
@@ -176,3 +174,4 @@ class TestOutputIntramByPG(object):
         output = output[output["2023 (Current period)"] > 0].reset_index(drop=True)
         # assert output is correct
         assert output.equals(exp_out), "Output not as expected."
+        '''
