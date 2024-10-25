@@ -78,7 +78,7 @@ def generate_intarm_by_pg(
     detail = "Detailed product groups (Alphabetical product groups A-AH)"
     notes = "Notes"
     survey_year = config["years"]["survey_year"]
-    value_title = f"{survey_year} (Current period)"
+    value_title = f"{survey_year}"
     df_merge = df_merge[[detail, value_col, notes]].rename(columns={
         value_col: value_title})
     return df_merge, value_tot
