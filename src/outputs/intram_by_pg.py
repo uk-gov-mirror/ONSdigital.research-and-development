@@ -8,15 +8,14 @@ OutputMainLogger = logging.getLogger(__name__)
 
 
 def output_intram_by_pg(
-    gb_df: pd.DataFrame,
-    ni_df: pd.DataFrame,
-    pg_detailed: pd.DataFrame,
-    config: Dict[str, Any],
-    intram_tot_dict: Dict[str, int],
-    write_csv: Callable,
-    run_id: int,
-    uk_output: bool = False,
-) -> Dict[str, int]:
+        gb_df: pd.DataFrame,
+        ni_df: pd.DataFrame,
+        pg_detailed: pd.DataFrame,
+        config: Dict[str, Any],
+        intram_tot_dict: Dict[str, int],
+        write_csv: Callable,
+        run_id: int,
+        uk_output: bool = False) -> Dict[str, int]:
     """Run the outputs module.
 
     Args:
@@ -33,6 +32,20 @@ def output_intram_by_pg(
     Returns:
         intram_tot_dict (dict): Dictionary with the intramural totals.
     """
+    df_merge, value_tot = generate_intarm_by_pg(gb_df, ni_df, pg_detailed, uk_output)
+    save_output_intram_as_csv(df_merge, config, write_csv, run_id, uk_output)
+
+    # calculate the intram total for QA across different outputs
+    intram_tot_dict[f"intram_by_pg_{'uk' if uk_output else 'gb'}"] = round(value_tot, 0)
+
+    return intram_tot_dict
+
+
+def generate_intarm_by_pg(
+        gb_df,
+        ni_df,
+        pg_detailed,
+        uk_output):
     # assign columns for easier use
     key_col = "201"
     value_col = "211"
@@ -54,8 +67,7 @@ def output_intram_by_pg(
 
     # Merge with labels and ranks
     df_merge = pg_detailed.merge(
-        df_agg, how="left", left_on="pg_alpha", right_on=key_col
-    )
+        df_agg, how="left", left_on="pg_alpha", right_on=key_col)
     df_merge[value_col] = df_merge[value_col].fillna(0)
 
     # Sort by rank
@@ -65,18 +77,12 @@ def output_intram_by_pg(
     detail = "Detailed product groups (Alphabetical product groups A-AH)"
     notes = "Notes"
     value_title = "2023 (Current period)"
-    df_merge = df_merge[[detail, value_col, notes]].rename(
-        columns={value_col: value_title}
-    )
+    df_merge = df_merge[[detail, value_col, notes]].rename(columns={
+        value_col: value_title})
+    return df_merge, value_tot
 
-    # calculate the intram total for QA across different outputs
-    intram_tot_dict[f"intram_by_pg_{'uk' if uk_output else 'gb'}"] = round(value_tot, 0)
 
-    save_file_as_csv(df_merge, config, write_csv, run_id, uk_output)
-
-    return intram_tot_dict
-
-def save_file_as_csv(
+def save_output_intram_as_csv(
         df_merge,
         config,
         write_csv,
@@ -89,9 +95,7 @@ def save_file_as_csv(
     survey_year = config["years"]["survey_year"]
     filename = (
         f"{survey_year}_output_intram_by_pg_{'uk' if uk_output else 'gb'}"
-        f"_{tdate}_v{run_id}.csv"
-    )
+        f"_{tdate}_v{run_id}.csv")
     write_csv(
         f"{output_path}/output_intram_by_pg_{'uk' if uk_output else 'gb'}/{filename}",
-        df_merge,
-    )
+        df_merge)
