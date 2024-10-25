@@ -41,11 +41,21 @@ long_code: str = "0001"
 
 def set_percentages(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Set percentage column to 100 for short forms and single site long forms.
+    Set percentage column for short forms and single site long forms.
+
+    The percentage column for short forms is set to 100.
 
     The condtitions for the long forms needing 100 in the percentage column are:
     - long forms, exactly 1 site, instance >=1 and notnull postcode
-    - long forms with status "Form sent out" that have not been through MoR
+    - long forms with status "Form sent out" imputed by TMI
+
+    There is another special case for long forms with status "Form sent out" which were
+    short forms in the previous period, and have been imputed with MoR or CF.
+    The postcode column was null, so must be filled from the harmonised postcodes column
+    and the count set to 1. However, the short forms in the previous period would have
+    had two instances, one for Civil and one for Defence. These will both have been
+    carried forward to the current imputation, and so need to be set with a percentage
+    of 50 in each case.
 
     Args:
         df (pd.DataFrame): The input DataFrame.
@@ -56,6 +66,8 @@ def set_percentages(df: pd.DataFrame) -> pd.DataFrame:
     Raises:
         ValueError: If the percent column for short forms is not blank.
     """
+    # Condition for short forms
+    df.loc[(df[form_col] == short_code), percent_col] = 100
     # Condition for long forms with status "Form sent out"
     # Note: those imputed by MoR might have had the postcode column imputed, so we check
     # for null in the postcode count column
@@ -78,6 +90,7 @@ def set_percentages(df: pd.DataFrame) -> pd.DataFrame:
         & (df[instance_col] >= 1)
         & create_notnull_mask(df, postcode_col)
     )
+
     df.loc[single_cond, percent_col] = 100
 
     return df
@@ -109,13 +122,11 @@ def split_sites_df(
     df: pd.DataFrame, imp_markers_to_keep: List[str]
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Split dataframe into two based on whether there are sites or not.
+    Split dataframe into two based on whether there are multiple sites or not.
 
-    This will be the basis on whether or not records are included in site apportionment.
-
-    All long form records that include postcodes in the postcode_col are used for site
-    apportionment, and all orther records, including short forms, are included in a
-    second dataframe.
+    All long form records that include more than one postcode in the postcode_col are
+    used for site apportionment, and all orther records, including short forms, are
+    split off in a second dataframe.
 
     Args:
         df (pd.DataFrame): The input DataFrame.
@@ -126,11 +137,12 @@ def split_sites_df(
             and a second containing all other records.
     """
 
-    # Condition for records to apportion: long forms, at least one site, instance >=1
+    # Condition for records to apportion: long forms, more than one site, instance >=1
     to_apportion_cond = (
         (df[form_col] == long_code)
-        & (df[postcode_col + "_count"] >= 1)
+        & (df[postcode_col + "_count"] > 1)
         & (df[instance_col] >= 1)
+        & (df[percent_col] < 100)
     )
 
     # Dataframe to_apportion_df with many products - for apportionment
