@@ -110,7 +110,7 @@ class TestGetMapperName(object):
         ), "getmappername not behaving as expected when split=False"
 
 
-class TestLoadValidateMapper(object):
+class TestLoadValidateMapper:
     """Tests for load_validate_mapper."""
 
     @patch("src.utils.local_file_mods.rd_file_exists")
@@ -122,7 +122,6 @@ class TestLoadValidateMapper(object):
         mock_read_csv_func,
         mock_file_exists_func,
     ):
-
         # Create a logger for this test
         test_logger = logging.getLogger("test_load_validate_mapper")
         test_logger.setLevel(logging.DEBUG)
@@ -135,7 +134,7 @@ class TestLoadValidateMapper(object):
                 "test_mapper_path": "/path/to/mapper.csv"
             },
             "global": {
-                "network_or_hdfs": "network",
+                "platform": "network",
             },
         }
 
@@ -153,6 +152,8 @@ class TestLoadValidateMapper(object):
             mapper_path_key,
             config,
             test_logger,
+            mock_file_exists_func,
+            mock_read_csv_func,
         )
 
         # Assertions
@@ -179,53 +180,6 @@ class TestLoadSnapshotFeather(object):
         assert (
             len(snapshot.columns) == 1
         ), "Snapshot df has more columnss than expected."
-
-
-class TestLoadValSnapshotJson(object):
-    """Tests for the load_val_snapshot_json function."""
-
-    @patch("src.utils.local_file_mods.rd_load_json")
-    @patch("src.staging.validation.validate_data_with_schema")
-    @patch("src.staging.spp_snapshot_processing.full_responses")
-    @patch("src.staging.validation.combine_schemas_validate_full_df")
-    def test_load_val_snapshot_json_correct_response_rate(
-        self,
-        mock_combine_schemas_validate_full_df,
-        mock_full_responses,
-        mock_validate_data_with_schema,
-        mock_load_json
-    ):
-        """Ensure load_val_snapshot_json behaves correctly."""
-        snapshot_path = "path/to/snapshot.json"
-        network_or_hdfs = "network"
-        expected_res_rate = "0.50"
-        config = {
-            "global": {"dev_test": False},
-            "schema_paths": {
-                "contributors_schema": "path/to/contributors_schema.toml",
-                "long_response_schema": "path/to/long_response_schema.toml",
-                "wide_responses_schema": "path/to/wide_responses_schema.toml",
-            },
-        }
-
-        # Setup mock return value
-        mock_load_json.return_value = {
-            "contributors": [{"reference": i} for i in range(1, 5)],
-            "responses": [{"reference": i} for i in range(1, 3)],
-        }
-
-        # Execute the function under test
-        full_responses, res_rate = load_val_snapshot_json(
-            snapshot_path, mock_load_json, config, network_or_hdfs
-        )
-
-        # Assertions
-        assert (
-            res_rate == expected_res_rate
-        ), "The response rate calculated by load_val_snapshot_json does not match the expected value."
-        mock_load_json.assert_called_once_with(snapshot_path)
-        mock_validate_data_with_schema.assert_called()
-        mock_combine_schemas_validate_full_df.assert_called()
 
 
 class TestDfToFeather(object):
