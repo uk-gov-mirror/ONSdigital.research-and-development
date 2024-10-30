@@ -32,8 +32,17 @@ def output_intram_by_pg(
     Returns:
         intram_tot_dict (dict): Dictionary with the intramural totals.
     """
-    df_merge, value_tot = generate_intarm_by_pg(gb_df, ni_df, pg_detailed, uk_output, config)
-    save_output_intram_as_csv(df_merge, config, write_csv, run_id, uk_output, config)
+    df_merge, value_tot = _generate_intarm_by_pg(gb_df, ni_df,
+                                                 pg_detailed,
+                                                 uk_output,
+                                                 config)
+    _save_output_intram_as_csv(
+        df_merge, 
+        config,
+        write_csv,
+        run_id,
+        uk_output,
+        config)
 
     # calculate the intram total for QA across different outputs
     intram_tot_dict[f"intram_by_pg_{'uk' if uk_output else 'gb'}"] = round(value_tot, 0)
@@ -41,7 +50,7 @@ def output_intram_by_pg(
     return intram_tot_dict
 
 
-def generate_intarm_by_pg(
+def _generate_intarm_by_pg(
         gb_df,
         ni_df,
         pg_detailed,
@@ -84,7 +93,7 @@ def generate_intarm_by_pg(
     return df_merge, value_tot
 
 
-def save_output_intram_as_csv(
+def _save_output_intram_as_csv(
         df_merge,
         config,
         write_csv,
