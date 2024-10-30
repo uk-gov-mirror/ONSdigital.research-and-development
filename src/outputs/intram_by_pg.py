@@ -36,13 +36,11 @@ def output_intram_by_pg(
                                                  pg_detailed,
                                                  uk_output,
                                                  config)
-    _save_output_intram_as_csv(
-        df_merge, 
-        config,
-        write_csv,
-        run_id,
-        uk_output,
-        config)
+    _save_output_intram_as_csv(df_merge,
+                               write_csv,
+                               run_id,
+                               uk_output,
+                               config)
 
     # calculate the intram total for QA across different outputs
     intram_tot_dict[f"intram_by_pg_{'uk' if uk_output else 'gb'}"] = round(value_tot, 0)
