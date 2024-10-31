@@ -37,10 +37,10 @@ def output_intram_by_pg(
                                                  uk_output,
                                                  config)
     _save_output_intram_as_csv(df_merge,
+                               config,
                                write_csv,
                                run_id,
-                               uk_output,
-                               config)
+                               uk_output)
 
     # calculate the intram total for QA across different outputs
     intram_tot_dict[f"intram_by_pg_{'uk' if uk_output else 'gb'}"] = round(value_tot, 0)
@@ -92,11 +92,11 @@ def _generate_intarm_by_pg(
 
 
 def _save_output_intram_as_csv(
-        df_merge,
-        config,
-        write_csv,
-        run_id,
-        uk_output):
+        df_merge: pd.DataFrame,
+        config: Dict[str, Any],
+        write_csv: Callable,
+        run_id: int,
+        uk_output: bool = False):
     # Outputting the CSV file with timestamp and run_id
     output_path = config["outputs_paths"]["outputs_master"]
 

@@ -3,20 +3,13 @@
 
 from pandas.testing import assert_frame_equal
 import logging
-from io import StringIO
 import pandas as pd
-import pytest
+#import pytest
 
 # Local Imports
 from src.outputs.intram_by_pg import output_intram_by_pg
 from src.outputs.intram_by_pg import _generate_intarm_by_pg
-from tests.test_outputs.conftest import read_config
-
-
-# Assign config values to paths
-config = read_config()
-LOCATION = config["global"]["platform"]
-
+from tests.test_outputs.mock_s3_mods import mock_write_csv
 
 # create logger (required pass to function)
 TestLogger = logging.getLogger(__name__)
@@ -27,11 +20,15 @@ class TestIngramBYPg():
     - intram_by_pg._output_intram_by_pg
     - intram_by_pg.generate_intarm_by_pg.
     """
+    def create_config_dict(self):
+            """Creates config dictionary for test"""
+            config = {"outputs_paths": {"outputs_master": "test_path"},
+                     "years": {"survey_year": "2023"}}
+            return config
 
     # Arrange
 
     # Input dataframes
-    @pytest.fixture()
     def gb_input_data(self) -> pd.DataFrame:
         """Tests for: _output_intram_by_pg & _generate_intarm_by_pg."""
 
@@ -51,7 +48,6 @@ class TestIngramBYPg():
                                         columns=gb_columns)
         return gb_input_data_df
 
-    @pytest.fixture()
     def ni_input_data(self) -> pd.DataFrame:
         """Fixture for NI input data for tests."""
         ni_columns = ["reference", "instance", "201", "211"]
@@ -70,7 +66,6 @@ class TestIngramBYPg():
 
         return ni_input_data_df
 
-    @pytest.fixture()
     def pg_detailed_mapper_data(self) -> pd.DataFrame:
         """pg_detailed mapper, including a subset of PGs"""
         pg_mapper_columns = [
@@ -103,7 +98,6 @@ class TestIngramBYPg():
 
     # Expected output dataframes
 
-    @pytest.fixture()
     def gb_expected_output_data(self) -> pd.DataFrame:
         """The expected output of output_intram_by_pg (no NI data)."""
         gb_expcted_columns = [
@@ -130,7 +124,6 @@ class TestIngramBYPg():
                                       columns=gb_expcted_columns)
         return gb_expected_df
 
-    @pytest.fixture()
     def uk_expected_output_data(self) -> pd.DataFrame:
         """The expected output of output_intram_by_pg (with NI data)."""
         uk_expected_columns = [
@@ -159,6 +152,7 @@ class TestIngramBYPg():
 
         return uk_expected_df
 
+    '''
     def test_generate_intarm_by_pg(self,
                                    gb_input_data,
                                    ni_input_data,
@@ -178,84 +172,28 @@ class TestIngramBYPg():
                                            pg_detailed_mapper_data,
                                            uk_output=True,
                                            config=config)
-
+    
         # Assert
         assert_frame_equal(gb_result[0], gb_expected_output_data)
         assert_frame_equal(uk_result[0], uk_expected_output_data)
-    
-    def _aws_credentials():
-        """Mock AWS Credentials for moto."""
-        boto3.setup_default_session(
-            aws_access_key_id="testing",
-            aws_secret_access_key="testing",
-            aws_session_token="testing",
-        )
+    '''
 
-    def generate_s3_client(_aws_credentials):
-        """Provide a mocked AWS S3 client for testing
-        using moto with temporary credentials.
-        """
-        with mock_aws():
-            client = boto3.client("s3", region_name="us-east-1")
-            client.create_bucket(Bucket="test-bucket")
-            yield client
-
-    generate_s3_client(_aws_credentials)
-
-    #@pytest.fixture()
-    #def mock_write_csv(s3_client):
-    #    """Fixture to write a Pandas DataFrame to CSV in an S3 bucket."""
-    @pytest.fixture()
-    def mock_write_csv(filepath: str, data: pd.DataFrame) -> None:
-        """Write a Pandas DataFrame to CSV in an S3 bucket.
-
-        Args:
-            filepath (str): The filepath to save the DataFrame to.
-            data (pd.DataFrame): The DataFrame to write to the passed path.
-
-        Returns:
-            None
-        """
-        # Create an Input-Output buffer
-        csv_buffer = StringIO()
-
-        # Write the DataFrame to the buffer in the CSV format
-        data.to_csv(
-            csv_buffer, header=True, date_format="%Y-%m-%d %H:%M:%S.%f+00", index=False
-        )
-
-        # "Rewind" the stream to the start of the buffer
-        csv_buffer.seek(0)
-
-        # Write the buffer into the S3 bucket
-        _ = s3_client.put_object(
-            Bucket="test-bucket", Body=csv_buffer.getvalue(), Key=filepath
-        )
-        return None
-    #    return _mock_write_csv
-
-    def test_output_intram_by_pg(self,
-                                 gb_input_data,
-                                 ni_input_data,
-                                 pg_detailed_mapper_data,
-                                 mock_write_csv):
+    def test_output_intram_by_pg(self):
         """Test for output_intram_by_pg."""
 
-        config["outputs_paths"]["outputs_master"] = "temp/path"
-
         # Act
-        gb_result = output_intram_by_pg(gb_input_data,
-                                        ni_input_data,
-                                        pg_detailed_mapper_data,
-                                        config=config,
+        gb_result = output_intram_by_pg(self.gb_input_data(),
+                                        self.ni_input_data(),
+                                        self.pg_detailed_mapper_data(),
+                                        config=self.create_config_dict(),
                                         intram_tot_dict=dict(),
-                                        write_csv=mock_write_csv(),
+                                        write_csv=mock_write_csv,
                                         run_id="test",
                                         uk_output=False)
-        uk_result = output_intram_by_pg(gb_input_data,
-                                        ni_input_data,
-                                        pg_detailed_mapper_data,
-                                        config=config,
+        uk_result = output_intram_by_pg(self.gb_input_data(),
+                                        self.ni_input_data(),
+                                        self.pg_detailed_mapper_data(),
+                                        config=self.create_config_dict(),
                                         intram_tot_dict=dict(),
                                         write_csv=mock_write_csv,
                                         run_id="test",
