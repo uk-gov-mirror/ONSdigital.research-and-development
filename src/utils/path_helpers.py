@@ -95,8 +95,9 @@ def create_staging_config(config: dict) -> dict:
     staging_dict[
         "pnp_staging_qa_path"
     ] = f"{paths['pnp_path']}{config['pnp_paths']['staging_qa_path']}"
-    staging_dict["manual_outliers_path"] = f"{paths['manual_outliers_path']}"
-    staging_dict["manual_imp_trim_path"] = f"{paths['manual_imp_trim_path']}"
+
+    staging_dict["manual_outliers_path"] = f"{berd_path}{paths['manual_outliers_path']}"
+    staging_dict["manual_imp_trim_path"] = f"{berd_path}{paths['manual_imp_trim_path']}"
 
     return staging_dict
 
