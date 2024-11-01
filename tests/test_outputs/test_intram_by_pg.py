@@ -46,15 +46,15 @@ class TestIngramBYPg(unittest.TestCase):
         """Fixture for gb input data for tests."""
         gb_columns = ["reference", "instance", "201", "211"]
         gb_data = [[1, 1, "AA", 4628363.6364],
-                    [1, 2, "AA", 0.0],
-                    [2, 1, "AA", 0.0],
-                    [3, 1, "I", 244533.1667],
-                    [4, 1, "I", 244523.1667],
-                    [5, 1, "D", 79911.0],
-                    [6, 1, "AH", 26254673.0],
-                    [7, 1, "AD", 2196.1027],
-                    [8, 1, "C", 282622.6444],
-                    [9, 1, "Z", 90163.1053]]
+                   [1, 2, "AA", 0.0],
+                   [2, 1, "AA", 0.0],
+                   [3, 1, "I", 244533.1667],
+                   [4, 1, "I", 244523.1667],
+                   [5, 1, "D", 79911.0],
+                   [6, 1, "AH", 26254673.0],
+                   [7, 1, "AD", 2196.1027],
+                   [8, 1, "C", 282622.6444],
+                   [9, 1, "Z", 90163.1053]]
         gb_input_data_df = pd.DataFrame(data=gb_data,
                                         columns=gb_columns)
         return gb_input_data_df
@@ -87,20 +87,20 @@ class TestIngramBYPg(unittest.TestCase):
         pg_mapper_data = [
             [1, "total", "Total", "Total q211 across all PG"],
             [4, "C", "Food products and beverages; Tobacco products",
-                "Total q211 for PG C"],
+             "Total q211 for PG C"],
             [5, "D", "Textiles, clothing and leather products",
-                "Total q211 for PG D"],
+             "Total q211 for PG D"],
             [6, "E",
-                "Pulp, paper and paper products; Printing; Wood and straw products",
-                "Total q211 for PG E"],
+             "Pulp, paper and paper products; Printing; Wood and straw products",
+             "Total q211 for PG E"],
             [8, "G", "Chemicals and chemical products", "Total q211 for PG G"],
             [10, "I", "Rubber and plastic products", "Total q211 for PG I"],
             [11, "J", "Other non-metallic mineral products", "Total q211 for PG J"],
             [27, "Z", "Construction", "Total q211 for PG Z"],
             [28, "AA", "Wholesale and retail trade", "Total q211 for PG AA"],
             [31, "AD",
-                "Miscellaneous business activities; Technical testing and analysis",
-                "Total q211 for PG AD"],
+             "Miscellaneous business activities; Technical testing and analysis",
+             "Total q211 for PG AD"],
             [35, "AH", "Software Development", "Total q211 for PG AH"]]
         pg_detailed_mapper = pd.DataFrame(data=pg_mapper_data,
                                           columns=pg_mapper_columns)
@@ -118,18 +118,18 @@ class TestIngramBYPg(unittest.TestCase):
         gb_expcted_data = [
             ["Total", 31826985.8222, "Total q211 across all PG"],
             ["Food products and beverages; Tobacco products", 282622.6444,
-                "Total q211 for PG C"],
+             "Total q211 for PG C"],
             ["Textiles, clothing and leather products", 79911.0,
-                "Total q211 for PG D"],
+             "Total q211 for PG D"],
             ["Pulp, paper and paper products; Printing; Wood and straw products",
-                0.0, "Total q211 for PG E"],
+             0.0, "Total q211 for PG E"],
             ["Chemicals and chemical products", 0.0, "Total q211 for PG G"],
             ["Rubber and plastic products", 489056.3334, "Total q211 for PG I"],
             ["Other non-metallic mineral products", 0.0, "Total q211 for PG J"],
             ["Construction", 90163.1053, "Total q211 for PG Z"],
             ["Wholesale and retail trade", 4628363.6364, "Total q211 for PG AA"],
             ["Miscellaneous business activities; Technical testing and analysis",
-                2196.1027, "Total q211 for PG AD"],
+             2196.1027, "Total q211 for PG AD"],
             ["Software Development", 26254673.0, "Total q211 for PG AH"]]
         gb_expected_df = pd.DataFrame(data=gb_expcted_data,
                                       columns=gb_expcted_columns)
@@ -144,18 +144,18 @@ class TestIngramBYPg(unittest.TestCase):
         uk_expected_data = [
             ["Total", 31828339.822200004, "Total q211 across all PG"],
             ["Food products and beverages; Tobacco products", 282649.6444,
-                "Total q211 for PG C"],
+             "Total q211 for PG C"],
             ["Textiles, clothing and leather products", 79929.0,
-                "Total q211 for PG D"],
+             "Total q211 for PG D"],
             ["Pulp, paper and paper products; Printing; Wood and straw products",
-                41.0, "Total q211 for PG E"],
+             41.0, "Total q211 for PG E"],
             ["Chemicals and chemical products", 102.0, "Total q211 for PG G"],
             ["Rubber and plastic products", 489684.3334, "Total q211 for PG I"],
             ["Other non-metallic mineral products", 138.0, "Total q211 for PG J"],
             ["Construction", 90163.1053, "Total q211 for PG Z"],
             ["Wholesale and retail trade", 4628620.6364, "Total q211 for PG AA"],
             ["Miscellaneous business activities; Technical testing and analysis",
-                2339.1027, "Total q211 for PG AD"],
+             2339.1027, "Total q211 for PG AD"],
             ["Software Development", 26254673.0, "Total q211 for PG AH"]]
 
         uk_expected_df = pd.DataFrame(data=uk_expected_data,
