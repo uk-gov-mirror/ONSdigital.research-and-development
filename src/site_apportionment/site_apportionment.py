@@ -56,6 +56,8 @@ def set_percentages(df: pd.DataFrame) -> pd.DataFrame:
     Raises:
         ValueError: If the percent column for short forms is not blank.
     """
+    # Condition for short forms
+    df.loc[(df[form_col] == short_code), percent_col] = 100
     # Condition for long forms with status "Form sent out"
     # Note: those imputed by MoR will have had the postcode column imputed, so we check
     # for null in the postcode count column
