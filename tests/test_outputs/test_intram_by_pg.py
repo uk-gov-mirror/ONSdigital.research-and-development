@@ -4,27 +4,38 @@
 from pandas.testing import assert_frame_equal
 import logging
 import pandas as pd
-#import pytest
+import unittest
 
 # Local Imports
 from src.outputs.intram_by_pg import output_intram_by_pg
 from src.outputs.intram_by_pg import _generate_intarm_by_pg
-from tests.test_outputs.mock_s3_mods import mock_write_csv
 
 # create logger (required pass to function)
 TestLogger = logging.getLogger(__name__)
 
 
-class TestIngramBYPg():
+class TestIngramBYPg(unittest.TestCase):
     """Unit tests for:
     - intram_by_pg._output_intram_by_pg
     - intram_by_pg.generate_intarm_by_pg.
     """
     def create_config_dict(self):
-            """Creates config dictionary for test"""
-            config = {"outputs_paths": {"outputs_master": "test_path"},
-                     "years": {"survey_year": "2023"}}
-            return config
+        """Creates config dictionary for test"""
+        config = {"outputs_paths": {"outputs_master": "test_path"},
+                  "years": {"survey_year": "2023"}}
+        return config
+    
+    def mock_write_csv(self, filepath: str, data: pd.DataFrame) -> None:
+        """Dummy script mimicking `s3_mods.rc_write_csv`.
+
+        Args:
+            filepath (str): The filepath to save the DataFrame to.
+            data (pd.DataFrame): The DataFrame to write to the passed path.
+
+        Returns:
+            None
+        """
+        return None
 
     # Arrange
 
@@ -98,7 +109,7 @@ class TestIngramBYPg():
 
     # Expected output dataframes
 
-    def gb_expected_output_data(self) -> pd.DataFrame:
+    def gb_expected_output_data(self):
         """The expected output of output_intram_by_pg (no NI data)."""
         gb_expcted_columns = [
             "Detailed product groups (Alphabetical product groups A-AH)",
@@ -122,9 +133,9 @@ class TestIngramBYPg():
             ["Software Development", 26254673.0, "Total q211 for PG AH"]]
         gb_expected_df = pd.DataFrame(data=gb_expcted_data,
                                       columns=gb_expcted_columns)
-        return gb_expected_df
+        return (gb_expected_df, 31826985.822200004)
 
-    def uk_expected_output_data(self) -> pd.DataFrame:
+    def uk_expected_output_data(self):
         """The expected output of output_intram_by_pg (with NI data)."""
         uk_expected_columns = [
             "Detailed product groups (Alphabetical product groups A-AH)",
@@ -150,33 +161,28 @@ class TestIngramBYPg():
         uk_expected_df = pd.DataFrame(data=uk_expected_data,
                                       columns=uk_expected_columns)
 
-        return uk_expected_df
+        return (uk_expected_df, 31828339.822200004)
 
-    '''
-    def test_generate_intarm_by_pg(self,
-                                   gb_input_data,
-                                   ni_input_data,
-                                   pg_detailed_mapper_data,
-                                   gb_expected_output_data,
-                                   uk_expected_output_data):
+    def test_generate_intarm_by_pg(self):
         """Test for _generate_intarm_by_pg."""
 
         # Act
-        gb_result = _generate_intarm_by_pg(gb_input_data,
-                                           ni_input_data,
-                                           pg_detailed_mapper_data,
+        gb_result = _generate_intarm_by_pg(self.gb_input_data(),
+                                           self.ni_input_data(),
+                                           self.pg_detailed_mapper_data(),
                                            uk_output=False,
-                                           config=config)
-        uk_result = _generate_intarm_by_pg(gb_input_data,
-                                           ni_input_data,
-                                           pg_detailed_mapper_data,
+                                           config=self.create_config_dict())
+        uk_result = _generate_intarm_by_pg(self.gb_input_data(),
+                                           self.ni_input_data(),
+                                           self.pg_detailed_mapper_data(),
                                            uk_output=True,
-                                           config=config)
+                                           config=self.create_config_dict())
     
         # Assert
-        assert_frame_equal(gb_result[0], gb_expected_output_data)
-        assert_frame_equal(uk_result[0], uk_expected_output_data)
-    '''
+        assert_frame_equal(gb_result[0], self.gb_expected_output_data()[0])
+        assert gb_result[1] == self.gb_expected_output_data()[1]
+        assert_frame_equal(uk_result[0], self.uk_expected_output_data()[0])
+        assert uk_result[1] == self.uk_expected_output_data()[1]
 
     def test_output_intram_by_pg(self):
         """Test for output_intram_by_pg."""
@@ -187,7 +193,7 @@ class TestIngramBYPg():
                                         self.pg_detailed_mapper_data(),
                                         config=self.create_config_dict(),
                                         intram_tot_dict=dict(),
-                                        write_csv=mock_write_csv,
+                                        write_csv=self.mock_write_csv,
                                         run_id="test",
                                         uk_output=False)
         uk_result = output_intram_by_pg(self.gb_input_data(),
@@ -195,10 +201,10 @@ class TestIngramBYPg():
                                         self.pg_detailed_mapper_data(),
                                         config=self.create_config_dict(),
                                         intram_tot_dict=dict(),
-                                        write_csv=mock_write_csv,
+                                        write_csv=self.mock_write_csv,
                                         run_id="test",
                                         uk_output=True)
 
         # Assert
-        self.assertEqual(gb_result == {"intram_by_pg_gb": 31826986})
-        self.assertEqual(uk_result == {"intram_by_pg_uk": 31828340})
+        self.assertEqual(gb_result, {"intram_by_pg_gb": 31826986.0})
+        self.assertEqual(uk_result, {"intram_by_pg_uk": 31828340.0})
