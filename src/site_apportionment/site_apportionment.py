@@ -469,6 +469,31 @@ def consistency_checks(df: pd.DataFrame, intram_dict) -> None:
     #     )
 
 
+def clean_percentages(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Where the percent_col is 200, check if the ref has only one
+    postcode in postcode_col (exc. nulls),
+    and change the percent_col to 100.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame.
+
+    Returns:
+        pd.DataFrame: The DataFrame with the cleaned percentage column.
+    """
+    # filter all matching refs in ref_col that have at least one 200 in percent_col
+    ref_200 = df.loc[df[percent_col] == 200, ref_col].unique()
+    for ref in ref_200:
+        # get all postcodes for the reference, excluding null values
+        postcodes = df.loc[df[ref_col] == ref, postcode_col].dropna().unique()
+        # if there is only one postcode, set the percent to 100
+        if len(postcodes) == 1:
+            df.loc[(df[ref_col] == ref), percent_col] = 100
+
+
+    return df
+
+
 def run_apportion_sites(
     df: pd.DataFrame,
     imp_markers_to_keep: List[str],
@@ -552,6 +577,8 @@ def run_apportion_sites(
 
     # Sort by period, ref, instance in ascending order.
     df_out = sort_rows_order_cols(df_out, orig_cols)
+
+    df_out = clean_percentages(df_out)
 
     # run consisntency checks on the intramural totals
     consistency_checks(df_out, intram_tot_dict)

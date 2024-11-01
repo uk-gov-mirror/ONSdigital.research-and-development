@@ -12,24 +12,25 @@ import sys
 sys.path.append("D:/programming_projects/research-and-development")
 #%%
 import pandas as pd
-from src.utils.local_file_mods import read_local_csv as read_csv
-from src.utils.local_file_mods import write_local_csv as write_csv
+from src.utils.local_file_mods import rd_read_csv as read_csv
+from src.utils.local_file_mods import rd_write_csv as write_csv
 
 #%% Configuration settings
 
 # Input folder and file names
-root_folder = "R:/BERD Results System Development 2023/DAP_emulation/"
-in_fol = "apportionment/apportionment_qa/"
-in_file_old = "estimated_df_apportioned_2024-02-05_v15.csv"
-in_file_new = "estimated_df_apportioned_2024-02-05_v472_TEST.csv"
+root_folder = "R:/BERD Results System Development 2023/DAP_emulation/2023_surveys/BERD/"
+in_fol = "09_apportionment/apportionment_qa/"
+in_file_old = "2023_estimated_apportioned_24-11-01_v1673.csv"
+in_file_new = "2023_estimated_apportioned_24-11-01_v1680.csv"
 
 # Output folder and file
-out_fol = "D:/coding_projects/randd_regression/"
-out_file = "apportion_merged.csv"
+out_fol = "R:/BERD Results System Development 2023/DAP_emulation/2023_surveys/BERD/09_apportionment/apportionment_qa/"
+out_file = "new_apportioned_percent.csv"
 
 # Columns to select
 key_cols = ["reference", "200", "201", "formtype", "pg_numeric", "601"]
 value_col = "211"
+postcode_percent = "602"
 other_cols = [
     "instance",
     "status",
@@ -61,6 +62,11 @@ df_merge = df_old_good.merge(
 df_merge["value_different"] = (
     df_merge[value_col + "_old"] - df_merge[value_col + "_new"]
 ) ** 2 > tolerance**2
+
+#%% Compare the values
+df_merge["602_different"] = (
+    df_merge[postcode_percent + "_old"] - df_merge[postcode_percent + "_new"]
+)
 
 # %% Save output
 write_csv(out_fol + out_file, df_merge)
