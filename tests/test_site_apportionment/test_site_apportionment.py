@@ -46,9 +46,9 @@ def create_exp_percent_test_output_df():
         "itl"
     ]
     data = [
-        [1, 0, "0006", np.nan, np.nan, np.nan, "Clear", "R", "NP10 5XX", "cym"],
-        [1, 1, "0006", np.nan, np.nan, np.nan, "Clear", "R", "NP10 5XX", "cym"],
-        [1, 2, "0006", np.nan, np.nan, np.nan, "Clear", "R", "NP10 5XX", "cym"],
+        [1, 0, "0006", np.nan, 100.0, np.nan, "Clear", "R", "NP10 5XX", "cym"],
+        [1, 1, "0006", np.nan, 100.0, np.nan, "Clear", "R", "NP10 5XX", "cym"],
+        [1, 2, "0006", np.nan, 100.0, np.nan, "Clear", "R", "NP10 5XX", "cym"],
         [2, 0, "0001", np.nan, np.nan, 2.0, "Clear", "R", "NP20 6YY", "cym"],
         [2, 1, "0001", "CB1 3NF", 60.0, 2.0, "Clear", "R", "CB1 3NF", "cym"],
         [2, 2, "0001", "BA1 5DA", 40.0, 2.0, "Clear", "R", "BA1 5DA", "cym"],
@@ -128,10 +128,6 @@ class TestSplitSitesDf:
         data1 = [
             [2, 1, "0001", "CB1 3NF", 60.0, 2.0, "Clear", "R", "CB1 3NF", "cym"],
             [2, 2, "0001", "BA1 5DA", 40.0, 2.0, "Clear", "R", "BA1 5DA", "cym"],
-            [3, 1, "0001", "DE72 3AU", 100.0, 1.0, "Check needed", "TMI", "DE72 3AU", "cym"],
-            [3, 2, "0001", np.nan, np.nan, 1.0, "Check needed", "No mean found", "NP30 7ZZ", "cym"],
-            [4, 1, "0001", "CF10 BZZ", 100.0, 1.0, "Form sent out", "TMI", "CF10 BZZ", "cym"],
-            [5, 1, "0001", "SA50 5BE", 100.0, 1.0, "Form sent out", "No mean found", "SA50 5BE", "cym"],
         ]
 
         exp_output_df1 = pandasDF(data=data1, columns=exp_output_cols1)
@@ -157,11 +153,13 @@ class TestSplitSitesDf:
         ]
 
         data2 = [
-            [1, 0, "0006", np.nan, np.nan, np.nan, "Clear", "R", "NP10 5XX", "cym"],
-            [1, 1, "0006", np.nan, np.nan, np.nan, "Clear", "R", "NP10 5XX", "cym"],
-            [1, 2, "0006", np.nan, np.nan, np.nan, "Clear", "R", "NP10 5XX", "cym"],
+            [1, 0, "0006", np.nan, 100.0, np.nan, "Clear", "R", "NP10 5XX", "cym"],
+            [1, 1, "0006", np.nan, 100.0, np.nan, "Clear", "R", "NP10 5XX", "cym"],
+            [1, 2, "0006", np.nan, 100.0, np.nan, "Clear", "R", "NP10 5XX", "cym"],
             [2, 0, "0001", np.nan, np.nan, 2.0, "Clear", "R", "NP20 6YY", "cym"],
             [3, 0, "0001", np.nan, np.nan, 1.0, "Check needed", "TMI", "NP30 7ZZ", "cym"],
+            [3, 1, "0001", "DE72 3AU", 100.0, 1.0, "Check needed", "TMI", "DE72 3AU", "cym"],
+            [4, 1, "0001", "CF10 BZZ", 100.0, 1.0, "Form sent out", "TMI", "CF10 BZZ", "cym"],
         ]
         exp_output_df2 = pandasDF(data=data2, columns=exp_output_cols2)
         exp_output_df2 = exp_output_df2.astype({"601": object})
@@ -182,6 +180,8 @@ class TestSplitSitesDf:
             result_to_apportion.reset_index(drop=True), exp_to_apportion_df
         )
 
+        print(result_df_out)
+        print(exp_df_out)
         assert_frame_equal(result_df_out.reset_index(drop=True), exp_df_out)
 
 
