@@ -4,7 +4,7 @@ import os
 
 # Change to the project repository location
 my_wd = os.getcwd()
-my_repo = "research-and-development"
+my_repo = "R:\\"
 if not my_wd.endswith(my_repo):
     os.chdir(my_repo)
 
@@ -28,7 +28,7 @@ def run_make_dirs():
 
     """
 
-    root = "R:/bat/res_dev/project_data"
+    root = "BERD Results System Development 2023\\DAP_emulation"
 
     tree = {
         "2022_surveys": {
