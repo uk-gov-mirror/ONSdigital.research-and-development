@@ -125,12 +125,8 @@ def expected_staging_dict():
         "snapshot_path": "/2023_snapshots/snapshot_file-202212.json",
         "updated_snapshot_path": "2023_snapshots/updated_snapshot_file-202212.json",
         "postcode_masterlist": "postcode_masterlist_path/postcode.csv",
-        "manual_outliers_path": (
-            "R:/DAP_emulation/2022_surveys/BERD/07_outliers/man_out/man_out.csv"
-        ),
-        "manual_imp_trim_path": (
-            "R:/DAP_emulation/2022_surveys/BERD/06_imputation/man_trim/trim_qa.csv"
-        ),
+        "manual_outliers_path": "07_outliers/man_out/man_out.csv",
+        "manual_imp_trim_path": "06_imputation/man_trim/trim_qa.csv",
         "backdata_path": "2021_data/backdata.csv",
         "pnp_staging_qa_path": (
             "R:/DAP_emulation/2022_surveys/PNP/01_staging/pnp_staging_qa"
@@ -143,7 +139,6 @@ def test_create_staging_config(config, expected_staging_dict):
     """Test create_staging_config function."""
 
     staging_dict = create_staging_config(config)
-
     assert staging_dict == expected_staging_dict, "Staging config is not as expected"
 
 
