@@ -1,4 +1,6 @@
 """Script that creates all directories"""
+import sys
+sys.path.append("D:/research-and-development")
 from src.utils.helpers import tree_to_list
 import os
 
@@ -47,7 +49,7 @@ def run_make_dirs():
                     "frozen_data_staged": {},
                 },
                 "03_northern_ireland": {
-                    "2021": {},
+                    "2022": {},
                     "ni_staging_qa": {},
                 },
                 "04_construction": {
@@ -110,7 +112,7 @@ def run_make_dirs():
                     "frozen_data_staged": {},
                 },
                 "03_northern_ireland": {
-                    "2021": {},
+                    "2023": {},
                     "ni_staging_qa": {},
                 },
                 "04_construction": {

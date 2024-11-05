@@ -1,5 +1,7 @@
 """Script that creates all directories"""
 import os
+import sys
+sys.path.append("D:/research-and-development")
 
 # Change to the project repository location
 my_wd = os.getcwd()
