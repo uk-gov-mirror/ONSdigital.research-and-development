@@ -32,7 +32,6 @@ def run_outputs(  # noqa: C901
     write_csv: Callable,
     run_id: int,
     pg_detailed: pd.DataFrame,
-    civil_defence_detailed: pd.DataFrame,
     sic_division_detailed: pd.DataFrame,
 ):
     """Run the outputs module.
@@ -46,7 +45,6 @@ def run_outputs(  # noqa: C901
             This will be the hdfs or network version depending on settings.
         run_id (int): The current run id
         pg_detailed (pd.DataFrame): Detailed descriptons of alpha PG groups
-        civil_defence_detailed (pd.DataFrame): Detailed descriptons of civil/defence
         sic_division_detailed (pd.DataFrame): Detailed descriptons of SIC divisions
     """
 

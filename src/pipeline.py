@@ -96,7 +96,6 @@ def run_pipeline(user_config_path, dev_config_path):
         postcode_mapper,
         backdata,
         pg_detailed,
-        civil_defence_detailed,
         sic_division_detailed,
         manual_trimming_df,
     ) = run_staging(
@@ -235,7 +234,6 @@ def run_pipeline(user_config_path, dev_config_path):
         mods.rd_write_csv,
         run_id,
         pg_detailed,
-        civil_defence_detailed,
         sic_division_detailed,
     )
 

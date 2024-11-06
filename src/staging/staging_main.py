@@ -218,15 +218,7 @@ def run_staging(  # noqa: C901
 
         StagingMainLogger.info("Backdata File Loaded Successfully...")
 
-        # Loading Civil or Defence detailed mapper
-        civil_defence_detailed_mapper = helpers.load_validate_mapper(
-            "civil_defence_detailed_mapper_path",
-            config,
-            StagingMainLogger,
-            rd_file_exists,
-            rd_read_csv,
-        )
-
+       
         # Loading SIC division detailed mapper
         sic_division_detailed_mapper = helpers.load_validate_mapper(
             "sic_division_detailed_mapper_path",
@@ -283,7 +275,6 @@ def run_staging(  # noqa: C901
             postcode_mapper,
             backdata,
             pg_detailed_mapper,
-            civil_defence_detailed_mapper,
             sic_division_detailed_mapper,
             manual_trim_df,
         )
