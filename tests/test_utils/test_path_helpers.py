@@ -20,8 +20,10 @@ from src.utils.path_helpers import (
 @pytest.fixture(scope="module")
 def config():
     config = {
-        "years": {"survey_year": 2022},
-        "surveys": {"survey_type": "PNP"},
+        "survey": {
+            "survey_type": "PNP",
+            "survey_year": 2022
+        },
         "global": {"platform": "network"},
         "network_paths": {
             "root": "R:/DAP_emulation/",
@@ -147,8 +149,7 @@ def test_create_staging_config(config, expected_staging_dict):
 def test_validate_snapshot_files_success(config, caplog):
     """Tests for staging_validation function."""
     config = {
-        'years': {'survey_year': 2023},
-        'surveys': {'survey_type': 'PNP'},
+        'survey': {'survey_type': 'PNP', 'survey_year': 2023},
         'global': {'platform': "network"},
         'network_paths': {
             'root': "R:/DAP_emulation/",
@@ -165,9 +166,8 @@ def test_validate_snapshot_files_success(config, caplog):
 def test_validate_snapshot_files_fail(config, caplog):
     """Tests for staging_validation function."""
     config = {
-        'years' : {'survey_year': 2023,},
+        'survey': {'survey_type': 'PNP', 'survey_year': 2023},
         'global': {'platform': "network"},
-        'surveys': {'survey_type': 'PNP'},
         'network_paths': {
             'root': "R:/PNP Results System Development 2023/DAP_emulation/",
             'snapshot_path': "/ons/rdbe_dev/spp_snapshots/2023_snapshots/snapshot-20212-002-b9b6048a-51c9-4669-919a-e92fc6e9c433.json",
@@ -184,9 +184,8 @@ def test_validate_snapshot_files_fail(config, caplog):
 def test_validate_snapshot_files_success_blank(config, caplog):
     """Tests for staging_validation function."""
     config = {
-        'years' : {'survey_year': 2023,},
+        'surveys': {'survey_type': 'PNP', 'survey_year': 2023},
         'global': {'platform': "network"},
-        'surveys': {'survey_type': 'PNP'},
         'network_paths': {
             'root': "R:/PNP Results System Development 2023/DAP_emulation/",
             'snapshot_path': "/ons/rdbe_dev/spp_snapshots/2023_snapshots/snapshot-202312-002-b9b6048a-51c9-4669-919a-e92fc6e9c433.json",
