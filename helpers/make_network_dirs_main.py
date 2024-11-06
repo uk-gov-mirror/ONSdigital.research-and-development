@@ -2,6 +2,7 @@
 import sys
 sys.path.append("D:/research-and-development")
 from src.utils.helpers import tree_to_list
+from src.utils.local_file_mods import rd_file_exists
 import os
 
 # Change to the project repository location
@@ -11,11 +12,11 @@ if not my_wd.endswith(my_repo):
     os.chdir(my_repo)
 
 
-def make_dir(folder_path):
+def make_dir(dir):
     """Creates a directory bassed on the provided folder_path."""
-    dir = os.path.dirname(folder_path)
     # create directory if it does not exist
-    if not os.path.exists(dir):
+
+    if rd_file_exists(dir, raise_error=False) is False:
         os.makedirs(dir)
         print(f"Created {dir}")
     else:
@@ -30,7 +31,7 @@ def run_make_dirs():
 
     """
 
-    root = "BERD Results System Development 2023\\DAP_emulation"
+    root = "BERD Results System Development 2023/DAP_emulation"
 
     tree = {
         "2022_surveys": {
@@ -163,7 +164,6 @@ def run_make_dirs():
 
     dir_list = tree_to_list(tree, prefix=root, path_list=[])
     for s in dir_list:
-        s = s.replace("/", "\\")
         make_dir(s)
 
 
