@@ -205,7 +205,6 @@ def run_outputs(  # noqa: C901
             config,
             write_csv,
             run_id,
-            civil_defence_detailed,
         )
         OutputMainLogger.info("Finished Intram by civil or defence output.")
 

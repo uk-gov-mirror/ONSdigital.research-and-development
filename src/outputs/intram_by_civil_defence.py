@@ -12,8 +12,7 @@ def output_intram_by_civil_defence(
     df: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
-    civil_defence_detailed: pd.DataFrame,
+    run_id: int,    
 ):
     """Run the outputs module.
 
@@ -22,15 +21,11 @@ def output_intram_by_civil_defence(
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
          This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
-        civil_defence_detailed (pd.DataFrame): Detailed schema of C/D output
+        run_id (int): The current run id       
 
 
     """
     output_path = config["outputs_paths"]["outputs_master"]
-
-    period = config["years"]["survey_year"]
-    period_str = str(period)
 
     # Group by civil/defence (200) and aggregate intram (211)
     key_col = "200"
@@ -38,21 +33,12 @@ def output_intram_by_civil_defence(
 
     df_agg = df.groupby([key_col]).agg({value_col: "sum"}).reset_index()
 
-    # Merge with output table
-    df_merge = civil_defence_detailed.merge(
-        df_agg, how="left", left_on="CD", right_on=key_col
-    )
+    # Replace C and D with Civil or Defence
+    df_agg["200"] = df_agg["200"].replace({"C": "Civil", "D": "Defence"})
 
-    # Replace placeholder "period" with year from config
-    df_merge["B"] = df_merge["B"].replace("period", period_str)
-
-    # Copy summed values to correct column
-    df_merge["B"] = np.where(df_merge["211"].notnull(), df_merge["211"], df_merge["B"])
-
-    # Drop the columns/rows not required for output
-    df_merge = df_merge.drop(columns=["CD", "200", "211"])
-    df_merge.columns = df_merge.iloc[0]
-    df_for_output = df_merge.iloc[1:]
+    # Rename Columns with dictionary
+    columns = ({'200': 'Catergory', '211': 'Total Intramural Expenditure'})
+    df_for_output = df_agg.rename(columns=columns)
 
     # Outputting the CSV file with timestamp and run_id
     tdate = datetime.now().strftime("%y-%m-%d")
