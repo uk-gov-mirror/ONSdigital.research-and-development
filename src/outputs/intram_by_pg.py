@@ -8,14 +8,15 @@ OutputMainLogger = logging.getLogger(__name__)
 
 
 def output_intram_by_pg(
-        gb_df: pd.DataFrame,
-        ni_df: pd.DataFrame,
-        pg_detailed: pd.DataFrame,
-        config: Dict[str, Any],
-        intram_tot_dict: Dict[str, int],
-        write_csv: Callable,
-        run_id: int,
-        uk_output: bool = False) -> Dict[str, int]:
+    gb_df: pd.DataFrame,
+    ni_df: pd.DataFrame,
+    pg_detailed: pd.DataFrame,
+    config: Dict[str, Any],
+    intram_tot_dict: Dict[str, int],
+    write_csv: Callable,
+    run_id: int,
+    uk_output: bool = False
+) -> Dict[str, int]:
     """Run the outputs module.
 
     Args:
@@ -32,15 +33,17 @@ def output_intram_by_pg(
     Returns:
         intram_tot_dict (dict): Dictionary with the intramural totals.
     """
-    df_merge, value_tot = _generate_intarm_by_pg(gb_df, ni_df,
+    df_merge, value_tot = _generate_intarm_by_pg(gb_df,
+                                                 ni_df,
                                                  pg_detailed,
-                                                 uk_output,
-                                                 config)
-    _save_output_intram_as_csv(df_merge,
-                               config,
-                               write_csv,
-                               run_id,
-                               uk_output)
+                                                 config,
+                                                 uk_output)
+    _save_output_intram_as_csv(
+        df_merge,
+        config,
+        write_csv,
+        run_id,
+        uk_output)
 
     # calculate the intram total for QA across different outputs
     intram_tot_dict[f"intram_by_pg_{'uk' if uk_output else 'gb'}"] = round(value_tot, 0)
@@ -49,11 +52,25 @@ def output_intram_by_pg(
 
 
 def _generate_intarm_by_pg(
-        gb_df,
-        ni_df,
-        pg_detailed,
-        uk_output,
-        config):
+    gb_df: pd.DataFrame,
+    ni_df: pd.DataFrame,
+    pg_detailed: pd.DataFrame,
+    config: Dict[str, Any],
+    uk_output: bool = False
+):
+    """Generate the intramural by PG output dataframe and intramural by PG total.
+
+    Args:
+        gb_df (pd.DataFrame): The GB dataset
+        ni_df (pd.DataFrame): The NI dataset
+        pg_detailed (pd.DataFrame): Detailed info for the product groups.
+        uk_output (bool): If True, the output will include NI data.
+        config (dict): The configuration settings.
+
+    Returns:
+        df_merge(pd.DataFrame): The intramural by PG output dataframe.
+        value_total (int): The intramural by PG total.
+    """
     # assign columns for easier use
     key_col = "201"
     value_col = "211"
@@ -75,7 +92,8 @@ def _generate_intarm_by_pg(
 
     # Merge with labels and ranks
     df_merge = pg_detailed.merge(
-        df_agg, how="left", left_on="pg_alpha", right_on=key_col)
+        df_agg, how="left", left_on="pg_alpha", right_on=key_col
+    )
     df_merge[value_col] = df_merge[value_col].fillna(0)
 
     # Sort by rank
@@ -92,11 +110,25 @@ def _generate_intarm_by_pg(
 
 
 def _save_output_intram_as_csv(
-        df_merge: pd.DataFrame,
-        config: Dict[str, Any],
-        write_csv: Callable,
-        run_id: int,
-        uk_output: bool = False):
+    df_merge: pd.DataFrame,
+    config: Dict[str, Any],
+    write_csv: Callable,
+    run_id: int,
+    uk_output: bool = False
+):
+    """Save the intramural by PG output as a CSV file.
+
+    Args:
+        df_merge (pd.DataFrame): The dataframe to be saved.
+        config (dict): The configuration settings.
+        write_csv (Callable): Function to write to a csv file.
+        run_id (int): The current run id
+        uk_output (bool): If True, the output will include NI data.
+
+    Returns:
+        Nothing
+    """
+
     # Outputting the CSV file with timestamp and run_id
     output_path = config["outputs_paths"]["outputs_master"]
 
