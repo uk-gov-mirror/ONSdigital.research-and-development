@@ -126,7 +126,7 @@ def _save_output_intram_as_csv(
         uk_output (bool): If True, the output will include NI data.
 
     Returns:
-        Nothing
+        None
     """
 
     # Outputting the CSV file with timestamp and run_id
