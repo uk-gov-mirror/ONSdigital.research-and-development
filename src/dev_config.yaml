@@ -16,8 +16,6 @@ runlog_writer:
   write_sql: False # Write the runlog to a SQL database
   display: False # Display the runlog in the terminal
   log_path: "/bat/res_dev/project_data/logs"
-hdfs_paths:
-  logs_foldername: "/ons/rdbe_dev/logs/run_logs"
 s3_paths:
   logs_foldername: "/bat/res_dev/project_data/logs/run_logs"
 staging_paths:
