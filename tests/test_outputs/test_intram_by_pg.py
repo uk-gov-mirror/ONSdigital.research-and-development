@@ -22,9 +22,9 @@ class TestIngramBYPg(unittest.TestCase):
     def create_config_dict(self):
         """Creates config dictionary for test"""
         config = {"outputs_paths": {"outputs_master": "test_path"},
-                  "survey": {"survey_year": "2023"}}
+                  "survey": {"survey_year": "2023", "survey": "BERD"}}
         return config
-    
+
     def mock_write_csv(self, filepath: str, data: pd.DataFrame) -> None:
         """Dummy script mimicking the function passed to the module as write_csv.
 
