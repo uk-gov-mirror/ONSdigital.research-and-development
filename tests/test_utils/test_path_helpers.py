@@ -12,13 +12,18 @@ from src.utils.path_helpers import (
     create_exports_config,
     update_config_with_paths,
     snapshot_validation,
-    snapshot_validation_logger
+    snapshot_validation_logger,
+    validate_config_strings,
 )
 
 
 @pytest.fixture(scope="module")
 def config():
     config = {
+        "survey": {
+            "survey_type": "PNP",
+            "survey_year": 2022
+        },
         "global": {"platform": "network"},
         "network_paths": {
             "root": "R:/DAP_emulation/",
@@ -40,10 +45,6 @@ def config():
             "freezing_changes_to_review_path": "02_freezing/changes_to_review/review.csv",
             "freezing_amendments_path": "02_freezing/freezing_updates/updates.csv",
             "freezing_additions_path": "02_freezing/freezing_updates/additions.csv",
-        },
-        "survey": {
-            "survey_type": "BERD",
-            "survey_year": 2022
         },
         "staging_paths": {
             "folder": "01_staging",
@@ -83,7 +84,6 @@ def config():
             "qa_path": "outliers_qa",
             "auto_outliers_path": "auto_outliers",
         },
-        "pnp_paths": {"staging_qa_path" : "01_staging/pnp_staging_qa"},
         "export_paths": {"export_folder": "outgoing_export"},
 
     }
@@ -113,8 +113,7 @@ def test_get_paths(config):
         "freezing_amendments_path": "02_freezing/freezing_updates/updates.csv",
         "freezing_additions_path": "02_freezing/freezing_updates/additions.csv",
         "year": 2022,
-        "berd_path": "R:/DAP_emulation/2022_surveys/BERD/",
-        "pnp_path": "R:/DAP_emulation/2022_surveys/PNP/",
+        "survey_path": "R:/DAP_emulation/2022_surveys/PNP/",
     }
     network_paths = get_paths(config)
 
@@ -124,20 +123,17 @@ def test_get_paths(config):
 @pytest.fixture(scope="module")
 def expected_staging_dict():
     expected_staging_dict = {
-        "feather_output": "R:/DAP_emulation/2022_surveys/BERD/01_staging/feather",
+        "feather_output": "R:/DAP_emulation/2022_surveys/PNP/01_staging/feather",
         "snapshot_path": "/2023_snapshots/snapshot_file-202212.json",
         "updated_snapshot_path": "2023_snapshots/updated_snapshot_file-202212.json",
         "postcode_masterlist": "postcode_masterlist_path/postcode.csv",
         "manual_outliers_path": (
-            "R:/DAP_emulation/2022_surveys/BERD/07_outliers/man_out/man_out.csv"
+            "R:/DAP_emulation/2022_surveys/PNP/07_outliers/man_out/man_out.csv"
         ),
         "manual_imp_trim_path": (
-            "R:/DAP_emulation/2022_surveys/BERD/06_imputation/man_trim/trim_qa.csv"
+            "R:/DAP_emulation/2022_surveys/PNP/06_imputation/man_trim/trim_qa.csv"
         ),
         "backdata_path": "2021_data/backdata.csv",
-        "pnp_staging_qa_path": (
-            "R:/DAP_emulation/2022_surveys/PNP/01_staging/pnp_staging_qa"
-        ),
     }
     return expected_staging_dict
 
@@ -152,13 +148,15 @@ def test_create_staging_config(config, expected_staging_dict):
 
 def test_validate_snapshot_files_success(config, caplog):
     """Tests for staging_validation function."""
-    config = {'survey' : {'survey_year': 2023,},
-              'global': {'platform': "network"},
-              'network_paths': { 'root': "R:/DAP_emulation/",
-              'snapshot_path': "/2023_snapshots/snapshot_file-202312.json",
-              'updated_snapshot_path': '2023_snapshots/updated_snapshot_file-202312.json',
-              }
+    config = {
+        'survey': {'survey_type': 'PNP', 'survey_year': 2023},
+        'global': {'platform': "network"},
+        'network_paths': {
+            'root': "R:/DAP_emulation/",
+            'snapshot_path': "/2023_snapshots/snapshot_file-202312.json",
+            'updated_snapshot_path': '2023_snapshots/updated_snapshot_file-202312.json',
         }
+    }
 
     msg = 'The snapshot paths are valid.'
     with caplog.at_level(logging.INFO):
@@ -168,13 +166,13 @@ def test_validate_snapshot_files_success(config, caplog):
 def test_validate_snapshot_files_fail(config, caplog):
     """Tests for staging_validation function."""
     config = {
-
-        'survey' : {'survey_year': 2023,},
-              'global': {'platform': "network"},
-              'network_paths': {'root': "R:/BERD Results System Development 2023/DAP_emulation/",
-              'snapshot_path': "/ons/rdbe_dev/spp_snapshots/2023_snapshots/snapshot-20212-002-b9b6048a-51c9-4669-919a-e92fc6e9c433.json",
-              'updated_snapshot_path': '/ons/rdbe_dev/berd_survey/anonymised/v1/snapshot-202312-002.json',
-              }
+        'survey': {'survey_type': 'PNP', 'survey_year': 2023},
+        'global': {'platform': "network"},
+        'network_paths': {
+            'root': "R:/BERD Results System Development 2023/DAP_emulation/",
+            'snapshot_path': "/ons/rdbe_dev/spp_snapshots/2023_snapshots/snapshot-20212-002-b9b6048a-51c9-4669-919a-e92fc6e9c433.json",
+            'updated_snapshot_path': '/ons/rdbe_dev/PNP_survey/anonymised/v1/snapshot-202312-002.json',
+            }
         }
 
     msg = "2023 is not included in the frozen snapshot path.\n"
@@ -186,14 +184,14 @@ def test_validate_snapshot_files_fail(config, caplog):
 def test_validate_snapshot_files_success_blank(config, caplog):
     """Tests for staging_validation function."""
     config = {
-
-        'survey' : {'survey_year': 2023,},
-              'global': {'platform': "network"},
-              'network_paths': {'root': "R:/BERD Results System Development 2023/DAP_emulation/",
-              'snapshot_path': "/ons/rdbe_dev/spp_snapshots/2023_snapshots/snapshot-202312-002-b9b6048a-51c9-4669-919a-e92fc6e9c433.json",
-              'updated_snapshot_path': "",
-              }
+        'survey': {'survey_type': 'PNP', 'survey_year': 2023},
+        'global': {'platform': "network"},
+        'network_paths': {
+            'root': "R:/BERD Results System Development 2023/DAP_emulation/",
+            'snapshot_path': "/ons/rdbe_dev/spp_snapshots/2023_snapshots/snapshot-202312-002-b9b6048a-51c9-4669-919a-e92fc6e9c433.json",
+            'updated_snapshot_path': "",
         }
+    }
 
     msg = 'The snapshot paths are valid.\n'
     with caplog.at_level(logging.INFO):
@@ -208,10 +206,10 @@ def test_create_ni_staging_config(config):
 
     expected_ni_staging_dict = {
         "ni_full_responses": (
-            "R:/DAP_emulation/2022_surveys/BERD/03_northern_ireland/2021/TEST_ni.csv"
+            "R:/DAP_emulation/2022_surveys/PNP/03_northern_ireland/2021/TEST_ni.csv"
         ),
         "ni_staging_output_path": (
-            "R:/DAP_emulation/2022_surveys/BERD/03_northern_ireland/ni_staging_qa"
+            "R:/DAP_emulation/2022_surveys/PNP/03_northern_ireland/ni_staging_qa"
         ),
     }
     ni_staging_dict = create_ni_staging_config(config)
@@ -225,7 +223,7 @@ def test_create_mapping_config(config):
     expected_mapping_dict = {
         "postcode_mapper": "R:/DAP_emulation/2022_surveys/mappers/v1/pcodes_2022.csv",
         "itl_mapper_path": "R:/DAP_emulation/2022_surveys/mappers/v1/itl_2022.csv",
-        "qa_path": "R:/DAP_emulation/2022_surveys/BERD/05_mapping/mapping_qa",
+        "qa_path": "R:/DAP_emulation/2022_surveys/PNP/05_mapping/mapping_qa",
     }
     mapping_dict = create_mapping_config(config)
 
@@ -235,11 +233,11 @@ def test_create_mapping_config(config):
 def test_create_construction_config(config):
     """Test create_construction_config function."""
     expected_construction_dict = {
-        "qa_path": "R:/DAP_emulation/2022_surveys/BERD/04_construction/construction_qa",
-        "all_data_construction_file_path": "R:/DAP_emulation/2022_surveys/BERD/04_construction/man_con/construction_file.csv",
-        "postcode_construction_file_path": "R:/DAP_emulation/2022_surveys/BERD/04_construction/man_con/postcode_construction_file.csv",
+        "qa_path": "R:/DAP_emulation/2022_surveys/PNP/04_construction/construction_qa",
+        "all_data_construction_file_path": "R:/DAP_emulation/2022_surveys/PNP/04_construction/man_con/construction_file.csv",
+        "postcode_construction_file_path": "R:/DAP_emulation/2022_surveys/PNP/04_construction/man_con/postcode_construction_file.csv",
         "construction_file_path_ni": (
-            "R:/DAP_emulation/2022_surveys/BERD/04_construction/man_con/con_file_ni.csv"
+            "R:/DAP_emulation/2022_surveys/PNP/04_construction/man_con/con_file_ni.csv"
         ),
     }
     construction_dict = create_construction_config(config)
@@ -260,9 +258,9 @@ def test_create_module_config_imputation_case(config):
     """Test create_module_config function for the imputation module."""
 
     expected_imputation_dict = {
-        "qa_path": "R:/DAP_emulation/2022_surveys/BERD/06_imputation/imputation_qa",
+        "qa_path": "R:/DAP_emulation/2022_surveys/PNP/06_imputation/imputation_qa",
         "manual_trimming_path": (
-            "R:/DAP_emulation/2022_surveys/BERD/06_imputation/manual_trimming"
+            "R:/DAP_emulation/2022_surveys/PNP/06_imputation/manual_trimming"
         ),
     }
     imputation_dict = create_module_config(config, "imputation")
@@ -273,9 +271,9 @@ def test_create_module_config_imputation_case(config):
 @pytest.fixture(scope="module")
 def expected_outliers_dict():
     expected_outliers_dict = {
-        "qa_path": "R:/DAP_emulation/2022_surveys/BERD/07_outliers/outliers_qa",
+        "qa_path": "R:/DAP_emulation/2022_surveys/PNP/07_outliers/outliers_qa",
         "auto_outliers_path": (
-            "R:/DAP_emulation/2022_surveys/BERD/07_outliers/auto_outliers"
+            "R:/DAP_emulation/2022_surveys/PNP/07_outliers/auto_outliers"
         ),
     }
     return expected_outliers_dict
@@ -316,3 +314,33 @@ def test_update_config_with_paths(
         updated_config["export_paths"]
         == {"export_folder": "R:/DAP_emulation/outgoing_export/"},
     )
+
+def test_validate_config_strings_success(config):
+    """Test validate_config_strings function with valid survey type and platform."""
+    config["survey"]["survey_type"] = "PNP"
+    config["global"]["platform"] = "network"
+    updated_config = validate_config_strings(config)
+    assert updated_config["survey"]["survey_type"] == "PNP", "Survey type should be PNP"
+    assert updated_config["global"]["platform"] == "network", "Platform should be network"
+
+    config["survey"]["survey_type"] = "PNP"
+    config["global"]["platform"] = "s3"
+    updated_config = validate_config_strings(config)
+    assert updated_config["survey"]["survey_type"] == "PNP", "Survey type should be PNP"
+    assert updated_config["global"]["platform"] == "s3", "Platform should be s3"
+
+
+def test_validate_config_strings_invalid_survey_type(config):
+    """Test validate_config_strings function with invalid survey type."""
+    config["survey"]["survey_type"] = "invalid_type"
+    config["global"]["platform"] = "network"
+    with pytest.raises(ValueError, match="The config setting for survey_type given, INVALID_TYPE, is not valid- it should be one of \['BERD', 'PNP'\]"):
+        validate_config_strings(config)
+
+
+def test_validate_config_strings_invalid_platform(config):
+    """Test validate_config_strings function with invalid platform."""
+    config["survey"]["survey_type"] = "PNP"
+    config["global"]["platform"] = "invalid_platform"
+    with pytest.raises(ValueError, match="Platform invalid_platform is not valid- it must be one of \['network', 's3'\]"):
+        validate_config_strings(config)

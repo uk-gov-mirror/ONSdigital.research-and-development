@@ -4,6 +4,8 @@ config_validation:
 survey:
   survey_type: "BERD"
   survey_year: 2023
+surveys:
+  survey_type: "BERD"
 global:
   # Staging and validation settings
   postcode_csv_check: True
@@ -22,7 +24,7 @@ global:
   load_manual_outliers: False
   load_manual_imputation: False
   # Backdata output settings
-  output_backdata: True
+  output_backdata: False
   # QA output settings
   output_full_responses: False
   output_pnp_full_responses: False
