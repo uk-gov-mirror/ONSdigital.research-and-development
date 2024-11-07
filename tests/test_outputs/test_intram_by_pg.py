@@ -22,7 +22,7 @@ class TestIngramBYPg(unittest.TestCase):
     def create_config_dict(self):
         """Creates config dictionary for test"""
         config = {"outputs_paths": {"outputs_master": "test_path"},
-                  "years": {"survey_year": "2023"}}
+                  "survey": {"survey_year": "2023"}}
         return config
     
     def mock_write_csv(self, filepath: str, data: pd.DataFrame) -> None:
