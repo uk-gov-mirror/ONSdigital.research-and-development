@@ -98,7 +98,7 @@ def _generate_intarm_by_pg(
     # Select and rename the correct columns
     detail = "Detailed product groups (Alphabetical product groups A-AH)"
     notes = "Notes"
-    survey_year = config["years"]["survey_year"]
+    survey_year = config["survey"]["survey_year"]
     value_title = f"{survey_year}"
     df_merge = df_merge[[detail, value_col, notes]].rename(columns={
         value_col: value_title})
@@ -129,7 +129,7 @@ def _save_output_intram_as_csv(
     output_path = config["outputs_paths"]["outputs_master"]
 
     tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["years"]["survey_year"]
+    survey_year = config["survey"]["survey_year"]
     filename = (
         f"{survey_year}_output_intram_by_pg_{'uk' if uk_output else 'gb'}"
         f"_{tdate}_v{run_id}.csv")
