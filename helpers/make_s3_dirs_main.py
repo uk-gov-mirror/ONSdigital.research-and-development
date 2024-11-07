@@ -2,15 +2,11 @@
 import os
 import sys
 
-# Change to the project repository location
-my_wd = os.getcwd()
-my_repo = "research-and-development"
-if not my_wd.endswith(my_repo):
-    os.chdir(my_repo)
+# src is in the parent directory so append this to path
+sys.path.append('..')
 
-from src.utils.helpers import tree_to_list
-import src.utils.s3_mods as mods
 from src.utils.singleton_boto import SingletonBoto
+from src.utils.helpers import tree_to_list
 
 config = {
     "s3": {
@@ -20,7 +16,7 @@ config = {
 }
 
 boto3_client = SingletonBoto.get_client(config)
-
+import src.utils.s3_mods as mods
 
 def run_make_dirs():
     root = "/bat/res_dev/project_data"
