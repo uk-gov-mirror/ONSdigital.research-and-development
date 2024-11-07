@@ -23,8 +23,8 @@ def validate_config_strings(config: dict) -> dict:
 
     if survey_type not in valid_survey_types:
         raise ValueError(
-            f"Survey type {survey_type} is not valid- it must be one of "
-            f"{valid_survey_types}"
+            f"The config setting for survey_type given, {survey_type}, is not valid- "
+            f"it should be one of {valid_survey_types}"
         )
 
     platform = config["global"]["platform"]

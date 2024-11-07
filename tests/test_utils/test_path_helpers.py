@@ -334,7 +334,7 @@ def test_validate_config_strings_invalid_survey_type(config):
     """Test validate_config_strings function with invalid survey type."""
     config["survey"]["survey_type"] = "invalid_type"
     config["global"]["platform"] = "network"
-    with pytest.raises(ValueError, match="Survey type INVALID_TYPE is not valid- it must be one of \['BERD', 'PNP'\]"):
+    with pytest.raises(ValueError, match="The config setting for survey_type given, INVALID_TYPE, is not valid- it should be one of \['BERD', 'PNP'\]"):
         validate_config_strings(config)
 
 
