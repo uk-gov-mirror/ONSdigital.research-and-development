@@ -153,7 +153,7 @@ def split_sites_df(
 
     # Remove "bad" imputation markers from df_out
     # NOTE: Probably this isn't needed: can't think of a case where it would be.
-    df_out = keep_good_markers(df_out, imp_markers_to_keep)
+    # df_out = keep_good_markers(df_out, imp_markers_to_keep)
 
     return to_apportion_df, df_out
 

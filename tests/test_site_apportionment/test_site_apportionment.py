@@ -28,6 +28,48 @@ assert_series_equal = pd._testing.assert_series_equal
 
 
 @pytest.fixture
+def create_input_df():
+    """Create an input dataframe for the test."""
+    input_columns = [
+        "reference",
+        "instance",
+        "formtype",
+        "601",
+        "602",
+        "601_count",
+        "status",
+        "imp_marker",
+        "postcodes_harmonised",
+        "itl"
+    ]
+
+    data = [
+        [1, 0, "0006", np.nan, np.nan, np.nan, "Clear", "R", "NP10 5XX", "cym"],
+        [1, 1, "0006", np.nan, np.nan, np.nan, "Clear", "R", "NP10 5XX", "cym"],
+        [1, 2, "0006", np.nan, np.nan, np.nan, "Clear", "R", "NP10 5XX", "cym"],
+        [2, 0, "0001", np.nan, np.nan, 2.0, "Clear", "R", "NP20 6YY", "cym"],
+        [2, 1, "0001", "CB1 3NF", 60.0, 2.0, "Clear", "R", "CB1 3NF", "cym"],
+        [2, 2, "0001", "BA1 5DA", 40.0, 2.0, "Clear", "R", "BA1 5DA", "cym"],
+        [3, 0, "0001", np.nan, np.nan, 1.0, "Check needed", "TMI", "NP30 7ZZ", "cym"],
+        [3, 1, "0001", "DE72 3AU", np.nan, 1.0, "Check needed", "TMI", "DE72 3AU", "cym"],
+        [3, 2, "0001", np.nan, np.nan, 1.0, "Check needed", "No mean found", "NP30 7ZZ", "cym"],
+        [4, 1, "0001", np.nan, np.nan, np.nan, "Form sent out", "TMI", "CF10 BZZ", "cym"],
+        [5, 1, "0001", np.nan, np.nan, np.nan, "Form sent out", "No mean found", "SA50 5BE", "cym"],
+        # below, the case of short form in previous period and long form in current period
+        [6, 0, "0001", np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
+        [6, 1, "0001", np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
+        [6, 2, "0001", np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
+        # as above but status "Form sent out"
+        [7, 0, "0001", np.nan, np.nan, np.nan, "Form sent out", "MoR", "NP10 5XX", "cym"],
+        [7, 1, "0001", np.nan, np.nan, np.nan, "Form sent out", "MoR", "NP10 5XX", "cym"],
+        [7, 2, "0001", np.nan, np.nan, np.nan, "Form sent out", "MoR", "NP10 5XX", "cym"],
+    ]
+
+    input_df = pandasDF(data=data, columns=input_columns)
+    return input_df
+
+
+@pytest.fixture
 def create_exp_percent_test_output_df():
     """Create a dataframe for expected output of the for the set_percentages function test.
 
@@ -57,6 +99,14 @@ def create_exp_percent_test_output_df():
         [3, 2, "0001", np.nan, np.nan, 1.0, "Check needed", "No mean found", "NP30 7ZZ", "cym"],
         [4, 1, "0001", "CF10 BZZ", 100.0, 1.0, "Form sent out", "TMI", "CF10 BZZ", "cym"],
         [5, 1, "0001", "SA50 5BE", 100.0, 1.0, "Form sent out", "No mean found", "SA50 5BE", "cym"],
+        # below, the case of short form in previous period and long form in current period
+        [6, 0, "0001", np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
+        [6, 1, "0001", np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
+        [6, 2, "0001", np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
+        # as above but status "Form sent out"
+        [7, 0, "0001", "NP10 5XX", np.nan, 1.0, "Form sent out", "MoR", "NP10 5XX", "cym"],
+        [7, 1, "0001", "NP10 5XX", 100.0, 1.0, "Form sent out", "MoR", "NP10 5XX", "cym"],
+        [7, 2, "0001", "NP10 5XX", 100.0, 1.0, "Form sent out", "MoR", "NP10 5XX", "cym"],
     ]
 
     exp_output_df = pandasDF(data=data, columns=exp_output_columns)
@@ -66,41 +116,9 @@ def create_exp_percent_test_output_df():
 class TestSetPercentages:
     """Tests for the set_percentages function."""
 
-    def create_input_df(self):
-        """Create an input dataframe for the test."""
-        input_columns = [
-            "reference",
-            "instance",
-            "formtype",
-            "601",
-            "602",
-            "601_count",
-            "status",
-            "imp_marker",
-            "postcodes_harmonised",
-            "itl"
-        ]
-
-        data = [
-            [1, 0, "0006", np.nan, np.nan, np.nan, "Clear", "R", "NP10 5XX", "cym"],
-            [1, 1, "0006", np.nan, np.nan, np.nan, "Clear", "R", "NP10 5XX", "cym"],
-            [1, 2, "0006", np.nan, np.nan, np.nan, "Clear", "R", "NP10 5XX", "cym"],
-            [2, 0, "0001", np.nan, np.nan, 2.0, "Clear", "R", "NP20 6YY", "cym"],
-            [2, 1, "0001", "CB1 3NF", 60.0, 2.0, "Clear", "R", "CB1 3NF", "cym"],
-            [2, 2, "0001", "BA1 5DA", 40.0, 2.0, "Clear", "R", "BA1 5DA", "cym"],
-            [3, 0, "0001", np.nan, np.nan, 1.0, "Check needed", "TMI", "NP30 7ZZ", "cym"],
-            [3, 1, "0001", "DE72 3AU", np.nan, 1.0, "Check needed", "TMI", "DE72 3AU", "cym"],
-            [3, 2, "0001", np.nan, np.nan, 1.0, "Check needed", "No mean found", "NP30 7ZZ", "cym"],
-            [4, 1, "0001", np.nan, np.nan, np.nan, "Form sent out", "TMI", "CF10 BZZ", "cym"],
-            [5, 1, "0001", np.nan, np.nan, np.nan, "Form sent out", "No mean found", "SA50 5BE", "cym"],
-        ]
-
-        input_df = pandasDF(data=data, columns=input_columns)
-        return input_df
-
-    def test_set_percentage(self, create_exp_percent_test_output_df):
+    def test_set_percentage(self, create_input_df, create_exp_percent_test_output_df):
         """Test for the set_percentages function."""
-        input_df = self.create_input_df()
+        input_df = create_input_df
         expected_output_df = create_exp_percent_test_output_df
 
         result_df = set_percentages(input_df)
@@ -125,14 +143,20 @@ class TestSplitSitesDf:
             "itl"
         ]
 
+        # data1 = [
+        #     [2, 1, "0001", "CB1 3NF", 60.0, 2.0, "Clear", "R", "CB1 3NF", "cym"],
+        #     [2, 2, "0001", "BA1 5DA", 40.0, 2.0, "Clear", "R", "BA1 5DA", "cym"],
+        #     [3, 1, "0001", "DE72 3AU", 100.0, 1.0, "Check needed", "TMI", "DE72 3AU", "cym"],
+        #     [3, 2, "0001", np.nan, np.nan, 1.0, "Check needed", "No mean found", "NP30 7ZZ", "cym"],
+        #     [4, 1, "0001", "CF10 BZZ", 100.0, 1.0, "Form sent out", "TMI", "CF10 BZZ", "cym"],
+        #     [5, 1, "0001", "SA50 5BE", 100.0, 1.0, "Form sent out", "No mean found", "SA50 5BE", "cym"],
+        # ]
+
         data1 = [
             [2, 1, "0001", "CB1 3NF", 60.0, 2.0, "Clear", "R", "CB1 3NF", "cym"],
             [2, 2, "0001", "BA1 5DA", 40.0, 2.0, "Clear", "R", "BA1 5DA", "cym"],
-            [3, 1, "0001", "DE72 3AU", 100.0, 1.0, "Check needed", "TMI", "DE72 3AU", "cym"],
-            [3, 2, "0001", np.nan, np.nan, 1.0, "Check needed", "No mean found", "NP30 7ZZ", "cym"],
-            [4, 1, "0001", "CF10 BZZ", 100.0, 1.0, "Form sent out", "TMI", "CF10 BZZ", "cym"],
-            [5, 1, "0001", "SA50 5BE", 100.0, 1.0, "Form sent out", "No mean found", "SA50 5BE", "cym"],
         ]
+
 
         exp_output_df1 = pandasDF(data=data1, columns=exp_output_cols1)
         return exp_output_df1
@@ -162,6 +186,18 @@ class TestSplitSitesDf:
             [1, 2, "0006", np.nan, 100.0, np.nan, "Clear", "R", "NP10 5XX", "cym"],
             [2, 0, "0001", np.nan, np.nan, 2.0, "Clear", "R", "NP20 6YY", "cym"],
             [3, 0, "0001", np.nan, np.nan, 1.0, "Check needed", "TMI", "NP30 7ZZ", "cym"],
+            [3, 1, "0001", "DE72 3AU", 100.0, 1.0, "Check needed", "TMI", "DE72 3AU", "cym"],
+            [3, 2, "0001", np.nan, np.nan, 1.0, "Check needed", "No mean found", "NP30 7ZZ", "cym"],
+            [4, 1, "0001", "CF10 BZZ", 100.0, 1.0, "Form sent out", "TMI", "CF10 BZZ", "cym"],
+            [5, 1, "0001", "SA50 5BE", 100.0, 1.0, "Form sent out", "No mean found", "SA50 5BE", "cym"],
+            # below, the case of short form in previous period and long form in current period
+            [6, 0, "0001", np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
+            [6, 1, "0001", np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
+            [6, 2, "0001", np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
+            # as above but status "Form sent out"
+            [7, 0, "0001", "NP10 5XX", np.nan, 1.0, "Form sent out", "MoR", "NP10 5XX", "cym"],
+            [7, 1, "0001", "NP10 5XX", 100.0, 1.0, "Form sent out", "MoR", "NP10 5XX", "cym"],
+            [7, 2, "0001", "NP10 5XX", 100.0, 1.0, "Form sent out", "MoR", "NP10 5XX", "cym"],
         ]
         exp_output_df2 = pandasDF(data=data2, columns=exp_output_cols2)
         exp_output_df2 = exp_output_df2.astype({"601": object})
