@@ -9,6 +9,7 @@ from datetime import datetime
 from src.outputs.outputs_helpers import create_output_df
 import src.outputs.map_output_cols as map_o
 from src.staging.validation import load_schema
+from src.utils.local_file_mods import filename_survey_prefixer
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -209,7 +210,9 @@ def output_frozen_group(
     # Outputting the CSV file with timestamp and run_id
     tdate = datetime.now().strftime("%y-%m-%d")
     survey_year = config["survey"]["survey_year"]
+    survey_type = config["survey"]["survey_type"]
     filename = f"{survey_year}_output_frozen_group_{tdate}_v{run_id}.csv"
+    filename = filename_survey_prefixer(filename, survey_type)
     write_csv(f"{output_path}output_frozen_group/{filename}", output)
 
     return intram_tot_dict
