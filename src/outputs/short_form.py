@@ -8,6 +8,7 @@ import src.outputs.map_output_cols as map_o
 from src.staging.validation import load_schema
 from src.imputation.imputation_helpers import fill_sf_zeros
 from src.outputs.outputs_helpers import create_output_df
+from src.utils.local_file_mods import filename_survey_prefixer
 
 
 OutputMainLogger = logging.getLogger(__name__)
@@ -123,5 +124,7 @@ def output_short_form(
 
     tdate = datetime.now().strftime("%y-%m-%d")
     survey_year = config["survey"]["survey_year"]
+    survey_type = config["survey"]["survey_type"]
     filename = f"{survey_year}_output_short_form_{tdate}_v{run_id}.csv"
+    filename = filename_survey_prefixer(filename, survey_type)
     write_csv(f"{output_path}/output_short_form/{filename}", shortform_output)
