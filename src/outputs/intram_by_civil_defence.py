@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 import numpy as np
 from datetime import datetime
-from src.utils.local_file_mods import filename_appender
+from src.utils.local_file_mods import filename_survey_prefixer
 from typing import Callable, Dict, Any
 
 OutputMainLogger = logging.getLogger(__name__)
@@ -31,7 +31,6 @@ def output_intram_by_civil_defence(
     output_path = config["outputs_paths"]["outputs_master"]
 
     period = config["survey"]["survey_year"]
-    survey = config["survey"]["survey_type"]
     period_str = str(period)
 
     # Group by civil/defence (200) and aggregate intram (211)
@@ -59,6 +58,7 @@ def output_intram_by_civil_defence(
     # Outputting the CSV file with timestamp and run_id
     tdate = datetime.now().strftime("%y-%m-%d")
     survey_year = config["survey"]["survey_year"]
+    survey_type = config["survey"]["survey_type"]
     filename = f"{survey_year}_output_intram_by_civil_defence{tdate}_v{run_id}.csv"
-    filename = filename_appender(filename, survey)
+    filename = filename_survey_prefixer(filename, survey_type)
     write_csv(f"{output_path}/output_intram_by_civil_defence/{filename}", df_for_output)

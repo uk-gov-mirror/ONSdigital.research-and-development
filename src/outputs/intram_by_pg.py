@@ -2,6 +2,7 @@
 import logging
 import pandas as pd
 from datetime import datetime
+from src.utils.local_file_mods import filename_survey_prefixer
 from typing import Callable, Dict, Any
 
 OutputMainLogger = logging.getLogger(__name__)
@@ -130,9 +131,13 @@ def _save_output_intram_as_csv(
 
     tdate = datetime.now().strftime("%y-%m-%d")
     survey_year = config["survey"]["survey_year"]
+    survey_type = config["survey"]["survey_type"]
+
     filename = (
         f"{survey_year}_output_intram_by_pg_{'uk' if uk_output else 'gb'}"
         f"_{tdate}_v{run_id}.csv")
+    filename = filename_survey_prefixer(filename, survey_type)
+
     write_csv(
         f"{output_path}/output_intram_by_pg_{'uk' if uk_output else 'gb'}/{filename}",
         df_merge)
