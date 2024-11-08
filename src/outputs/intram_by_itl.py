@@ -6,6 +6,7 @@ import pathlib
 import os
 import re
 from datetime import datetime
+from src.utils.local_file_mods import filename_survey_prefixer
 from typing import Callable, Dict, Any, Union, Tuple
 
 # Third Party Imports
@@ -18,7 +19,7 @@ OutputMainLogger = logging.getLogger(__name__)
 def save_detailed_csv(
     df: pd.DataFrame,
     output_dir: Union[pathlib.Path, str],
-    survey_year: str,
+    config: Dict[str, Any],
     title: str,
     run_id: int,
     write_csv: Callable,
@@ -43,8 +44,12 @@ def save_detailed_csv(
     Returns:
         Dict[str, int]: A dictionary of intramural totals.
     """
+    survey_year = config["survey"]["survey_year"]
+    survey = config["survey"]["survey_type"]
+
     date = datetime.now().strftime("%y-%m-%d")
     save_name = f"{survey_year}_{title}_{date}_v{run_id}.csv"
+    save_name = filename_survey_prefixer(filename=save_name, survey=survey)
     save_path = os.path.join(output_dir, save_name)
     if not overwrite and os.path.exists(save_path):
         raise FileExistsError(
@@ -158,11 +163,12 @@ def output_intram_by_itl(
         intram_tot_dict[f"{area}_itl{i}"] = round(itl_df[col_name].sum(), 0)
 
         # Save the ITL data
+
         output_dir = f"{OUTPUT_PATH}/output_intram_{area}_itl{i}/"
         save_detailed_csv(
             itl_df,
             output_dir,
-            config["survey"]["survey_year"],
+            config,
             f"output_intram_{area}_itl{i}",
             run_id,
             write_csv,

@@ -163,6 +163,16 @@ def rd_mkdir(path):
     return None
 
 
+def filename_appender(filename, survery):
+    """Append the survey type to filename if syrvery is PNG."""
+    if survery == "PNG":
+        filename = f"{survery}_{filename}"
+    else:
+        pass
+
+    return filename
+
+
 @time_logger_wrap
 def rd_write_feather(filepath, df):
     """Writes a Pandas Dataframe to a feather file on a local network drive
