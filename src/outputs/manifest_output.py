@@ -2,6 +2,8 @@ import json
 import os
 from datetime import datetime
 import logging
+from src.utils.local_file_mods import filename_survey_prefixer
+from typing import Dict, Any
 
 
 # set up logging
@@ -42,6 +44,7 @@ class Manifest:
         isfile_func: callable,
         read_header_func: callable,
         string_to_file_func: callable,
+        config: Dict[str, Any],
         dry_run: bool = False,
         delete_on_fail=False,
     ):
@@ -65,8 +68,15 @@ class Manifest:
         self.manifest_datetime = pipeline_run_datetime.strftime("%Y%m%d_%H%M")
         self.manifest_filename = self.manifest_datetime
 
+        json_filename = "metadata_manifest.json"
+        survey_type = config["survey"]["survey_type"]
+        filename = filename_survey_prefixer(
+            filename=json_filename,
+            survey_type=survey_type
+        )
+
         self.manifest_file_path = os.path.join(
-            outgoing_directory, (self.manifest_datetime + "metadata_manifest.json")
+            outgoing_directory, (self.manifest_datetime + filename)
         )
         self.manifest: dict = {"files": []}
         self.written = False
