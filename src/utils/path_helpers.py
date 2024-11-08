@@ -5,13 +5,53 @@ import logging
 PathHelpLogger = logging.getLogger(__name__)
 
 
+def validate_config_strings(config: dict) -> dict:
+    """Check that the survey type and platform type config vars are valid.
+
+    Args:
+        config (dict): The pipeline configuration.
+
+    Returns:
+        dict: The updated configuration dictionary.
+
+    Raises:
+        ValueError: If the config settings are not valid.
+    """
+    survey_type = config["survey"]["survey_type"]
+    survey_type = survey_type.upper()
+    valid_survey_types = ["BERD", "PNP"]
+
+    if survey_type not in valid_survey_types:
+        raise ValueError(
+            f"The config setting for survey_type given, {survey_type}, is not valid- "
+            f"it should be one of {valid_survey_types}"
+        )
+
+    platform = config["global"]["platform"]
+    platform = platform.lower()
+    valid_platforms = ["network", "s3"]
+
+    if platform not in valid_platforms:
+        raise ValueError(
+            f"Platform {platform} is not valid- it must be one of {valid_platforms}"
+        )
+
+    config["survey"]["survey_type"] = survey_type
+    config["global"]["platform"] = platform
+    return config
+
+
 def get_paths(config: dict) -> dict:
     """Return either network_paths or hdfs_paths despending on the environment."""
     platform = config["global"]["platform"]
+    survey = config["survey"]["survey_type"]
+
+    # select either network_paths or s3_paths from the config, depending on platform,
     paths = config[f"{platform}_paths"]
     paths["year"] = config["survey"]["survey_year"]
-    paths["berd_path"] = os.path.join(paths["root"], f"{paths['year']}_surveys/BERD/")
-    paths["pnp_path"] = os.path.join(paths["root"], f"{paths['year']}_surveys/PNP/")
+    paths["survey_path"] = os.path.join(
+        paths["root"], f"{paths['year']}_surveys/{survey}/"
+    )
     return paths
 
 
@@ -28,11 +68,11 @@ def create_module_config(config: dict, module_name: str) -> dict:
         dict: A dictionary with all the paths needed for the specified module.
     """
     paths = get_paths(config)
-    berd_path = paths["berd_path"]
+    survey_path = paths["survey_path"]
 
     module_conf = config[f"{module_name}_paths"]
     # add the folder to the BERD path
-    folder_path = os.path.join(berd_path, module_conf["folder"])
+    folder_path = os.path.join(survey_path, module_conf["folder"])
 
     # we next prefix the folder path to the imputation paths.
     module_dict = {
@@ -83,7 +123,7 @@ def create_staging_config(config: dict) -> dict:
         dict: A configuration dictionary will all paths needed for staging.
     """
     paths = get_paths(config)
-    berd_path = paths["berd_path"]
+    surv_path = paths["survey_path"]
 
     staging_dict = create_module_config(config, "staging")
 
@@ -92,11 +132,8 @@ def create_staging_config(config: dict) -> dict:
     staging_dict["updated_snapshot_path"] = paths["updated_snapshot_path"]
     staging_dict["postcode_masterlist"] = paths["postcode_masterlist"]
     staging_dict["backdata_path"] = paths["backdata_path"]
-    staging_dict[
-        "pnp_staging_qa_path"
-    ] = f"{paths['pnp_path']}{config['pnp_paths']['staging_qa_path']}"
-    staging_dict["manual_outliers_path"] = f"{berd_path}{paths['manual_outliers_path']}"
-    staging_dict["manual_imp_trim_path"] = f"{berd_path}{paths['manual_imp_trim_path']}"
+    staging_dict["manual_outliers_path"] = f"{surv_path}{paths['manual_outliers_path']}"
+    staging_dict["manual_imp_trim_path"] = f"{surv_path}{paths['manual_imp_trim_path']}"
 
     return staging_dict
 
@@ -114,13 +151,13 @@ def create_ni_staging_config(config: dict) -> dict:
         dict: A dictionary with all the paths needed for the NI staging module.
     """
     paths = get_paths(config)
-    berd_path = paths["berd_path"]
+    survey_path = paths["survey_path"]
 
     ni_staging_dict = create_module_config(config, "ni")
 
     # add in the path to the ni_full_responses
     ni_path = paths["ni_full_responses_path"]
-    ni_staging_dict["ni_full_responses"] = os.path.join(berd_path, ni_path)
+    ni_staging_dict["ni_full_responses"] = os.path.join(survey_path, ni_path)
 
     return ni_staging_dict
 
@@ -172,18 +209,18 @@ def create_freezing_config(config: dict) -> dict:
 
     # now update add freezing paths
     paths = get_paths(config)
-    berd_path = paths["berd_path"]
+    survey_path = paths["survey_path"]
     freezing_dict["frozen_data_staged_path"] = os.path.join(
-        berd_path, paths["frozen_data_staged_path"]
+        survey_path, paths["frozen_data_staged_path"]
     )
     freezing_dict["freezing_changes_to_review_path"] = os.path.join(
-        berd_path, paths["freezing_changes_to_review_path"]
+        survey_path, paths["freezing_changes_to_review_path"]
     )
     freezing_dict["freezing_additions_path"] = os.path.join(
-        berd_path, paths["freezing_additions_path"]
+        survey_path, paths["freezing_additions_path"]
     )
     freezing_dict["freezing_amendments_path"] = os.path.join(
-        berd_path, paths["freezing_amendments_path"]
+        survey_path, paths["freezing_amendments_path"]
     )
 
     return freezing_dict
@@ -202,15 +239,15 @@ def create_construction_config(config: dict) -> dict:
 
     # now update add construction paths
     paths = get_paths(config)
-    berd_path = paths["berd_path"]
+    survey_path = paths["survey_path"]
     construction_dict["all_data_construction_file_path"] = os.path.join(
-        berd_path, paths["all_data_construction_file_path"]
+        survey_path, paths["all_data_construction_file_path"]
     )
     construction_dict["construction_file_path_ni"] = os.path.join(
-        berd_path, paths["construction_file_path_ni"]
+        survey_path, paths["construction_file_path_ni"]
     )
     construction_dict["postcode_construction_file_path"] = os.path.join(
-        berd_path, paths["postcode_construction_file_path"]
+        survey_path, paths["postcode_construction_file_path"]
     )
 
     return construction_dict
@@ -289,6 +326,9 @@ def update_config_with_paths(config: dict, modules: list) -> dict:
     Returns:
         dict: The updated configuration dictionary.
     """
+    # First validate config settings for platform and survey type
+    config = validate_config_strings(config)
+
     config["staging_paths"] = create_staging_config(config)
     config["freezing_paths"] = create_freezing_config(config)
     config["ni_paths"] = create_ni_staging_config(config)
