@@ -27,6 +27,9 @@ def output_intram_by_civil_defence(
     """
     output_path = config["outputs_paths"]["outputs_master"]
 
+    period = config["survey"]["survey_year"]
+    period_str = str(period)
+
     # Group by civil/defence (200) and aggregate intram (211)
     key_col = "200"
     value_col = "211"
@@ -42,6 +45,6 @@ def output_intram_by_civil_defence(
 
     # Outputting the CSV file with timestamp and run_id
     tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["years"]["survey_year"]
+    survey_year = config["survey"]["survey_year"]
     filename = f"{survey_year}_output_intram_by_civil_defence{tdate}_v{run_id}.csv"
     write_csv(f"{output_path}/output_intram_by_civil_defence/{filename}", df_for_output)
