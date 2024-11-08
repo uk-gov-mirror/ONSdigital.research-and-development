@@ -44,7 +44,7 @@ def rd_read_csv(filepath: str, **kwargs) -> pd.DataFrame:
 
         # Read the scv file using the path and keyword arguments
         try:
-            df = pd.read_csv(file, **kwargs)
+            df = pd.read_csv(file, **kwargs, low_memory=False)
         except Exception:
             LocalModLogger.error(f"Could not read specified file: {filepath}")
             if kwargs:
