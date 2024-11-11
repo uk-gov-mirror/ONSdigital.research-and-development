@@ -39,28 +39,6 @@ short_code: str = "0006"
 long_code: str = "0001"
 
 
-def count_unique_postcodes_in_col(df: pd.DataFrame) -> pd.DataFrame:
-    """Adds a column containing  the number of unique non-empty postcodes.
-
-    Args:
-        df (pd.DataFrame): A dataframe containing all data
-
-    Returns:
-        (pd.DataFrame): A copy of original dataframe with an additional column
-            called the same as code with suffix "_count" countaining the number of
-            unique non-empty postcodes
-    """
-    dfa = df.copy()
-
-    dfa = dfa[groupby_cols + [postcode_col]]
-    dfa = dfa[dfa[postcode_col].str.len() > 0]
-    dfa = dfa.drop_duplicates()
-    dfb = dfa.groupby(groupby_cols).agg("count").reset_index()
-    dfb = dfb.rename({postcode_col: postcode_col + "_count"}, axis="columns")
-    df = df.merge(dfb, on=groupby_cols, how="left")
-    return df
-
-
 def set_percentages(df: pd.DataFrame) -> pd.DataFrame:
     """
     Set percentage column for short forms and single site long forms.
@@ -115,6 +93,28 @@ def set_percentages(df: pd.DataFrame) -> pd.DataFrame:
 
     df.loc[single_cond, percent_col] = 100
 
+    return df
+
+
+def count_unique_postcodes_in_col(df: pd.DataFrame) -> pd.DataFrame:
+    """Adds a column containing  the number of unique non-empty postcodes.
+
+    Args:
+        df (pd.DataFrame): A dataframe containing all data
+
+    Returns:
+        (pd.DataFrame): A copy of original dataframe with an additional column
+            called the same as code with suffix "_count" countaining the number of
+            unique non-empty postcodes
+    """
+    dfa = df.copy()
+
+    dfa = dfa[groupby_cols + [postcode_col]]
+    dfa = dfa[dfa[postcode_col].str.len() > 0]
+    dfa = dfa.drop_duplicates()
+    dfb = dfa.groupby(groupby_cols).agg("count").reset_index()
+    dfb = dfb.rename({postcode_col: postcode_col + "_count"}, axis="columns")
+    df = df.merge(dfb, on=groupby_cols, how="left")
     return df
 
 
