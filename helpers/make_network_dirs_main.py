@@ -93,6 +93,7 @@ def run_make_dirs():
                             "output_intram_by_sic": {},
                             "output_intram_gb_itl1": {},
                             "output_intram_gb_itl2": {},
+                            "output_intram_totals": {},
                             "output_intram_uk_itl1": {},
                             "output_intram_uk_itl2": {},
                             "output_long_form": {},
