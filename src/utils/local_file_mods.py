@@ -163,10 +163,10 @@ def rd_mkdir(path):
     return None
 
 
-def filename_survey_prefixer(filename, survery_type):
+def filename_survey_prefixer(filename, survey_type):
     """Append the survey type to filename if syrvery is PNG."""
-    if survery_type == "PNG":
-        filename = f"{survery_type}_{filename}"
+    if survey_type == "PNP":
+        filename = f"{survey_type}_{filename}"
     else:
         pass
 

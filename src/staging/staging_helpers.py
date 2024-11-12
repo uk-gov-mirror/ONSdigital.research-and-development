@@ -14,6 +14,7 @@ from src.staging import validation as val
 from src.staging import postcode_validation as pcval
 from src.staging import spp_snapshot_processing as processing
 from src.staging import spp_parser
+from src.utils.local_file_mods import filename_survey_prefixer
 
 # Create logger for this module
 StagingHelperLogger = logging.getLogger(__name__)
@@ -301,7 +302,11 @@ def stage_validate_harmonise_postcodes(
     pcodes_folder = staging_dict["pcode_val_path"]
     tdate = datetime.now().strftime("%y-%m-%d")
     survey_year = config["survey"]["survey_year"]
+    survey_type = config["survey"]["survey_type"]
     invalid_filename = f"{survey_year}_invalid_postcodes_{tdate}_v{run_id}.csv"
+    invalid_filename = filename_survey_prefixer(filename=invalid_filename,
+                                                survey_type=survey_type)
+    print(invalid_filename)
     write_csv(f"{pcodes_folder}/{invalid_filename}", invalid_df)
 
     # Log the end of postcode validation

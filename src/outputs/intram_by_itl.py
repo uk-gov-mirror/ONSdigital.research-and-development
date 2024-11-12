@@ -49,7 +49,8 @@ def save_detailed_csv(
 
     date = datetime.now().strftime("%y-%m-%d")
     save_name = f"{survey_year}_{title}_{date}_v{run_id}.csv"
-    save_name = filename_survey_prefixer(filename=save_name, survey_type=survey_type)
+    save_name = filename_survey_prefixer(filename=save_name,
+                                         survey_type=survey_type)
     save_path = os.path.join(output_dir, save_name)
     if not overwrite and os.path.exists(save_path):
         raise FileExistsError(
