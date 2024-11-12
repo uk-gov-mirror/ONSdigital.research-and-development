@@ -6,6 +6,7 @@ from typing import Callable, Dict, Any
 
 from src.outlier_detection import auto_outliers as auto
 from src.outlier_detection import manual_outliers as manual
+from src.utils.local_file_mods import filename_survey_prefixer
 
 OutlierMainLogger = logging.getLogger(__name__)
 
@@ -59,11 +60,12 @@ def run_outliers(
     # Output the file with auto outliers for manual checking
     tdate = datetime.now().strftime("%y-%m-%d")
     survey_year = config["survey"]["survey_year"]
+    survey_type = config["survey"]["survey_type"]
     if config["global"]["output_auto_outliers"]:
         OutlierMainLogger.info("Starting the output of the automatic outliers file")
-        file_path = (
-            auto_outlier_path + f"/{survey_year}_auto_outlier_{tdate}_v{run_id}.csv"
-        )
+        filename = f"/{survey_year}_auto_outlier_{tdate}_v{run_id}.csv"
+        filename = filename_survey_prefixer(filename, survey_type)
+        file_path = (auto_outlier_path + filename)
         write_csv(file_path, filtered_df)
         OutlierMainLogger.info("Finished writing CSV to %s", auto_outlier_path)
     else:
@@ -90,6 +92,7 @@ def run_outliers(
     if config["global"]["output_outlier_qa"]:
         OutlierMainLogger.info("Starting output of Outlier QA data...")
         filename = f"{survey_year}_outliers_qa_{tdate}_v{run_id}.csv"
+        filename = filename_survey_prefixer(filename, survey_type)
         write_csv(f"{outlier_qa_path}/{filename}", flagged_outlier_df)
         OutlierMainLogger.info("Finished QA output of outliers data.")
     else:
