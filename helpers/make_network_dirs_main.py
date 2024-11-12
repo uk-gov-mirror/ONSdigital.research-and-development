@@ -84,6 +84,7 @@ def run_make_dirs():
                             "apportionment_qa": {},
                         },
                         "10_outputs": {
+                            "output_frozen_group": {},
                             "output_fte_total_qa": {},
                             "output_gb_sas": {},
                             "output_intram_by_civil_defence": {},
