@@ -15,6 +15,7 @@ from src.imputation import manual_imputation as mimp
 from src.imputation.MoR import run_mor
 from src.outputs.outputs_helpers import create_output_df
 from src.utils.breakdown_validation import run_breakdown_validation
+from src.utils.local_file_mods import filename_survey_prefixer
 
 
 ImputationMainLogger = logging.getLogger(__name__)
@@ -134,6 +135,7 @@ def run_imputation(
     # Output QA files
     tdate = datetime.now().strftime("%y-%m-%d")
     survey_year = config["survey"]["survey_year"]
+    survey_type = config["survey"]["survey_type"]
 
     if config["global"]["output_imputation_qa"]:
         ImputationMainLogger.info("Outputting Imputation QA files.")
@@ -146,6 +148,13 @@ def run_imputation(
         trimmed_counts_filename = (
             f"{survey_year}_tmi_trim_count_qa_{tdate}_v{run_id}.csv"
         )
+
+        trim_qa_filename = filename_survey_prefixer(trim_qa_filename, survey_type)
+        full_imp_filename = filename_survey_prefixer(full_imp_filename, survey_type)
+        wrong_604_filename = filename_survey_prefixer(wrong_604_filename, survey_type)
+        links_filename = filename_survey_prefixer(links_filename, survey_type)
+        trimmed_counts_filename = filename_survey_prefixer(trimmed_counts_filename,
+                                                           survey_type)
 
         # create trimming qa dataframe with required columns from schema
         schema_path = config["schema_paths"]["manual_trimming_schema"]
@@ -169,6 +178,7 @@ def run_imputation(
         ImputationMainLogger.info("Outputting backdata for imputation.")
         backdata_path = config["imputation_paths"]["backdata_out_path"]
         backdata_filename = f"{survey_year}_backdata_{tdate}_v{run_id}.csv"
+        backdata_filename = filename_survey_prefixer(backdata_filename, survey_type)
         new_backdata = hlp.create_new_backdata(imputed_df, config)
         write_csv(os.path.join(backdata_path, backdata_filename), new_backdata)
 
