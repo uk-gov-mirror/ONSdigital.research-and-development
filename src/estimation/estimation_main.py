@@ -51,6 +51,7 @@ def run_estimation(
         est_qa_path = config["estimation_paths"]["qa_path"]
         cell_qa_filename = f"{survey_year}_estimation_weights_qa_{tdate}_v{run_id}.csv"
         full_qa_filename = f"{survey_year}_full_estimation_qa_{tdate}_v{run_id}.csv"
+        print(f"{est_qa_path}/{cell_qa_filename}")
         write_csv(f"{est_qa_path}/{cell_qa_filename}", qa_df)
         write_csv(f"{est_qa_path}/{full_qa_filename}", estimated_df)
     EstMainLogger.info("Finished estimation weights calculation.")
