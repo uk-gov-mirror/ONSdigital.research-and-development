@@ -40,7 +40,8 @@ def output_intram_by_civil_defence(
     df_agg["200"] = df_agg["200"].replace({"C": "Civil", "D": "Defence"})
 
     # Rename Columns with dictionary
-    columns = ({'200': 'Catergory', '211': 'Total Intramural Expenditure'})
+    columns = ({'200': 'Catergory', '211': 'Total Intramural Expenditure'}) df_for_output = df_agg.rename(columns=columns)
+
     df_for_output = df_agg.rename(columns=columns)
 
     # Outputting the CSV file with timestamp and run_id
