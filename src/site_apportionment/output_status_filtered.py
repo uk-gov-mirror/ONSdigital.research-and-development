@@ -4,6 +4,8 @@ import pandas as pd
 from datetime import datetime
 from typing import Callable, Dict, List, Any
 
+from src.utils.local_file_mods import filename_survey_prefixer
+
 
 StatusFilteredLogger = logging.getLogger(__name__)
 
@@ -78,7 +80,9 @@ def output_status_filtered(
 
     tdate = datetime.now().strftime("%y-%m-%d")
     survey_year = config["survey"]["survey_year"]
+    survey_type = config["survey"]["survey_type"]
     filename = f"{survey_year}_status_filtered_qa_{tdate}_v{run_id}.csv"
+    filename = filename_survey_prefixer(filename, survey_type)
     write_csv(f"{output_path}/output_status_filtered_qa/{filename}", filtered_df)
 
     StatusFilteredLogger.info("Finished status filtered output.")

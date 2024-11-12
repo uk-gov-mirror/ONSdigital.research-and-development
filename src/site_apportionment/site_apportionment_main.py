@@ -9,6 +9,7 @@ from src.site_apportionment.output_status_filtered import (
     output_status_filtered,
     calc_weighted_intram_tot,
 )
+from src.utils.local_file_mods import filename_survey_prefixer
 
 SitesMainLogger = logging.getLogger(__name__)
 
@@ -63,7 +64,9 @@ def run_site_apportionment(
         SitesMainLogger.info("Outputting Apportionment files.")
         tdate = datetime.now().strftime("%y-%m-%d")
         survey_year = config["survey"]["survey_year"]
+        survey_type = config["survey"]["survey_type"]
         filename = f"{survey_year}_estimated_apportioned_{tdate}_v{run_id}.csv"
+        filename = filename_survey_prefixer(filename, survey_type)
         write_csv(f"{qa_path}/{filename}", df_out)
 
     SitesMainLogger.info("Finished apportionment to sites.")
