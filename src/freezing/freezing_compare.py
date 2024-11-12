@@ -3,6 +3,7 @@ from datetime import datetime
 import os
 import pandas as pd
 from typing import Callable, Tuple
+from src.utils.local_file_mods import filename_survey_prefixer
 
 
 def get_amendments(
@@ -190,16 +191,19 @@ def output_freezing_files(
     FreezingLogger.info("Outputting changes to review file(s).")
     tdate = datetime.now().strftime("%y-%m-%d")
     survey_year = config["survey"]["survey_year"]
+    survey_type = config["survey"]["survey_type"]
 
     # Check if the dataframes are empty before writing
     if amendments_df is not None:
         filename = f"{survey_year}_freezing_amendments_to_review_{tdate}_v{run_id}.csv"
+        filename = filename_survey_prefixer(filename, survey_type)
         write_csv(
             os.path.join(freezing_changes_to_review_path, filename), amendments_df
         )
 
     if additions_df is not None:
         filename = f"{survey_year}_freezing_additions_to_review_{tdate}_v{run_id}.csv"
+        filename = filename_survey_prefixer(filename, survey_type)
         write_csv(os.path.join(freezing_changes_to_review_path, filename), additions_df)
 
     if amendments_df is None and additions_df is None:

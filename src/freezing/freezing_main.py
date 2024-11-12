@@ -10,6 +10,7 @@ from src.freezing.freezing_apply_changes import apply_freezing
 from src.staging.validation import validate_data_with_schema
 from src.utils.helpers import convert_formtype
 from src.freezing.freezing_compare import run_comparison
+from src.utils.local_file_mods import filename_survey_prefixer
 
 
 FreezingLogger = logging.getLogger(__name__)
@@ -93,9 +94,11 @@ def run_freezing(
         FreezingLogger.info("Outputting frozen data file.")
         tdate = datetime.now().strftime("%y-%m-%d")
         survey_year = config["survey"]["survey_year"]
+        survey_type = config["survey"]["survey_type"]
         filename = (
             f"{survey_year}_FROZEN_staged_BERD_full_responses_{tdate}_v{run_id}.csv"
         )
+        filename = filename_survey_prefixer(filename, survey_type)
         write_csv(
             os.path.join(frozen_data_staged_output_path, filename), prepared_frozen_data
         )
