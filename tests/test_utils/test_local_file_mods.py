@@ -172,7 +172,7 @@ def test_filename_amender_PNG():
               "filename_items": {"run_id": 88,
                                  "tdate": "2021-01-01"}}
 
-    expected_filename = "PNP_2021_a_file_name_2021-01-01_88.csv"
+    expected_filename = "PNP_2021_a_file_name_2021-01-01_v88.csv"
 
     # Act
     result_filename = filename_amender(filename, config)
@@ -191,7 +191,7 @@ def test_filename_amender_BERD():
               "filename_items": {"run_id": 88,
                                  "tdate": "2021-01-01"}}
 
-    expected_filename = "2021_a_file_name_2021-01-01_88.csv"
+    expected_filename = "2021_a_file_name_2021-01-01_v88.csv"
 
     # Act
     result_filename = filename_amender(filename, config)

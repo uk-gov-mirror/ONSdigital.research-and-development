@@ -172,9 +172,9 @@ def filename_amender(filename, config):
     tdate = config["filename_items"]["tdate"]
 
     if survey_type == "PNP":
-        filename = f"{survey_type}_{survey_year}_{filename}_{tdate}_{run_id}.csv"
+        filename = f"{survey_type}_{survey_year}_{filename}_{tdate}_v{run_id}.csv"
     else:
-        filename = f"{survey_year}_{filename}_{tdate}_{run_id}.csv"
+        filename = f"{survey_year}_{filename}_{tdate}_v{run_id}.csv"
 
     return filename
 
