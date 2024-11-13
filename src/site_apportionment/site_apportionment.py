@@ -142,10 +142,10 @@ def split_sites_df(
         (df[form_col] == long_code)
         & (df[postcode_col + "_count"] > 1)
         & (df[instance_col] >= 1)
-        & (df[percent_col] < 100)
     )
 
-    # Dataframe to_apportion_df with many products - for apportionment
+    # Dataframe
+    # to_apportion_df with many products - for apportionment
     to_apportion_df = df.copy()[to_apportion_cond]
 
     # Dataframe with everything else - save unchanged
