@@ -151,17 +151,23 @@ class TestIngramBYPg(unittest.TestCase):
     def test_generate_intarm_by_pg(self):
         """Test for _generate_intarm_by_pg."""
 
+        config = {"outputs_paths": {"outputs_master": "test_path"},
+                  "survey": {"survey_year": "2023", "survey_type": "BERD"},
+                  "filename_items": {"run_id": 88, "tdate": "2021-01-01"}}
+
         # Act
         gb_result = _generate_intarm_by_pg(self.gb_input_data(),
                                            self.ni_input_data(),
                                            self.pg_detailed_mapper_data(),
                                            uk_output=False,
-                                           config=self.create_config_dict())
+                                           config=config)
+                                           #config=self.create_config_dict())
         uk_result = _generate_intarm_by_pg(self.gb_input_data(),
                                            self.ni_input_data(),
                                            self.pg_detailed_mapper_data(),
                                            uk_output=True,
-                                           config=self.create_config_dict())
+                                           config=config)
+                                           #config=self.create_config_dict())
     
         # Assert
         assert_frame_equal(gb_result[0], self.gb_expected_output_data()[0])
