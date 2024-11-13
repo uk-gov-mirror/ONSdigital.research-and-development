@@ -49,7 +49,7 @@ class TestCreateHeadcountCols:
         Behaviour for nulls is checked.
         Rounding is also checked.
         """
-        input_df = self.create_input_df()
+        input_df = self.create_input_data()
         expected_df = self.create_expected_df()
 
         result_df = create_headcount_cols(input_df, 4)
