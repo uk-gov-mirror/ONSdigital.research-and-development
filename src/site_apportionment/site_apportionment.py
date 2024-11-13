@@ -46,16 +46,14 @@ def set_percentages(df: pd.DataFrame) -> pd.DataFrame:
     The percentage column for short forms is set to 100.
 
     The condtitions for the long forms needing 100 in the percentage column are:
-    - long forms, exactly 1 site, instance >=1 and notnull postcode
-    - long forms with status "Form sent out" imputed by TMI
+    - long forms, exactly 1 site, instance >=1 and notnull postcode but null percentage.
+    - imputed long forms, instance >=1 and no postcode or percentage.
 
-    There is another special case for long forms with status "Form sent out" which were
-    short forms in the previous period, and have been imputed with MoR or CF.
-    The postcode column was null, so must be filled from the harmonised postcodes column
-    and the count set to 1. However, the short forms in the previous period would have
-    had two instances, one for Civil and one for Defence. These will both have been
-    carried forward to the current imputation, and so need to be set with a percentage
-    of 50 in each case.
+    There are cases why an imputed long form might have no postcode or percentage:
+    - The form was a short form in the previous period and has been imputed with MoR/CF.
+    - The form had status "Form sent out" and was imputed using TMI.
+    In these cases, we fill the postcode column with the postcodes_harmonised value
+    (from IDBR) and set the count to 1.
 
     Args:
         df (pd.DataFrame): The input DataFrame.
@@ -68,20 +66,6 @@ def set_percentages(df: pd.DataFrame) -> pd.DataFrame:
     """
     # Condition for short forms
     df.loc[(df[form_col] == short_code), percent_col] = 100
-    # Condition for long forms with status "Form sent out"
-    # Note: those imputed by MoR might have had the postcode column imputed, so we check
-    # for null in the postcode count column
-    sent_out_condition = (
-        (df[form_col] == long_code)
-        & (df[status_col] == "Form sent out")
-        & (df[postcode_col + "_count"].isna())
-        & (df[postcode_col].isna())
-    )
-    # Update records matching the sent_out_condition with a postcode and count of 1
-    df.loc[sent_out_condition, postcode_col] = df.loc[
-        sent_out_condition, "postcodes_harmonised"
-    ]
-    df.loc[sent_out_condition, postcode_col + "_count"] = 1
 
     # Condition for long forms, exactly 1 site, instance >=1 and notnull postcode
     single_cond = (
@@ -92,6 +76,19 @@ def set_percentages(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     df.loc[single_cond, percent_col] = 100
+
+    # Condition for imputed long forms with no postcode or percentage
+    imputed_cond = (
+        (df[form_col] == long_code)
+        & (df[instance_col] >= 1)
+        & (df["imp_marker"].isin(["MoR", "CF", "TMI"]))
+        & (df[postcode_col + "_count"].isna())
+    )
+
+    # Update records matching the imputed_cond with a postcode and count of 1
+    df.loc[imputed_cond, postcode_col] = df.loc[imputed_cond, "postcodes_harmonised"]
+    df.loc[imputed_cond, percent_col] = 100
+    df.loc[imputed_cond, postcode_col + "_count"] = 1
 
     return df
 

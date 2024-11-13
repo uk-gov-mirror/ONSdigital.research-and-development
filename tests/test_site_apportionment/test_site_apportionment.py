@@ -62,16 +62,13 @@ def create_input_df():
         [333, 0, "2020", "C", "A", 40, "0001", np.nan, np.nan, np.nan, np.nan, "Check needed", "TMI", "NP30 7ZZ", "cym"],
         [333, 1, "2020", "C", "A", 40, "0001", 100, "yes", "DE72 3AU", np.nan, "Check needed", "TMI", "DE72 3AU", "cym"],
         [333, 2, "2020", "C", "A", 40, "0001", 100, "yes", np.nan, np.nan, "Check needed", "No mean found", "NP30 7ZZ", "cym"],
+        # below, the case of Form sent out status imputed by TMI
         [444, 1, "2020", "C", "A", 40, "0001", 100, "yes", np.nan, np.nan, "Form sent out", "TMI", "CF10 BZZ", "cym"],
         [555, 1, "2020", "C", "A", 40, "0001", 100, "yes", np.nan, np.nan, "Form sent out", "No mean found", "SA50 5BE", "cym"],
         # below, the case of short form in previous period and long form in current period
         [666, 0, "2020", "C", "A", 40, "0001", np.nan, np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
         [666, 1, "2020", "C", "A", 40, "0001", 100, "yes", np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
         [666, 2, "2020", "C", "A", 40, "0001", 100, "yes", np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
-        # as above but status "Form sent out"
-        [777, 0, "2020", "C", "A", 40, "0001", np.nan, np.nan, np.nan, np.nan, "Form sent out", "MoR", "NP10 5XX", "cym"],
-        [777, 1, "2020", "C", "A", 40, "0001", 100, "yes", np.nan, np.nan, "Form sent out", "MoR", "NP10 5XX", "cym"],
-        [777, 2, "2020", "D", "XX", 70, "0001", 100, "yes", np.nan, np.nan, "Form sent out", "MoR", "NP10 5XX", "cym"],
     ]
 
     input_df = pandasDF(data=data, columns=input_columns)
@@ -110,62 +107,17 @@ def create_exp_postcode_count_output_df():
         [333, 0, "2020", "0001",  np.nan, np.nan, "Check needed", "TMI", "NP30 7ZZ", "cym", 1.0],
         [333, 1, "2020", "0001",  "DE72 3AU", np.nan, "Check needed", "TMI", "DE72 3AU", "cym", 1.0],
         [333, 2, "2020", "0001",  np.nan, np.nan, "Check needed", "No mean found", "NP30 7ZZ", "cym", 1.0],
+        # below, the case of Form sent out status imputed by TMI
         [444, 1, "2020", "0001",  np.nan, np.nan, "Form sent out", "TMI", "CF10 BZZ", "cym", np.nan],
         [555, 1, "2020", "0001",  np.nan, np.nan, "Form sent out", "No mean found", "SA50 5BE", "cym", np.nan],
         # below, the case of short form in previous period and long form in current period
         [666, 0, "2020", "0001",  np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym", np.nan],
         [666, 1, "2020", "0001",  np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym", np.nan],
         [666, 2, "2020", "0001",  np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym", np.nan],
-        # as above but status "Form sent out"
-        [777, 0, "2020", "0001",  np.nan, np.nan, "Form sent out", "MoR", "NP10 5XX", "cym", np.nan],
-        [777, 1, "2020", "0001",  np.nan, np.nan, "Form sent out", "MoR", "NP10 5XX", "cym", np.nan],
-        [777, 2, "2020", "0001",  np.nan, np.nan, "Form sent out", "MoR", "NP10 5XX", "cym", np.nan],
     ]
 
     exp_output_df = pandasDF(data=data, columns=exp_output_columns)
     return exp_output_df
-
-
-# @pytest.fixture
-# def create_input_df():
-#     """Create an input dataframe for the test."""
-#     input_columns = [
-#         "reference",
-#         "instance",
-#         "formtype",
-#         "601",
-#         "602",
-#         "601_count",
-#         "status",
-#         "imp_marker",
-#         "postcodes_harmonised",
-#         "itl"
-#     ]
-
-#     data = [
-#         [1, 0, "0006", np.nan, np.nan, np.nan, "Clear", "R", "NP10 5XX", "cym"],
-#         [1, 1, "0006", np.nan, np.nan, np.nan, "Clear", "R", "NP10 5XX", "cym"],
-#         [1, 2, "0006", np.nan, np.nan, np.nan, "Clear", "R", "NP10 5XX", "cym"],
-#         [2, 0, "0001", np.nan, np.nan, 2.0, "Clear", "R", "NP20 6YY", "cym"],
-#         [2, 1, "0001", "CB1 3NF", 60.0, 2.0, "Clear", "R", "CB1 3NF", "cym"],
-#         [2, 2, "0001", "BA1 5DA", 40.0, 2.0, "Clear", "R", "BA1 5DA", "cym"],
-#         [3, 0, "0001", np.nan, np.nan, 1.0, "Check needed", "TMI", "NP30 7ZZ", "cym"],
-#         [3, 1, "0001", "DE72 3AU", np.nan, 1.0, "Check needed", "TMI", "DE72 3AU", "cym"],
-#         [3, 2, "0001", np.nan, np.nan, 1.0, "Check needed", "No mean found", "NP30 7ZZ", "cym"],
-#         [4, 1, "0001", np.nan, np.nan, np.nan, "Form sent out", "TMI", "CF10 BZZ", "cym"],
-#         [5, 1, "0001", np.nan, np.nan, np.nan, "Form sent out", "No mean found", "SA50 5BE", "cym"],
-#         # below, the case of short form in previous period and long form in current period
-#         [6, 0, "0001", np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
-#         [6, 1, "0001", np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
-#         [6, 2, "0001", np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
-#         # as above but status "Form sent out"
-#         [7, 0, "0001", np.nan, np.nan, np.nan, "Form sent out", "MoR", "NP10 5XX", "cym"],
-#         [7, 1, "0001", np.nan, np.nan, np.nan, "Form sent out", "MoR", "NP10 5XX", "cym"],
-#         [7, 2, "0001", np.nan, np.nan, np.nan, "Form sent out", "MoR", "NP10 5XX", "cym"],
-#     ]
-
-#     input_df = pandasDF(data=data, columns=input_columns)
-#     return input_df
 
 
 @pytest.fixture
@@ -200,16 +152,13 @@ def create_exp_percent_test_output_df():
         [333, 0, "2020", "0001",  np.nan, np.nan, 1.0, "Check needed", "TMI", "NP30 7ZZ", "cym"],
         [333, 1, "2020", "0001",  "DE72 3AU", 100.0, 1.0, "Check needed", "TMI", "DE72 3AU", "cym"],
         [333, 2, "2020", "0001",  np.nan, np.nan, 1.0, "Check needed", "No mean found", "NP30 7ZZ", "cym"],
+        # below, the case of Form sent out status imputed by TMI
         [444, 1, "2020", "0001",  "CF10 BZZ", 100.0, 1.0, "Form sent out", "TMI", "CF10 BZZ", "cym"],
-        [555, 1, "2020", "0001",  "SA50 5BE", 100.0, 1.0, "Form sent out", "No mean found", "SA50 5BE", "cym"],
+        [555, 1, "2020", "0001",  np.nan, np.nan, np.nan, "Form sent out", "No mean found", "SA50 5BE", "cym"],
         # below, the case of short form in previous period and long form in current period
         [666, 0, "2020", "0001",  np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
-        [666, 1, "2020", "0001",  np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
-        [666, 2, "2020", "0001",  np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
-        # as above but status "Form sent out"
-        [777, 0, "2020", "0001",  "NP10 5XX", np.nan, 1.0, "Form sent out", "MoR", "NP10 5XX", "cym"],
-        [777, 1, "2020", "0001",  "NP10 5XX", 100.0, 1.0, "Form sent out", "MoR", "NP10 5XX", "cym"],
-        [777, 2, "2020", "0001",  "NP10 5XX", 100.0, 1.0, "Form sent out", "MoR", "NP10 5XX", "cym"],
+        [666, 1, "2020", "0001",  "NP10 5XX", 100.0, 1.0, "Check needed", "MoR", "NP10 5XX", "cym"],
+        [666, 2, "2020", "0001",  "NP10 5XX", 100.0, 1.0, "Check needed", "MoR", "NP10 5XX", "cym"],
     ]
 
     exp_output_df = pandasDF(data=data, columns=exp_output_columns)
@@ -297,12 +246,8 @@ class TestSplitSitesDf:
             [444, 1, "2020", "0001",  "CF10 BZZ", 100.0, 1.0, "Form sent out", "TMI", "CF10 BZZ", "cym"],
             # below, the case of short form in previous period and long form in current period
             [666, 0, "2020", "0001",  np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
-            [666, 1, "2020", "0001",  np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
-            [666, 2, "2020", "0001",  np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
-            # as above but status "Form sent out"
-            [777, 0, "2020", "0001",  "NP10 5XX", np.nan, 1.0, "Form sent out", "MoR", "NP10 5XX", "cym"],
-            [777, 1, "2020", "0001",  "NP10 5XX", 100.0, 1.0, "Form sent out", "MoR", "NP10 5XX", "cym"],
-            [777, 2, "2020", "0001",  "NP10 5XX", 100.0, 1.0, "Form sent out", "MoR", "NP10 5XX", "cym"],
+            [666, 1, "2020", "0001",  "NP10 5XX", 100.0, 1.0, "Check needed", "MoR", "NP10 5XX", "cym"],
+            [666, 2, "2020", "0001",  "NP10 5XX", 100.0, 1.0, "Check needed", "MoR", "NP10 5XX", "cym"],
         ]
         exp_output_df2 = pandasDF(data=data2, columns=exp_output_cols2)
         exp_output_df2 = exp_output_df2.astype({"601": object})
@@ -1062,11 +1007,8 @@ class TestRunApportionSites(object):
             [333, 1, "2020", "C", "A", 40, "0001", 100, "yes", "DE72 3AU", 100.0, "Check needed", "TMI", "DE72 3AU", "cym", "eng"],
             [444, 1, "2020", "C", "A", 40, "0001", 100, "yes", "CF10 BZZ", 100.0, "Form sent out", "TMI", "CF10 BZZ", "cym", "eng"],
             [666, 0, "2020", "C", "A", 40, "0001", np.nan, np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym", "eng"],
-            [666, 1, "2020", "C", "A", 40, "0001", 100, "yes", np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym", "eng"],
-            [666, 2, "2020", "C", "A", 40, "0001", 100, "yes", np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym", "eng"],
-            [777, 0, "2020", "C", "A", 40, "0001", np.nan, np.nan, "NP10 5XX", np.nan, "Form sent out", "MoR", "NP10 5XX", "cym", "eng"],
-            [777, 1, "2020", "C", "A", 40, "0001", 100, "yes", "NP10 5XX", 100.0, "Form sent out", "MoR", "NP10 5XX", "cym", "eng"],
-            [777, 2, "2020", "D", "XX", 70, "0001", 100, "yes", "NP10 5XX", 100.0, "Form sent out", "MoR", "NP10 5XX", "cym", "eng"],
+            [666, 1, "2020", "C", "A", 40, "0001", 100, "yes", "NP10 5XX", 100.0, "Check needed", "MoR", "NP10 5XX", "cym", "eng"],
+            [666, 2, "2020", "C", "A", 40, "0001", 100, "yes", "NP10 5XX", 100.0, "Check needed", "MoR", "NP10 5XX", "cym", "eng"],
         ]
 
         exp_output_df = pandasDF(data=data, columns=exp_output_cols)
