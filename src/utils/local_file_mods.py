@@ -163,12 +163,18 @@ def rd_mkdir(path):
     return None
 
 
-def filename_survey_prefixer(filename, survey_type):
+def filename_amender(filename, config):
     """Append the survey type to filename if syrvery is PNG."""
+
+    survey_year = config["survey"]["survey_year"]
+    survey_type = config["survey"]["survey_type"]
+    run_id = config["filename_items"]["run_id"]
+    tdate = config["filename_items"]["tdate"]
+
     if survey_type == "PNP":
-        filename = f"{survey_type}_{filename}"
+        filename = f"{survey_type}_{survey_year}_{filename}_{tdate}_{run_id}.csv"
     else:
-        pass
+        filename = f"{survey_year}_{filename}_{tdate}_{run_id}.csv"
 
     return filename
 

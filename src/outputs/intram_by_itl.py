@@ -6,7 +6,7 @@ import pathlib
 import os
 import re
 from datetime import datetime
-from src.utils.local_file_mods import filename_survey_prefixer
+from src.utils.local_file_mods import filename_amender
 from typing import Callable, Dict, Any, Union, Tuple
 
 # Third Party Imports
@@ -44,13 +44,8 @@ def save_detailed_csv(
     Returns:
         Dict[str, int]: A dictionary of intramural totals.
     """
-    survey_year = config["survey"]["survey_year"]
-    survey_type = config["survey"]["survey_type"]
-
-    date = datetime.now().strftime("%y-%m-%d")
-    save_name = f"{survey_year}_{title}_{date}_v{run_id}.csv"
-    save_name = filename_survey_prefixer(filename=save_name,
-                                         survey_type=survey_type)
+    save_name = filename_amender(filename=title,
+                                 config=config)
     save_path = os.path.join(output_dir, save_name)
     if not overwrite and os.path.exists(save_path):
         raise FileExistsError(

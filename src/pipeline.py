@@ -1,5 +1,6 @@
 """The main pipeline"""
 # Core Python modules
+from datetime import datetime
 import logging
 import pandas as pd
 
@@ -79,6 +80,13 @@ def run_pipeline(user_config_path, dev_config_path):
     runlog_obj.write_mainlog()
 
     run_id = runlog_obj.run_id
+
+    # update config to include run_id and tdate for when files are written
+    run_id = runlog_obj.run_id
+    tdate = datetime.now().strftime("%y-%m-%d")
+    config.update({"filename_items": {"run_id": run_id,
+                                      "tdate": tdate}})
+
     MainLogger.info(f"Reading user config from {user_config_path}.")
     MainLogger.info(f"Reading developer config from {dev_config_path}.")
 
