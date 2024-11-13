@@ -3,11 +3,10 @@
 import logging
 import os
 from typing import Callable, Tuple
-from datetime import datetime
 import pandas as pd
 
 from src.staging import validation as val
-from src.utils.local_file_mods import filename_survey_prefixer
+from src.utils.local_file_mods import filename_amender
 
 NIStagingLogger = logging.getLogger(__name__)
 
@@ -100,13 +99,8 @@ def run_ni_staging(
     if config["global"]["output_ni_full_responses"]:
         NIStagingLogger.info("Starting output of staged NI data...")
         staging_folder = config["ni_paths"]["ni_staging_output_path"]
-        tdate = datetime.now().strftime("%y-%m-%d")
-        survey_year = config["survey"]["survey_year"]
-        survey_type = config["survey"]["survey_type"]
-        staged_filename = (
-            f"{survey_year}_staged_NI_full_responses_{tdate}_v{run_id}.csv"
-        )
-        staged_filename = filename_survey_prefixer(staged_filename, survey_type)
+        staged_filename = "staged_NI_full_responses"
+        staged_filename = filename_amender(staged_filename, config)
         write_csv(os.path.join(staging_folder, staged_filename), ni_responses_df)
         NIStagingLogger.info("Finished output of staged NI data.")
     else:

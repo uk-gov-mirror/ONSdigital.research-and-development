@@ -1,8 +1,7 @@
 """The main file for the BERD Intram by SIC output."""
 import logging
 import pandas as pd
-from datetime import datetime
-from src.utils.local_file_mods import filename_survey_prefixer
+from src.utils.local_file_mods import filename_amender
 from typing import Callable, Dict, Any
 
 OutputMainLogger = logging.getLogger(__name__)
@@ -92,11 +91,8 @@ def output_intram_by_sic(
     df_selected = df_merge[selected_columns]
 
     # Outputting the CSV file with timestamp and run_id
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["survey"]["survey_year"]
-    survey_type = config["survey"]["survey_type"]
-    filename = f"{survey_year}_output_intram_by_sic_{tdate}_v{run_id}.csv"
-    filename = filename_survey_prefixer(filename, survey_type)
+    filename = "output_intram_by_sic"
+    filename = filename_amender(filename, config)
     write_csv(f"{output_path}/output_intram_by_sic/{filename}", df_selected)
 
     # Update intram totals dict for comparison of aggregates across outputs

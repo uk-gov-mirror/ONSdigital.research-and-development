@@ -1,12 +1,11 @@
 """Main file for the estimation module."""
 import logging
-from datetime import datetime
 from typing import Any, Callable, Dict
 import pandas as pd
 
 from src.estimation import apply_weights as appweights
 from src.estimation import calculate_weights as weights
-from src.utils.local_file_mods import filename_survey_prefixer
+from src.utils.local_file_mods import filename_amender
 
 EstMainLogger = logging.getLogger(__name__)
 
@@ -47,14 +46,11 @@ def run_estimation(
 
     if config["global"]["output_estimation_qa"]:
         EstMainLogger.info("Outputting estimation QA file.")
-        tdate = datetime.now().strftime("%y-%m-%d")
-        survey_year = config["survey"]["survey_year"]
-        survey_type = config["survey"]["survey_type"]
         est_qa_path = config["estimation_paths"]["qa_path"]
-        cell_qa_filename = f"{survey_year}_estimation_weights_qa_{tdate}_v{run_id}.csv"
-        full_qa_filename = f"{survey_year}_full_estimation_qa_{tdate}_v{run_id}.csv"
-        cell_qa_filename = filename_survey_prefixer(cell_qa_filename, survey_type)
-        full_qa_filename = filename_survey_prefixer(full_qa_filename, survey_type)
+        cell_qa_filename = "estimation_weights_qa"
+        full_qa_filename = "full_estimation_qa"
+        cell_qa_filename = filename_amender(cell_qa_filename, config)
+        full_qa_filename = filename_amender(full_qa_filename, config)
         write_csv(f"{est_qa_path}/{cell_qa_filename}", qa_df)
         write_csv(f"{est_qa_path}/{full_qa_filename}", estimated_df)
     EstMainLogger.info("Finished estimation weights calculation.")

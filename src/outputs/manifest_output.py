@@ -2,7 +2,7 @@ import json
 import os
 from datetime import datetime
 import logging
-from src.utils.local_file_mods import filename_survey_prefixer
+from src.utils.local_file_mods import filename_amender
 from typing import Dict, Any
 
 
@@ -68,12 +68,12 @@ class Manifest:
         self.manifest_datetime = pipeline_run_datetime.strftime("%Y%m%d_%H%M")
         self.manifest_filename = self.manifest_datetime
 
-        json_filename = "metadata_manifest.json"
-        survey_type = config["survey"]["survey_type"]
-        filename = filename_survey_prefixer(
+        json_filename = "metadata_manifest"
+        filename = filename_amender(
             filename=json_filename,
-            survey_type=survey_type
+            config=config
         )
+        filename = filename.replace("csv", "json")
 
         self.manifest_file_path = os.path.join(
             outgoing_directory, (self.manifest_datetime + filename)

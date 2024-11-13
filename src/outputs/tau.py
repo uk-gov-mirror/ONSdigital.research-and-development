@@ -1,12 +1,11 @@
 """The main file for the Tau output module."""
 import logging
 import pandas as pd
-from datetime import datetime
 from typing import Callable, Dict, Any
 import src.outputs.map_output_cols as map_o
 from src.staging.validation import load_schema
 from src.outputs.outputs_helpers import create_output_df
-from src.utils.local_file_mods import filename_survey_prefixer
+from src.utils.local_file_mods import filename_amender
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -66,11 +65,9 @@ def output_tau(
     tau_output = create_output_df(df, schema_dict)
 
     # Outputting the CSV file with timestamp and run_id
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["survey"]["survey_year"]
-    survey_type = config["survey"]["survey_type"]
-    filename = f"{survey_year}_output_tau_{tdate}_v{run_id}.csv"
-    filename = filename_survey_prefixer(filename, survey_type)
+
+    filename = "output_tau"
+    filename = filename_amender(filename, config)
     write_csv(f"{output_path}/output_tau/{filename}", tau_output)
 
     return intram_tot_dict

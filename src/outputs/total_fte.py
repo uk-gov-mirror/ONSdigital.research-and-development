@@ -1,8 +1,7 @@
 """The main file for the BERD total FTE output."""
 import logging
 import pandas as pd
-from datetime import datetime
-from src.utils.local_file_mods import filename_survey_prefixer
+from src.utils.local_file_mods import filename_amender
 from typing import Callable, Dict, Any
 
 
@@ -36,9 +35,6 @@ def qa_output_total_fte(
     )
 
     # Outputting the CSV file with timestamp and run_id
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["survey"]["survey_year"]
-    survey_type = config["survey"]["survey_type"]
-    filename = f"{survey_year}_total_fte_qa_{tdate}_v{run_id}.csv"
-    filename = filename_survey_prefixer(filename, survey_type)
+    filename = "total_fte_qa"
+    filename = filename_amender(filename, config)
     write_csv(f"{output_path}/output_fte_total_qa/{filename}", qa_total_fte_df)

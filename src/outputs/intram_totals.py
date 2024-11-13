@@ -4,8 +4,7 @@ import logging
 from typing import Callable, Dict, Any
 
 import pandas as pd
-from datetime import datetime
-from src.utils.local_file_mods import filename_survey_prefixer
+from src.utils.local_file_mods import filename_amender
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -42,9 +41,6 @@ def output_intram_totals(
     OutputMainLogger.info("Intramural totals:")
     OutputMainLogger.info(intram_tot_df)
 
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["survey"]["survey_year"]
-    survey_type = config["survey"]["survey_type"]
-    filename = f"{survey_year}_intram_totals_{tdate}_v{run_id}.csv"
-    filename = filename_survey_prefixer(filename, survey_type)
+    filename = "intram_totals"
+    filename = filename_amender(filename, config)
     write_csv(f"{output_path}/output_intram_totals/{filename}", intram_tot_df)

@@ -3,7 +3,6 @@ import logging
 import os
 import pandas as pd
 from typing import Callable, Dict, Any
-from datetime import datetime
 
 from src.imputation import imputation_helpers as hlp
 from src.imputation import tmi_imputation as tmi
@@ -15,7 +14,7 @@ from src.imputation import manual_imputation as mimp
 from src.imputation.MoR import run_mor
 from src.outputs.outputs_helpers import create_output_df
 from src.utils.breakdown_validation import run_breakdown_validation
-from src.utils.local_file_mods import filename_survey_prefixer
+from src.utils.local_file_mods import filename_amender
 
 
 ImputationMainLogger = logging.getLogger(__name__)
@@ -133,28 +132,20 @@ def run_imputation(
     ImputationMainLogger.info("Finished Imputation calculation.")
 
     # Output QA files
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["survey"]["survey_year"]
-    survey_type = config["survey"]["survey_type"]
-
     if config["global"]["output_imputation_qa"]:
         ImputationMainLogger.info("Outputting Imputation QA files.")
-        links_filename = f"{survey_year}_links_qa_{tdate}_v{run_id}.csv"
-        trim_qa_filename = f"{survey_year}_trimming_qa_{tdate}_v{run_id}.csv"
-        full_imp_filename = (
-            f"{survey_year}_full_responses_imputed_{tdate}_v{run_id}.csv"
-        )
-        wrong_604_filename = f"{survey_year}_wrong_604_error_qa_{tdate}_v{run_id}.csv"
-        trimmed_counts_filename = (
-            f"{survey_year}_tmi_trim_count_qa_{tdate}_v{run_id}.csv"
-        )
+        links_filename = "links_qa"
+        trim_qa_filename = "trimming_qa"
+        full_imp_filename = "full_responses_imputed"
+        wrong_604_filename = "wrong_604_error_qa"
+        trimmed_counts_filename = "tmi_trim_count_qa"
 
-        trim_qa_filename = filename_survey_prefixer(trim_qa_filename, survey_type)
-        full_imp_filename = filename_survey_prefixer(full_imp_filename, survey_type)
-        wrong_604_filename = filename_survey_prefixer(wrong_604_filename, survey_type)
-        links_filename = filename_survey_prefixer(links_filename, survey_type)
-        trimmed_counts_filename = filename_survey_prefixer(trimmed_counts_filename,
-                                                           survey_type)
+        trim_qa_filename = filename_amender(trim_qa_filename, config)
+        full_imp_filename = filename_amender(full_imp_filename, config)
+        wrong_604_filename = filename_amender(wrong_604_filename, config)
+        links_filename = filename_amender(links_filename, config)
+        trimmed_counts_filename = filename_amender(trimmed_counts_filename,
+                                                   config)
 
         # create trimming qa dataframe with required columns from schema
         schema_path = config["schema_paths"]["manual_trimming_schema"]
@@ -177,8 +168,8 @@ def run_imputation(
     if config["global"]["output_backdata"]:
         ImputationMainLogger.info("Outputting backdata for imputation.")
         backdata_path = config["imputation_paths"]["backdata_out_path"]
-        backdata_filename = f"{survey_year}_backdata_{tdate}_v{run_id}.csv"
-        backdata_filename = filename_survey_prefixer(backdata_filename, survey_type)
+        backdata_filename = "backdata"
+        backdata_filename = filename_amender(backdata_filename, config)
         new_backdata = hlp.create_new_backdata(imputed_df, config)
         write_csv(os.path.join(backdata_path, backdata_filename), new_backdata)
 
