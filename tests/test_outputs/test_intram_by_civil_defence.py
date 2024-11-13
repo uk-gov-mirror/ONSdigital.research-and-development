@@ -1,41 +1,35 @@
 """Tests for intram_by_civil_defence.py."""
-# Standard Library Imports
 
-#Local Standard Library Imports
+# Local Standard Library Imports
+import pandas as pd
 import pytest
 
-#Third Party Imports
-import pandas as pd
-import numpy as np
-
 # Local Imports
-from src.outputs.intram_by_civil_defence import (output_intram_by_civil_defence)
+from src.outputs.intram_by_civil_defence import (generate_intram_by_civil_defence)
+
 
 class TestIntramByCivilDefence(object):
+
     """Test for Civil and Defence Output."""
-    
     @pytest.fixture(scope="function")
     def input_data(self):
-        """Input dataframes for civil_defence output"""
-        columns= ["reference", "period", "200", "211"]
-    
-        data = [1, 2020, "C", 1000,
-                2, 2020, "D", 2000,
-                3, 2020, "C", nan,
-                4, 2020, "D", 500,
-                5, 2020, "C", 3020,
-                6, 2020, "D", 40,
-                7  2020, "D", 6000,
-                8, 2020, "C", 700,
-                9, 2020, "D", 8180,
-                10, 2020, "C", 960]
-        df=pd.DataFrame(data=data, columns=columns)
-        return
-    
+        """Create input dataframe"""
+
+        data = {"200": ["C", "D", "C", "D", "C", "D", "D", "C", "D", "C"],
+                "211": [1000, 2000, 0, 500, 3020, 40, 6000, 700, 8180, 960], }
+        input_df = pd.DataFrame(data)
+        return input_df
+
     @pytest.fixture(scope="function")
-    def exp_out(self:
-                """Expected output for civil_defence output"""
-        columns = ["200", "211"]
-        data = [["Civil", 4720], ["Defence", 10720]]
-        df = pd.DataFrame(data=data, columns=columns)
-        return df
+    def exp_out(self):
+        """Create expected output dataframe"""
+        columns = ["Catergory", "Total Intramural Expenditure"]
+        data = [["Civil", 5680], ["Defence", 16720]]
+        expected_df = pd.DataFrame(data=data, columns=columns)
+        return expected_df
+
+    def test_generate_intram_by_civil_defence(self, input_data, exp_out):
+        """Test generate_intram_by_civil_defence function.
+        The test checks if Civil and Defense are catergorised and summed correctly."""
+        output_df = generate_intram_by_civil_defence(input_data)
+        assert output_df.equals(exp_out)

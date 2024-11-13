@@ -27,8 +27,7 @@ def output_intram_by_civil_defence(
     """
 
     df_for_output = generate_intram_by_civil_defence(
-        df
-    )
+        df)
 
     # Outputting the CSV file with timestamp and run_id
     output_path = config["outputs_paths"]["outputs_master"]
@@ -37,8 +36,6 @@ def output_intram_by_civil_defence(
     survey_year = config["survey"]["survey_year"]
     filename = f"{survey_year}_output_intram_by_civil_defence{tdate}_v{run_id}.csv"
     write_csv(f"{output_path}/output_intram_by_civil_defence/{filename}", df_for_output)
-
-    
 
     return df_for_output
 
