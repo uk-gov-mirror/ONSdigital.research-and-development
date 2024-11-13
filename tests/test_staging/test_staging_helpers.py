@@ -4,7 +4,7 @@ import os
 import pytest
 import pathlib
 from unittest.mock import Mock
-from typing import Tuple
+from typing import Tuple, Dict, Any
 from datetime import date
 
 # Third Party Imports
@@ -216,7 +216,7 @@ class TestStageValidateHarmonisePostcodes(object):
     """Tests for stage_validate_harmonise_postcodes."""
 
     @pytest.fixture(scope="function")
-    def config(self, tmp_path) -> pd.DataFrame:
+    def config(self, tmp_path) -> Dict[str, Any]:
         """Test config."""
         config = {
             "global": {"postcode_csv_check": True},
@@ -307,6 +307,7 @@ class TestStageValidateHarmonisePostcodes(object):
         today = date.today()
         today_str = today.strftime(r"%y-%m-%d")
         return today_str
+
 
     def test_stage_validate_harmonise_postcodes(
         self, full_responses, config, pc_mapper_output, full_responses_output, tmp_path
