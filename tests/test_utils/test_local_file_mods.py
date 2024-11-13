@@ -1,7 +1,6 @@
 import pytest
 import os
 import json
-import io
 import pathlib
 from typing import Union
 
