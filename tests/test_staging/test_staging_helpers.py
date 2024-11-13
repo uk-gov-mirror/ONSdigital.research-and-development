@@ -308,7 +308,6 @@ class TestStageValidateHarmonisePostcodes(object):
         today_str = today.strftime(r"%y-%m-%d")
         return today_str
 
-
     def test_stage_validate_harmonise_postcodes(
         self, full_responses, config, pc_mapper_output, full_responses_output, tmp_path
     ):

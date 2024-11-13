@@ -2,7 +2,7 @@ import logging
 import os
 import pandas as pd
 from typing import Callable, Tuple
-from src.utils.local_file_mods import filename_amender
+from src.utils.helpers import filename_amender
 
 
 def get_amendments(

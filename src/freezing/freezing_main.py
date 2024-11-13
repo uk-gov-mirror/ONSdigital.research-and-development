@@ -9,7 +9,7 @@ from src.freezing.freezing_apply_changes import apply_freezing
 from src.staging.validation import validate_data_with_schema
 from src.utils.helpers import convert_formtype
 from src.freezing.freezing_compare import run_comparison
-from src.utils.local_file_mods import filename_amender
+from src.utils.helpers import filename_amender
 
 
 FreezingLogger = logging.getLogger(__name__)

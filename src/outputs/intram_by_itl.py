@@ -5,7 +5,7 @@ import logging
 import pathlib
 import os
 import re
-from src.utils.local_file_mods import filename_amender
+from src.utils.helpers import filename_amender
 from typing import Callable, Dict, Any, Union, Tuple
 
 # Third Party Imports

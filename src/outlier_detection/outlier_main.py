@@ -5,7 +5,7 @@ from typing import Callable, Dict, Any
 
 from src.outlier_detection import auto_outliers as auto
 from src.outlier_detection import manual_outliers as manual
-from src.utils.local_file_mods import filename_amender
+from src.utils.helpers import filename_amender
 
 OutlierMainLogger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ def run_outliers(
         OutlierMainLogger.info("Starting the output of the automatic outliers file")
         filename = "auto_outlier"
         filename = filename_amender(filename, config)
-        file_path = (auto_outlier_path + filename)
+        file_path = auto_outlier_path + filename
         write_csv(file_path, filtered_df)
         OutlierMainLogger.info("Finished writing CSV to %s", auto_outlier_path)
     else:

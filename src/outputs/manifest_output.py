@@ -2,7 +2,7 @@ import json
 import os
 from datetime import datetime
 import logging
-from src.utils.local_file_mods import filename_amender
+from src.utils.helpers import filename_amender
 from typing import Dict, Any
 
 

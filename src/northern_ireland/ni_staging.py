@@ -6,7 +6,7 @@ from typing import Callable, Tuple
 import pandas as pd
 
 from src.staging import validation as val
-from src.utils.local_file_mods import filename_amender
+from src.utils.helpers import filename_amender
 
 NIStagingLogger = logging.getLogger(__name__)
 

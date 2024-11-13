@@ -14,7 +14,7 @@ from src.imputation import manual_imputation as mimp
 from src.imputation.MoR import run_mor
 from src.outputs.outputs_helpers import create_output_df
 from src.utils.breakdown_validation import run_breakdown_validation
-from src.utils.local_file_mods import filename_amender
+from src.utils.helpers import filename_amender
 
 
 ImputationMainLogger = logging.getLogger(__name__)

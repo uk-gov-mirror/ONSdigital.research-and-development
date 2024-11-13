@@ -13,7 +13,7 @@ from src.staging import validation as val
 from src.staging import postcode_validation as pcval
 from src.staging import spp_snapshot_processing as processing
 from src.staging import spp_parser
-from src.utils.local_file_mods import filename_amender
+from src.utils.helpers import filename_amender
 
 # Create logger for this module
 StagingHelperLogger = logging.getLogger(__name__)

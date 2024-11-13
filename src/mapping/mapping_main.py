@@ -10,7 +10,7 @@ from src.mapping.cellno_mapping import validate_join_cellno_mapper
 from src.mapping.itl_mapping import join_itl_regions
 from src.staging import staging_helpers as stage_hlp
 from src.staging import validation as val
-from src.utils.local_file_mods import filename_amender
+from src.utils.helpers import filename_amender
 
 MappingMainLogger = logging.getLogger(__name__)
 

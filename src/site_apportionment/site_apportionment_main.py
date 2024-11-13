@@ -8,7 +8,7 @@ from src.site_apportionment.output_status_filtered import (
     output_status_filtered,
     calc_weighted_intram_tot,
 )
-from src.utils.local_file_mods import filename_amender
+from src.utils.helpers import filename_amender
 
 SitesMainLogger = logging.getLogger(__name__)
 

@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 from typing import Callable, Dict, List, Any
 
-from src.utils.local_file_mods import filename_amender
+from src.utils.helpers import filename_amender
 
 
 StatusFilteredLogger = logging.getLogger(__name__)

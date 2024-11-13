@@ -8,7 +8,7 @@ import pandas as pd
 from src.outputs.outputs_helpers import create_output_df
 import src.outputs.map_output_cols as map_o
 from src.staging.validation import load_schema
-from src.utils.local_file_mods import filename_amender
+from src.utils.helpers import filename_amender
 
 OutputMainLogger = logging.getLogger(__name__)
 
