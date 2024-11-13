@@ -220,7 +220,8 @@ class TestStageValidateHarmonisePostcodes(object):
         """Test config."""
         config = {
             "global": {"postcode_csv_check": True},
-            "survey": {"survey_year": 2022},
+            "survey": {"survey_year": 2022, "survey_type": "PNP"},
+            "filename_items": {"run_id": 1, "tdate": "21-01-01"},
             "staging_paths": {"pcode_val_path": tmp_path, "postcode_masterlist": "ml"},
             "mapping_paths": {"postcode_mapper": "ml"},
         }
@@ -331,7 +332,7 @@ class TestStageValidateHarmonisePostcodes(object):
         # assert that invalid postcodes have been saved out
         files = os.listdir(tmp_path)
         filename = (
-            f"2022_invalid_postcodes_{self.get_todays_date()}_v1.csv"
+            "PNP_2022_invalid_postcodes_21-01-01_v1.csv"
         )
         assert (
             filename in files
