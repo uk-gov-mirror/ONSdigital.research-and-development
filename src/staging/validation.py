@@ -1,5 +1,6 @@
 import os
 import toml
+import tomli
 import pandas as pd
 import numpy as np
 
@@ -26,17 +27,20 @@ def load_schema(file_path: str = "./config/contributors_schema.toml") -> dict:
 
     # Check if Data_Schema.toml exists
     if file_exists:
-        # Load toml data schema into dictionary if toml file exists
-        toml_dict = toml.load(file_path)
+        try:
+            # Open the file and load toml data schema into dictionary
+            with open(file_path, 'rb') as file:
+                toml_dict = tomli.load(file)
+            return toml_dict
+        except tomli.TOMLDecodeError as e:
+            ValidationLogger.error(f"Failed to decode TOML file: {e}")
+            return None
     else:
-        # Return False if file does not exist
+        # Return None if file does not exist
         ValidationLogger.warning(
             "Validation schema does not exist! Path may be incorrect"
         )
-        return file_exists
-
-    return toml_dict
-
+        return None
 
 @exception_wrap
 def check_data_shape(
