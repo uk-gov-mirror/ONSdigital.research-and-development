@@ -1,7 +1,6 @@
 """The main file for the BERD Intram by PG output."""
 import logging
 import pandas as pd
-from datetime import datetime
 from src.utils.local_file_mods import filename_amender
 from typing import Callable, Dict, Any
 

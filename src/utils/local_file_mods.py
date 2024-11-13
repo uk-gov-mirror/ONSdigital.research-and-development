@@ -164,7 +164,7 @@ def rd_mkdir(path):
 
 
 def filename_amender(filename, config):
-    """Append the survey type to filename if syrvery is PNG."""
+    """Append the survey type to filename if survey is PNG."""
 
     survey_year = config["survey"]["survey_year"]
     survey_type = config["survey"]["survey_type"]
