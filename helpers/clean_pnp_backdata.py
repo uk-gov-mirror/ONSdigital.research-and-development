@@ -34,6 +34,27 @@ def convert_column_datatypes(df):
     return df
 
 
+def get_status_encoded(df):
+
+    cora_to_status_encoded_dict = {200: 100,
+                                   100: 101,
+                                   1000: 102,
+                                   400: 200,
+                                   500: 201,
+                                   600: 210,
+                                   800: 211,
+                                   1200: 302,
+                                   1300: 303,
+                                   900: 304,
+                                   1400: 309}
+
+    df["statusencoded"] = df['map cora status to column "status"'].map(
+        cora_to_status_encoded_dict
+    )
+
+    return df
+
+
 def clean_pnp_backdata(df):
     """ Function to clean the PNP backdata.
 
@@ -45,102 +66,101 @@ def clean_pnp_backdata(df):
         pd.DataFrame: The cleaned dataframe.
 
     """
-    columns_to_remove = ['InquiryIDBRCode',
-                         'Upddate',
-                         'Addr1',
-                         'Addr2',
-                         'Addr3',
-                         'Addr4',
-                         'Addr5',
-                         'Name',
-                         'Contact',
-                         'Curr',
-                         'Email',
-                         'EmpsIDBR',
-                         'Empt',
-                         'Emptfro',
-                         'Entref',
-                         'Entgroup',
-                         'VETs',
-                         'DataSource',
-                         'Formver',
-                         'FTE',
-                         'FTEfro',
-                         'Updby',
-                         'Legstatus',
-                         'Lockdate',
-                         'Lockby',
-                         'MC',
-                         'Month',
-                         'NS',
-                         'Nonresp',
-                         'PC',
-                         'ReceiptDate',
-                         'RUSICcur',
-                         'RUSICprev',
-                         'CellSelection',
-                         'SICcurfro',
-                         'CurrentSIC',
-                         'SICprevfro',
-                         'SICprev',
-                         'Tel',
-                         'Turnover',
-                         'TOfro',
-                         'TOIDBR',
-                         'q0001',
-                         'q0002',
-                         'q0003',
-                         'q0203',
-                         'q0205',
-                         'q0207',
-                         'q0209',
-                         'q0211',
-                         'q0213',
-                         'q0215',
-                         'q0217',
-                         'q0219',
-                         'q0223',
-                         'q0225',
-                         'q0227',
-                         'q0229',
-                         'q0302',
-                         'q0304',
-                         'q0306',
-                         'q0308',
-                         'q0310',
-                         'q0312',
-                         'q0314',
-                         'q0316',
-                         'q0318',
-                         'q0319',
-                         'q0320',
-                         'q0322',
-                         'q0324',
-                         'q0326',
-                         'q0327',
-                         'q0328',
-                         'q0330',
-                         'q0510',
-                         'q0512',
-                         'q0514',
-                         'q0516',
-                         'q0603',
-                         'q0703',
-                         'q0704',
-                         'q0705',
-                         'q0706',
-                         'q0901',
-                         'q0903',
-                         'q0905',
-                         'q0907',
-                         'q0909']
-
+    columns_to_remove_list = ['InquiryIDBRCode',
+                              'Upddate',
+                              'Addr1',
+                              'Addr2',
+                              'Addr3',
+                              'Addr4',
+                              'Addr5',
+                              'Name',
+                              'Contact',
+                              'Curr',
+                              'Email',
+                              'EmpsIDBR',
+                              'Empt',
+                              'Emptfro',
+                              'Entref',
+                              'Entgroup',
+                              'VETs',
+                              'DataSource',
+                              'Formver',
+                              'FTE',
+                              'FTEfro',
+                              'Updby',
+                              'Legstatus',
+                              'Lockdate',
+                              'Lockby',
+                              'MC',
+                              'Month',
+                              'NS',
+                              'Nonresp',
+                              'PC',
+                              'ReceiptDate',
+                              'RUSICcur',
+                              'RUSICprev',
+                              'CellSelection',
+                              'SICcurfro',
+                              'CurrentSIC',
+                              'SICprevfro',
+                              'SICprev',
+                              'Tel',
+                              'Turnover',
+                              'TOfro',
+                              'TOIDBR',
+                              'q0001',
+                              'q0002',
+                              'q0003',
+                              'q0203',
+                              'q0205',
+                              'q0207',
+                              'q0209',
+                              'q0211',
+                              'q0213',
+                              'q0215',
+                              'q0217',
+                              'q0219',
+                              'q0223',
+                              'q0225',
+                              'q0227',
+                              'q0229',
+                              'q0302',
+                              'q0304',
+                              'q0306',
+                              'q0308',
+                              'q0310',
+                              'q0312',
+                              'q0314',
+                              'q0316',
+                              'q0318',
+                              'q0319',
+                              'q0320',
+                              'q0322',
+                              'q0324',
+                              'q0326',
+                              'q0327',
+                              'q0328',
+                              'q0330',
+                              'q0510',
+                              'q0512',
+                              'q0514',
+                              'q0516',
+                              'q0603',
+                              'q0703',
+                              'q0704',
+                              'q0705',
+                              'q0706',
+                              'q0901',
+                              'q0903',
+                              'q0905',
+                              'q0907',
+                              'q0909']
+     
     columns_to_rename_dict = {'IDBRPeriod': 'period',
                               'FormType': 'formtype',
                               'RUReference': 'reference',
                               'FormStatus': 'map cora status to column "status"',
                               'Employees': 'employees',
-                              'Region': np.nan,
                               'Year': 'period_year',
                               'Instance': 'instance',
                               'q0101': '101',
@@ -196,13 +216,19 @@ def clean_pnp_backdata(df):
                               'q0908': '305'}
 
     # Remove unwanted columns
-    df = df.drop(columns=columns_to_remove)
+    df = df.drop(columns=columns_to_remove_list)
 
     # Rename wanted columns
     df = df.rename(columns=columns_to_rename_dict)
 
     # convert column datatypes
     df = convert_column_datatypes(df)
+
+    # Populate the statusencoded column
+    df = get_status_encoded(df)
+
+    # Filter the DataFrame for rows where statusencoded is 210 or 211
+    df = df[df['statusencoded'].isin([210, 211])]
 
     return df
 
@@ -225,10 +251,10 @@ def main(input_file, output_file):
     df = pd.read_csv(input_file)
 
     # Clean the DataFrame
-    df_cleaned = clean_pnp_backdata(df)
+    cleaned_df = clean_pnp_backdata(df)
 
     # Save the cleaned DataFrame to the output CSV file
-    df_cleaned.to_csv(output_file, index=False)
+    cleaned_df.to_csv(output_file, index=False)
 
 
 if __name__ == "__main__":
