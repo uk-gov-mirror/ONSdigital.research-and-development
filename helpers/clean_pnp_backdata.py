@@ -1,4 +1,6 @@
 import numpy as np
+import pandas as pd
+import argparse
 
 
 def clean_pnp_backdata(df):
@@ -169,3 +171,36 @@ def clean_pnp_backdata(df):
     df = df.rename(columns=columns_to_rename_dict)
 
     return df
+
+
+def main(input_file, output_file):
+    """ Main function to clean the PNP backdata. 
+
+    Read in csv file as a dataframe, clean with clean_pnp_backdata function,
+    and save dataframe as a csv file.
+
+    Example cmd executiion: python clean_pnp_backdata.py input.csv output.csv
+
+    Args:
+        input_file (str): The path to the input CSV file.
+        output_file (str): The path to save the cleaned CSV file.
+    Return:
+        None
+    """
+    # Read the input CSV file into a DataFrame
+    df = pd.read_csv(input_file)
+
+    # Clean the DataFrame
+    df_cleaned = clean_pnp_backdata(df)
+
+    # Save the cleaned DataFrame to the output CSV file
+    df_cleaned.to_csv(output_file, index=False)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Clean PNP backdata.")
+    parser.add_argument("input_file", help="Path to the input CSV file.")
+    parser.add_argument("output_file", help="Path to save the cleaned CSV file.")
+    args = parser.parse_args()
+
+    main(args.input_file, args.output_file)
