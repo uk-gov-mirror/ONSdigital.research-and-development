@@ -1,6 +1,38 @@
 import numpy as np
 import pandas as pd
 import argparse
+import toml
+
+
+def convert_column_datatypes(df):
+    """ Function to convert the column datatypes of a dataframe if they appear
+    within backdata_schema.toml.
+
+    Args:
+        df (pd.DataFrame): The dataframe to convert the column datatypes.
+    Return:
+        DF (pd.DataFrame): The dataframe with the converted column datatypes.
+
+    """
+    with open('./config/backdata_schema.toml', 'r') as f:
+        datatypes_config = toml.load(f)
+
+    datatypes_dict = {}
+
+    for column, datatype in datatypes_config.items():
+        datatypes_dict.update({column: datatype["Deduced_Data_Type"]})
+
+    for i in list(df.columns):
+        if i in list(datatypes_dict.keys()):
+            print(f"Converting column {i} to {datatypes_dict[i]}")
+            try:
+                df[i] = df[i].astype(datatypes_dict[i])
+            except:
+                pass
+        else:
+            print(f"Column {i} not found in backdata_schema.toml")
+
+    return df
 
 
 def clean_pnp_backdata(df):
@@ -170,11 +202,14 @@ def clean_pnp_backdata(df):
     # Rename wanted columns
     df = df.rename(columns=columns_to_rename_dict)
 
+    # convert column datatypes
+    df = convert_column_datatypes(df)
+
     return df
 
 
 def main(input_file, output_file):
-    """ Main function to clean the PNP backdata. 
+    """ Main function to clean the PNP backdata.
 
     Read in csv file as a dataframe, clean with clean_pnp_backdata function,
     and save dataframe as a csv file.
