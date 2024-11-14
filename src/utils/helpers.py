@@ -2,6 +2,7 @@
 import yaml
 import toml
 import pandas as pd
+import numpy as np
 
 from typing import Union
 
@@ -226,3 +227,173 @@ def tree_to_list(tree: dict, path_list: list = [], prefix: str = "") -> list:
         return path_list
     else:
         raise TypeError(f"Input must be a dictionary, but {type(tree)} is given")
+
+
+def clean_pnp_backdata(df):
+    """ Function to clean the PNP backdata.
+
+    Steps taken inclide 1. removing unwamted columns, and 2. renaming wanted columns.
+
+    Args:
+        df (pd.DataFrame): The dataframe to clean.
+    Return:
+        pd.DataFrame: The cleaned dataframe.
+
+    """
+    columns_to_remove = ['InquiryIDBRCode',
+                         'Upddate',
+                         'Addr1',
+                         'Addr2',
+                         'Addr3',
+                         'Addr4',
+                         'Addr5',
+                         'Name',
+                         'Contact',
+                         'Curr',
+                         'Email',
+                         'EmpsIDBR',
+                         'Empt',
+                         'Emptfro',
+                         'Entref',
+                         'Entgroup',
+                         'VETs',
+                         'DataSource',
+                         'Formver',
+                         'FTE',
+                         'FTEfro',
+                         'Updby',
+                         'Legstatus',
+                         'Lockdate',
+                         'Lockby',
+                         'MC',
+                         'Month',
+                         'NS',
+                         'Nonresp',
+                         'PC',
+                         'ReceiptDate',
+                         'RUSICcur',
+                         'RUSICprev',
+                         'CellSelection',
+                         'SICcurfro',
+                         'CurrentSIC',
+                         'SICprevfro',
+                         'SICprev',
+                         'Tel',
+                         'Turnover',
+                         'TOfro',
+                         'TOIDBR',
+                         'q001',
+                         'q002',
+                         'q003',
+                         'q203',
+                         'q205',
+                         'q207',
+                         'q209',
+                         'q211',
+                         'q213',
+                         'q215',
+                         'q217',
+                         'q219',
+                         'q223',
+                         'q225',
+                         'q227',
+                         'q229',
+                         'q302',
+                         'q304',
+                         'q306',
+                         'q308',
+                         'q310',
+                         'q312',
+                         'q314',
+                         'q316',
+                         'q318',
+                         'q319',
+                         'q320',
+                         'q322',
+                         'q324',
+                         'q326',
+                         'q0327',
+                         'q0328',
+                         'q330',
+                         'q510',
+                         'q512',
+                         'q514',
+                         'q516',
+                         'q603',
+                         'q703',
+                         'q704',
+                         'q705',
+                         'q706',
+                         'q0901',
+                         'q0903',
+                         'q0905',
+                         'q0907',
+                         'q0909']
+
+    columns_to_rename_dict = {'IDBRPeriod': 'period',
+                              'FormType': 'formtype',
+                              'RUReference': 'reference',
+                              'FormStatus': 'map cora status to column "status"',
+                              'Employees': 'employees',
+                              'Region': np.nan,
+                              'Year': 'period_year',
+                              'Instance': 'instance',
+                              'q101': '101',
+                              'q102': '103',
+                              'q103': '104',
+                              'q201': '604',
+                              'q202': '210',
+                              'q204': '219',
+                              'q206': '220',
+                              'q208': '209',
+                              'q210': '221',
+                              'q212': '204',
+                              'q214': '202',
+                              'q216': '222',
+                              'q218': '223',
+                              'q222': '211',
+                              'q224': '205',
+                              'q226': '205',
+                              'q228': '206',
+                              'q230': '605',
+                              'q301': '212',
+                              'q303': '214',
+                              'q305': '216',
+                              'q307': '242',
+                              'q309': '243',
+                              'q311': '244',
+                              'q313': '245',
+                              'q315': '246',
+                              'q317': '247',
+                              'q321': '248',
+                              'q323': '249',
+                              'q325': '218',
+                              'q329': '250',
+                              'q501': '501',
+                              'q502': '502',
+                              'q503': '503',
+                              'q504': '504',
+                              'q505': '505',
+                              'q506': '506',
+                              'q507': '507',
+                              'q508': '508',
+                              'q509': '405',
+                              'q511': '407',
+                              'q513': '409',
+                              'q515': '411',
+                              'q601': '601',
+                              'q602': '602',
+                              'q701': '708',
+                              'q702': '712',
+                              'q0902': '302',
+                              'q0904': '303',
+                              'q0906': '304',
+                              'q0908': '305'}
+
+    # Remove unwanted columns
+    df = df.drop(columns=columns_to_remove, errors="ignore")
+
+    # Rename wanted columns
+    df = df.rename(columns=columns_to_rename_dict)
+
+    return df
