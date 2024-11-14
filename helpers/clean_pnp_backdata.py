@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import argparse
 import toml
@@ -35,7 +34,14 @@ def convert_column_datatypes(df):
 
 
 def get_status_encoded(df):
+    """ Function to populate the statusencoded column based on the mapping of the
+    'map cora status to column "status"' column.
 
+    Args:
+        df (pd.DataFrame): The dataframe to populate the statusencoded column.
+    Return:
+        DF (pd.DataFrame): The dataframe with the populated statusencoded column.
+    """
     cora_to_status_encoded_dict = {200: 100,
                                    100: 101,
                                    1000: 102,
@@ -155,7 +161,7 @@ def clean_pnp_backdata(df):
                               'q0905',
                               'q0907',
                               'q0909']
-     
+
     columns_to_rename_dict = {'IDBRPeriod': 'period',
                               'FormType': 'formtype',
                               'RUReference': 'reference',
