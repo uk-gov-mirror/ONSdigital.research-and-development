@@ -7,6 +7,7 @@ Checks which records are in old only (left), new only (right) or both
 Compares if the old and new values are the same within tolerance
 Saves the ouotputs
 """
+#%%
 import sys
 
 sys.path.append("D:/coding_projects/github_repos/research-and-development")
@@ -20,12 +21,12 @@ from src.utils.local_file_mods import rd_write_csv as write_csv
 # Input folder and file names
 root_folder = "R:/BERD Results System Development 2023/DAP_emulation/2023_surveys/BERD/09_apportionment/"
 in_fol = "apportionment_qa/"
-in_file_old = "2023_estimated_apportioned_24-10-25_v884.csv"
-in_file_new = "2023_estimated_apportioned_24-10-25_v885.csv"
+in_file_old = "2023_estimated_apportioned_24-11-11_v895.csv"
+in_file_new = "2023_estimated_apportioned_24-11-13_v897.csv"
 
 # Output folder and file
 out_fol = root_folder + in_fol
-out_file = "apportion_merged_884_885.csv"
+out_file = "apportion_merged_895_897.csv"
 
 # Columns to select
 key_cols = ["reference", "200", "201", "formtype", "pg_numeric", "601"]
