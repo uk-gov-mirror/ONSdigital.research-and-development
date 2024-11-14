@@ -24,13 +24,12 @@ def convert_column_datatypes(df):
 
     for i in list(df.columns):
         if i in list(datatypes_dict.keys()):
-            print(f"Converting column {i} to {datatypes_dict[i]}")
             try:
                 df[i] = df[i].astype(datatypes_dict[i])
             except:
                 pass
         else:
-            print(f"Column {i} not found in backdata_schema.toml")
+            continue
 
     return df
 
