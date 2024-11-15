@@ -206,7 +206,7 @@ def output_frozen_group(
     schema_dict = load_schema(schema_path)
     output = create_output_df(df_agg, schema_dict)
 
-    # Outputting the CSV file with timestamp and run_id
+    # Outputting the CSV file
     filename = filename_amender("output_frozen_group", config)
     write_csv(f"{output_path}output_frozen_group/{filename}", output)
 

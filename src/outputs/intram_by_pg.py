@@ -125,7 +125,7 @@ def _save_output_intram_as_csv(
         None
     """
 
-    # Outputting the CSV file with timestamp and run_id
+    # Outputting the CSV file
     output_path = config["outputs_paths"]["outputs_master"]
 
     filename = (f"output_intram_by_pg_{'uk' if uk_output else 'gb'}")

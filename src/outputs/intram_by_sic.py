@@ -90,7 +90,7 @@ def output_intram_by_sic(
     selected_columns = ["SIC", "Industry description", period, "Notes"]
     df_selected = df_merge[selected_columns]
 
-    # Outputting the CSV file with timestamp and run_id
+    # Outputting the CSV file
     filename = filename_amender("output_intram_by_sic", config)
     write_csv(f"{output_path}/output_intram_by_sic/{filename}", df_selected)
 

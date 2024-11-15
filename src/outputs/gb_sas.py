@@ -61,7 +61,7 @@ def output_gb_sas(
     schema_dict = load_schema(schema_path)
     output = create_output_df(df1, schema_dict)
 
-    # Outputting the CSV file with timestamp and run_id
+    # Outputting the CSV file with
     filename = filename_amender("output_gb_sas", config)
     write_csv(f"{output_path}/output_gb_sas/{filename}", output)
 

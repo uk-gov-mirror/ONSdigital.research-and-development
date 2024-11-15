@@ -54,6 +54,6 @@ def output_intram_by_civil_defence(
     df_merge.columns = df_merge.iloc[0]
     df_for_output = df_merge.iloc[1:]
 
-    # Outputting the CSV file with timestamp and run_id
+    # Outputting the CSV file
     filename = filename_amender("output_intram_by_civil_defence", config)
     write_csv(f"{output_path}/output_intram_by_civil_defence/{filename}", df_for_output)
