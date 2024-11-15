@@ -16,7 +16,6 @@ def output_gb_sas(
     config: Dict[str, Any],
     intram_tot_dict: Dict[str, int],
     write_csv: Callable,
-    run_id: int,
 ) -> Dict[str, int]:
     """Run the outputs module.
 
@@ -26,7 +25,6 @@ def output_gb_sas(
         intram_tot_dict (dict): Dictionary with the intramural totals.
         write_csv (Callable): Function to write to a csv file.
          This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
         ultfoc_mapper (pd.DataFrame): The ULTFOC mapper DataFrame.
     """
     output_path = config["outputs_paths"]["outputs_master"]
