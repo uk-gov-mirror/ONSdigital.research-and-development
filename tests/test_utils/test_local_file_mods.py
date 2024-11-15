@@ -17,8 +17,7 @@ from src.utils.local_file_mods import (
     rd_mkdir,
     # rd_open,
     rd_write_feather,
-    safeload_yaml,
-    filename_amender
+    safeload_yaml
 )
 
 
@@ -159,44 +158,6 @@ def write_dict_to_yaml(_dict: dict, path: Union[str, pathlib.Path]) -> None:
     """
     with open(path, "w") as f:
         yaml.dump(_dict, f, default_flow_style=False)
-
-
-def test_filename_amender_PNG():
-    """Test the filename_amender function where curvey type is PNG."""
-    # Set up objects
-    filename = "a_file_name"
-
-    config = {"survey": {"survey_year": 2021,
-                         "survey_type": "PNP"},
-              "filename_items": {"run_id": 88,
-                                 "tdate": "2021-01-01"}}
-
-    expected_filename = "PNP_2021_a_file_name_2021-01-01_v88.csv"
-
-    # Act
-    result_filename = filename_amender(filename, config)
-
-    # Assert
-    assert result_filename == expected_filename
-
-
-def test_filename_amender_BERD():
-    """Test the filename_amender function where curvey type is PNG."""
-    # Set up objects
-    filename = "a_file_name"
-
-    config = {"survey": {"survey_year": 2021,
-                         "survey_type": "BERD"},
-              "filename_items": {"run_id": 88,
-                                 "tdate": "2021-01-01"}}
-
-    expected_filename = "2021_a_file_name_2021-01-01_v88.csv"
-
-    # Act
-    result_filename = filename_amender(filename, config)
-
-    # Assert
-    assert result_filename == expected_filename
 
 
 class TestSafeloadYaml(object):

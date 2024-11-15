@@ -229,8 +229,16 @@ def tree_to_list(tree: dict, path_list: list = [], prefix: str = "") -> list:
 
 
 def filename_amender(filename, config):
-    """Append the survey type to filename if survey is PNG."""
+    """Append the survey type, survey year, run_id, and date to filename if survey
+    is PNG, else append only survey year, run_id, and date to filename.
 
+    Args:
+        filename (str): The filename
+        config (dict): The configuration dictionary
+
+    Returns:
+        str: The amended filename
+    """
     survey_year = config["survey"]["survey_year"]
     survey_type = config["survey"]["survey_type"]
     run_id = config["filename_items"]["run_id"]

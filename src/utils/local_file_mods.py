@@ -163,22 +163,6 @@ def rd_mkdir(path):
     return None
 
 
-def filename_amender(filename, config):
-    """Append the survey type to filename if survey is PNG."""
-
-    survey_year = config["survey"]["survey_year"]
-    survey_type = config["survey"]["survey_type"]
-    run_id = config["filename_items"]["run_id"]
-    tdate = config["filename_items"]["tdate"]
-
-    if survey_type == "PNP":
-        filename = f"{survey_type}_{survey_year}_{filename}_{tdate}_v{run_id}.csv"
-    else:
-        filename = f"{survey_year}_{filename}_{tdate}_v{run_id}.csv"
-
-    return filename
-
-
 @time_logger_wrap
 def rd_write_feather(filepath, df):
     """Writes a Pandas Dataframe to a feather file on a local network drive
