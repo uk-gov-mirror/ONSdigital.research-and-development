@@ -9,7 +9,7 @@ OutputMainLogger = logging.getLogger(__name__)
 
 
 def qa_output_total_fte(
-    df: pd.DataFrame, config: Dict[str, Any], write_csv: Callable, run_id: int
+    df: pd.DataFrame, config: Dict[str, Any], write_csv: Callable,
 ):
     """Run the outputs module.
 
@@ -18,7 +18,7 @@ def qa_output_total_fte(
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
          This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
+
 
     """
     output_path = config["outputs_paths"]["outputs_master"]

@@ -248,7 +248,6 @@ def df_to_feather(
 def stage_validate_harmonise_postcodes(
     config: Dict,
     full_responses: pd.DataFrame,
-    run_id: str,
     check_file_exists: Callable,
     read_csv: Callable,
     write_csv: Callable,
@@ -268,7 +267,6 @@ def stage_validate_harmonise_postcodes(
         config (Dict): A dictionary containing configuration options.
         full_responses (pd.DataFrame): The DataFrame containing the data to be
         validated.
-        run_id (str): The run ID for this execution.
         check_file_exists (Callable): A function that checks if a file exists.
         read_csv (Callable): A function that reads a CSV file into a DataFrame.
         write_csv (Callable): A function that writes a DataFrame to a CSV file.

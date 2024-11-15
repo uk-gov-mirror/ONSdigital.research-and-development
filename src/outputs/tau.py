@@ -15,8 +15,7 @@ def output_tau(
     config: Dict[str, Any],
     intram_tot_dict: Dict[str, int],
     write_csv: Callable,
-    run_id: int,
-) -> Dict[str, int]:
+   ) -> Dict[str, int]:
     """Run the outputs module.
 
     Args:
@@ -25,8 +24,6 @@ def output_tau(
         intram_tot_dict (dict): Dictionary with the intramural totals.
         write_csv (Callable): Function to write to a csv file.
           This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
-
     Returns:
         intram_tot_dict (dict): Dictionary with the intramural totals.
     """

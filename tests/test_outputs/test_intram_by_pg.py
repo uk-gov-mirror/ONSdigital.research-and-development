@@ -179,7 +179,6 @@ class TestIngramBYPg(unittest.TestCase):
                                         config=self.create_config_dict(),
                                         intram_tot_dict=dict(),
                                         write_csv=self.mock_write_csv,
-                                        run_id="test",
                                         uk_output=False)
         uk_result = output_intram_by_pg(self.gb_input_data(),
                                         self.ni_input_data(),
@@ -187,7 +186,6 @@ class TestIngramBYPg(unittest.TestCase):
                                         config=self.create_config_dict(),
                                         intram_tot_dict=dict(),
                                         write_csv=self.mock_write_csv,
-                                        run_id="test",
                                         uk_output=True)
 
         # Assert

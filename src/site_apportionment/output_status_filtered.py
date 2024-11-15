@@ -59,7 +59,6 @@ def output_status_filtered(
     imp_markers_to_keep: List[str],
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
 ):
     """Output rows that are neither clear nor imputed, before these are removed.
 
@@ -68,7 +67,7 @@ def output_status_filtered(
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
          This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
+
     """
     StatusFilteredLogger.info("Starting status filtered output...")
 

@@ -12,7 +12,6 @@ def output_intram_by_civil_defence(
     df: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
     civil_defence_detailed: pd.DataFrame,
 ):
     """Run the outputs module.
@@ -22,7 +21,6 @@ def output_intram_by_civil_defence(
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
          This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
         civil_defence_detailed (pd.DataFrame): Detailed schema of C/D output
 
 

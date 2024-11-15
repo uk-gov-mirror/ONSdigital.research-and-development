@@ -19,7 +19,6 @@ def output_frozen_group(
     config: Dict[str, Any],
     intram_tot_dict: Dict[str, int],
     write_csv: Callable,
-    run_id: int,
     deduplicate: bool = True,
 ) -> Dict[str, int]:
     """Creates a "frozen group" output  for the entire UK. In BERD (GB) data,
@@ -37,7 +36,6 @@ def output_frozen_group(
         intram_tot_dict: (dict): Intram totals for various outputs for QA
         write_csv (Callable): Function to write to a csv file.
          This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
         deduplicate (bool): If true, the data is deduplicated by aggregation.
 
     Returns:

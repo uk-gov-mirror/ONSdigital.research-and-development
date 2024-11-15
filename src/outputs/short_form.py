@@ -91,7 +91,6 @@ def output_short_form(
     df: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
 ):
     """Run the outputs module.
 
@@ -100,7 +99,7 @@ def output_short_form(
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
             This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
+       
     """
     output_path = config["outputs_paths"]["outputs_master"]
 

@@ -14,7 +14,6 @@ def output_intram_by_pg(
     config: Dict[str, Any],
     intram_tot_dict: Dict[str, int],
     write_csv: Callable,
-    run_id: int,
     uk_output: bool = False
 ) -> Dict[str, int]:
     """Run the outputs module.
@@ -27,7 +26,6 @@ def output_intram_by_pg(
         intram_tot_dict (dict): Dictionary with the intramural totals.
         write_csv (Callable): Function to write to a csv file.
             This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
         uk_output (bool): If True, the output will include NI data.
 
     Returns:
@@ -38,7 +36,7 @@ def output_intram_by_pg(
     )
 
     _save_output_intram_as_csv(
-        df_merge, config, write_csv, run_id, uk_output
+        df_merge, config, write_csv, uk_output
     )
 
     # calculate the intram total for QA across different outputs
@@ -109,7 +107,6 @@ def _save_output_intram_as_csv(
     df_merge: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
     uk_output: bool = False
 ):
     """Save the intramural by PG output as a CSV file.
@@ -118,7 +115,6 @@ def _save_output_intram_as_csv(
         df_merge (pd.DataFrame): The dataframe to be saved.
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
-        run_id (int): The current run id
         uk_output (bool): If True, the output will include NI data.
 
     Returns:

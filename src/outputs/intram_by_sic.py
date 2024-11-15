@@ -12,7 +12,6 @@ def output_intram_by_sic(
     config: Dict[str, Any],
     intram_tot_dict: Dict[str, int],
     write_csv: Callable,
-    run_id: int,
     sic_div_detailed: pd.DataFrame,
 ) -> Dict[str, int]:
     """Run the outputs module.
@@ -23,7 +22,6 @@ def output_intram_by_sic(
         intram_tot_dict (dict): Dictionary with the intramural totals.
         write_csv (Callable): Function to write to a csv file.
          This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
         sic_div_detailed (pd.DataFrame): Format of the SIC output as mapper
 
     Returns:

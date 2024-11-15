@@ -17,7 +17,6 @@ def run_site_apportionment(
     df: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
 ) -> pd.DataFrame:
     """Run the apportionment to sites module.
 
@@ -32,7 +31,6 @@ def run_site_apportionment(
         intram_tot_dict (dict): Dictionary with the intramural totals.
         write_csv (Callable): Function to write to a csv file.
             This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
     Returns:
         df_out (pd.DataFrame): Percentages filled in for short forms and applied
             to apportion  for long forms
@@ -44,7 +42,7 @@ def run_site_apportionment(
 
     # Conditionally output the records to be removed
     if config["global"]["output_status_filtered"]:
-        output_status_filtered(df, imp_markers_to_keep, config, write_csv, run_id)
+        output_status_filtered(df, imp_markers_to_keep, config, write_csv,)
 
     # Calculate the intramural totals before apportionment
     intram_tot_dict = {}

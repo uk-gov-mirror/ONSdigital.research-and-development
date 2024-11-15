@@ -228,7 +228,7 @@ def run_pipeline(user_config_path, dev_config_path):
 
     # Data processing: Apportionment to sites
     apportioned_responses_df, intram_tot_dict = run_site_apportionment(
-        estimated_responses_df, config, mods.rd_write_csv, run_id
+        estimated_responses_df, config, mods.rd_write_csv,
     )
 
     MainLogger.info("Finished Site Apportionment module.")

@@ -15,8 +15,7 @@ def output_long_form(
     df: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
-):
+    ):
     """Run the outputs module on long forms.
 
     Args:
@@ -24,8 +23,7 @@ def output_long_form(
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
             This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
-        ultfoc_mapper (pd.DataFrame): The ULTFOC mapper DataFrame.
+         ultfoc_mapper (pd.DataFrame): The ULTFOC mapper DataFrame.
 
     """
     output_path = config["outputs_paths"]["outputs_master"]

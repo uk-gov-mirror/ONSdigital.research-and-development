@@ -315,7 +315,6 @@ class TestStageValidateHarmonisePostcodes(object):
         fr, pm = stage_validate_harmonise_postcodes(
             config=config,
             full_responses=full_responses,
-            run_id=1,
             check_file_exists=self.mock_check_file_exists,
             read_csv=self.mock_read_csv,
             write_csv=write_csv,
