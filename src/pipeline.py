@@ -222,7 +222,7 @@ def run_pipeline(user_config_path, dev_config_path):
     # Estimation module
     MainLogger.info("Starting Estimation...")
     estimated_responses_df = run_estimation(
-        outliered_responses_df, config, mods.rd_write_csv, run_id
+        outliered_responses_df, config, mods.rd_write_csv
     )
     MainLogger.info("Finished Estimation module.")
 
