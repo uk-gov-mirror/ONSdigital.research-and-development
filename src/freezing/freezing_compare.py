@@ -243,7 +243,6 @@ def run_comparison(
     updated_snapshot: pd.DataFrame,
     config: dict,
     write_csv: Callable,
-    run_id: int,
     FreezingLogger: logging.Logger,
 ) -> None:
     """Main function to run comparison of frozen data and updated snapshot.
@@ -254,7 +253,6 @@ def run_comparison(
         updated_snapshot (pd.DataFrame): The staged and validated updated snapshot data.
         config (dict): The pipeline configuration
         write_csv (callable): Function to write to a csv file.
-        run_id (int): The run id for this run.
         FreezingLogger (logging.Logger): The logger to log to.
 
     Returns:
@@ -270,5 +268,5 @@ def run_comparison(
         additions_df, amendments_df, FreezingLogger
     )
     output_freezing_files(
-        amendments_df, additions_df, config, write_csv, run_id, FreezingLogger
+        amendments_df, additions_df, config, write_csv, FreezingLogger
     )

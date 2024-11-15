@@ -1,7 +1,7 @@
 import logging
 import os
 from datetime import datetime
-from typing import Union, Callable
+from typing import Union, Callable, Dict, Any
 
 import pandas as pd
 
@@ -14,7 +14,6 @@ def apply_freezing(
     config: dict,
     check_file_exists: Callable,
     read_csv: Callable,
-    run_id: int,
     FreezingLogger: logging.Logger,
 ) -> pd.DataFrame:
     """Read user-edited freezing files and apply them to the main snapshot.
@@ -25,7 +24,6 @@ def apply_freezing(
             be the hdfs or network version depending on settings.
         read_csv (callable): Function to read a csv file. This will be the hdfs or
             network version depending on settings.
-        run_id (int): The run id for this run.
         FreezingLogger (logging.Logger): The logger to log to.
 
     Returns:
@@ -58,7 +56,7 @@ def apply_freezing(
             main_df = apply_amendments(
                 main_df,
                 amendments_df,
-                run_id,
+                config,
                 FreezingLogger,
             )
 
@@ -71,7 +69,7 @@ def apply_freezing(
             )
         else:
             additions_df["instance"] = additions_df["instance"].astype("Int64")
-            main_df = apply_additions(main_df, additions_df, run_id, FreezingLogger)
+            main_df = apply_additions(main_df, additions_df, config, FreezingLogger)
 
     return main_df
 
@@ -134,7 +132,7 @@ def validate_additions_df(
 def apply_amendments(
     main_df: pd.DataFrame,
     amendments_df: pd.DataFrame,
-    run_id: int,
+    config: dict,
     FreezingLogger: logging.Logger,
 ) -> pd.DataFrame:
     """Apply amendments to the main snapshot.
@@ -142,7 +140,7 @@ def apply_amendments(
     Args:
         main_df (pd.DataFrame): The main snapshot.
         amendments_df (pd.DataFrame): The amendments to apply.
-        run_id (int): The current run id.
+        config (dict): The pipeline configuration.
         FreezingLogger (logging.Logger): The logger.
 
     Returns:
@@ -169,7 +167,7 @@ def apply_amendments(
         col.replace("_updated", "") for col in accepted_amendments_df.columns
     ]
     # update last_frozen column
-    accepted_amendments_df = _add_last_frozen_column(accepted_amendments_df, run_id)
+    accepted_amendments_df = _add_last_frozen_column(accepted_amendments_df, config)
 
     # drop records to be amended from main df
     main_df = main_df[~main_df.reference.isin(changes_refs)]
@@ -184,7 +182,7 @@ def apply_amendments(
 def apply_additions(
     main_df: pd.DataFrame,
     additions_df: pd.DataFrame,
-    run_id: int,
+    config: dict,
     FreezingLogger: logging.Logger,
 ) -> pd.DataFrame:
     """Apply additions to the main snapshot.
@@ -192,7 +190,7 @@ def apply_additions(
     Args:
         main_df (pd.DataFrame): The main snapshot.
         additions_df (pd.DataFrame): The additions to apply.
-        run_id (int): The current run id.
+        config (dict): The pipeline configuration.
         FreezingLogger (logging.Logger): The logger.
 
     Returns:
@@ -212,7 +210,7 @@ def apply_additions(
 
     accepted_additions_df = accepted_additions_df.drop("accept_changes", axis=1)
     if accepted_additions_df.shape[0] > 0:
-        accepted_additions_df = _add_last_frozen_column(accepted_additions_df, run_id)
+        accepted_additions_df = _add_last_frozen_column(accepted_additions_df, config)
         added_df = pd.concat([main_df, accepted_additions_df], ignore_index=True)
         FreezingLogger.info(
             f"{accepted_additions_df.shape[0]} record(s) added during freezing"

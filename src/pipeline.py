@@ -126,7 +126,6 @@ def run_pipeline(user_config_path, dev_config_path):
         mods.rd_write_csv,
         mods.rd_read_csv,
         mods.rd_file_exists,
-        run_id,
     )
     MainLogger.info("Finished Freezing module...")
 
