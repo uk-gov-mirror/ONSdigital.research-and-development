@@ -61,6 +61,48 @@ def get_status_encoded(df):
     return df
 
 
+def identify_key_business(df):
+    """ Function to identify the key business using reference column & key
+    busineses lookup table.
+
+    Args:
+        df (pd.DataFrame): The dataframe to identify the key business columns.
+    Return:
+        df (pd.DataFrame): The dataframe with the identified key business columns.
+    """
+    # get key businesses
+    key_businesses_df = pd.read_csv('R:/KEYS 2023.csv')
+    key_businesses_list = list(key_businesses_df["2023 KEYS"])
+
+    df['pnp_key'] = df['reference'].apply(
+        lambda x: 'Key0' if x in key_businesses_list else 'Key1'
+    )
+
+    return df
+
+
+def identify_osmotherly_businesses(df):
+    """ Function to identify the osmotherly businesses using reference
+    column & osmotherly busineses lookup table.
+
+    Args:
+        df (pd.DataFrame): The dataframe to identify the osmotherly business
+        columns.
+    Return:
+        df (pd.DataFrame): The dataframe with the identified osmotherly business
+        columns.
+    """
+    # get osmotherly businesses
+    osmotherly_businesses_df = pd.read_csv('R:/Osmotherly PNP 2023.csv')
+    osmotherly_businesses_list = list(osmotherly_businesses_df["ruref"])
+
+    df['osmotherly'] = df['reference'].apply(
+        lambda x: True if x in osmotherly_businesses_list else False
+    )
+
+    return df
+
+
 def clean_pnp_backdata(df):
     """ Function to clean the PNP backdata.
 
@@ -235,6 +277,12 @@ def clean_pnp_backdata(df):
 
     # Filter the DataFrame for rows where statusencoded is 210 or 211
     df = df[df['statusencoded'].isin([210, 211])]
+
+    # Identify the key business
+    df = identify_key_business(df)
+
+    # Identify the osmotherly business
+    df = identify_osmotherly_businesses(df)
 
     return df
 
