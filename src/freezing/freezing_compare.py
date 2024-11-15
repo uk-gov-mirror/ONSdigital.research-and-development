@@ -166,7 +166,6 @@ def output_freezing_files(
     additions_df: pd.DataFrame,
     config: dict,
     write_csv: Callable,
-    run_id: int,
     FreezingLogger: logging.Logger,
 ) -> bool:
     """Save CSVs of amendments and additions for user approval.
@@ -177,7 +176,6 @@ def output_freezing_files(
         config (dict): The pipeline configuration
         write_csv (callable): Function to write to a csv file. This will be the
             hdfs or network version depending on settings.
-        run_id (int): The run id for this run.
         FreezingLogger (logging.Logger): The logger to log to.
 
     Returns:
