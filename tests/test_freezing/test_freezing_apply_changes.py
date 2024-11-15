@@ -95,6 +95,7 @@ test_logger = logging.getLogger(__name__)
 class TestApplyAmendments(object):
     """Tests for apply_amendments."""
 
+
     @pytest.fixture(scope="function")
     def dummy_amendments(self) -> pd.DataFrame:
         """A dummy amendments dataframe."""
@@ -122,9 +123,11 @@ class TestApplyAmendments(object):
         df = pd.DataFrame(data=data, columns=columns)
         return df
 
+    #config = {"filename_items": {"run_id": "1"}}
+
     def test_apply_amendments(self, frozen_df, dummy_amendments):
         """General tests for apply_amendments"""
-        amended = apply_amendments(frozen_df, dummy_amendments, 1, test_logger)
+        amended = apply_amendments(frozen_df, dummy_amendments, {"filename_items": {"run_id": "1"}}, test_logger)
         amended.sort_values(by=["reference", "instance"], ascending=True, inplace=True)
         expected = self.expected_amended()
         print(amended)
@@ -138,7 +141,7 @@ class TestApplyAmendments(object):
         with caplog.at_level(logging.INFO):
             # alter additions
             dummy_amendments["accept_changes"] = False
-            result = apply_amendments(frozen_df, dummy_amendments, 1, test_logger)
+            result = apply_amendments(frozen_df, dummy_amendments, {"filename_items": {"run_id": "1"}}, test_logger)
             assert_frame_equal(result, frozen_df), (
                 "Original df not returned when no amendments are found."
             )
@@ -183,9 +186,10 @@ class TestApplyAdditions(object):
         df = pd.DataFrame(data=data, columns=columns)
         return df
 
+    
     def test_apply_additions(self, frozen_df, dummy_additions):
         """General tests for apply_additions"""
-        amended = apply_additions(frozen_df, dummy_additions, 1, test_logger)
+        amended = apply_additions(frozen_df, dummy_additions, {"filename_items": {"run_id": "1"}}, test_logger)
         amended.drop("last_frozen", axis=1, inplace=True)
         amended.sort_values(by=["reference", "instance"], ascending=True, inplace=True)
         expected = self.expected_additions()
@@ -198,7 +202,7 @@ class TestApplyAdditions(object):
         with caplog.at_level(logging.INFO):
             # alter amendments
             dummy_additions["reference"] = 1
-            result = apply_additions(frozen_df, dummy_additions, 1, test_logger)
+            result = apply_additions(frozen_df, dummy_additions, {"filename_items": {"run_id": "1"}}, test_logger)
             assert_frame_equal(result, frozen_df), (
                 "Original df not returned when additions are invalid"
             )
@@ -216,7 +220,7 @@ class TestApplyAdditions(object):
         with caplog.at_level(logging.INFO):
             # alter amendments
             dummy_additions["accept_changes"] = False
-            result = apply_additions(frozen_df, dummy_additions, 1, test_logger)
+            result = apply_additions(frozen_df, dummy_additions, {"filename_items": {"run_id": "1"}}, test_logger)
             assert_frame_equal(result, frozen_df), (
                 "Original df not returned when additions are invalid..."
             )

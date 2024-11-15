@@ -1,7 +1,7 @@
 import logging
 import os
 from datetime import datetime
-from typing import Union, Callable, Dict, Any
+from typing import Union, Callable, Dict
 
 import pandas as pd
 
@@ -11,7 +11,7 @@ from src.freezing.freezing_utils import _add_last_frozen_column
 
 def apply_freezing(
     main_df: pd.DataFrame,
-    config: dict,
+    config: Dict,
     check_file_exists: Callable,
     read_csv: Callable,
     FreezingLogger: logging.Logger,
@@ -132,7 +132,7 @@ def validate_additions_df(
 def apply_amendments(
     main_df: pd.DataFrame,
     amendments_df: pd.DataFrame,
-    config: dict,
+    config: Dict,
     FreezingLogger: logging.Logger,
 ) -> pd.DataFrame:
     """Apply amendments to the main snapshot.
@@ -182,7 +182,7 @@ def apply_amendments(
 def apply_additions(
     main_df: pd.DataFrame,
     additions_df: pd.DataFrame,
-    config: dict,
+    config: Dict,
     FreezingLogger: logging.Logger,
 ) -> pd.DataFrame:
     """Apply additions to the main snapshot.
