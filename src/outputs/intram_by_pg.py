@@ -58,8 +58,8 @@ def _generate_intarm_by_pg(
         gb_df (pd.DataFrame): The GB dataset
         ni_df (pd.DataFrame): The NI dataset
         pg_detailed (pd.DataFrame): Detailed info for the product groups.
-        uk_output (bool): If True, the output will include NI data.
         config (dict): The configuration settings.
+        uk_output (bool): If True, the output will include NI data.
 
     Returns:
         df_merge(pd.DataFrame): The intramural by PG output dataframe.
@@ -97,9 +97,8 @@ def _generate_intarm_by_pg(
     detail = "Detailed product groups (Alphabetical product groups A-AH)"
     notes = "Notes"
     survey_year = config["survey"]["survey_year"]
-    value_title = f"{survey_year}"
     df_merge = df_merge[[detail, value_col, notes]].rename(columns={
-        value_col: value_title})
+        value_col: survey_year})
     return df_merge, value_tot
 
 

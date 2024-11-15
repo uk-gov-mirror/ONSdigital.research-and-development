@@ -238,7 +238,6 @@ def run_pipeline(user_config_path, dev_config_path):
         config,
         intram_tot_dict,
         mods.rd_write_csv,
-        run_id,
         pg_detailed,
         civil_defence_detailed,
         sic_division_detailed,

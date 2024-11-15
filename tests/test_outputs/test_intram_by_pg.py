@@ -23,7 +23,7 @@ class TestIngramBYPg(unittest.TestCase):
         """Creates config dictionary for test"""
         config = {"outputs_paths": {"outputs_master": "test_path"},
                   "survey": {"survey_year": "2023", "survey_type": "PNG"},
-                  "filename_items": {"tdate": "2021-01-01"}}
+                  "filename_items": {"tdate": "2021-01-01", "run_id": "88"},}
         return config
 
     def mock_write_csv(self, filepath: str, data: pd.DataFrame) -> None:
