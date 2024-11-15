@@ -90,9 +90,7 @@ def run_freezing(
         frozen_data_staged_output_path = config["freezing_paths"][
             "frozen_data_staged_output_path"
         ]
-        FreezingLogger.info("Outputting frozen data file.")
-        filename = "FROZEN_staged_BERD_full_responses"
-        filename = filename_amender(filename, config)
+        filename = filename_amender("FROZEN_staged_BERD_full_responses", config)
         write_csv(
             os.path.join(frozen_data_staged_output_path, filename), prepared_frozen_data
         )

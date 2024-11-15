@@ -61,8 +61,7 @@ def run_site_apportionment(
     # Output QA files
     if config["global"]["output_apportionment_qa"]:
         SitesMainLogger.info("Outputting Apportionment files.")
-        filename = "estimated_apportioned"
-        filename = filename_amender(filename, config)
+        filename = filename_amender("estimated_apportioned", config)
         write_csv(f"{qa_path}/{filename}", df_out)
 
     SitesMainLogger.info("Finished apportionment to sites.")

@@ -47,10 +47,8 @@ def run_estimation(
     if config["global"]["output_estimation_qa"]:
         EstMainLogger.info("Outputting estimation QA file.")
         est_qa_path = config["estimation_paths"]["qa_path"]
-        cell_qa_filename = "estimation_weights_qa"
-        full_qa_filename = "full_estimation_qa"
-        cell_qa_filename = filename_amender(cell_qa_filename, config)
-        full_qa_filename = filename_amender(full_qa_filename, config)
+        cell_qa_filename = filename_amender("estimation_weights_qa", config)
+        full_qa_filename = filename_amender("full_estimation_qa", config)
         write_csv(f"{est_qa_path}/{cell_qa_filename}", qa_df)
         write_csv(f"{est_qa_path}/{full_qa_filename}", estimated_df)
     EstMainLogger.info("Finished estimation weights calculation.")

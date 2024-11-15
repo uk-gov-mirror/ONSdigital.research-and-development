@@ -41,6 +41,5 @@ def output_long_form(
     schema_dict = load_schema(schema_path)
     longform_output = create_output_df(df, schema_dict)
 
-    filename = "long_form"
-    filename = filename_amender(filename, config)
+    filename = filename_amender("long_form", config)
     write_csv(f"{output_path}/output_long_form/{filename}", longform_output)

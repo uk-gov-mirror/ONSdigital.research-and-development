@@ -99,8 +99,7 @@ def run_ni_staging(
     if config["global"]["output_ni_full_responses"]:
         NIStagingLogger.info("Starting output of staged NI data...")
         staging_folder = config["ni_paths"]["ni_staging_output_path"]
-        staged_filename = "staged_NI_full_responses"
-        staged_filename = filename_amender(staged_filename, config)
+        staged_filename = filename_amender("staged_NI_full_responses", config)
         write_csv(os.path.join(staging_folder, staged_filename), ni_responses_df)
         NIStagingLogger.info("Finished output of staged NI data.")
     else:

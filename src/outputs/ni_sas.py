@@ -46,7 +46,6 @@ def output_ni_sas(
     schema_dict = load_schema(schema_path)
     output = create_output_df(df, schema_dict)
 
-    # Outputting the CSV file with timestamp and run_id
-    filename = "output_ni_sas"
-    filename = filename_amender(filename, config)
+    # Outputting the CSV
+    filename = filename_amender("output_ni_sas", config)
     write_csv(f"{output_path}/output_ni_sas/{filename}", output)

@@ -34,7 +34,6 @@ def qa_output_total_fte(
         list(zip(totals_names, totals_values)), columns=["Column", "Total"]
     )
 
-    # Outputting the CSV file with timestamp and run_id
-    filename = "total_fte_qa"
-    filename = filename_amender(filename, config)
+    # Outputting the CSV
+    filename = filename_amender("total_fte_qa", config)
     write_csv(f"{output_path}/output_fte_total_qa/{filename}", qa_total_fte_df)

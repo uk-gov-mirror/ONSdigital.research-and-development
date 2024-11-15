@@ -191,15 +191,13 @@ def output_freezing_files(
 
     # Check if the dataframes are empty before writing
     if amendments_df is not None:
-        filename = "freezing_amendments_to_review"
-        filename = filename_amender(filename, config)
+        filename = filename_amender("freezing_amendments_to_review", config)
         write_csv(
             os.path.join(freezing_changes_to_review_path, filename), amendments_df
         )
 
     if additions_df is not None:
-        filename = "freezing_additions_to_review"
-        filename = filename_amender(filename, config)
+        filename = filename_amender("freezing_additions_to_review", config)
         write_csv(os.path.join(freezing_changes_to_review_path, filename), additions_df)
 
     if amendments_df is None and additions_df is None:

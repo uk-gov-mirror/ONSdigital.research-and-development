@@ -134,18 +134,12 @@ def run_imputation(
     # Output QA files
     if config["global"]["output_imputation_qa"]:
         ImputationMainLogger.info("Outputting Imputation QA files.")
-        links_filename = "links_qa"
-        trim_qa_filename = "trimming_qa"
-        full_imp_filename = "full_responses_imputed"
-        wrong_604_filename = "wrong_604_error_qa"
-        trimmed_counts_filename = "tmi_trim_count_qa"
 
-        trim_qa_filename = filename_amender(trim_qa_filename, config)
-        full_imp_filename = filename_amender(full_imp_filename, config)
-        wrong_604_filename = filename_amender(wrong_604_filename, config)
-        links_filename = filename_amender(links_filename, config)
-        trimmed_counts_filename = filename_amender(trimmed_counts_filename,
-                                                   config)
+        trim_qa_filename = filename_amender("trimming_qa", config)
+        full_imp_filename = filename_amender("full_responses_imputed", config)
+        wrong_604_filename = filename_amender("wrong_604_error_qa", config)
+        links_filename = filename_amender("links_qa", config)
+        trimmed_counts_filename = filename_amender("tmi_trim_count_qa", config)
 
         # create trimming qa dataframe with required columns from schema
         schema_path = config["schema_paths"]["manual_trimming_schema"]
@@ -168,8 +162,7 @@ def run_imputation(
     if config["global"]["output_backdata"]:
         ImputationMainLogger.info("Outputting backdata for imputation.")
         backdata_path = config["imputation_paths"]["backdata_out_path"]
-        backdata_filename = "backdata"
-        backdata_filename = filename_amender(backdata_filename, config)
+        backdata_filename = filename_amender("backdata", config)
         new_backdata = hlp.create_new_backdata(imputed_df, config)
         write_csv(os.path.join(backdata_path, backdata_filename), new_backdata)
 

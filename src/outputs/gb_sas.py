@@ -62,8 +62,7 @@ def output_gb_sas(
     output = create_output_df(df1, schema_dict)
 
     # Outputting the CSV file with timestamp and run_id
-    filename = "output_gb_sas"
-    filename = filename_amender(filename, config)
+    filename = filename_amender("output_gb_sas", config)
     write_csv(f"{output_path}/output_gb_sas/{filename}", output)
 
     return intram_tot_dict

@@ -121,6 +121,5 @@ def output_short_form(
     schema_dict = load_schema(schema_path)
     shortform_output = create_output_df(df, schema_dict)
 
-    filename = "output_short_form"
-    filename = filename_amender(filename, config)
+    filename = filename_amender("output_short_form", config)
     write_csv(f"{output_path}/output_short_form/{filename}", shortform_output)

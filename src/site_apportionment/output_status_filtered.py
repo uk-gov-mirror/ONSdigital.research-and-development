@@ -77,8 +77,7 @@ def output_status_filtered(
 
     output_path = config["outputs_paths"]["outputs_master"]
 
-    filename = "status_filtered_qa"
-    filename = filename_amender(filename, config)
+    filename = filename_amender("status_filtered_qa", config)
     write_csv(f"{output_path}/output_status_filtered_qa/{filename}", filtered_df)
 
     StatusFilteredLogger.info("Finished status filtered output.")

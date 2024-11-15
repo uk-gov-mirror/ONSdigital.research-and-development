@@ -91,8 +91,7 @@ def output_intram_by_sic(
     df_selected = df_merge[selected_columns]
 
     # Outputting the CSV file with timestamp and run_id
-    filename = "output_intram_by_sic"
-    filename = filename_amender(filename, config)
+    filename = filename_amender("output_intram_by_sic", config)
     write_csv(f"{output_path}/output_intram_by_sic/{filename}", df_selected)
 
     # Update intram totals dict for comparison of aggregates across outputs

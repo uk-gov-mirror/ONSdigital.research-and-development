@@ -64,10 +64,8 @@ def output_tau(
     schema_dict = load_schema(schema_path)
     tau_output = create_output_df(df, schema_dict)
 
-    # Outputting the CSV file with timestamp and run_id
-
-    filename = "output_tau"
-    filename = filename_amender(filename, config)
+    # Outputting the CSV file
+    filename = filename_amender("output_tau", config)
     write_csv(f"{output_path}/output_tau/{filename}", tau_output)
 
     return intram_tot_dict

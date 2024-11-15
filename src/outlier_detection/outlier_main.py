@@ -59,8 +59,7 @@ def run_outliers(
     # Output the file with auto outliers for manual checking
     if config["global"]["output_auto_outliers"]:
         OutlierMainLogger.info("Starting the output of the automatic outliers file")
-        filename = "auto_outlier"
-        filename = filename_amender(filename, config)
+        filename = filename_amender("auto_outlier", config)
         file_path = auto_outlier_path + filename
         write_csv(file_path, filtered_df)
         OutlierMainLogger.info("Finished writing CSV to %s", auto_outlier_path)
@@ -87,8 +86,7 @@ def run_outliers(
     # Output the outlier flags for QA
     if config["global"]["output_outlier_qa"]:
         OutlierMainLogger.info("Starting output of Outlier QA data...")
-        filename = "outliers_qa"
-        filename = filename_amender(filename, config)
+        filename = filename_amender("outliers_qa", config)
         write_csv(f"{outlier_qa_path}/{filename}", flagged_outlier_df)
         OutlierMainLogger.info("Finished QA output of outliers data.")
     else:

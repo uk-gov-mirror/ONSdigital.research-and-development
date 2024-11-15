@@ -299,8 +299,7 @@ def stage_validate_harmonise_postcodes(
 
     # Save the invalid postcodes to a CSV file
     pcodes_folder = staging_dict["pcode_val_path"]
-    invalid_filename = "invalid_postcodes"
-    invalid_filename = filename_amender(filename=invalid_filename,
+    invalid_filename = filename_amender(filename="invalid_postcodes",
                                         config=config)
     write_csv(f"{pcodes_folder}/{invalid_filename}", invalid_df)
 

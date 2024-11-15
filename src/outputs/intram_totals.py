@@ -41,6 +41,5 @@ def output_intram_totals(
     OutputMainLogger.info("Intramural totals:")
     OutputMainLogger.info(intram_tot_df)
 
-    filename = "intram_totals"
-    filename = filename_amender(filename, config)
+    filename = filename_amender("intram_totals", config)
     write_csv(f"{output_path}/output_intram_totals/{filename}", intram_tot_df)

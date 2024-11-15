@@ -68,9 +68,8 @@ class Manifest:
         self.manifest_datetime = pipeline_run_datetime.strftime("%Y%m%d_%H%M")
         self.manifest_filename = self.manifest_datetime
 
-        json_filename = "metadata_manifest"
         filename = filename_amender(
-            filename=json_filename,
+            filename="metadata_manifest",
             config=config
         )
         filename = filename.replace("csv", "json")

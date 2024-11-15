@@ -207,8 +207,7 @@ def output_frozen_group(
     output = create_output_df(df_agg, schema_dict)
 
     # Outputting the CSV file with timestamp and run_id
-    filename = "output_frozen_group"
-    filename = filename_amender(filename, config)
+    filename = filename_amender("output_frozen_group", config)
     write_csv(f"{output_path}output_frozen_group/{filename}", output)
 
     return intram_tot_dict
