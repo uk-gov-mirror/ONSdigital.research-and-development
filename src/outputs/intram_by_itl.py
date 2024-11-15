@@ -20,7 +20,6 @@ def save_detailed_csv(
     output_dir: Union[pathlib.Path, str],
     config: Dict[str, Any],
     title: str,
-    run_id: int,
     write_csv: Callable,
     overwrite: bool = True,
 ) -> Dict[str, int]:
@@ -31,7 +30,6 @@ def save_detailed_csv(
         output_dir (Union[pathlib.Path, str]): The directory to save the dataframe to.
         survey_year (str): The year that the data is from (from config).
         title (str): The filename to save the df as (excluding date, run id).
-        run_id (int): The current run ID.
         write_csv (Callable): A function to write to a csv file.
         overwrite (bool, optional): Whether or not to overwrite any current
             files saved under the same name. Defaults to True.
@@ -128,7 +126,6 @@ def output_intram_by_itl(
     config: Dict[str, Any],
     intram_tot_dict: Dict[str, int],
     write_csv: Callable,
-    run_id: int,
     uk_output: bool = False,
 ):
     """Generate outputs aggregated to ITL levels 1 and 2.
@@ -139,7 +136,6 @@ def output_intram_by_itl(
         config (Dict[str, Any]): Project config.
         intram_tot_dict (Dict[str, int]): Dictionary with the intramural totals.
         write_csv (Callable): A function to write to a csv file.
-        run_id (int): The current run ID.
         uk_output (bool, optional): Whether to output UK or GB data. Defaults to False.
     """
     # Declare Config Values
@@ -165,7 +161,6 @@ def output_intram_by_itl(
             output_dir,
             config,
             f"output_intram_{area}_itl{i}",
-            run_id,
             write_csv,
             overwrite=True,
         )
