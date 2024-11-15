@@ -26,7 +26,6 @@ def run_imputation(
     backdata: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
 ) -> pd.DataFrame:
     """Run all the processes for the imputation module.
 
@@ -47,7 +46,6 @@ def run_imputation(
         backdata (pd.DataFrame): previous year's data
         config (dict): the configuration settings.
         write_csv (Callable): function to write a dataframe to a csv file
-        run_id (int): unique identifier for the run
 
     Returns:
         pd.DataFrame: dataframe with the imputed columns updated

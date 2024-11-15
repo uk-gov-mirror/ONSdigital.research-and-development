@@ -178,7 +178,6 @@ def run_pipeline(user_config_path, dev_config_path):
         mods.rd_read_csv,
         mods.rd_write_csv,
         mods.rd_file_exists,
-        run_id,
     )
     MainLogger.info("Finished Mapping...")
 
@@ -190,7 +189,6 @@ def run_pipeline(user_config_path, dev_config_path):
         backdata,
         config,
         mods.rd_write_csv,
-        run_id,
     )
     MainLogger.info("Finished  Imputation...")
 
@@ -215,7 +213,7 @@ def run_pipeline(user_config_path, dev_config_path):
     # Outlier detection module
     MainLogger.info("Starting Outlier Detection...")
     outliered_responses_df = run_outliers(
-        imputed_df, manual_outliers, config, mods.rd_write_csv, run_id
+        imputed_df, manual_outliers, config, mods.rd_write_csv
     )
     MainLogger.info("Finished Outlier module.")
 

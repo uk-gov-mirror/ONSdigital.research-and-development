@@ -23,7 +23,6 @@ def run_mapping(
     rd_read_csv: Callable,
     rd_write_csv: Callable,
     rd_file_exists: Callable,
-    run_id: int,
 ):
     """Perform mapping to the responses dataframes and output QA to csv.
 
@@ -35,7 +34,6 @@ def run_mapping(
         rd_read_csv (Callable): Function to read a csv file.
         rd_write_csv (Callable): Function to write a dataframe to a csv file.
         rd_file_exists (Callable): Function to check if a file exists.
-        run_id (int): Unique identifier for the run.
 
     Returns:
         Tuple[pd.DataFrame, pd.DataFrame]: The BERD full responses and Northern Ireland

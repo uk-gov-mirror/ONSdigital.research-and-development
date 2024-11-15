@@ -51,7 +51,6 @@ def run_ni_staging(
     check_file_exists: Callable,
     read_csv: Callable,
     write_csv: Callable,
-    run_id: int,
 ) -> pd.DataFrame:
     """Run the Northern Ireland staging and validation module.
 
@@ -71,7 +70,6 @@ def run_ni_staging(
             This will be the s3, hdfs or network version depending on settings.
         write_csv (Callable): Function to write to a csv file.
             This will be the s3, hdfs or network version depending on settings.
-        run_id (int): The run id for this run.
     Returns:
         ni_full_responses (pd.DataFrame): The staged and vaildated NI data.
     """
