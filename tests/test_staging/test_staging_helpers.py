@@ -403,14 +403,20 @@ class TestFilterPnpData:
 
     def test_filter_pnp_data(self):
         """Test for the filter_pnp_data function."""
-        input_df = self.create_input_df()
+
+        config = {"survey": {"survey_type": "BERD"}}
         exp1_df, exp2_df = self.create_exp_output_df()
 
-        result1_df, result2_df = filter_pnp_data(input_df)
+        input_df = self.create_input_df()
+        result1_df = filter_pnp_data(input_df, config)
 
         pd.testing.assert_frame_equal(
             result1_df.reset_index(drop=True), exp1_df.reset_index(drop=True)
         )
+
+        config = {"survey": {"survey_type": "PNP"}}
+        result2_df = filter_pnp_data(input_df, config)
+
         pd.testing.assert_frame_equal(
             result2_df.reset_index(drop=True), exp2_df.reset_index(drop=True)
         )
