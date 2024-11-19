@@ -144,7 +144,7 @@ def run_pipeline(user_config_path, dev_config_path):
     if load_ni_data:
         MainLogger.info("Starting NI module...")
         ni_df = run_ni(
-            config, mods.rd_file_exists, mods.rd_read_csv, mods.rd_write_csv, run_id
+            config, mods.rd_file_exists, mods.rd_read_csv, mods.rd_write_csv,
         )
         MainLogger.info("Finished NI Data Ingest.")
     else:
