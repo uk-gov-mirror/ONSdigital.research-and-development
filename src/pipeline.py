@@ -189,18 +189,15 @@ def run_pipeline(user_config_path, dev_config_path):
         return runlog_obj.time_taken
 
     # Imputation module
-    if config["survey"]["survey_type"] != "PNP":
-        MainLogger.info("Starting Imputation...")
-        imputed_df = run_imputation(
-            mapped_df,
-            manual_trimming_df,
-            backdata,
-            config,
-            mods.rd_write_csv,
-        )
-        MainLogger.info("Finished  Imputation...")
-    else:
-        MainLogger.info("Skipping Imputation for PNP survey type...")
+    MainLogger.info("Starting Imputation...")
+    imputed_df = run_imputation(
+        mapped_df,
+        manual_trimming_df,
+        backdata,
+        config,
+        mods.rd_write_csv,
+    )
+    MainLogger.info("Finished Imputation...")
 
     # Perform postcode construction now imputation is complete
     run_postcode_construction = config["global"]["run_postcode_construction"]
