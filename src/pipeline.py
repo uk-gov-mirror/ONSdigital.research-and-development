@@ -180,6 +180,14 @@ def run_pipeline(user_config_path, dev_config_path):
     )
     MainLogger.info("Finished Mapping...")
 
+    if config["survey"]["survey_type"] == "PNP":
+        MainLogger.info("Finishing ipeline after mapping as PNP is set................")
+
+        runlog_obj.write_runlog()
+        runlog_obj.mark_mainlog_passed()
+
+        return runlog_obj.time_taken
+
     # Imputation module
     if config["survey"]["survey_type"] != "PNP":
         MainLogger.info("Starting Imputation...")
@@ -189,7 +197,6 @@ def run_pipeline(user_config_path, dev_config_path):
             backdata,
             config,
             mods.rd_write_csv,
-            run_id,
         )
         MainLogger.info("Finished  Imputation...")
     else:
