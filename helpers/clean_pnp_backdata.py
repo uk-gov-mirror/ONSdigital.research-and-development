@@ -1,6 +1,9 @@
-import pandas as pd
 import argparse
+import os
+import pandas as pd
 import toml
+
+rootpath = "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/PNP"
 
 
 def convert_column_datatypes(df):
@@ -71,7 +74,7 @@ def identify_key_business(df):
         df (pd.DataFrame): The dataframe with the identified key business columns.
     """
     # get key businesses
-    key_businesses_df = pd.read_csv('R:/KEYS 2023.csv')
+    key_businesses_df = pd.read_csv(os.path.join(rootpath, '2023'))
     key_businesses_list = list(key_businesses_df["2023 KEYS"])
 
     df['pnp_key'] = df['reference'].apply(
@@ -93,7 +96,8 @@ def identify_osmotherly_businesses(df):
         columns.
     """
     # get osmotherly businesses
-    osmotherly_businesses_df = pd.read_csv('R:/Osmotherly PNP 2023.csv')
+    osmotherly_businesses_df = pd.read_csv(os.path.join(rootpath,
+                                                        'Osmotherly PNP 2023'))
     osmotherly_businesses_list = list(osmotherly_businesses_df["ruref"])
 
     df['osmotherly'] = df['reference'].apply(
@@ -286,7 +290,6 @@ def clean_pnp_backdata(df):
 
     return df
 
-
 def main(input_file, output_file):
     """ Main function to clean the PNP backdata.
 
@@ -301,8 +304,9 @@ def main(input_file, output_file):
     Return:
         None
     """
+
     # Read the input CSV file into a DataFrame
-    df = pd.read_csv(input_file)
+    df = pd.read_csv(os.path.join(rootpath, input_file))
 
     # Clean the DataFrame
     cleaned_df = clean_pnp_backdata(df)
