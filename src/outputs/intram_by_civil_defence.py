@@ -3,6 +3,7 @@ import logging
 import pandas as pd
 from datetime import datetime
 from typing import Callable, Dict, Any
+from src.utils.helpers import filename_amender
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -11,7 +12,6 @@ def output_intram_by_civil_defence(
     df: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
 ) -> pd.DataFrame:
     """Run the outputs module.
 
@@ -21,7 +21,6 @@ def output_intram_by_civil_defence(
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
             This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
     Returns:
         df_for_output (pd.DataFrame): Total intramural expenditure by Civil or Defence
     """
@@ -29,12 +28,11 @@ def output_intram_by_civil_defence(
     df_for_output = generate_intram_by_civil_defence(
         df)
 
-    # Outputting the CSV file with timestamp and run_id
+    # Outputting the CSV file
     output_path = config["outputs_paths"]["outputs_master"]
-
-    tdate = datetime.now().strftime("%y-%m-%d")
     survey_year = config["survey"]["survey_year"]
-    filename = f"{survey_year}_output_intram_by_civil_defence{tdate}_v{run_id}.csv"
+    filename = (f"{survey_year}_output_intram_by_civil_defence")
+    filename = filename_amender(filename, config)
     write_csv(f"{output_path}/output_intram_by_civil_defence/{filename}", df_for_output)
 
     return df_for_output
@@ -63,4 +61,5 @@ def generate_intram_by_civil_defence(
     columns = ({'200': 'Catergory', '211': 'Total Intramural Expenditure'})
 
     df_for_output = df_agg.rename(columns=columns)
+
     return df_for_output

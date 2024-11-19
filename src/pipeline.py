@@ -1,5 +1,6 @@
 """The main pipeline"""
 # Core Python modules
+from datetime import datetime
 import logging
 import pandas as pd
 
@@ -79,6 +80,13 @@ def run_pipeline(user_config_path, dev_config_path):
     runlog_obj.write_mainlog()
 
     run_id = runlog_obj.run_id
+
+    # update config to include run_id and tdate for when files are written
+    run_id = runlog_obj.run_id
+    tdate = datetime.now().strftime("%y-%m-%d")
+    config.update({"filename_items": {"run_id": run_id,
+                                      "tdate": tdate}})
+
     MainLogger.info(f"Reading user config from {user_config_path}.")
     MainLogger.info(f"Reading developer config from {dev_config_path}.")
 
@@ -117,7 +125,6 @@ def run_pipeline(user_config_path, dev_config_path):
         mods.rd_write_csv,
         mods.rd_read_csv,
         mods.rd_file_exists,
-        run_id,
     )
     MainLogger.info("Finished Freezing module...")
 
@@ -136,7 +143,7 @@ def run_pipeline(user_config_path, dev_config_path):
     if load_ni_data:
         MainLogger.info("Starting NI module...")
         ni_df = run_ni(
-            config, mods.rd_file_exists, mods.rd_read_csv, mods.rd_write_csv, run_id
+            config, mods.rd_file_exists, mods.rd_read_csv, mods.rd_write_csv,
         )
         MainLogger.info("Finished NI Data Ingest.")
     else:
@@ -169,7 +176,6 @@ def run_pipeline(user_config_path, dev_config_path):
         mods.rd_read_csv,
         mods.rd_write_csv,
         mods.rd_file_exists,
-        run_id,
     )
     MainLogger.info("Finished Mapping...")
 
@@ -181,7 +187,6 @@ def run_pipeline(user_config_path, dev_config_path):
         backdata,
         config,
         mods.rd_write_csv,
-        run_id,
     )
     MainLogger.info("Finished  Imputation...")
 
@@ -206,20 +211,20 @@ def run_pipeline(user_config_path, dev_config_path):
     # Outlier detection module
     MainLogger.info("Starting Outlier Detection...")
     outliered_responses_df = run_outliers(
-        imputed_df, manual_outliers, config, mods.rd_write_csv, run_id
+        imputed_df, manual_outliers, config, mods.rd_write_csv
     )
     MainLogger.info("Finished Outlier module.")
 
     # Estimation module
     MainLogger.info("Starting Estimation...")
     estimated_responses_df = run_estimation(
-        outliered_responses_df, config, mods.rd_write_csv, run_id
+        outliered_responses_df, config, mods.rd_write_csv
     )
     MainLogger.info("Finished Estimation module.")
 
     # Data processing: Apportionment to sites
     apportioned_responses_df, intram_tot_dict = run_site_apportionment(
-        estimated_responses_df, config, mods.rd_write_csv, run_id
+        estimated_responses_df, config, mods.rd_write_csv,
     )
 
     MainLogger.info("Finished Site Apportionment module.")
@@ -232,7 +237,6 @@ def run_pipeline(user_config_path, dev_config_path):
         config,
         intram_tot_dict,
         mods.rd_write_csv,
-        run_id,
         pg_detailed,
         sic_division_detailed,
     )

@@ -261,11 +261,12 @@ def run_staging(  # noqa: C901
         # Output the staged PNP data.
         if config["global"]["output_pnp_full_responses"]:
             StagingMainLogger.info("Starting output of staged PNP data...")
-            staging_folder = staging_dict["pnp_staging_qa_path"]
+            staging_folder = staging_dict["staging_output_path"]
             tdate = datetime.now().strftime("%y-%m-%d")
             survey_year = config["survey"]["survey_year"]
+            survey_type = config["survey"]["survey_type"]
             staged_filename = (
-                f"{survey_year}_staged_PNP_full_responses_{tdate}_v{run_id}.csv"
+                f"{survey_type}_{survey_year}_staged_PNP_full_responses_{tdate}_v{run_id}.csv"
             )
             rd_write_csv(f"{staging_folder}/{staged_filename}", pnp_full_responses)
             StagingMainLogger.info("Finished output of staged PNP data.")
