@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import toml
 
-rootpath = "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/PNP"
+rootpath = "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/PNP/"
 
 
 def convert_column_datatypes(df):
@@ -74,7 +74,7 @@ def identify_key_business(df):
         df (pd.DataFrame): The dataframe with the identified key business columns.
     """
     # get key businesses
-    key_businesses_df = pd.read_csv(os.path.join(rootpath, '2023'))
+    key_businesses_df = pd.read_csv(os.path.join(rootpath, 'KEYS 2023.csv'))
     key_businesses_list = list(key_businesses_df["2023 KEYS"])
 
     df['pnp_key'] = df['reference'].apply(
@@ -97,7 +97,7 @@ def identify_osmotherly_businesses(df):
     """
     # get osmotherly businesses
     osmotherly_businesses_df = pd.read_csv(os.path.join(rootpath,
-                                                        'Osmotherly PNP 2023'))
+                                                        "Osmotherly PNP 2023.csv"))
     osmotherly_businesses_list = list(osmotherly_businesses_df["ruref"])
 
     df['osmotherly'] = df['reference'].apply(
