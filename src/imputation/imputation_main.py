@@ -103,11 +103,11 @@ def run_imputation(
     # Perform TMI step 5, which calculates employment and headcount totals
     imputed_df = hlp.calculate_totals(imputed_df)
 
-    # After imputation, correction to overwrite the "604" == "No" in any records with
-    # Status "check needed"
+    # After TMI imputation, overwrite the "604" == "No" in any records with
+    # Status "check needed" (they are now being imputed")
     chk_mask = imputed_df["status"].str.contains("Check needed")
-    imputation_mask = imputed_df["imp_marker"].isin(["TMI", "CF", "MoR"])
-    # Changing all records that meet the criteria to "604" == "Yes"
+    imputation_mask = imputed_df["imp_marker"] == "TMI"
+
     imputed_df.loc[(chk_mask & imputation_mask), "604"] = "Yes"
 
     # join constructed rows back to the imputed df
