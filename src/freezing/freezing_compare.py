@@ -1,8 +1,8 @@
 import logging
-from datetime import datetime
 import os
 import pandas as pd
 from typing import Callable, Tuple
+from src.utils.helpers import filename_amender
 
 
 def get_amendments(
@@ -166,7 +166,6 @@ def output_freezing_files(
     additions_df: pd.DataFrame,
     config: dict,
     write_csv: Callable,
-    run_id: int,
     FreezingLogger: logging.Logger,
 ) -> bool:
     """Save CSVs of amendments and additions for user approval.
@@ -177,7 +176,6 @@ def output_freezing_files(
         config (dict): The pipeline configuration
         write_csv (callable): Function to write to a csv file. This will be the
             hdfs or network version depending on settings.
-        run_id (int): The run id for this run.
         FreezingLogger (logging.Logger): The logger to log to.
 
     Returns:
@@ -188,18 +186,16 @@ def output_freezing_files(
         "freezing_changes_to_review_path"
     ]
     FreezingLogger.info("Outputting changes to review file(s).")
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["survey"]["survey_year"]
 
     # Check if the dataframes are empty before writing
     if amendments_df is not None:
-        filename = f"{survey_year}_freezing_amendments_to_review_{tdate}_v{run_id}.csv"
+        filename = filename_amender("freezing_amendments_to_review", config)
         write_csv(
             os.path.join(freezing_changes_to_review_path, filename), amendments_df
         )
 
     if additions_df is not None:
-        filename = f"{survey_year}_freezing_additions_to_review_{tdate}_v{run_id}.csv"
+        filename = filename_amender("freezing_additions_to_review", config)
         write_csv(os.path.join(freezing_changes_to_review_path, filename), additions_df)
 
     if amendments_df is None and additions_df is None:
@@ -247,7 +243,6 @@ def run_comparison(
     updated_snapshot: pd.DataFrame,
     config: dict,
     write_csv: Callable,
-    run_id: int,
     FreezingLogger: logging.Logger,
 ) -> None:
     """Main function to run comparison of frozen data and updated snapshot.
@@ -258,7 +253,6 @@ def run_comparison(
         updated_snapshot (pd.DataFrame): The staged and validated updated snapshot data.
         config (dict): The pipeline configuration
         write_csv (callable): Function to write to a csv file.
-        run_id (int): The run id for this run.
         FreezingLogger (logging.Logger): The logger to log to.
 
     Returns:
@@ -274,5 +268,5 @@ def run_comparison(
         additions_df, amendments_df, FreezingLogger
     )
     output_freezing_files(
-        amendments_df, additions_df, config, write_csv, run_id, FreezingLogger
+        amendments_df, additions_df, config, write_csv, FreezingLogger
     )

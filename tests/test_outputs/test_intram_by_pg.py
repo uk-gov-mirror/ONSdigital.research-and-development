@@ -22,7 +22,8 @@ class TestIngramBYPg(unittest.TestCase):
     def create_config_dict(self):
         """Creates config dictionary for test"""
         config = {"outputs_paths": {"outputs_master": "test_path"},
-                  "survey": {"survey_year": "2023", "survey": "BERD"}}
+                  "survey": {"survey_year": "2023", "survey_type": "PNG"},
+                  "filename_items": {"tdate": "2021-01-01", "run_id": "88"},}
         return config
 
     def mock_write_csv(self, filepath: str, data: pd.DataFrame) -> None:
@@ -161,7 +162,7 @@ class TestIngramBYPg(unittest.TestCase):
                                            self.pg_detailed_mapper_data(),
                                            uk_output=True,
                                            config=self.create_config_dict())
-    
+
         # Assert
         assert_frame_equal(gb_result[0], self.gb_expected_output_data()[0])
         assert gb_result[1] == self.gb_expected_output_data()[1]
@@ -178,7 +179,6 @@ class TestIngramBYPg(unittest.TestCase):
                                         config=self.create_config_dict(),
                                         intram_tot_dict=dict(),
                                         write_csv=self.mock_write_csv,
-                                        run_id="test",
                                         uk_output=False)
         uk_result = output_intram_by_pg(self.gb_input_data(),
                                         self.ni_input_data(),
@@ -186,7 +186,6 @@ class TestIngramBYPg(unittest.TestCase):
                                         config=self.create_config_dict(),
                                         intram_tot_dict=dict(),
                                         write_csv=self.mock_write_csv,
-                                        run_id="test",
                                         uk_output=True)
 
         # Assert

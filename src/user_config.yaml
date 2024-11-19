@@ -4,8 +4,6 @@ config_validation:
 survey:
   survey_type: "BERD"
   survey_year: 2023
-surveys:
-  survey_type: "BERD"
 global:
   # Staging and validation settings
   postcode_csv_check: True
