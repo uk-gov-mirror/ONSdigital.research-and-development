@@ -1,7 +1,6 @@
 import pytest
 import os
 import json
-import io
 import pathlib
 from typing import Union
 
@@ -18,7 +17,7 @@ from src.utils.local_file_mods import (
     rd_mkdir,
     # rd_open,
     rd_write_feather,
-    safeload_yaml,
+    safeload_yaml
 )
 
 

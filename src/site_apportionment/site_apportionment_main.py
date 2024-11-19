@@ -2,13 +2,13 @@
 import logging
 import pandas as pd
 from typing import Callable, Dict, Any
-from datetime import datetime
 
 from src.site_apportionment.site_apportionment import run_apportion_sites
 from src.site_apportionment.output_status_filtered import (
     output_status_filtered,
     calc_weighted_intram_tot,
 )
+from src.utils.helpers import filename_amender
 
 SitesMainLogger = logging.getLogger(__name__)
 
@@ -17,7 +17,6 @@ def run_site_apportionment(
     df: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
 ) -> pd.DataFrame:
     """Run the apportionment to sites module.
 
@@ -32,7 +31,6 @@ def run_site_apportionment(
         intram_tot_dict (dict): Dictionary with the intramural totals.
         write_csv (Callable): Function to write to a csv file.
             This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
     Returns:
         df_out (pd.DataFrame): Percentages filled in for short forms and applied
             to apportion  for long forms
@@ -44,7 +42,7 @@ def run_site_apportionment(
 
     # Conditionally output the records to be removed
     if config["global"]["output_status_filtered"]:
-        output_status_filtered(df, imp_markers_to_keep, config, write_csv, run_id)
+        output_status_filtered(df, imp_markers_to_keep, config, write_csv,)
 
     # Calculate the intramural totals before apportionment
     intram_tot_dict = {}
@@ -61,9 +59,7 @@ def run_site_apportionment(
     # Output QA files
     if config["global"]["output_apportionment_qa"]:
         SitesMainLogger.info("Outputting Apportionment files.")
-        tdate = datetime.now().strftime("%y-%m-%d")
-        survey_year = config["survey"]["survey_year"]
-        filename = f"{survey_year}_estimated_apportioned_{tdate}_v{run_id}.csv"
+        filename = filename_amender("estimated_apportioned", config)
         write_csv(f"{qa_path}/{filename}", df_out)
 
     SitesMainLogger.info("Finished apportionment to sites.")

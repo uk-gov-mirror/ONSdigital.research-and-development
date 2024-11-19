@@ -30,7 +30,6 @@ def run_outputs(  # noqa: C901
     config: Dict[str, Any],
     intram_tot_dict: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
     pg_detailed: pd.DataFrame,
     civil_defence_detailed: pd.DataFrame,
     sic_division_detailed: pd.DataFrame,
@@ -44,7 +43,6 @@ def run_outputs(  # noqa: C901
         intram_tot_dict (dict): Dictionary with the intramural totals.
         write_csv (Callable): Function to write to a csv file.
             This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
         pg_detailed (pd.DataFrame): Detailed descriptons of alpha PG groups
         civil_defence_detailed (pd.DataFrame): Detailed descriptons of civil/defence
         sic_division_detailed (pd.DataFrame): Detailed descriptons of SIC divisions
@@ -61,7 +59,6 @@ def run_outputs(  # noqa: C901
             outputs_df,
             config,
             write_csv,
-            run_id,
         )
         OutputMainLogger.info("Finished short form output.")
 
@@ -75,7 +72,6 @@ def run_outputs(  # noqa: C901
             outputs_df,
             config,
             write_csv,
-            run_id,
         )
         OutputMainLogger.info("Finished long form output.")
 
@@ -91,7 +87,6 @@ def run_outputs(  # noqa: C901
             config,
             intram_tot_dict,
             write_csv,
-            run_id,
         )
         OutputMainLogger.info("Finished TAU output.")
 
@@ -99,7 +94,7 @@ def run_outputs(  # noqa: C901
     if config["global"]["output_gb_sas"]:
         OutputMainLogger.info("Starting GB SAS output...")
         intram_tot_dict = output_gb_sas(
-            outputs_df, config, intram_tot_dict, write_csv, run_id
+            outputs_df, config, intram_tot_dict, write_csv,
         )
         OutputMainLogger.info("Finished GB SAS output.")
 
@@ -113,7 +108,6 @@ def run_outputs(  # noqa: C901
                 ni_full_responses,
                 config,
                 write_csv,
-                run_id,
             )
             OutputMainLogger.info("Finished NI SAS output.")
 
@@ -127,7 +121,6 @@ def run_outputs(  # noqa: C901
             config,
             intram_tot_dict,
             write_csv,
-            run_id,
             uk_output=False,
         )
         OutputMainLogger.info("Finished Intram by PG (GB) output.")
@@ -147,7 +140,6 @@ def run_outputs(  # noqa: C901
                 config,
                 intram_tot_dict,
                 write_csv,
-                run_id,
                 uk_output=True,
             )
             OutputMainLogger.info("Finished Intram by PG (UK) output.")
@@ -161,7 +153,6 @@ def run_outputs(  # noqa: C901
             config,
             intram_tot_dict,
             write_csv,
-            run_id,
         )
         OutputMainLogger.info("Finished Intram by ITL (GB) output.")
 
@@ -179,7 +170,6 @@ def run_outputs(  # noqa: C901
                 config,
                 intram_tot_dict,
                 write_csv,
-                run_id,
                 uk_output=True,
             )
             OutputMainLogger.info("Finished Intram by ITL (UK) output.")
@@ -193,7 +183,6 @@ def run_outputs(  # noqa: C901
             config,
             intram_tot_dict,
             write_csv,
-            run_id,
         )
         OutputMainLogger.info("Finished frozen group output.")
 
@@ -204,7 +193,6 @@ def run_outputs(  # noqa: C901
             outputs_df,
             config,
             write_csv,
-            run_id,
             civil_defence_detailed,
         )
         OutputMainLogger.info("Finished Intram by civil or defence output.")
@@ -217,18 +205,17 @@ def run_outputs(  # noqa: C901
             config,
             intram_tot_dict,
             write_csv,
-            run_id,
             sic_division_detailed,
         )
         OutputMainLogger.info("Finished Intram by SIC output.")
 
     # Running FTE total QA
     if config["global"]["output_fte_total_qa"]:
-        qa_output_total_fte(outputs_df, config, write_csv, run_id)
+        qa_output_total_fte(outputs_df, config, write_csv)
         OutputMainLogger.info("Finished FTE total QA output.")
 
     if config["global"]["output_intram_totals"]:
-        output_intram_totals(intram_tot_dict, config, write_csv, run_id)
+        output_intram_totals(intram_tot_dict, config, write_csv)
         OutputMainLogger.info("Finished Intramural totals output.")
 
     OutputMainLogger.info("Finished Outputs module.")
