@@ -3,7 +3,6 @@ import logging
 import os
 import pandas as pd
 from typing import Callable, Dict, Any
-from datetime import datetime
 
 from src.imputation import imputation_helpers as hlp
 from src.imputation import tmi_imputation as tmi
@@ -15,6 +14,7 @@ from src.imputation import manual_imputation as mimp
 from src.imputation.MoR import run_mor
 from src.outputs.outputs_helpers import create_output_df
 from src.utils.breakdown_validation import run_breakdown_validation
+from src.utils.helpers import filename_amender
 
 
 ImputationMainLogger = logging.getLogger(__name__)
@@ -26,7 +26,6 @@ def run_imputation(
     backdata: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
 ) -> pd.DataFrame:
     """Run all the processes for the imputation module.
 
@@ -47,7 +46,6 @@ def run_imputation(
         backdata (pd.DataFrame): previous year's data
         config (dict): the configuration settings.
         write_csv (Callable): function to write a dataframe to a csv file
-        run_id (int): unique identifier for the run
 
     Returns:
         pd.DataFrame: dataframe with the imputed columns updated
@@ -105,11 +103,11 @@ def run_imputation(
     # Perform TMI step 5, which calculates employment and headcount totals
     imputed_df = hlp.calculate_totals(imputed_df)
 
-    # After imputation, correction to overwrite the "604" == "No" in any records with
-    # Status "check needed"
+    # After TMI imputation, overwrite the "604" == "No" in any records with
+    # Status "check needed" (they are now being imputed")
     chk_mask = imputed_df["status"].str.contains("Check needed")
-    imputation_mask = imputed_df["imp_marker"].isin(["TMI", "CF", "MoR"])
-    # Changing all records that meet the criteria to "604" == "Yes"
+    imputation_mask = imputed_df["imp_marker"] == "TMI"
+
     imputed_df.loc[(chk_mask & imputation_mask), "604"] = "Yes"
 
     # join constructed rows back to the imputed df
@@ -132,20 +130,14 @@ def run_imputation(
     ImputationMainLogger.info("Finished Imputation calculation.")
 
     # Output QA files
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["survey"]["survey_year"]
-
     if config["global"]["output_imputation_qa"]:
         ImputationMainLogger.info("Outputting Imputation QA files.")
-        links_filename = f"{survey_year}_links_qa_{tdate}_v{run_id}.csv"
-        trim_qa_filename = f"{survey_year}_trimming_qa_{tdate}_v{run_id}.csv"
-        full_imp_filename = (
-            f"{survey_year}_full_responses_imputed_{tdate}_v{run_id}.csv"
-        )
-        wrong_604_filename = f"{survey_year}_wrong_604_error_qa_{tdate}_v{run_id}.csv"
-        trimmed_counts_filename = (
-            f"{survey_year}_tmi_trim_count_qa_{tdate}_v{run_id}.csv"
-        )
+
+        trim_qa_filename = filename_amender("trimming_qa", config)
+        full_imp_filename = filename_amender("full_responses_imputed", config)
+        wrong_604_filename = filename_amender("wrong_604_error_qa", config)
+        links_filename = filename_amender("links_qa", config)
+        trimmed_counts_filename = filename_amender("tmi_trim_count_qa", config)
 
         # create trimming qa dataframe with required columns from schema
         schema_path = config["schema_paths"]["manual_trimming_schema"]
@@ -168,7 +160,7 @@ def run_imputation(
     if config["global"]["output_backdata"]:
         ImputationMainLogger.info("Outputting backdata for imputation.")
         backdata_path = config["imputation_paths"]["backdata_out_path"]
-        backdata_filename = f"{survey_year}_backdata_{tdate}_v{run_id}.csv"
+        backdata_filename = filename_amender("backdata", config)
         new_backdata = hlp.create_new_backdata(imputed_df, config)
         write_csv(os.path.join(backdata_path, backdata_filename), new_backdata)
 

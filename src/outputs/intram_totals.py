@@ -4,7 +4,7 @@ import logging
 from typing import Callable, Dict, Any
 
 import pandas as pd
-from datetime import datetime
+from src.utils.helpers import filename_amender
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -13,8 +13,7 @@ def output_intram_totals(
     intram_tot_dict: Dict[str, int],
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
-) -> None:
+    ) -> None:
     """Output the intramural totals.
 
     Args:
@@ -22,8 +21,7 @@ def output_intram_totals(
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
             This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
-
+        
     Returns:
         None
     """
@@ -41,7 +39,5 @@ def output_intram_totals(
     OutputMainLogger.info("Intramural totals:")
     OutputMainLogger.info(intram_tot_df)
 
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["survey"]["survey_year"]
-    filename = f"{survey_year}_intram_totals_{tdate}_v{run_id}.csv"
+    filename = filename_amender("intram_totals", config)
     write_csv(f"{output_path}/output_intram_totals/{filename}", intram_tot_df)

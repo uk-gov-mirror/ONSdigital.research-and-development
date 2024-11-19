@@ -3,10 +3,10 @@
 import logging
 import os
 from typing import Callable, Tuple
-from datetime import datetime
 import pandas as pd
 
 from src.staging import validation as val
+from src.utils.helpers import filename_amender
 
 NIStagingLogger = logging.getLogger(__name__)
 
@@ -51,7 +51,6 @@ def run_ni_staging(
     check_file_exists: Callable,
     read_csv: Callable,
     write_csv: Callable,
-    run_id: int,
 ) -> pd.DataFrame:
     """Run the Northern Ireland staging and validation module.
 
@@ -71,7 +70,6 @@ def run_ni_staging(
             This will be the s3, hdfs or network version depending on settings.
         write_csv (Callable): Function to write to a csv file.
             This will be the s3, hdfs or network version depending on settings.
-        run_id (int): The run id for this run.
     Returns:
         ni_full_responses (pd.DataFrame): The staged and vaildated NI data.
     """
@@ -99,11 +97,7 @@ def run_ni_staging(
     if config["global"]["output_ni_full_responses"]:
         NIStagingLogger.info("Starting output of staged NI data...")
         staging_folder = config["ni_paths"]["ni_staging_output_path"]
-        tdate = datetime.now().strftime("%y-%m-%d")
-        survey_year = config["survey"]["survey_year"]
-        staged_filename = (
-            f"{survey_year}_staged_NI_full_responses_{tdate}_v{run_id}.csv"
-        )
+        staged_filename = filename_amender("staged_NI_full_responses", config)
         write_csv(os.path.join(staging_folder, staged_filename), ni_responses_df)
         NIStagingLogger.info("Finished output of staged NI data.")
     else:

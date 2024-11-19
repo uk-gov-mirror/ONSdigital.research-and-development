@@ -151,13 +151,11 @@ def create_ni_staging_config(config: dict) -> dict:
         dict: A dictionary with all the paths needed for the NI staging module.
     """
     paths = get_paths(config)
-    survey_path = paths["survey_path"]
 
     ni_staging_dict = create_module_config(config, "ni")
 
     # add in the path to the ni_full_responses
-    ni_path = paths["ni_full_responses_path"]
-    ni_staging_dict["ni_full_responses"] = os.path.join(survey_path, ni_path)
+    ni_staging_dict["ni_full_responses"] = paths["ni_full_responses_path"]
 
     return ni_staging_dict
 
