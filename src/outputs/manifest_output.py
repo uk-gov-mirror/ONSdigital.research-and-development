@@ -2,6 +2,8 @@ import json
 import os
 from datetime import datetime
 import logging
+from src.utils.helpers import filename_amender
+from typing import Dict, Any
 
 
 # set up logging
@@ -42,6 +44,7 @@ class Manifest:
         isfile_func: callable,
         read_header_func: callable,
         string_to_file_func: callable,
+        config: Dict[str, Any],
         dry_run: bool = False,
         delete_on_fail=False,
     ):
@@ -65,8 +68,14 @@ class Manifest:
         self.manifest_datetime = pipeline_run_datetime.strftime("%Y%m%d_%H%M")
         self.manifest_filename = self.manifest_datetime
 
+        filename = filename_amender(
+            filename="metadata_manifest",
+            config=config
+        )
+        filename = filename.replace("csv", "json")
+
         self.manifest_file_path = os.path.join(
-            outgoing_directory, (self.manifest_datetime + "metadata_manifest.json")
+            outgoing_directory, (self.manifest_datetime + filename)
         )
         self.manifest: dict = {"files": []}
         self.written = False
@@ -171,9 +180,14 @@ class Manifest:
                     File size is too big"""
             )
 
+        # Remove leading slashes from the relative directory path
+        relative_dir_str = str(os.path.dirname(relative_file_path))
+        while relative_dir_str.startswith("/"):
+            relative_dir_str = relative_dir_str[1:]
+
         file_manifest = {
             "file": os.path.basename(relative_file_path),
-            "subfolder": os.path.dirname(relative_file_path),
+            "subfolder": relative_dir_str,
             "sizeBytes": file_size_bytes,
             "md5sum": self.md5sum(absolute_file_path),
             "header": column_header,

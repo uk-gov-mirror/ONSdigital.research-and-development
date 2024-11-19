@@ -4,7 +4,7 @@ import os
 import pytest
 import pathlib
 from unittest.mock import Mock
-from typing import Tuple
+from typing import Tuple, Dict, Any
 from datetime import date
 
 # Third Party Imports
@@ -216,11 +216,12 @@ class TestStageValidateHarmonisePostcodes(object):
     """Tests for stage_validate_harmonise_postcodes."""
 
     @pytest.fixture(scope="function")
-    def config(self, tmp_path) -> pd.DataFrame:
+    def config(self, tmp_path) -> Dict[str, Any]:
         """Test config."""
         config = {
             "global": {"postcode_csv_check": True},
-            "years": {"survey_year": 2022},
+            "survey": {"survey_year": 2022, "survey_type": "PNP"},
+            "filename_items": {"run_id": 1, "tdate": "21-01-01"},
             "staging_paths": {"pcode_val_path": tmp_path, "postcode_masterlist": "ml"},
             "mapping_paths": {"postcode_mapper": "ml"},
         }
@@ -314,7 +315,6 @@ class TestStageValidateHarmonisePostcodes(object):
         fr, pm = stage_validate_harmonise_postcodes(
             config=config,
             full_responses=full_responses,
-            run_id=1,
             check_file_exists=self.mock_check_file_exists,
             read_csv=self.mock_read_csv,
             write_csv=write_csv,
@@ -331,7 +331,7 @@ class TestStageValidateHarmonisePostcodes(object):
         # assert that invalid postcodes have been saved out
         files = os.listdir(tmp_path)
         filename = (
-            f"2022_invalid_postcodes_{self.get_todays_date()}_v1.csv"
+            "PNP_2022_invalid_postcodes_21-01-01_v1.csv"
         )
         assert (
             filename in files

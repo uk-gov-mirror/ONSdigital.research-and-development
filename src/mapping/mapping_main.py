@@ -1,7 +1,6 @@
 """The main file for the mapping module."""
 import logging
 import os
-from datetime import datetime
 from typing import Callable
 
 from src.mapping import mapping_helpers as hlp
@@ -11,6 +10,7 @@ from src.mapping.cellno_mapping import validate_join_cellno_mapper
 from src.mapping.itl_mapping import join_itl_regions
 from src.staging import staging_helpers as stage_hlp
 from src.staging import validation as val
+from src.utils.helpers import filename_amender
 
 MappingMainLogger = logging.getLogger(__name__)
 
@@ -23,7 +23,6 @@ def run_mapping(
     rd_read_csv: Callable,
     rd_write_csv: Callable,
     rd_file_exists: Callable,
-    run_id: int,
 ):
     """Perform mapping to the responses dataframes and output QA to csv.
 
@@ -35,7 +34,6 @@ def run_mapping(
         rd_read_csv (Callable): Function to read a csv file.
         rd_write_csv (Callable): Function to write a dataframe to a csv file.
         rd_file_exists (Callable): Function to check if a file exists.
-        run_id (int): Unique identifier for the run.
 
     Returns:
         Tuple[pd.DataFrame, pd.DataFrame]: The BERD full responses and Northern Ireland
@@ -85,7 +83,7 @@ def run_mapping(
     val.validate_many_to_one(sic_pg_num, "SIC 2007_CODE", "2016 > Form PG")
 
     # For survey year only 2022 it's necessary to update the reference list
-    year = config["years"]["survey_year"]
+    year = config["survey"]["survey_year"]
     if year == 2022:
         ref_list_817_mapper = stage_hlp.load_validate_mapper(
             "ref_list_817_mapper_path",
@@ -119,21 +117,20 @@ def run_mapping(
 
     # output QA files
     qa_path = config["mapping_paths"]["qa_path"]
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["years"]["survey_year"]
 
     if config["global"]["output_mapping_qa"]:
         MappingMainLogger.info("Outputting Mapping QA files.")
-        full_responses_filename = (
-            f"{survey_year}_full_responses_mapped_{tdate}_v{run_id}.csv"
+        full_responses_filename = filename_amender(
+            "full_responses_mapped",
+            config
         )
         rd_write_csv(os.path.join(qa_path, full_responses_filename), full_responses)
     MappingMainLogger.info("Finished Mapping QA calculation.")
 
     if config["global"]["output_mapping_ni_qa"] and not ni_full_responses.empty:
         MappingMainLogger.info("Outputting Mapping NI QA files.")
-        full_responses_NI_filename = (
-            f"{survey_year}_full_responses_ni_mapped_{tdate}_v{run_id}.csv"
+        full_responses_NI_filename = filename_amender(
+            "full_responses_ni_mapped", config
         )
         rd_write_csv(
             os.path.join(qa_path, full_responses_NI_filename), ni_full_responses

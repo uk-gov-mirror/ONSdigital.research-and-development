@@ -2,7 +2,7 @@
 import logging
 import pandas as pd
 import numpy as np
-from datetime import datetime
+from src.utils.helpers import filename_amender
 from typing import Callable, Dict, Any
 
 OutputMainLogger = logging.getLogger(__name__)
@@ -12,7 +12,6 @@ def output_intram_by_civil_defence(
     df: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
     civil_defence_detailed: pd.DataFrame,
 ):
     """Run the outputs module.
@@ -22,14 +21,13 @@ def output_intram_by_civil_defence(
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
          This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
         civil_defence_detailed (pd.DataFrame): Detailed schema of C/D output
 
 
     """
     output_path = config["outputs_paths"]["outputs_master"]
 
-    period = config["years"]["survey_year"]
+    period = config["survey"]["survey_year"]
     period_str = str(period)
 
     # Group by civil/defence (200) and aggregate intram (211)
@@ -54,8 +52,6 @@ def output_intram_by_civil_defence(
     df_merge.columns = df_merge.iloc[0]
     df_for_output = df_merge.iloc[1:]
 
-    # Outputting the CSV file with timestamp and run_id
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["years"]["survey_year"]
-    filename = f"{survey_year}_output_intram_by_civil_defence{tdate}_v{run_id}.csv"
+    # Outputting the CSV file
+    filename = filename_amender("output_intram_by_civil_defence", config)
     write_csv(f"{output_path}/output_intram_by_civil_defence/{filename}", df_for_output)
