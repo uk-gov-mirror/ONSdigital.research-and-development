@@ -309,15 +309,14 @@ def stage_validate_harmonise_postcodes(
 
 def filter_pnp_data(full_responses, config):
     """
-    Filter out all PNP data or equivalently all records with legalstatus of 7
+    Filter for either PNP data or BERD data.
 
     Args:
         full_responses (pandas.DataFrame):
             The DataFrame containing the full resonses data.
 
     Returns:
-        Tuple[pd.DataFrame, pd.DataFrame]: Two dataframes; the BERD data without
-        PNP data and the PNP data
+        pd.DataFrame:t PNP data or BERD data.
     """
 
     # filter out PNP data or equivalently records with legalstatus!='7'
