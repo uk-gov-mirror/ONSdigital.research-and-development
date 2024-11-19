@@ -115,6 +115,7 @@ def run_pipeline(user_config_path, dev_config_path):
         mods.rd_write_csv,
         mods.rd_read_feather,
         mods.rd_write_feather,
+        run_id,
     )
 
     # Freezing module
