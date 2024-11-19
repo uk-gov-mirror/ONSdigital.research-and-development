@@ -1,11 +1,11 @@
 """The NI SAS for the Outputs module."""
 import logging
 import pandas as pd
-from datetime import datetime
 from typing import Callable, Dict, Any
 import src.outputs.map_output_cols as map_o
 from src.staging.validation import load_schema
 from src.outputs.outputs_helpers import create_output_df
+from src.utils.helpers import filename_amender
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -14,7 +14,6 @@ def output_ni_sas(
     df: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
 ):
     """Run the outputs module.
 
@@ -23,8 +22,7 @@ def output_ni_sas(
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
             This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
-    """
+     """
     output_path = config["outputs_paths"]["outputs_master"]
 
     # Map the sizebands based on frozen employment
@@ -46,8 +44,6 @@ def output_ni_sas(
     schema_dict = load_schema(schema_path)
     output = create_output_df(df, schema_dict)
 
-    # Outputting the CSV file with timestamp and run_id
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["years"]["survey_year"]
-    filename = f"{survey_year}_output_ni_sas_{tdate}_v{run_id}.csv"
+    # Outputting the CSV
+    filename = filename_amender("output_ni_sas", config)
     write_csv(f"{output_path}/output_ni_sas/{filename}", output)

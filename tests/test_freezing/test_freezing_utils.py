@@ -22,7 +22,7 @@ class TestAddLastFrozenColumn(object):
             {"test": [0]}
         )
         # add last_frozen_column
-        last_frozen_df = _add_last_frozen_column(dummy_df, 7000)
+        last_frozen_df = _add_last_frozen_column(dummy_df, {"filename_items": {"run_id": "7000"}})
         exp_last_frozen = self.create_expected_last_frozen(7000)
         assert len(last_frozen_df.last_frozen.unique()) == 1, (
             "_add_last_frozen_column has added multiple different values."

@@ -28,7 +28,7 @@ def run_mor(df, backdata, impute_vars, config):
         pd.DataFrame: QA DataFrame showing how imputation links are calculated.
     """
     # If the survey year is 2022, there is no shortform backdata
-    is_2022 = config["years"]["survey_year"] == 2022
+    is_2022 = config["survey"]["survey_year"] == 2022
 
     to_impute_df, remainder_df, backdata = mor_preprocessing(df, backdata, is_2022)
 
@@ -240,13 +240,13 @@ def calculate_growth_rates(current_df, prev_df, target_vars):
     prev_df = (
         prev_df[["reference", "imp_class", "imp_marker"] + target_vars]
         .groupby(["reference", "imp_class"])
-        .sum()
+        .sum(numeric_only=True)
     ).reset_index()
 
     current_df = (
         current_df[["reference", "imp_class", "imp_marker"] + target_vars]
         .groupby(["reference", "imp_class"])
-        .sum()
+        .sum(numeric_only=True)
     ).reset_index()
 
     # Merge the clear current and previous data

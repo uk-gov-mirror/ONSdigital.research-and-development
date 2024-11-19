@@ -15,7 +15,6 @@ def run_ni(
     check_file_exists: Callable,
     read_csv: Callable,
     write_csv: Callable,
-    run_id: int,
 ) -> pd.DataFrame:
     """Stage NI data and apply construction to it.
 
@@ -38,7 +37,6 @@ def run_ni(
         check_file_exists,
         read_csv,
         write_csv,
-        run_id,
     )
 
     if config["global"]["run_ni_construction"]:
