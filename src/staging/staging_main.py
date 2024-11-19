@@ -251,7 +251,7 @@ def run_staging(  # noqa: C901
 
         # seaparate PNP data from full_responses (BERD data)
         if stage_frozen_snapshot or stage_updated_snapshot:
-            full_responses, pnp_full_responses = helpers.filter_pnp_data(full_responses)
+            full_responses = helpers.filter_pnp_data(full_responses, config)
 
         if config["global"]["output_full_responses"]:
             StagingMainLogger.info("Starting output of staged BERD data...")
@@ -266,6 +266,7 @@ def run_staging(  # noqa: C901
         else:
             StagingMainLogger.info("Skipping output of staged BERD data...")
 
+        '''
         # Output the staged PNP data.
         if config["global"]["output_pnp_full_responses"]:
             StagingMainLogger.info("Starting output of staged PNP data...")
@@ -279,6 +280,7 @@ def run_staging(  # noqa: C901
             StagingMainLogger.info("Finished output of staged PNP data.")
         else:
             StagingMainLogger.info("Skipping output of staged PNP data...")
+        '''
 
         # Return staged BERD data, additional data and mappers
         return (

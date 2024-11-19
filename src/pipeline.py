@@ -175,16 +175,19 @@ def run_pipeline(user_config_path, dev_config_path):
     MainLogger.info("Finished Mapping...")
 
     # Imputation module
-    MainLogger.info("Starting Imputation...")
-    imputed_df = run_imputation(
-        mapped_df,
-        manual_trimming_df,
-        backdata,
-        config,
-        mods.rd_write_csv,
-        run_id,
-    )
-    MainLogger.info("Finished  Imputation...")
+    if config["survey"]["survey_type"] != "PNP":
+        MainLogger.info("Starting Imputation...")
+        imputed_df = run_imputation(
+            mapped_df,
+            manual_trimming_df,
+            backdata,
+            config,
+            mods.rd_write_csv,
+            run_id,
+        )
+        MainLogger.info("Finished  Imputation...")
+    else:
+        MainLogger.info("Skipping Imputation for PNP survey type...")
 
     # Perform postcode construction now imputation is complete
     run_postcode_construction = config["global"]["run_postcode_construction"]

@@ -2,10 +2,10 @@ config_validation:
   validate: True
   path: src/user_config_schema.yaml
 survey:
-  survey_type: "BERD"
+  survey_type: "PNP"
   survey_year: 2023
 surveys:
-  survey_type: "BERD"
+  survey_type: "PNP"
 global:
   # Staging and validation settings
   postcode_csv_check: True

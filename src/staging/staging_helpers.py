@@ -310,7 +310,7 @@ def stage_validate_harmonise_postcodes(
     return full_responses, postcode_mapper
 
 
-def filter_pnp_data(full_responses):
+def filter_pnp_data(full_responses, config):
     """
     Filter out all PNP data or equivalently all records with legalstatus of 7
 
@@ -322,9 +322,13 @@ def filter_pnp_data(full_responses):
         Tuple[pd.DataFrame, pd.DataFrame]: Two dataframes; the BERD data without
         PNP data and the PNP data
     """
-    # create dataframe with PNP data legalstatus=='7'
-    pnp_full_responses = full_responses.loc[(full_responses["legalstatus"] == "7")]
-    # filter out PNP data or equivalently records with legalstatus!='7'
-    full_responses = full_responses.loc[(full_responses["legalstatus"] != "7")]
 
-    return full_responses, pnp_full_responses
+    # filter out PNP data or equivalently records with legalstatus!='7'
+    if config["survey"]["survey_type"] == "BERD":
+        full_responses = full_responses.loc[(full_responses["legalstatus"] != "7")]
+
+    # create dataframe with PNP data legalstatus=='7'
+    elif config["survey"]["survey_type"] == "PNP":
+        full_responses = full_responses.loc[(full_responses["legalstatus"] == "7")]
+
+    return full_responses
