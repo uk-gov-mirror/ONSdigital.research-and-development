@@ -18,7 +18,7 @@ class TestCreateEstimationFilter:
             "instance",
             "709",
             "selectiontype",
-            "statusencoded",
+            "status",
             "formtype",
             "cellnumber",
             "uni_count",
@@ -26,18 +26,18 @@ class TestCreateEstimationFilter:
         ]
 
         data = [
-            [1, 0, "12", "P", "210", "0006", 1, 20, True],
-            [2, 0, 14, "P", "211", "0006", 2, 4, False],
-            [2, 1, 16, "P", "210", "0006", 2, 4, False],
-            [4, 0, 18, "P", "210", "0006", 4, 3, False],
-            [1, 0, "20", "X", "210", "0006", 5, 10, False],
+            [1, 0, "12", "P", "Clear", "0006", 1, 20, True],
+            [2, 0, 14, "P", "Clear - overridden", "0006", 2, 4, False],
+            [2, 1, 16, "P", "Clear", "0006", 2, 4, False],
+            [4, 0, 18, "P", "Clear", "0006", 4, 3, False],
+            [1, 0, "20", "X", "Clear", "0006", 5, 10, False],
             [3, 0, 1, "P", "999", "0006", 1, 20, False],
-            [5, 0, 14, "P", "211", "0001", 2, 4, False],
-            [6, 0, 10, "P", "210", "0006", 1, 20, False],
-            [7, 1, 10, "P", "210", "0006", 5, 10, False],
-            [8, 1, np.nan, "P", "210", "0006", 2, 4, False],
-            [9, 0, 5, "P", "210", "0006", 1, 20, False],
-            [10, 0, 10, "P", "210", "0006", 1, 20, False],
+            [5, 0, 14, "P", "Clear - overridden", "0001", 2, 4, False],
+            [6, 0, 10, "P", "Clear", "0006", 1, 20, False],
+            [7, 1, 10, "P", "Clear", "0006", 5, 10, False],
+            [8, 1, np.nan, "P", "Clear", "0006", 2, 4, False],
+            [9, 0, 5, "P", "Clear", "0006", 1, 20, False],
+            [10, 0, 10, "P", "Clear", "0006", 1, 20, False],
         ]
 
         input_df = pd.DataFrame(data=data, columns=input_cols)
@@ -206,7 +206,7 @@ class TestCalcWeightFilter:
             "instance",
             "709",
             "selectiontype",
-            "statusencoded",
+            "status",
             "formtype",
             "cellnumber",
             "uni_count",
@@ -214,18 +214,18 @@ class TestCalcWeightFilter:
         ]
 
         data = [
-            [1, 0, "12", "P", "210", "0006", 1, 20, True],
-            [2, 0, 14, "P", "211", "0006", 2, 4, False],
-            [2, 1, 16, "P", "210", "0006", 2, 4, False],
-            [4, 0, 18, "P", "210", "0006", 4, 3, False],
-            [1, 0, "20", "X", "210", "0006", 5, 10, False],
+            [1, 0, "12", "P", "Clear", "0006", 1, 20, True],
+            [2, 0, 14, "P", "Clear - overridden", "0006", 2, 4, False],
+            [2, 1, 16, "P", "Clear", "0006", 2, 4, False],
+            [4, 0, 18, "P", "Clear", "0006", 4, 3, False],
+            [1, 0, "20", "X", "Clear", "0006", 5, 10, False],
             [3, 0, 1, "P", "999", "0006", 1, 20, False],
-            [5, 0, 14, "P", "211", "0001", 2, 4, False],
-            [6, 0, 10, "P", "210", "0006", 1, 20, False],
-            [7, 1, 10, "P", "210", "0006", 5, 10, False],
-            [8, 1, np.nan, "P", "210", "0006", 2, 4, False],
-            [9, 0, 5, "P", "210", "0006", 1, 20, False],
-            [10, 0, 10, "P", "210", "0006", 1, 20, False],
+            [5, 0, 14, "P", "Clear - overridden", "0001", 2, 4, False],
+            [6, 0, 10, "P", "Clear", "0006", 1, 20, False],
+            [7, 1, 10, "P", "Clear", "0006", 5, 10, False],
+            [8, 1, np.nan, "P", "Clear", "0006", 2, 4, False],
+            [9, 0, 5, "P", "Clear", "0006", 1, 20, False],
+            [10, 0, 10, "P", "Clear", "0006", 1, 20, False],
         ]
 
         input_df = pd.DataFrame(data=data, columns=input_cols)
@@ -247,18 +247,18 @@ class TestCalcWeightFilter:
         ]
 
         data = [
-            [1, 0, 12.0, "P", "210", "0006", 1, 20, True, 6.3],
-            [2, 0, 14.0, "P", "211", "0006", 2, 4, False, 4.0],
-            [2, 1, 16.0, "P", "210", "0006", 2, 4, False, 4.0],
-            [4, 0, 18.0, "P", "210", "0006", 4, 3, False, 3.0],
-            [1, 0, 20.0, "X", "210", "0006", 5, 10, False, 1.0],
+            [1, 0, 12.0, "P", "Clear", "0006", 1, 20, True, 6.3],
+            [2, 0, 14.0, "P", "Clear - overridden", "0006", 2, 4, False, 4.0],
+            [2, 1, 16.0, "P", "Clear", "0006", 2, 4, False, 4.0],
+            [4, 0, 18.0, "P", "Clear", "0006", 4, 3, False, 3.0],
+            [1, 0, 20.0, "X", "Clear", "0006", 5, 10, False, 1.0],
             [3, 0, 1.0, "P", "999", "0006", 1, 20, False, 1.0],
-            [5, 0, 14.0, "P", "211", "0001", 2, 4, False, 1.0],
-            [6, 0, 10.0, "P", "210", "0006", 1, 20, False, 6.3],
-            [7, 1, 10.0, "P", "210", "0006", 5, 10, False, 1.0],
-            [8, 1, np.nan, "P", "210", "0006", 2, 4, False, 4.0],
-            [9, 0, 5.0, "P", "210", "0006", 1, 20, False, 6.3],
-            [10, 0, 10.0, "P", "210", "0006", 1, 20, False, 6.3],
+            [5, 0, 14.0, "P", "Clear - overridden", "0001", 2, 4, False, 1.0],
+            [6, 0, 10.0, "P", "Clear", "0006", 1, 20, False, 6.3],
+            [7, 1, 10.0, "P", "Clear", "0006", 5, 10, False, 1.0],
+            [8, 1, np.nan, "P", "Clear", "0006", 2, 4, False, 4.0],
+            [9, 0, 5.0, "P", "Clear", "0006", 1, 20, False, 6.3],
+            [10, 0, 10.0, "P", "Clear", "0006", 1, 20, False, 6.3],
         ]
 
         expected_df = pd.DataFrame(data=data, columns=expected_cols)
@@ -310,7 +310,7 @@ class TestCalcWeightWithMissingVals:
             "reference",
             "709",
             "selectiontype",
-            "statusencoded",
+            "status",
             "formtype",
             "instance",
             "cellnumber",
@@ -319,14 +319,14 @@ class TestCalcWeightWithMissingVals:
         ]
 
         data = [
-            [1, 1, "P", "210", "0006", 0, 1, 10, False],
-            [2, np.nan, "P", "210", "0006", 0, 1, 10, False],
-            [3, 1, np.nan, "210", "0006", 0, 1, 10, False],
+            [1, 1, "P", "Clear", "0006", 0, 1, 10, False],
+            [2, np.nan, "P", "Clear", "0006", 0, 1, 10, False],
+            [3, 1, np.nan, "Clear", "0006", 0, 1, 10, False],
             [4, 1, "P", np.nan, "0006", 0, 1, 10, False],
-            [5, 1, "P", "210", np.nan, 0, 1, 10, False],
-            [6, 1, "P", "210", "0006", np.nan, 2, 5, False],
-            [7, 1, "P", "210", "0006", 0, 2, 5, np.nan],
-            [8, 1, "P", "210", "0006", 0, 2, 5, False],
+            [5, 1, "P", "Clear", np.nan, 0, 1, 10, False],
+            [6, 1, "P", "Clear", "0006", np.nan, 2, 5, False],
+            [7, 1, "P", "Clear", "0006", 0, 2, 5, np.nan],
+            [8, 1, "P", "Clear", "0006", 0, 2, 5, False],
         ]
 
         input_df = pd.DataFrame(data=data, columns=input_cols)
@@ -338,7 +338,7 @@ class TestCalcWeightWithMissingVals:
             "reference",
             "709",
             "selectiontype",
-            "statusencoded",
+            "status",
             "formtype",
             "instance",
             "cellnumber",
@@ -353,7 +353,7 @@ class TestCalcWeightWithMissingVals:
                 2,
                 np.nan,
                 "P",
-                "210",
+                "Clear",
                 "0006",
                 0,
                 1,
@@ -365,7 +365,7 @@ class TestCalcWeightWithMissingVals:
                 3,
                 1,
                 np.nan,
-                "210",
+                "Clear",
                 "0006",
                 0,
                 1,
@@ -390,7 +390,7 @@ class TestCalcWeightWithMissingVals:
                 6,
                 1,
                 "P",
-                "210",
+                "Clear",
                 "0006",
                 np.nan,
                 2,
@@ -398,8 +398,8 @@ class TestCalcWeightWithMissingVals:
                 False,
                 2.5,
             ],  # filtered out (instance) but weight applied
-            [7, 1, "P", "210", "0006", 0, 2, 5, False, 2.5],  # No outlier
-            [8, 1, "P", "210", "0006", 0, 2, 5, False, 2.5],
+            [7, 1, "P", "Clear", "0006", 0, 2, 5, False, 2.5],  # No outlier
+            [8, 1, "P", "Clear", "0006", 0, 2, 5, False, 2.5],
         ]
 
         expected_df = pd.DataFrame(data=data, columns=expected_cols)
