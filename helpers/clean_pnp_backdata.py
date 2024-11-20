@@ -107,6 +107,22 @@ def identify_osmotherly_businesses(df):
     return df
 
 
+def get_status(df):
+    """ Function to populate the status column based on the statusencoded column.
+
+    Args:
+        df (pd.DataFrame): The dataframe to populate the status column.
+    Return:
+        df (pd.DataFrame): The dataframe with the populated status column.
+    """
+    status_dict = {211: 'Clear - overridden',
+                   210: 'Clear'}
+
+    df['status'] = df['statusencoded'].map(status_dict)
+
+    return df
+
+
 def clean_pnp_backdata(df):
     """ Function to clean the PNP backdata.
 
@@ -281,6 +297,9 @@ def clean_pnp_backdata(df):
 
     # Filter the DataFrame for rows where statusencoded is 210 or 211
     df = df[df['statusencoded'].isin([210, 211])]
+
+    # Populate status column
+    df = get_status(df)
 
     # Identify the key business
     df = identify_key_business(df)
