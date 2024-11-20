@@ -6,6 +6,8 @@ import pathlib
 from unittest.mock import Mock
 from typing import Tuple, Dict, Any
 from datetime import date
+import logging
+from unittest.mock import patch
 
 # Third Party Imports
 import pandas as pd
@@ -17,6 +19,7 @@ import pyarrow.feather as feather
 from src.staging.staging_helpers import (
     fix_anon_data,
     getmappername,
+    load_validate_mapper,
     load_snapshot_feather,
     load_val_snapshot_json,
     df_to_feather,
@@ -107,10 +110,57 @@ class TestGetMapperName(object):
         ), "getmappername not behaving as expected when split=False"
 
 
-# load_validate_mapper [CANT TEST: TOO MANY HARD CODED PATHS]
+class TestLoadValidateMapper:
+    """Tests for load_validate_mapper."""
 
+    @patch("src.utils.local_file_mods.rd_file_exists")
+    @patch("src.utils.local_file_mods.rd_read_csv")
+    @patch("src.staging.validation.validate_data_with_schema")
+    def test_load_validate_mapper(
+        self,
+        mock_val_with_schema_func,
+        mock_read_csv_func,
+        mock_file_exists_func,
+    ):
+        # Create a logger for this test
+        test_logger = logging.getLogger("test_load_validate_mapper")
+        test_logger.setLevel(logging.DEBUG)
 
-# load_historic_data
+        # Mock data
+        mapper_path_key = "test_mapper_path"
+
+        config = {
+            "mapping_paths": {
+                "test_mapper_path": "/path/to/mapper.csv"
+            },
+            "global": {
+                "platform": "network",
+            },
+        }
+
+        mapper_df = pd.DataFrame(
+            {"col_one": [1, 2, 3, 4, 5, 6], "col_many": ["A", "A", "B", "C", "D", "D"]}
+        )
+        schema_path = "./config/test_schema.toml"
+
+        # Set mock return values
+        mock_file_exists_func.return_value = True
+        mock_read_csv_func.return_value = mapper_df
+
+        # Call the function
+        output = load_validate_mapper(
+            mapper_path_key,
+            config,
+            test_logger,
+            mock_file_exists_func,
+            mock_read_csv_func,
+        )
+
+        # Assertions
+        mock_file_exists_func.assert_called_once_with("/path/to/mapper.csv", raise_error=True)
+        mock_read_csv_func.assert_called_once_with("/path/to/mapper.csv")
+        mock_val_with_schema_func.assert_called_once_with(mapper_df, schema_path)
+        assert output.equals(mapper_df), "load_validate_mapper not behaving as expected."
 
 
 class TestLoadSnapshotFeather(object):
@@ -130,9 +180,6 @@ class TestLoadSnapshotFeather(object):
         assert (
             len(snapshot.columns) == 1
         ), "Snapshot df has more columnss than expected."
-
-
-# load_val_snapshot_json [CANT TEST: TOO MANY HARD CODED PATHS]
 
 
 class TestDfToFeather(object):
