@@ -351,7 +351,7 @@ def create_mean_dict(
             trim_qa_dfs.append(trim_qa)
 
 
-    full_qa = pd.concat(trim_qa_dfs, axis=0)  # or handle the empty case appropriately
+    full_qa = pd.concat(trim_qa_dfs, axis=0)
     df = pd.concat(df_list)
     df["qa_index"] = df.index
     df = df.groupby(["pre_index"], as_index=False).first()
