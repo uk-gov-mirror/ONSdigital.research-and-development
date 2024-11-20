@@ -9,6 +9,7 @@ import pandas as pd
 
 import src.staging.staging_helpers as helpers
 from src.staging import validation as val
+from src.utils.helpers import filename_amender
 
 # from src.utils.breakdown_validation import run_breakdown_validation
 
@@ -256,14 +257,7 @@ def run_staging(  # noqa: C901
             survey_type = config["survey"]["survey_type"]
             StagingMainLogger.info(f"Starting output of staged {survey_type} data...")
             staging_folder = staging_dict["staging_output_path"]
-            tdate = datetime.now().strftime("%y-%m-%d")
-            survey_year = config["survey"]["survey_year"]
-            staged_filename = (
-                (
-                    f"{survey_year}_staged_{survey_type}_full_responses_"
-                    f"{tdate}_v{run_id}.csv"
-                )
-            )
+            staged_filename = filename_amender("stagged_full_responses")
             rd_write_csv(f"{staging_folder}/{staged_filename}", full_responses)
             StagingMainLogger.info("Finished output of staged {survey_type} data.")
         else:
