@@ -1,13 +1,12 @@
 """Script that creates all directories"""
 import os
 import sys
-sys.path.append("D:/research-and-development")
+my_wd = os.getcwd()
 from src.utils.helpers import tree_to_list
 from src.utils.local_file_mods import rd_file_exists
 
 # Change to the project repository location
-my_wd = os.getcwd()
-my_repo = "R:\\"
+my_repo = "R:/BERD Results System Development 2023/DAP_emulation"
 if not my_wd.endswith(my_repo):
     os.chdir(my_repo)
 
@@ -32,11 +31,8 @@ def run_make_dirs():
     surveys.
 
     """
-
-    root = "BERD Results System Development 2023/DAP_emulation"
-
     years = ["2022", "2023"]
-    surveys = ["BERD", "PNP",]
+    surveys = ["BERD", "PNP"]
 
     for year in years:
         for survey in surveys:
@@ -109,7 +105,7 @@ def run_make_dirs():
                 },
             }
 
-            dir_list = tree_to_list(tree, prefix=root, path_list=[])
+            dir_list = tree_to_list(tree, prefix="", path_list=[])
             for s in dir_list:
                 make_dir(s)
 
