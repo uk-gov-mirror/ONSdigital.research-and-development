@@ -123,6 +123,36 @@ def get_status(df):
     return df
 
 
+def get_region(df):
+    """ Function to populate ITL121NM columns bassed on Region.
+
+    Mapping derived by analysis of raw data from CORA.
+
+    Args:
+        df (pd.DataFrame): The dataframe to populate the ITL121NM column.
+
+    Return:
+        df (pd.DataFrame): The dataframe with the populated ITL121NM column.
+    """
+    region_dict = {'HH': 'London',
+                   'JG': 'South East',
+                   'KJ': 'South West',
+                   'GG': 'East of England',  # GG or GF
+                   'FE': 'West Midlands',
+                   'ED': 'East Midlands',
+                   'DC': 'Yorkshire and The Humber',
+                   'BB': 'North West',
+                   'AA East': 'North East',
+                   # 'Scotland': 'Scotland',
+                   'WW': 'Wales',
+                   # 'Northern Ireland': 'Northern Ireland'
+                   }
+
+    df['ITL121NM'] = df['Region'].map(region_dict)
+
+    return df
+
+
 def clean_pnp_backdata(df):
     """ Function to clean the PNP backdata.
 
@@ -306,6 +336,9 @@ def clean_pnp_backdata(df):
 
     # Identify the osmotherly business
     df = identify_osmotherly_businesses(df)
+
+    # Region mapping
+    df = get_region(df)
 
     return df
 
