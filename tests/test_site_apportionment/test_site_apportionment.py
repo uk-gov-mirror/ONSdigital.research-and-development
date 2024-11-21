@@ -13,7 +13,7 @@ from src.site_apportionment.site_apportionment import (
     count_unique_postcodes_in_col,
     create_notnull_mask,
     set_percentages,
-    split_sites_df,
+    split_dataframes,
     deduplicate_codes_values,
     calc_weights_for_sites,
     create_cartesian_product,
@@ -68,7 +68,7 @@ def create_input_df():
         # below, the case of short form in previous period and long form in current period
         [666, 0, "2020", "C", "A", 40, "0001", np.nan, np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
         [666, 1, "2020", "C", "A", 40, "0001", 100, "yes", np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
-        [666, 2, "2020", "C", "A", 40, "0001", 100, "yes", np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
+        [666, 2, "2020", "D", "A", 40, "0001", 100, "yes", np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
     ]
 
     input_df = pandasDF(data=data, columns=input_columns)
@@ -127,7 +127,7 @@ def create_exp_percent_test_output_df():
     NOTE: The columns 200, 201, 211, 251 and pg_numeric are dropped from the input before the function is called
     for the sake of simplicity.
 
-    This will also be used as input for the split_sites_df function test.
+    This will also be used as input for the split_dataframes function test.
     """
     exp_output_columns = [
         "reference",
@@ -189,7 +189,7 @@ class TestSetPercentages:
 
 
 class TestSplitSitesDf:
-    """Tests for the split_sites_df function."""
+    """Tests for the split_dataframes function."""
 
     def create_exp_to_apportion_output(self):
         """Expected output for the to_apportion_df dataframe."""
@@ -210,6 +210,12 @@ class TestSplitSitesDf:
         data1 = [
             [222, 1, "2020", "0001",  "CB1 3NF", 60.0, 2.0, "Clear", "R", "CB1 3NF", "cym"],
             [222, 2, "2020", "0001",  "BA1 5DA", 40.0, 2.0, "Clear", "R", "BA1 5DA", "cym"],
+            [333, 1, "2020", "0001",  "DE72 3AU", 100.0, 1.0, "Check needed", "TMI", "DE72 3AU", "cym"],
+            [333, 2, "2020", "0001",  np.nan, np.nan, 1.0, "Check needed", "No mean found", "NP30 7ZZ", "cym"],
+            [444, 1, "2020", "0001",  "CF10 BZZ", 100.0, 1.0, "Form sent out", "TMI", "CF10 BZZ", "cym"],
+            # below, the case of short form in previous period and long form in current period
+            [666, 1, "2020", "0001",  "NP10 5XX", 100.0, 1.0, "Check needed", "MoR", "NP10 5XX", "cym"],
+            [666, 2, "2020", "0001",  "NP10 5XX", 100.0, 1.0, "Check needed", "MoR", "NP10 5XX", "cym"],
         ]
 
 
@@ -242,26 +248,21 @@ class TestSplitSitesDf:
             [111, 2, "2020", "0006", np.nan, 100.0, np.nan, "Clear", "R", "NP10 5XX", "cym"],
             [222, 0, "2020", "0001",  np.nan, np.nan, 2.0, "Clear", "R", "NP20 6YY", "cym"],
             [333, 0, "2020", "0001",  np.nan, np.nan, 1.0, "Check needed", "TMI", "NP30 7ZZ", "cym"],
-            [333, 1, "2020", "0001",  "DE72 3AU", 100.0, 1.0, "Check needed", "TMI", "DE72 3AU", "cym"],
-            [444, 1, "2020", "0001",  "CF10 BZZ", 100.0, 1.0, "Form sent out", "TMI", "CF10 BZZ", "cym"],
-            # below, the case of short form in previous period and long form in current period
             [666, 0, "2020", "0001",  np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym"],
-            [666, 1, "2020", "0001",  "NP10 5XX", 100.0, 1.0, "Check needed", "MoR", "NP10 5XX", "cym"],
-            [666, 2, "2020", "0001",  "NP10 5XX", 100.0, 1.0, "Check needed", "MoR", "NP10 5XX", "cym"],
         ]
         exp_output_df2 = pandasDF(data=data2, columns=exp_output_cols2)
         exp_output_df2 = exp_output_df2.astype({"601": object})
         return exp_output_df2
 
 
-    def test_split_sites_df(self, create_exp_percent_test_output_df):
-        """Test for the split_sites_df function."""
+    def test_split_dataframes(self, create_exp_percent_test_output_df):
+        """Test for the split_dataframes function."""
         input_df = create_exp_percent_test_output_df
         exp_to_apportion_df = self.create_exp_to_apportion_output()
         exp_df_out = self.create_exp_remaining_output()
 
         imp_markers_to_keep: list = ["R", "TMI", "CF", "MoR", "constructed"]
-        result_to_apportion, result_df_out = split_sites_df(
+        result_to_apportion, result_df_out = split_dataframes(
             input_df, imp_markers_to_keep
         )
 
@@ -758,13 +759,13 @@ def sites_df_input():
         "itl"
     ]
     input_data = [
-        [111, 1, "2020", "RH12 1XL", 100.0, np.nan, "Clear", "R", "RH12 1XL", "cym"],
-        [111, 2, "2020", "RH12 1XL", 125.0, np.nan, "Clear", "R", "RH12 1XL", "cym"],
+        [111, 1, "2020", "RH12 1XL", 80.0, np.nan, "Clear", "R", "RH12 1XL", "cym"],
+        [111, 2, "2020", "RH12 1XL", 75.0, np.nan, "Clear", "R", "RH12 1XL", "cym"],
         [111, 3, "2020", "RH12 1XL", np.nan, np.nan, "Clear", "R", "RH12 1XL", "cym"],  # Nan 602 - Ensure conv to 0
-        [111, 4, "2020", "RH12 1XZ", 100.0, np.nan, "Clear", "R", "RH12 1XZ", "cym"],  # different postcode
+        [111, 4, "2020", "RH12 1XZ", 20.0, np.nan, "Clear", "R", "RH12 1XZ", "cym"],  # different postcode
         [222, 1, "2020", "NP44 2NZ", np.nan, 2.0, "Clear", "R", "NP44 2NZ", "cym"],
         [222, 2, "2020", "NP44 2NZ", 50.0, 2.0, "Clear", "R", "NP44 2NZ", "cym"],
-        [333, 1, "2020", np.nan, np.nan, 1.0, "Check needed", "TMI", "NP30 7ZZ", "cym"],  # NaN 601 - Ensure dropped
+        [333, 1, "2020", np.nan, np.nan, np.nan, "Check needed", "TMI", "NP30 7ZZ", "cym"],  # NaN 601 - Ensure dropped
     ]
     input_df = pandasDF(data=input_data, columns=input_cols)
 
@@ -796,8 +797,8 @@ class TestCreateSitesDf(object):
             "602",
         ]
         exp_data = [
-            [111, 1, "2020", "RH12 1XL", "RH12 1XL", "cym", 225.0],
-            [111, 4, "2020", "RH12 1XZ", "RH12 1XZ", "cym", 100.0],
+            [111, 1, "2020", "RH12 1XL", "RH12 1XL", "cym", 80.0],
+            [111, 4, "2020", "RH12 1XZ", "RH12 1XZ", "cym", 20.0],
             [222, 1, "2020", "NP44 2NZ", "NP44 2NZ", "cym", 50.0],
         ]
         expected = pandasDF(data=exp_data, columns=exp_columns)
@@ -1008,7 +1009,7 @@ class TestRunApportionSites(object):
             [444, 1, "2020", "C", "A", 40, "0001", 100, "yes", "CF10 BZZ", 100.0, "Form sent out", "TMI", "CF10 BZZ", "cym", "eng"],
             [666, 0, "2020", "C", "A", 40, "0001", np.nan, np.nan, np.nan, np.nan, "Check needed", "MoR", "NP10 5XX", "cym", "eng"],
             [666, 1, "2020", "C", "A", 40, "0001", 100, "yes", "NP10 5XX", 100.0, "Check needed", "MoR", "NP10 5XX", "cym", "eng"],
-            [666, 2, "2020", "C", "A", 40, "0001", 100, "yes", "NP10 5XX", 100.0, "Check needed", "MoR", "NP10 5XX", "cym", "eng"],
+            [666, 1, "2020", "D", "A", 40, "0001", 100, "yes", "NP10 5XX", 100.0, "Check needed", "MoR", "NP10 5XX", "cym", "eng"],
         ]
 
         exp_output_df = pandasDF(data=data, columns=exp_output_cols)

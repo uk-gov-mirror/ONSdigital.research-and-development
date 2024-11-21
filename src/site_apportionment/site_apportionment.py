@@ -115,13 +115,13 @@ def count_unique_postcodes_in_col(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def split_sites_df(
+def split_dataframes(
     df: pd.DataFrame, imp_markers_to_keep: List[str]
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Split dataframe into two based on whether there are multiple sites or not.
+    Split dataframe into two, one for site apportionment and the remainder.
 
-    All long form records that include more than one postcode in the postcode_col are
+    All long form records that include at least one postcode in the postcode_col are
     used for site apportionment, and all orther records, including short forms, are
     split off in a second dataframe.
 
@@ -137,7 +137,7 @@ def split_sites_df(
     # Condition for records to apportion: long forms, more than one site, instance >=1
     to_apportion_cond = (
         (df[form_col] == long_code)
-        & (df[postcode_col + "_count"] > 1)
+        & (df[postcode_col + "_count"] >= 1)
         & (df[instance_col] >= 1)
     )
 
@@ -149,7 +149,6 @@ def split_sites_df(
     df_out = df.copy()[~to_apportion_cond]
 
     # Remove "bad" imputation markers from df_out
-    # NOTE: Probably this isn't needed: can't think of a case where it would be.
     df_out = keep_good_markers(df_out, imp_markers_to_keep)
 
     return to_apportion_df, df_out
@@ -309,11 +308,11 @@ def create_sites_df(
     # Check for postcode duplicates for QA
     count_duplicate_sites(sites_df)
 
-    # De-duplicate by summing percents
+    # De-duplicate by taking the first occurence in case of duplicates
+    # Note: We do not want to sum percentages as this can lead to values over 100%.
     sites_df[percent_col] = sites_df[percent_col].fillna(0)
-
     agg_dict = {c: "first" for c in ([instance_col] + geo_cols)}
-    agg_dict[percent_col] = "sum"
+    agg_dict[percent_col] = "max"
 
     sites_df = (
         sites_df.groupby(groupby_cols + [postcode_col, postcodes_harmonised_col])
@@ -525,7 +524,7 @@ def run_apportion_sites(
     df = set_percentages(df)
 
     # Split the dataframe in two based on whether there's one or more postcodes
-    to_apportion_df, df_out = split_sites_df(df, imp_markers_to_keep)
+    to_apportion_df, df_out = split_dataframes(df, imp_markers_to_keep)
 
     # category_df: dataframe with codes, textual and numerical values
     category_df = create_category_df(
