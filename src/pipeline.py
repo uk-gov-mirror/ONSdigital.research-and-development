@@ -84,8 +84,7 @@ def run_pipeline(user_config_path, dev_config_path):
     # update config to include run_id and tdate for when files are written
     run_id = runlog_obj.run_id
     tdate = datetime.now().strftime("%y-%m-%d")
-    config.update({"filename_items": {"run_id": run_id,
-                                      "tdate": tdate}})
+    config.update({"filename_items": {"run_id": run_id, "tdate": tdate}})
 
     MainLogger.info(f"Reading user config from {user_config_path}.")
     MainLogger.info(f"Reading developer config from {dev_config_path}.")
@@ -115,7 +114,6 @@ def run_pipeline(user_config_path, dev_config_path):
         mods.rd_write_csv,
         mods.rd_read_feather,
         mods.rd_write_feather,
-        run_id,
     )
 
     # Freezing module
@@ -144,7 +142,10 @@ def run_pipeline(user_config_path, dev_config_path):
     if load_ni_data:
         MainLogger.info("Starting NI module...")
         ni_df = run_ni(
-            config, mods.rd_file_exists, mods.rd_read_csv, mods.rd_write_csv,
+            config,
+            mods.rd_file_exists,
+            mods.rd_read_csv,
+            mods.rd_write_csv,
         )
         MainLogger.info("Finished NI Data Ingest.")
     else:
@@ -225,7 +226,9 @@ def run_pipeline(user_config_path, dev_config_path):
 
     # Data processing: Apportionment to sites
     apportioned_responses_df, intram_tot_dict = run_site_apportionment(
-        estimated_responses_df, config, mods.rd_write_csv,
+        estimated_responses_df,
+        config,
+        mods.rd_write_csv,
     )
 
     MainLogger.info("Finished Site Apportionment module.")
@@ -243,7 +246,8 @@ def run_pipeline(user_config_path, dev_config_path):
         sic_division_detailed,
     )
 
-    MainLogger.info("Finishing Pipeline .......................")
+    run_id = runlog_obj.run_id
+    MainLogger.info("Finishing Pipeline run id {run_id}.........")
 
     runlog_obj.write_runlog()
     runlog_obj.mark_mainlog_passed()
