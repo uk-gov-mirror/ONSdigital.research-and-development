@@ -238,7 +238,7 @@ class TestCalcWeightFilter:
             "instance",
             "709",
             "selectiontype",
-            "statusencoded",
+            "status",
             "formtype",
             "cellnumber",
             "uni_count",
@@ -348,56 +348,12 @@ class TestCalcWeightWithMissingVals:
         ]
 
         data = [
-            [1, 1, "P", "210", "0006", 0, 1, 10, False, 10.0],
-            [
-                2,
-                np.nan,
-                "P",
-                "Clear",
-                "0006",
-                0,
-                1,
-                10,
-                False,
-                10.0,
-            ],  # filtered from calc but weight applied
-            [
-                3,
-                1,
-                np.nan,
-                "Clear",
-                "0006",
-                0,
-                1,
-                10,
-                False,
-                1.0,
-            ],  # filtered out (selectiontype)
-            [
-                4,
-                1,
-                "P",
-                np.nan,
-                "0006",
-                0,
-                1,
-                10,
-                False,
-                1.0,
-            ],  # filtered out (statusencoded)
-            [5, 1, "P", "210", np.nan, 0, 1, 10, False, 1.0],  # filtered out (formtype)
-            [
-                6,
-                1,
-                "P",
-                "Clear",
-                "0006",
-                np.nan,
-                2,
-                5,
-                False,
-                2.5,
-            ],  # filtered out (instance) but weight applied
+            [1, 1, "P", "Clear", "0006", 0, 1, 10, False, 10.0],
+            [2, np.nan, "P", "Clear", "0006", 0, 1, 10, False, 10.0,],  # filtered from calc but weight applied
+            [3, 1, np.nan, "Clear", "0006", 0, 1, 10, False, 1.0,],  # filtered out (selectiontype)
+            [4, 1, "P", np.nan, "0006", 0, 1, 10, False, 1.0,],  # filtered out (status)
+            [5, 1, "P", "Clear", np.nan, 0, 1, 10, False, 1.0],  # filtered out (formtype)
+            [6, 1, "P", "Clear", "0006", np.nan, 2, 5, False, 2.5,],  # filtered out (instance) but weight applied
             [7, 1, "P", "Clear", "0006", 0, 2, 5, False, 2.5],  # No outlier
             [8, 1, "P", "Clear", "0006", 0, 2, 5, False, 2.5],
         ]
