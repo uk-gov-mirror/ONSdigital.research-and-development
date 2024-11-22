@@ -1,7 +1,6 @@
 """The main file for the BERD Intram by Civil or Defence output."""
 import logging
 import pandas as pd
-from datetime import datetime
 from typing import Callable, Dict, Any
 from src.utils.helpers import filename_amender
 
@@ -29,12 +28,8 @@ def output_intram_by_civil_defence(
         df)
 
     # Outputting the CSV file
-    output_path = config["outputs_paths"]["outputs_master"]
-    survey_year = config["survey"]["survey_year"]
-    filename = (f"{survey_year}_output_intram_by_civil_defence")
-    filename = filename_amender(filename, config)
-    write_csv(f"{output_path}/output_intram_by_civil_defence/{filename}", df_for_output)
-
+    _save_output_intram_civil_def_as_csv(df_for_output, config, write_csv)
+    
     return df_for_output
 
 
@@ -63,3 +58,28 @@ def generate_intram_by_civil_defence(
     df_for_output = df_agg.rename(columns=columns)
 
     return df_for_output
+
+def _save_output_intram_civil_def_as_csv(
+    df_for_output: pd.DataFrame,
+    config: Dict[str, Any],
+    write_csv: Callable,
+):
+    
+    """Save the intramural by civil_defence output as a CSV file.
+
+    Args:
+        df_for_output(pd.DataFrame): The dataframe to be saved.
+        config (dict): The configuration settings.
+        write_csv (Callable): Function to write to a csv file.
+               
+    Returns:
+        None
+    """
+
+    # Outputting the CSV file
+    output_path = config["outputs_paths"]["outputs_master"]
+
+    filename = (f"_output_intram_by_civil_defence")  
+    filename = filename_amender(filename, config)
+
+    write_csv(f"{output_path}/output_intram_by_civil_defence/{filename}", df_for_output)

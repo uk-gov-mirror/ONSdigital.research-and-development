@@ -5,8 +5,8 @@ import pandas as pd
 import pytest
 
 # Local Imports
-from src.outputs.intram_by_civil_defence import (generate_intram_by_civil_defence)
-
+from src.outputs.intram_by_civil_defence import generate_intram_by_civil_defence
+from src.outputs.intram_by_civil_defence import _save_output_intram_civil_def_as_csv
 
 class TestIntramByCivilDefence(object):
 
@@ -33,3 +33,16 @@ class TestIntramByCivilDefence(object):
         The test checks if Civil and Defense are catergorised and summed correctly."""
         output_df = generate_intram_by_civil_defence(input_data)
         assert output_df.equals(exp_out)
+
+
+    def mock_write_csv(self, filepath: str, data: pd.DataFrame) -> None:
+        """Dummy script mimicking the function passed to the module as write_csv.
+
+        Args:
+            filepath (str): The filepath to save the DataFrame to.
+            data (pd.DataFrame): The DataFrame to write to the passed path.
+
+        Returns:
+            None
+        """
+        return None
