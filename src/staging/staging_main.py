@@ -2,7 +2,6 @@
 # Core imports
 import logging
 from typing import Callable, Tuple
-from datetime import datetime
 import os
 
 import pandas as pd
@@ -23,7 +22,6 @@ def run_staging(  # noqa: C901
     rd_write_csv: callable,
     rd_read_feather: Callable,
     rd_write_feather: Callable,
-    run_id: int,
 ) -> Tuple:
     """Run the staging and validation module.
 
@@ -48,7 +46,6 @@ def run_staging(  # noqa: C901
             Available in HDFS and Windows only.
         rd_write_feather (Callable): Function to write feather files from Pandas
             Available in HDFS and Windows only.
-        run_id (int): The run id for this run.
     Returns:
         tuple
             full_responses (pd.DataFrame): The staged and vaildated snapshot data,
@@ -141,7 +138,6 @@ def run_staging(  # noqa: C901
             ) = helpers.stage_validate_harmonise_postcodes(
                 config,
                 full_responses,
-                run_id,
                 rd_file_exists,
                 rd_read_csv,
                 rd_write_csv,
@@ -256,7 +252,8 @@ def run_staging(  # noqa: C901
         if config["global"]["output_full_responses"]:
             StagingMainLogger.info("Starting output of staged BERD data...")
             staging_folder = staging_dict["staging_output_path"]
-            tdate = datetime.now().strftime("%y-%m-%d")
+            tdate = config["filename_items"]["tdate"]
+            run_id = config["filename_items"]["run_id"]
             survey_year = config["survey"]["survey_year"]
             staged_filename = (
                 f"{survey_year}_staged_BERD_full_responses_{tdate}_v{run_id}.csv"
@@ -270,11 +267,13 @@ def run_staging(  # noqa: C901
         if config["global"]["output_pnp_full_responses"]:
             StagingMainLogger.info("Starting output of staged PNP data...")
             staging_folder = staging_dict["staging_output_path"]
-            tdate = datetime.now().strftime("%y-%m-%d")
+            tdate = config["filename_items"]["tdate"]
+            run_id = config["filename_items"]["run_id"]
             survey_year = config["survey"]["survey_year"]
             survey_type = config["survey"]["survey_type"]
             staged_filename = (
-                f"{survey_type}_{survey_year}_staged_PNP_full_responses_{tdate}_v{run_id}.csv"
+                f"{survey_type}_{survey_year}_staged_full_responses_"
+                f"{tdate}_v{run_id}.csv"
             )
             rd_write_csv(f"{staging_folder}/{staged_filename}", pnp_full_responses)
             StagingMainLogger.info("Finished output of staged PNP data.")

@@ -26,7 +26,6 @@ def run_ni(
             This will be the s3, hdfs or network version depending on settings.
         write_csv (Callable): Function to write to a csv file.
             This will be the s3, hdfs or network version depending on settings.
-        run_id (int): The run id for this run.
     Returns:
         DataFrame: A dataframe containing staged and validated Northern Ireland
             data with any constructed records amended.
