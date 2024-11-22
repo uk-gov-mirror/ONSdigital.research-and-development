@@ -44,7 +44,7 @@ global:
   output_intram_by_pg_uk: False
   output_intram_gb_itl: False
   output_intram_uk_itl: False
-  output_intram_by_civil_defence: True
+  output_intram_by_civil_defence: False
   output_intram_by_sic: False
   output_fte_total_qa: False
   output_status_filtered: False
