@@ -21,7 +21,7 @@ def output_intram_by_civil_defence(
         write_csv (Callable): Function to write to a csv file.
             This will be the hdfs or network version depending on settings.
     Returns:
-        df_for_output (pd.DataFrame): Total intramural expenditure by Civil or Defence
+        None.
     """
 
     df_for_output = generate_intram_by_civil_defence(
