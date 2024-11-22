@@ -29,8 +29,8 @@ def output_intram_by_civil_defence(
 
     # Outputting the CSV file
     _save_output_intram_civil_def_as_csv(df_for_output, config, write_csv)
-    
-    return df_for_output
+
+    return None
 
 
 def generate_intram_by_civil_defence(
@@ -59,19 +59,20 @@ def generate_intram_by_civil_defence(
 
     return df_for_output
 
+
 def _save_output_intram_civil_def_as_csv(
     df_for_output: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
 ):
-    
+
     """Save the intramural by civil_defence output as a CSV file.
 
     Args:
         df_for_output(pd.DataFrame): The dataframe to be saved.
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
-               
+
     Returns:
         None
     """
@@ -79,7 +80,7 @@ def _save_output_intram_civil_def_as_csv(
     # Outputting the CSV file
     output_path = config["outputs_paths"]["outputs_master"]
 
-    filename = (f"_output_intram_by_civil_defence")  
-    filename = filename_amender(filename, config)
+    filename = filename_amender(filename="output_intram_by_civil_defence",
+                                config=config)
 
     write_csv(f"{output_path}/output_intram_by_civil_defence/{filename}", df_for_output)
