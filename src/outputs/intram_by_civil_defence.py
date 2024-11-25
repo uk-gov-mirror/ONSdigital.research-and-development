@@ -24,8 +24,7 @@ def output_intram_by_civil_defence(
         None.
     """
 
-    df_for_output = generate_intram_by_civil_defence(
-        df)
+    df_for_output = generate_intram_by_civil_defence(df)
 
     # Outputting the CSV file
     _save_output_intram_civil_def_as_csv(df_for_output, config, write_csv)
@@ -53,7 +52,7 @@ def generate_intram_by_civil_defence(
     df_agg["200"] = df_agg["200"].replace({"C": "Civil", "D": "Defence"})
 
     # Rename Columns with dictionary
-    columns = ({'200': 'Catergory', '211': 'Total Intramural Expenditure'})
+    columns = {"200": "Catergory", "211": "Total Intramural Expenditure"}
 
     df_for_output = df_agg.rename(columns=columns)
 
@@ -65,7 +64,6 @@ def _save_output_intram_civil_def_as_csv(
     config: Dict[str, Any],
     write_csv: Callable,
 ):
-
     """Save the intramural by civil_defence output as a CSV file.
 
     Args:
@@ -80,7 +78,8 @@ def _save_output_intram_civil_def_as_csv(
     # Outputting the CSV file
     output_path = config["outputs_paths"]["outputs_master"]
 
-    filename = filename_amender(filename="output_intram_by_civil_defence",
-                                config=config)
+    filename = filename_amender(
+        filename="output_intram_by_civil_defence", config=config
+    )
 
     write_csv(f"{output_path}/output_intram_by_civil_defence/{filename}", df_for_output)

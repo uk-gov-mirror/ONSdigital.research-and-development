@@ -3,14 +3,26 @@
 # Local Standard Library Imports
 import pandas as pd
 import pytest
+from unittest.mock import Mock
 
 # Local Imports
-from src.outputs.intram_by_civil_defence import generate_intram_by_civil_defence
-from src.outputs.intram_by_civil_defence import _save_output_intram_civil_def_as_csv
+from src.outputs.intram_by_civil_defence import (
+    output_intram_by_civil_defence,
+    generate_intram_by_civil_defence,
+    _save_output_intram_civil_def_as_csv
+)
 
 class TestIntramByCivilDefence(object):
+    """Tests for Civil and Defence Output."""
+    @pytest.fixture(scope="function")
+    def config(self):
+        config = {
+            "outputs_paths": {"outputs_master": "tests/test_outputs/"},
+            "survey": {"survey_year": 2020, "survey_type": "test"},
+            "filename_items": {"run_id": "999", "tdate": "test_date"},
+        }
+        return config
 
-    """Test for Civil and Defence Output."""
     @pytest.fixture(scope="function")
     def input_data(self):
         """Create input dataframe"""
@@ -45,4 +57,45 @@ class TestIntramByCivilDefence(object):
         Returns:
             None
         """
-        return None
+        return True
+
+    def test_save_output_intram_civil_def_as_csv(self, config, exp_out):
+        """Test _save_output_intram_civil_def_as_csv function.
+        The test checks if the output is saved as a csv file."""
+
+        # Use the mock_write_csv function
+        mock_write_csv = Mock(side_effect=self.mock_write_csv)
+
+        # Call the function with the mock write_csv
+        _save_output_intram_civil_def_as_csv(exp_out, config, mock_write_csv)
+
+        # Check that the mock write_csv function has been called with the correct arguments
+        mock_write_csv.assert_called_once()
+        args, kwargs = mock_write_csv.call_args
+        assert isinstance(args[0], str), "The first argument should be a string (filepath)."
+        assert isinstance(args[1], pd.DataFrame), "The second argument should be a DataFrame."
+
+        # check the correct filename and file path are used
+        exp_out_path = f"{config['outputs_paths']['outputs_master']}/output_intram_by_civil_defence/2020_output_intram_by_civil_defence_test_date_v999.csv"
+        assert args[0] == exp_out_path, "The filepath should match the output path in the config."
+        # check the correct dataframe is passed
+        pd.testing.assert_frame_equal(args[1], exp_out, "The DataFrame should match the expected output.")
+
+    def test_output_intram_by_civil_defence(self, input_data, exp_out, config):
+        """Test output_intram_by_civil_defence function.
+        The test checks if the output is saved as a csv file."""
+
+        # Use the mock_write_csv function
+        mock_write_csv = Mock(side_effect=self.mock_write_csv)
+
+        # Call the function with the mock write_csv
+        output_intram_by_civil_defence(input_data, config, mock_write_csv)
+
+        # Check that the mock write_csv function has been called with the correct arguments
+        mock_write_csv.assert_called_once()
+        args, kwargs = mock_write_csv.call_args
+        assert isinstance(args[0], str), "The first argument should be a string (filepath)."
+        assert isinstance(args[1], pd.DataFrame), "The second argument should be a DataFrame."
+
+        # check the output dataframe is as expected
+        pd.testing.assert_frame_equal(args[1], exp_out, "The DataFrame should match the input data.")
