@@ -8,6 +8,7 @@ import pandas as pd
 
 import src.staging.staging_helpers as helpers
 from src.staging import validation as val
+from src.utils.helpers import filename_amender
 
 # from src.utils.breakdown_validation import run_breakdown_validation
 
@@ -245,40 +246,19 @@ def run_staging(  # noqa: C901
             rd_read_csv,
         )
 
-        # seaparate PNP data from full_responses (BERD data)
+        # filter for either PNP data or BERD data
         if stage_frozen_snapshot or stage_updated_snapshot:
-            full_responses, pnp_full_responses = helpers.filter_pnp_data(full_responses)
+            full_responses = helpers.filter_pnp_data(full_responses, config)
 
         if config["global"]["output_full_responses"]:
-            StagingMainLogger.info("Starting output of staged BERD data...")
-            staging_folder = staging_dict["staging_output_path"]
-            tdate = config["filename_items"]["tdate"]
-            run_id = config["filename_items"]["run_id"]
-            survey_year = config["survey"]["survey_year"]
-            staged_filename = (
-                f"{survey_year}_staged_BERD_full_responses_{tdate}_v{run_id}.csv"
-            )
-            rd_write_csv(f"{staging_folder}/{staged_filename}", full_responses)
-            StagingMainLogger.info("Finished output of staged BERD data.")
-        else:
-            StagingMainLogger.info("Skipping output of staged BERD data...")
-
-        # Output the staged PNP data.
-        if config["global"]["output_pnp_full_responses"]:
-            StagingMainLogger.info("Starting output of staged PNP data...")
-            staging_folder = staging_dict["staging_output_path"]
-            tdate = config["filename_items"]["tdate"]
-            run_id = config["filename_items"]["run_id"]
-            survey_year = config["survey"]["survey_year"]
             survey_type = config["survey"]["survey_type"]
-            staged_filename = (
-                f"{survey_type}_{survey_year}_staged_full_responses_"
-                f"{tdate}_v{run_id}.csv"
-            )
-            rd_write_csv(f"{staging_folder}/{staged_filename}", pnp_full_responses)
-            StagingMainLogger.info("Finished output of staged PNP data.")
+            StagingMainLogger.info(f"Starting output of staged {survey_type} data...")
+            staging_folder = staging_dict["staging_output_path"]
+            staged_filename = filename_amender("staged_full_responses", config)
+            rd_write_csv(f"{staging_folder}/{staged_filename}", full_responses)
+            StagingMainLogger.info(f"Finished output of staged {survey_type} data.")
         else:
-            StagingMainLogger.info("Skipping output of staged PNP data...")
+            StagingMainLogger.info("Skipping output of staged data...")
 
         # Return staged BERD data, additional data and mappers
         return (

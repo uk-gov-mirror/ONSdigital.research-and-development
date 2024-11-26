@@ -1,15 +1,13 @@
+# Functions to take a scripted dataframe from a unit test and write it to a CSV file.
 import pandas as pd
 import numpy as np
 
-# function to import a function from the tests of this repo, generate a 
-# test dataframe and write it to a csv
 import os
 import sys
 sys.path.append(os.path.abspath(""))
 
 from tests.test_site_apportionment.test_site_apportionment import (
-    TestSplitSitesDf,
-    TestDeduplicateCodeValues
+    TestSplitSitesDf
 )
 
 def get_df_from_test(test_class, test_method):

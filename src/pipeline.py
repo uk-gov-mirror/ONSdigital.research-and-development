@@ -181,6 +181,14 @@ def run_pipeline(user_config_path, dev_config_path):
     )
     MainLogger.info("Finished Mapping...")
 
+    if config["survey"]["survey_type"] == "PNP":
+        MainLogger.info("Finishing ipeline after mapping as PNP is set................")
+
+        runlog_obj.write_runlog()
+        runlog_obj.mark_mainlog_passed()
+
+        return runlog_obj.time_taken
+
     # Imputation module
     MainLogger.info("Starting Imputation...")
     imputed_df = run_imputation(
@@ -190,7 +198,7 @@ def run_pipeline(user_config_path, dev_config_path):
         config,
         mods.rd_write_csv,
     )
-    MainLogger.info("Finished  Imputation...")
+    MainLogger.info("Finished Imputation...")
 
     # Perform postcode construction now imputation is complete
     run_postcode_construction = config["global"]["run_postcode_construction"]
@@ -247,7 +255,7 @@ def run_pipeline(user_config_path, dev_config_path):
     )
 
     run_id = runlog_obj.run_id
-    MainLogger.info("Finishing Pipeline run id {run_id}.........")
+    MainLogger.info(f"Finishing Pipeline run id {run_id}.........")
 
     runlog_obj.write_runlog()
     runlog_obj.mark_mainlog_passed()

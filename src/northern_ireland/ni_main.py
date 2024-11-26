@@ -2,6 +2,7 @@
 
 import logging
 import pandas as pd
+import warnings
 from typing import Callable
 from src.northern_ireland.ni_staging import run_ni_staging
 from src.construction.construction_main import run_construction
@@ -31,6 +32,16 @@ def run_ni(
             data with any constructed records amended.
     """
     NIModuleLogger.info("Starting Northern Ireland data staging and validation...")
+
+    # Check survey type and terminate if it is "PNP"
+    if config["survey"]["survey_type"] == "PNP":
+        warnings.warn("Survey type 'PNP' and Northern Ireland are mutually exclusive.")
+        raise SystemExit(
+            "survey_type='PNP' not compaiable with load_ni_data=True. "
+            "Either 1. Change the survey type to BERD, or 2. Change "
+            "load_ni_data to False."
+        )
+
     ni_full_responses_df = run_ni_staging(
         config,
         check_file_exists,
