@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-# function to import a function from the tests of this repo, generate a
+# function to import a function from the tests of this repo, generate a 
 # test dataframe and write it to a csv
 import os
 import sys
