@@ -2,7 +2,6 @@ import json
 import os
 from datetime import datetime
 import logging
-from src.utils.helpers import filename_amender
 from typing import Dict, Any
 
 
@@ -68,14 +67,14 @@ class Manifest:
         self.manifest_datetime = pipeline_run_datetime.strftime("%Y%m%d_%H%M")
         self.manifest_filename = self.manifest_datetime
 
-        filename = filename_amender(
-            filename="metadata_manifest",
-            config=config
-        )
-        filename = filename.replace("csv", "json")
+        # filename = filename_amender(
+        #     filename="metadata_manifest",
+        #     config=config
+        # )
+        # filename = filename.replace("csv", "json")
 
         self.manifest_file_path = os.path.join(
-            outgoing_directory, (self.manifest_datetime + filename)
+            outgoing_directory, (self.manifest_datetime + "_metadata_manifest.json")
         )
         self.manifest: dict = {"files": []}
         self.written = False
