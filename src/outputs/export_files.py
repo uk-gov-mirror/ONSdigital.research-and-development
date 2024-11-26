@@ -5,7 +5,6 @@ the output folder to the outgoing folder, along with their manifest file."""
 import os
 import logging
 from datetime import datetime
-import toml
 import tomli
 from typing import List
 from pathlib import Path
@@ -50,7 +49,7 @@ def get_schema_headers(config: dict):
 
     # Get the headers for each
     schema_headers_dict = {
-        output_name: tomli.load(path) for output_name, path in schema_paths.items()
+        output_name: tomli.loads(path) for output_name, path in schema_paths.items()
     }
 
     # Stringify the headers (keys of the dict)
