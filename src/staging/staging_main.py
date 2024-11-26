@@ -256,9 +256,9 @@ def run_staging(  # noqa: C901
             staging_folder = staging_dict["staging_output_path"]
             staged_filename = filename_amender("stagged_full_responses", config)
             rd_write_csv(f"{staging_folder}/{staged_filename}", full_responses)
-            StagingMainLogger.info("Finished output of staged {survey_type} data.")
+            StagingMainLogger.info(f"Finished output of staged {survey_type} data.")
         else:
-            StagingMainLogger.info("Skipping output of staged {survey_type} data...")
+            StagingMainLogger.info(f"Skipping output of staged {survey_type} data...")
 
         # Return staged BERD data, additional data and mappers
         return (

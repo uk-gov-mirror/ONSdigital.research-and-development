@@ -2,14 +2,12 @@ config_validation:
   validate: True
   path: src/user_config_schema.yaml
 survey:
-  survey_type: "PNP"
+  survey_type: "BERD"
   survey_year: 2023
-surveys:
-  survey_type: "PNP"
 global:
   # Staging and validation settings
   postcode_csv_check: True
-  load_ni_data: False
+  load_ni_data: True
   # Pipeline run type
   run_with_snapshot: True                         # Run until point of freezing
   run_with_snapshot_and_freeze: False             # Last run with frozen snapshot - produces frozen csv
@@ -26,7 +24,7 @@ global:
   # Backdata output settings
   output_backdata: False
   # QA output settings
-  output_full_responses: True
+  output_full_responses: False
   output_ni_full_responses: False
   output_mapping_qa: False
   output_mapping_ni_qa: False
