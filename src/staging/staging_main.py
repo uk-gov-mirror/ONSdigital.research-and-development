@@ -2,7 +2,6 @@
 # Core imports
 import logging
 from typing import Callable, Tuple
-from datetime import datetime
 import os
 
 import pandas as pd
@@ -24,7 +23,6 @@ def run_staging(  # noqa: C901
     rd_write_csv: callable,
     rd_read_feather: Callable,
     rd_write_feather: Callable,
-    run_id: int,
 ) -> Tuple:
     """Run the staging and validation module.
 
@@ -49,7 +47,6 @@ def run_staging(  # noqa: C901
             Available in HDFS and Windows only.
         rd_write_feather (Callable): Function to write feather files from Pandas
             Available in HDFS and Windows only.
-        run_id (int): The run id for this run.
     Returns:
         tuple
             full_responses (pd.DataFrame): The staged and vaildated snapshot data,
@@ -257,7 +254,7 @@ def run_staging(  # noqa: C901
             survey_type = config["survey"]["survey_type"]
             StagingMainLogger.info(f"Starting output of staged {survey_type} data...")
             staging_folder = staging_dict["staging_output_path"]
-            staged_filename = filename_amender("stagged_full_responses")
+            staged_filename = filename_amender("stagged_full_responses", config)
             rd_write_csv(f"{staging_folder}/{staged_filename}", full_responses)
             StagingMainLogger.info("Finished output of staged {survey_type} data.")
         else:

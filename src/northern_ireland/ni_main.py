@@ -27,7 +27,6 @@ def run_ni(
             This will be the s3, hdfs or network version depending on settings.
         write_csv (Callable): Function to write to a csv file.
             This will be the s3, hdfs or network version depending on settings.
-        run_id (int): The run id for this run.
     Returns:
         DataFrame: A dataframe containing staged and validated Northern Ireland
             data with any constructed records amended.
@@ -37,9 +36,11 @@ def run_ni(
     # Check survey type and terminate if it is "PNP"
     if config["survey"]["survey_type"] == "PNP":
         warnings.warn("Survey type 'PNP' and Northern Ireland are mutually exclusive.")
-        raise SystemExit("survey_type='PNP' not compaiable with load_ni_data=True. "
-                         "Either 1. Change the survey type to BERD, or 2. Change "
-                         "load_ni_data to False.")
+        raise SystemExit(
+            "survey_type='PNP' not compaiable with load_ni_data=True. "
+            "Either 1. Change the survey type to BERD, or 2. Change "
+            "load_ni_data to False."
+        )
 
     ni_full_responses_df = run_ni_staging(
         config,

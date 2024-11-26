@@ -7,25 +7,26 @@ Checks which records are in old only (left), new only (right) or both
 Compares if the old and new values are the same within tolerance
 Saves the ouotputs
 """
+#%%
 import sys
 
-sys.path.append("D:/programming_projects/research-and-development")
+sys.path.append("D:/coding_projects/github_repos/research-and-development")
 #%%
 import pandas as pd
-from src.utils.local_file_mods import read_local_csv as read_csv
-from src.utils.local_file_mods import write_local_csv as write_csv
+from src.utils.local_file_mods import rd_read_csv as read_csv
+from src.utils.local_file_mods import rd_write_csv as write_csv
 
 #%% Configuration settings
 
 # Input folder and file names
-root_folder = "R:/BERD Results System Development 2023/DAP_emulation/"
-in_fol = "apportionment/apportionment_qa/"
-in_file_old = "estimated_df_apportioned_2024-02-05_v15.csv"
-in_file_new = "estimated_df_apportioned_2024-02-05_v472_TEST.csv"
+root_folder = "R:/BERD Results System Development 2023/DAP_emulation/2023_surveys/BERD/09_apportionment/"
+in_fol = "apportionment_qa/"
+in_file_old = "2023_estimated_apportioned_24-11-11_v895.csv"
+in_file_new = "2023_estimated_apportioned_24-11-13_v897.csv"
 
 # Output folder and file
-out_fol = "D:/coding_projects/randd_regression/"
-out_file = "apportion_merged.csv"
+out_fol = root_folder + in_fol
+out_file = "apportion_merged_895_897.csv"
 
 # Columns to select
 key_cols = ["reference", "200", "201", "formtype", "pg_numeric", "601"]
@@ -53,9 +54,12 @@ df_new_good = df_new[df_new["imp_marker"].isin(imp_markers_to_keep)]
 print(f"Old size: {df_old_good.shape}")
 print(f"New size: {df_new_good.shape}")
 
+#%% sizes
+print(f"Old size: {df_old.shape}")
+print(f"New size: {df_new.shape}")
 #%% Join
-df_merge = df_old_good.merge(
-    df_new_good, on=key_cols, how="outer", suffixes=("_old", "_new"), indicator=True
+df_merge = df_old.merge(
+    df_new, on=key_cols, how="outer", suffixes=("_old", "_new"), indicator=True
 )
 #%% Compare the values
 df_merge["value_different"] = (
