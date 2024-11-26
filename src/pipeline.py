@@ -182,7 +182,7 @@ def run_pipeline(user_config_path, dev_config_path):
     MainLogger.info("Finished Mapping...")
 
     if config["survey"]["survey_type"] == "PNP":
-        MainLogger.info("Finishing ipeline after mapping as PNP is set................")
+        MainLogger.info("Finishing pipeline after mapping as PNP is set................")
 
         runlog_obj.write_runlog()
         runlog_obj.mark_mainlog_passed()
