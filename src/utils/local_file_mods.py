@@ -37,7 +37,6 @@ def rd_read_csv(filepath: str, **kwargs) -> pd.DataFrame:
     """
     # Open the file in read mode
     with open(filepath, "r", encoding="utf-8") as file:
-
         # If "thousands" argument is not specified, set it to ","
         if "thousands" not in kwargs:
             kwargs["thousands"] = ","
@@ -333,10 +332,13 @@ def rd_search_file(dir_path, ending):
     """
     for _, __, files in os.walk(dir_path):
         for file in files:
-
             # Check for ending
             if file.endswith(ending):
                 target_file = str(file)
+
+        # throw an error if no file is found
+        if target_file is None:
+            raise FileNotFoundError(f"No file with ending {ending} found")
 
     return target_file
 

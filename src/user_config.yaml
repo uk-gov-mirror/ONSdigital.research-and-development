@@ -25,7 +25,6 @@ global:
   output_backdata: False
   # QA output settings
   output_full_responses: False
-  output_pnp_full_responses: False
   output_ni_full_responses: False
   output_mapping_qa: False
   output_mapping_ni_qa: False
@@ -59,7 +58,7 @@ s3_paths:
   feather_path: "staging/feather"
   # Freezing data paths
   frozen_data_staged_output_path: "02_freezing/frozen_data_staged" # path for folder
-  frozen_data_staged_path: "02_freezing/frozen_data_staged/2023_FROZEN_staged_BERD_full_responses_24-08-07_v906" # pragma: allowlist secret
+  frozen_data_staged_path: "02_freezing/frozen_data_staged/2023_FROZEN_staged_full_responses_24-08-07_v906" # pragma: allowlist secret
   freezing_changes_to_review_path: "02_freezing/changes_to_review"
   freezing_additions_path: "02_freezing/freezing_updates"
   freezing_amendments_path: "02_freezing/freezing_updates"
@@ -152,7 +151,7 @@ export_choices:
   export_fte_total_qa: None
   export_status_filtered: None
   export_frozen_group: None
-  export_staged_BERD_full_responses: "2023_staged_BERD_full_responses_24-10-14_v33.csv"
+  export_staged_full_responses: "2023_staged_full_responses_24-11-26_v922.csv"
   export_staged_NI_full_responses: None
   export_full_responses_imputed: None
   export_full_estimation_qa: None  # "2022_full_estimation_qa_24-07-15_v555.csv"
