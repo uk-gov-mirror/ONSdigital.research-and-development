@@ -2,6 +2,9 @@ import argparse
 import os
 import pandas as pd
 import toml
+import re
+from src.imputation.apportionment import run_apportionment
+from src.staging import postcode_validation as pcval
 
 rootpath = "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/PNP/"
 
@@ -196,6 +199,101 @@ def create_201(df, rusic_dict):
     return df
 
 
+def prep_2021_backdata(backdata) -> pd.DataFrame:
+    """Prepare the backdata for MoR imputation.
+    Args:
+        backdata (pd.DataFrame): Backdata for the current year.
+    Returns:
+        pd.DataFrame: Prepped backdata.
+    """
+    # Convert backdata column names from qXXX to XXX
+    # Note that this is only applicable when using the backdata on the network
+    p = re.compile(r"q\d{3}")
+    cols = [col for col in list(backdata.columns) if p.match(col)]
+    to_rename = {col: col[1:] for col in cols}
+    backdata = backdata.rename(columns=to_rename)
+
+    # Apply the postcode formatting to clean the postcodes in col 601 of the back data
+    backdata["601"] = backdata["601"].apply(pcval.format_postcodes)
+
+    return backdata
+
+
+def remove_leading_zeros(df):
+    """ Function to remove the leading zeros from the reference column.
+
+    Args:
+        df (pd.DataFrame): The dataframe to remove the leading zeros
+        from select colums.
+    Return:
+        df (pd.DataFrame): The dataframe with the leading zeros removed
+        select columns.
+    """
+    strip_zeros_dict = {"0001": "001",
+                        "0002": "002",
+                        "0003": "003",
+                        "0203": "203",
+                        "0205": "205",
+                        "0207": "207",
+                        "0209": "209",
+                        "0211": "211",
+                        "0213": "213",
+                        "0215": "215",
+                        "0217": "217",
+                        "0219": "219",
+                        "0223": "223",
+                        "0225": "225",
+                        "0227": "227",
+                        "0229": "229",
+                        "0302": "302",
+                        "0304": "304",
+                        "0306": "306",
+                        "0308": "308",
+                        "0310": "310",
+                        "0312": "312",
+                        "0314": "314",
+                        "0316": "316",
+                        "0318": "318",
+                        "0319": "319",
+                        "0320": "320",
+                        "0322": "322",
+                        "0324": "324",
+                        "0326": "326",
+                        "0327": "327",
+                        "0328": "328",
+                        "0330": "330",
+                        "0331": "331",
+                        "0332": "332",
+                        "0333": "333",
+                        "0334": "334",
+                        "0335": "335",
+                        "0336": "336",
+                        "0337": "337",
+                        "0338": "338",
+                        "0339": "339",
+                        "0340": "340",
+                        "0341": "341",
+                        "0342": "342",
+                        "0343": "343",
+                        "0344": "344",
+                        "0345": "345",
+                        "0346": "346",
+                        "0603": "603",
+                        "0703": "703",
+                        "0704": "704",
+                        "0705": "705",
+                        "0706": "706",
+                        "0901": "901",
+                        "0903": "903",
+                        "0905": "905",
+                        "0907": "907",
+                        "0909": "909"}
+
+    df.rename(columns=strip_zeros_dict, inplace=True)
+
+    return df
+
+
 def create_pnp_backdata(df):
     """ Function to clean the PNP backdata.
 
@@ -300,7 +398,8 @@ def create_pnp_backdata(df):
                               'FormType': 'formtype',
                               'RUReference': 'reference',
                               'FormStatus': 'map cora status to column "status"',
-                              'Employees': 'employees',
+                              # 'Employees': 'employees',
+                              'Employees': 'emp_total',
                               'Year': 'period_year',
                               'Instance': 'instance',
                               'q0101': '101',
@@ -318,7 +417,7 @@ def create_pnp_backdata(df):
                               'q0218': '223',
                               'q0222': '211',
                               'q0224': '205',
-                              'q0226': '205',
+                              'q0226': '205',  # This is a duplicate of q0224?
                               'q0228': '206',
                               'q0230': '605',
                               'q0301': '212',
@@ -343,9 +442,13 @@ def create_pnp_backdata(df):
                               'q0507': '507',
                               'q0508': '508',
                               'q0509': '405',
+                              'q0510': '406',
                               'q0511': '407',
+                              'q0512': '408',
                               'q0513': '409',
+                              'q0514': '410',
                               'q0515': '411',
+                              'q0516': '412',
                               'q0601': '601',
                               'q0602': '602',
                               'q0701': '708',
@@ -395,8 +498,27 @@ def create_pnp_backdata(df):
                   87900: "AG",
                   68209: "AD"}
 
+    def prep_2021_backdata(backdata) -> pd.DataFrame:
+        """Prepare the backdata for MoR imputation.
+        Args:
+            backdata (pd.DataFrame): Backdata for the current year.
+        Returns:
+            pd.DataFrame: Prepped backdata.
+        """
+        # Convert backdata column names from qXXX to XXX
+        # Note that this is only applicable when using the backdata on the network
+        p = re.compile(r"q\d{3}")
+        cols = [col for col in list(backdata.columns) if p.match(col)]
+        to_rename = {col: col[1:] for col in cols}
+        backdata = backdata.rename(columns=to_rename)
+
+        # Apply the postcode formatting to clean the postcodes in col 601 of the back data
+        backdata["601"] = backdata["601"].apply(pcval.format_postcodes)
+
+        return backdata
+
     # Remove unwanted columns
-    df = df.drop(columns=columns_to_remove_list)
+    # df = df.drop(columns=columns_to_remove_list)
 
     # Rename wanted columns
     df = df.rename(columns=columns_to_rename_dict)
@@ -430,6 +552,15 @@ def create_pnp_backdata(df):
 
     # Create the 201 columns
     df = create_201(df, rusic_dict)
+
+    # Prepare the backdata for MoR imputation
+    df = prep_2021_backdata(df)
+
+    # Run the apportionment on the PNP backdata
+    df = run_apportionment(df)
+
+    # strip leading 0's from select columnns
+    df = remove_leading_zeros(df)
 
     return df
 
