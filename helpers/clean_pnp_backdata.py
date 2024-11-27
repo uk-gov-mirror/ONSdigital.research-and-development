@@ -141,11 +141,11 @@ def get_region(df):
                    'FE': 'West Midlands',
                    'ED': 'East Midlands',
                    'DC': 'Yorkshire and The Humber',
-                   'BB': 'North West',
-                   'AA East': 'North East',
-                   # 'Scotland': 'Scotland',
+                   'BB': 'North West',  # BA or BB
+                   'AA': 'North East',
+                   'XX': 'Scotland',
                    'WW': 'Wales',
-                   # 'Northern Ireland': 'Northern Ireland'
+                   'YY': 'Northern Ireland'
                    }
 
     df['ITL121NM'] = df['Region'].map(region_dict)
@@ -344,11 +344,11 @@ def clean_pnp_backdata(df):
     # Filter the DataFrame for rows where statusencoded is 210 or 211
     df = df[df['statusencoded'].isin([210, 211])]
 
-    # Populate the imp_marker column
-    df = get_imp_marker(df)
-
     # Populate status column
     df = get_status(df)
+
+    # Populate the imp_marker column
+    df = get_imp_marker(df)
 
     # Identify the key business
     df = identify_key_business(df)
