@@ -181,7 +181,17 @@ def create_200(df):
 
     return df
 
-def create_201(df):
+
+def create_201(df, rusic_dict):
+    """ Function to create the 201 column.
+
+    Args:
+        df (pd.DataFrame): The dataframe to create the 201 column.
+    Return:
+        df (pd.DataFrame): The dataframe with the created 201 column.
+    """
+
+    df['201'] = df['RUSICcur'].map(rusic_dict)
 
     return df
 
@@ -228,7 +238,6 @@ def create_pnp_backdata(df):
                               'Nonresp',
                               'PC',
                               'ReceiptDate',
-                              'RUSICcur',
                               'RUSICprev',
                               'CellSelection',
                               'SICcurfro',
@@ -346,6 +355,46 @@ def create_pnp_backdata(df):
                               'q0906': '304',
                               'q0908': '305'}
 
+    rusic_dict = {72190: 'AF',
+                  62020: 'AE',
+                  70229: 'AD',
+                  71200: 'AD',
+                  88100: 'AG',
+                  88990: 'AG',
+                  59120: 'AD',
+                  94110: 'AG',
+                  72200: 'AF',
+                  94120: 'AG',
+                  52220: 'AH',
+                  91040: 'AG',
+                  86102: 'AG',
+                  94990: 'AG',
+                  93199: 'AG',
+                  71111: 'Z',
+                  71122: 'AD',
+                  71129: 'AB',
+                  85590: 'AG',
+                  86101: 'AG',
+                  71121: 'AD',
+                  94200: 'AG',
+                  68201: 'AD',
+                  82990: 'AD',
+                  86900: 'AG',
+                  61900: 'AC',
+                  72110: 'AF',
+                  2100: 'A',
+                  73120: 'AD',
+                  71112: 'AD',
+                  73200: 'AD',
+                  69202: 'AD',
+                  96090: 'AG',
+                  86210: 'AG',
+                  88910: 'AG',
+                  47799: 'AA',
+                  74909: 'AF',
+                  87900: "AG",
+                  68209: "AD"}
+
     # Remove unwanted columns
     df = df.drop(columns=columns_to_remove_list)
 
@@ -380,7 +429,7 @@ def create_pnp_backdata(df):
     df = create_200(df)
 
     # Create the 201 columns
-    df = create_201(df)
+    df = create_201(df, rusic_dict)
 
     return df
 
