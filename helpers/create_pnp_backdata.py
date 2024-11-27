@@ -169,7 +169,24 @@ def get_imp_marker(df):
     return df
 
 
-def clean_pnp_backdata(df):
+def create_200(df):
+    """ Function to create the 200 column.
+
+    Args:
+        df (pd.DataFrame): The dataframe to create the 200 column.
+    Return:
+        df (pd.DataFrame): The dataframe with the created 200 column.
+    """
+    df['200'] = "C"
+
+    return df
+
+def create_201(df):
+
+    return df
+
+
+def create_pnp_backdata(df):
     """ Function to clean the PNP backdata.
 
     Steps taken inclide 1. removing unwamted columns, and 2. renaming wanted columns.
@@ -359,16 +376,22 @@ def clean_pnp_backdata(df):
     # Region mapping
     df = get_region(df)
 
+    # Create the 200 column
+    df = create_200(df)
+
+    # Create the 201 columns
+    df = create_201(df)
+
     return df
 
 
 def main(input_file, output_file):
     """ Main function to clean the PNP backdata.
 
-    Read in csv file as a dataframe, clean with clean_pnp_backdata function,
+    Read in csv file as a dataframe, clean with create_pnp_backdata function,
     and save dataframe as a csv file.
 
-    Example cmd executiion: python clean_pnp_backdata.py input.csv output.csv
+    Example cmd executiion: python create_pnp_backdata.py input.csv output.csv
 
     Args:
         input_file (str): The path to the input CSV file.
@@ -381,10 +404,10 @@ def main(input_file, output_file):
     df = pd.read_csv(os.path.join(rootpath, input_file))
 
     # Clean the DataFrame
-    cleaned_df = clean_pnp_backdata(df)
+    pnp_backdata_df = create_pnp_backdata(df)
 
     # Save the cleaned DataFrame to the output CSV file
-    cleaned_df.to_csv(output_file, index=False)
+    pnp_backdata_df.to_csv(output_file, index=False)
 
 
 if __name__ == "__main__":
