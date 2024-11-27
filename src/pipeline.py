@@ -181,13 +181,17 @@ def run_pipeline(user_config_path, dev_config_path):
     )
     MainLogger.info("Finished Mapping...")
 
+    # void lines 185-191 for PNP backdata testing
+    '''
     if config["survey"]["survey_type"] == "PNP":
-        MainLogger.info("Finishing pipeline after mapping as PNP is set................")
+        MainLogger.info("Finishing pipeline after mapping as PNP is set...............")
 
         runlog_obj.write_runlog()
         runlog_obj.mark_mainlog_passed()
 
         return runlog_obj.time_taken
+    '''
+    print("skipping pipeline finish when PNP is set for PNP backdata testing")
 
     # Imputation module
     MainLogger.info("Starting Imputation...")

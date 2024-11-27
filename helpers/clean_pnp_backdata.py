@@ -153,6 +153,22 @@ def get_region(df):
     return df
 
 
+def get_imp_marker(df):
+    """ Function to populate the IMP_MARKER column based on the status column.
+
+    Args:
+        df (pd.DataFrame): The dataframe to populate the imp_marker column.
+    Return:
+        df (pd.DataFrame): The dataframe with the populated imp_marker column.
+    """
+    imp_marker_dict = {'Clear': 'R',
+                       'Clear - overridden': 'R'}
+
+    df['imp_marker'] = df['status'].map(imp_marker_dict)
+
+    return df
+
+
 def clean_pnp_backdata(df):
     """ Function to clean the PNP backdata.
 
@@ -327,6 +343,9 @@ def clean_pnp_backdata(df):
 
     # Filter the DataFrame for rows where statusencoded is 210 or 211
     df = df[df['statusencoded'].isin([210, 211])]
+
+    # Populate the imp_marker column
+    df = get_imp_marker(df)
 
     # Populate status column
     df = get_status(df)
