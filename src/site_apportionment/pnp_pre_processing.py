@@ -19,7 +19,7 @@ def pnp_imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # Add a column for a weight
-def pnp_class(df:pd.Dataframe) -> pd.DataFrame:
+def pnp_weight(df:pd.Dataframe) -> pd.DataFrame:
 
     """Add a class column to the PNP data.
     Args:
@@ -28,7 +28,7 @@ def pnp_class(df:pd.Dataframe) -> pd.DataFrame:
         pd.DataFrame: dataframe with the class column updated
     """
     # Add a class column to the PNP data
-    df["imp_class"] = "pnp"
+    df["a weight"] = 1
     return  
 
 
