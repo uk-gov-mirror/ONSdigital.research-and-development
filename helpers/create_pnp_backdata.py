@@ -350,6 +350,7 @@ def add_missing_columns(df):
     df["226"] = None
     df["228"] = None
     df["237"] = None
+    df["cellnumber"] = 817  # added so that MOR.py lines 256-263 would merge dataframes
 
     return df
 
