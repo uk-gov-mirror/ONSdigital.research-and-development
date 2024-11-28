@@ -185,7 +185,7 @@ def create_200(df):
     return df
 
 
-def create_201(df, rusic_dict):
+def create_201(df):
     """ Function to create the 201 column.
 
     Args:
@@ -193,6 +193,45 @@ def create_201(df, rusic_dict):
     Return:
         df (pd.DataFrame): The dataframe with the created 201 column.
     """
+    rusic_dict = {72190: 'AF',
+                  62020: 'AE',
+                  70229: 'AD',
+                  71200: 'AD',
+                  88100: 'AG',
+                  88990: 'AG',
+                  59120: 'AD',
+                  94110: 'AG',
+                  72200: 'AF',
+                  94120: 'AG',
+                  52220: 'AH',
+                  91040: 'AG',
+                  86102: 'AG',
+                  94990: 'AG',
+                  93199: 'AG',
+                  71111: 'Z',
+                  71122: 'AD',
+                  71129: 'AB',
+                  85590: 'AG',
+                  86101: 'AG',
+                  71121: 'AD',
+                  94200: 'AG',
+                  68201: 'AD',
+                  82990: 'AD',
+                  86900: 'AG',
+                  61900: 'AC',
+                  72110: 'AF',
+                  2100: 'A',
+                  73120: 'AD',
+                  71112: 'AD',
+                  73200: 'AD',
+                  69202: 'AD',
+                  96090: 'AG',
+                  86210: 'AG',
+                  88910: 'AG',
+                  47799: 'AA',
+                  74909: 'AF',
+                  87900: "AG",
+                  68209: "AD"}
 
     df['201'] = df['RUSICcur'].map(rusic_dict)
 
@@ -294,6 +333,27 @@ def remove_leading_zeros(df):
     return df
 
 
+def add_missing_columns(df):
+    """ Function that manually add missing column to PNP backdata.
+
+    The reason for this function is current 2023 backdata contains quesitons that
+    did not exists in the old 2021 survey. This function adds these missing columns
+    and poopulated them with null values.
+
+    Args:
+        df (pd.DataFrame): The dataframe to add the missing columns.
+
+    Return:
+        df (pd.DataFrame): The dataframe with the added missing columns.
+    """
+
+    df["226"] = None
+    df["228"] = None
+    df["237"] = None
+
+    return df
+
+
 def create_pnp_backdata(df):
     """ Function to clean the PNP backdata.
 
@@ -303,7 +363,6 @@ def create_pnp_backdata(df):
         df (pd.DataFrame): The dataframe to clean.
     Return:
         pd.DataFrame: The cleaned dataframe.
-
     """
     columns_to_remove_list = ['InquiryIDBRCode',
                               'Upddate',
@@ -458,65 +517,6 @@ def create_pnp_backdata(df):
                               'q0906': '304',
                               'q0908': '305'}
 
-    rusic_dict = {72190: 'AF',
-                  62020: 'AE',
-                  70229: 'AD',
-                  71200: 'AD',
-                  88100: 'AG',
-                  88990: 'AG',
-                  59120: 'AD',
-                  94110: 'AG',
-                  72200: 'AF',
-                  94120: 'AG',
-                  52220: 'AH',
-                  91040: 'AG',
-                  86102: 'AG',
-                  94990: 'AG',
-                  93199: 'AG',
-                  71111: 'Z',
-                  71122: 'AD',
-                  71129: 'AB',
-                  85590: 'AG',
-                  86101: 'AG',
-                  71121: 'AD',
-                  94200: 'AG',
-                  68201: 'AD',
-                  82990: 'AD',
-                  86900: 'AG',
-                  61900: 'AC',
-                  72110: 'AF',
-                  2100: 'A',
-                  73120: 'AD',
-                  71112: 'AD',
-                  73200: 'AD',
-                  69202: 'AD',
-                  96090: 'AG',
-                  86210: 'AG',
-                  88910: 'AG',
-                  47799: 'AA',
-                  74909: 'AF',
-                  87900: "AG",
-                  68209: "AD"}
-
-    def prep_2021_backdata(backdata) -> pd.DataFrame:
-        """Prepare the backdata for MoR imputation.
-        Args:
-            backdata (pd.DataFrame): Backdata for the current year.
-        Returns:
-            pd.DataFrame: Prepped backdata.
-        """
-        # Convert backdata column names from qXXX to XXX
-        # Note that this is only applicable when using the backdata on the network
-        p = re.compile(r"q\d{3}")
-        cols = [col for col in list(backdata.columns) if p.match(col)]
-        to_rename = {col: col[1:] for col in cols}
-        backdata = backdata.rename(columns=to_rename)
-
-        # Apply the postcode formatting to clean the postcodes in col 601 of the back data
-        backdata["601"] = backdata["601"].apply(pcval.format_postcodes)
-
-        return backdata
-
     # Remove unwanted columns
     # df = df.drop(columns=columns_to_remove_list)
 
@@ -551,7 +551,7 @@ def create_pnp_backdata(df):
     df = create_200(df)
 
     # Create the 201 columns
-    df = create_201(df, rusic_dict)
+    df = create_201(df)
 
     # Prepare the backdata for MoR imputation
     df = prep_2021_backdata(df)
@@ -561,6 +561,9 @@ def create_pnp_backdata(df):
 
     # strip leading 0's from select columnns
     df = remove_leading_zeros(df)
+
+    # add missing columns manually
+    df = add_missing_columns(df)
 
     return df
 
