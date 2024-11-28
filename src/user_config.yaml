@@ -152,6 +152,7 @@ export_choices:
   export_status_filtered: None
   export_frozen_group: None
   export_staged_BERD_full_responses: "2023_staged_BERD_full_responses_24-11-26_v922.csv"
+  export_staged_full_responses: "2023_staged_full_responses_24-11-26_v922.csv"
   export_staged_NI_full_responses: None
   export_full_responses_imputed: None
   export_full_estimation_qa: None  # "2022_full_estimation_qa_24-07-15_v555.csv"

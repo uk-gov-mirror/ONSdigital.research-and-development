@@ -25,6 +25,7 @@ if __name__ == "__main__":
     #   to_delete_path = "/bat/res_dev/project_data/2023_surveys/BERD/01_staging/staging_qa/full_responses_qa/2023_staged_full_responses_test_to_delete.csv" # noqa
     my_dir = "/bat/res_dev/project_data/2023_surveys/BERD/01_staging/staging_qa/full_responses_qa/"  # noqa
     #     # Checking that file exists
+
     my_size = mods.rd_file_size(my_path)
     print(f"File size is {my_size}")
 
