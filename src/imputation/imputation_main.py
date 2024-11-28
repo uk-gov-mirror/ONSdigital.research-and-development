@@ -107,7 +107,6 @@ def run_imputation(
     # Status "check needed" (they are now being imputed")
     chk_mask = imputed_df["status"].str.contains("Check needed")
     imputation_mask = imputed_df["imp_marker"] == "TMI"
-
     imputed_df.loc[(chk_mask & imputation_mask), "604"] = "Yes"
 
     # join constructed rows back to the imputed df
