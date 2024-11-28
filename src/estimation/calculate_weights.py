@@ -9,7 +9,7 @@ CalcWeights_Logger = logging.getLogger(__name__)
 def create_estimation_filter(df: pd.DataFrame) -> pd.Series:
     """Return a boolean mask for the conditions needed to apply estimation."""
     sample_cond = df["selectiontype"] == "P"
-    status_cond = df.statusencoded.isin(["210", "211"])
+    status_cond = df.status.isin(["Clear", "Clear - overridden"])
     formtype_cond = df["formtype"] == "0006"
 
     estimation_filter = formtype_cond & sample_cond & status_cond

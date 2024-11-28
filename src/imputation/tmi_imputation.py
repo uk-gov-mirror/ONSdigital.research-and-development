@@ -308,8 +308,8 @@ def create_mean_dict(
     mean_dict = dict.fromkeys(target_variable_list)
 
     # Filter for clear statuses
-    clear_statuses = ["210", "211"]
-    filtered_df = filter_by_column_content(df, "statusencoded", clear_statuses)
+    clear_statuses = ["Clear", "Clear - overridden"]
+    filtered_df = filter_by_column_content(df, "status", clear_statuses)
 
     # Filter out imputation classes that are missing either "200" or "201"
     filtered_df = filtered_df[~(filtered_df["imp_class"].str.contains("nan"))]
@@ -349,6 +349,7 @@ def create_mean_dict(
             trim_qa["imp_class"] = k
             trim_qa["clear_class_size"] = clear_class_size
             trim_qa_dfs.append(trim_qa)
+
 
     full_qa = pd.concat(trim_qa_dfs, axis=0)
     df = pd.concat(df_list)
