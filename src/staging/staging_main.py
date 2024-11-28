@@ -254,7 +254,10 @@ def run_staging(  # noqa: C901
             survey_type = config["survey"]["survey_type"]
             StagingMainLogger.info(f"Starting output of staged {survey_type} data...")
             staging_folder = staging_dict["staging_output_path"]
-            staged_filename = filename_amender("staged_full_responses", config)
+            if survey_type == "PNP":
+                staged_filename = filename_amender("staged_full_responses", config)
+            else:
+                staged_filename = filename_amender("staged_BERD_full_responses", config)
             rd_write_csv(f"{staging_folder}/{staged_filename}", full_responses)
             StagingMainLogger.info(f"Finished output of staged {survey_type} data.")
         else:
