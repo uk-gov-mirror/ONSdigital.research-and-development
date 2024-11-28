@@ -350,7 +350,6 @@ def add_missing_columns(df):
     df["226"] = None
     df["228"] = None
     df["237"] = None
-    df["cellnumber"] = 817  # added so that MOR.py lines 256-263 would merge dataframes
 
     return df
 
@@ -396,12 +395,8 @@ def create_pnp_backdata(df):
                               'Nonresp',
                               'PC',
                               'ReceiptDate',
-                              'RUSICprev',
                               'CellSelection',
-                              'SICcurfro',
                               'CurrentSIC',
-                              'SICprevfro',
-                              'SICprev',
                               'Tel',
                               'Turnover',
                               'TOfro',
@@ -409,9 +404,7 @@ def create_pnp_backdata(df):
                               'q0001',
                               'q0002',
                               'q0003',
-                              'q0203',
                               'q0205',
-                              'q0207',
                               'q0209',
                               'q0211',
                               'q0213',
@@ -419,9 +412,6 @@ def create_pnp_backdata(df):
                               'q0217',
                               'q0219',
                               'q0223',
-                              'q0225',
-                              'q0227',
-                              'q0229',
                               'q0302',
                               'q0304',
                               'q0306',
@@ -439,10 +429,6 @@ def create_pnp_backdata(df):
                               'q0327',
                               'q0328',
                               'q0330',
-                              'q0510',
-                              'q0512',
-                              'q0514',
-                              'q0516',
                               'q0603',
                               'q0703',
                               'q0704',
@@ -458,7 +444,6 @@ def create_pnp_backdata(df):
                               'FormType': 'formtype',
                               'RUReference': 'reference',
                               'FormStatus': 'map cora status to column "status"',
-                              # 'Employees': 'employees',
                               'Employees': 'emp_total',
                               'Year': 'period_year',
                               'Instance': 'instance',
@@ -518,11 +503,11 @@ def create_pnp_backdata(df):
                               'q0906': '304',
                               'q0908': '305'}
 
-    # Remove unwanted columns
-    # df = df.drop(columns=columns_to_remove_list)
-
     # Rename wanted columns
     df = df.rename(columns=columns_to_rename_dict)
+
+    # Remove unwanted columns
+    df = df.drop(columns=columns_to_remove_list)
 
     # convert column datatypes
     df = convert_column_datatypes(df)
