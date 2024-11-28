@@ -31,7 +31,6 @@ def run_outputs(  # noqa: C901
     intram_tot_dict: Dict[str, Any],
     write_csv: Callable,
     pg_detailed: pd.DataFrame,
-    civil_defence_detailed: pd.DataFrame,
     sic_division_detailed: pd.DataFrame,
 ):
     """Run the outputs module.
@@ -44,7 +43,6 @@ def run_outputs(  # noqa: C901
         write_csv (Callable): Function to write to a csv file.
             This will be the hdfs or network version depending on settings.
         pg_detailed (pd.DataFrame): Detailed descriptons of alpha PG groups
-        civil_defence_detailed (pd.DataFrame): Detailed descriptons of civil/defence
         sic_division_detailed (pd.DataFrame): Detailed descriptons of SIC divisions
     """
 
@@ -193,7 +191,6 @@ def run_outputs(  # noqa: C901
             outputs_df,
             config,
             write_csv,
-            civil_defence_detailed,
         )
         OutputMainLogger.info("Finished Intram by civil or defence output.")
 
