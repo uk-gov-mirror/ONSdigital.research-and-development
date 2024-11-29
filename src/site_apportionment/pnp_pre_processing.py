@@ -1,5 +1,25 @@
 import logging
 import pandas as pd
+import src.pipeline as src
+
+
+def pnp_pre_processing(df: pd.DataFrame) -> pd.DataFrame:
+    """Pre-process the PNP data.
+    Args:
+        df (pd.DataFrame): the main dataset to pre-process
+    Returns:
+        pd.DataFrame: pre-processed dataframe
+    """
+    # Add a column for imputation marker
+    pnp_imputation_marker(df)
+    # Add a column for a weight
+    pnp_weight(df)
+     # Add a column for pg_num_col
+    pnp_pg_numeric(df)
+
+    return df
+
+
 
 # Add a column for imputation marker
 def pnp_imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
@@ -15,31 +35,33 @@ def pnp_imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
     clear_responders_mask = df.status.isin(["Clear", "Clear - overridden"])
     df.loc[clear_responders_mask, "imp_marker"] = "R"
     df.loc[~clear_responders_mask, "imp_marker"] = "no_imputation"
-    return 
+    return
 
 
 # Add a column for a weight
-def pnp_weight(df:pd.Dataframe) -> pd.DataFrame:
+def pnp_weight(df: pd.DataFrame) -> pd.DataFrame:
 
     """Add a class column to the PNP data.
-    Args:
-        df (pd.DataFrame): the main dataset to add the class column to        
+  Args:
+        df (pd.DataFrame): The input DataFrame.
     Returns:
-        pd.DataFrame: dataframe with the class column updated
+        pd.DataFrame: The DataFrame with the added weight column.
     """
     # Add a class column to the PNP data
-    df["a weight"] = 1
-    return  
+    df["a_weight"] = 1.0
+    return df
 
 
-# Add a column for headcount
-def pnp_headcount_column(df: pd.DataFrame) -> pd.DataFrame:
-    """Add a headcount column to the PNP data.    
+# Add a column for pg_numeric
+
+def pnp_pg_numeric(df: pd.DataFrame) -> pd.DataFrame:
+    """Add a pg_num_col column to the PNP data.    
     Args:
-        df (pd.DataFrame): the main dataset to add the headcount column to        
+        df (pd.DataFrame): the main dataset to add the pg_num_col column to        
     Returns:
-        pd.DataFrame: dataframe with the headcount column updated
+        pd.DataFrame: dataframe with the pg_num_col column updated
     """
-    # Add a headcount column to the PNP data
-    df["headcount"] = 50
-    return
+    # Add a pg_num_col column to the PNP data
+    df["pg_numeric"] = 10
+    return df
+
