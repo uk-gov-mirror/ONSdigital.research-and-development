@@ -241,6 +241,11 @@ def run_staging(  # noqa: C901
         if stage_frozen_snapshot or stage_updated_snapshot:
             full_responses = helpers.filter_pnp_data(full_responses, config)
 
+        # add osmotherly & key businesses columns to PNP data
+        if config["survey"]["survey_type"] == "PNP":
+            full_responses = helpers.identify_key_business(full_responses)
+            full_responses = helpers.identify_osmotherly_businesses(full_responses)
+
         if config["global"]["output_full_responses"]:
             survey_type = config["survey"]["survey_type"]
             StagingMainLogger.info(f"Starting output of staged {survey_type} data...")

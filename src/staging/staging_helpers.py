@@ -327,3 +327,48 @@ def filter_pnp_data(full_responses, config):
         full_responses = full_responses.loc[(full_responses["legalstatus"] == "7")]
 
     return full_responses
+
+
+def identify_key_business(df):
+    """ Function to identify the key business using reference column & key
+    busineses lookup table.
+    Args:
+        df (pd.DataFrame): The dataframe to identify the key business columns.
+    Return:
+        df (pd.DataFrame): The dataframe with the identified key business columns.
+    """
+    # get key businesses
+    rootpath = "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/PNP/"
+
+    key_businesses_df = pd.read_csv(os.path.join(rootpath, 'KEYS 2023.csv'))
+    key_businesses_list = list(key_businesses_df["2023 KEYS"])
+
+    df['pnp_key'] = df['reference'].apply(
+        lambda x: 'Key0' if x in key_businesses_list else 'Key1'
+    )
+
+    return df
+
+
+def identify_osmotherly_businesses(df):
+    """ Function to identify the osmotherly businesses using reference
+    column & osmotherly busineses lookup table.
+    Args:
+        df (pd.DataFrame): The dataframe to identify the osmotherly business
+        columns.
+    Return:
+        df (pd.DataFrame): The dataframe with the identified osmotherly business
+        columns.
+    """
+    # get osmotherly businesses
+    rootpath = "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/PNP/"
+
+    osmotherly_businesses_df = pd.read_csv(os.path.join(rootpath,
+                                                        "Osmotherly PNP 2023.csv"))
+    osmotherly_businesses_list = list(osmotherly_businesses_df["ruref"])
+
+    df['osmotherly'] = df['reference'].apply(
+        lambda x: True if x in osmotherly_businesses_list else False
+    )
+
+    return df
