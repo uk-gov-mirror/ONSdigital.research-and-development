@@ -48,9 +48,14 @@ def get_schema_headers(config: dict):
     }
 
     # Get the headers for each
-    schema_headers_dict = {
-        output_name: tomli.loads(path) for output_name, path in schema_paths.items()
-    }
+    schema_headers_dict = {}
+    for output_name, path in schema_paths.items():
+        with open(path, 'rb') as file:
+            schema_headers_dict[output_name] = tomli.load(file)
+            
+    # schema_headers_dict = {
+    #     output_name: tomli.loads(path) for output_name, path in schema_paths.items()
+    # }
 
     # Stringify the headers (keys of the dict)
     schema_headers_dict.update(
