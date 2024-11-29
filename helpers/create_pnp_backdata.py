@@ -1,10 +1,10 @@
+from src.imputation.apportionment import run_apportionment
+from src.staging import postcode_validation as pcval
 import argparse
 import os
 import pandas as pd
-import toml
 import re
-from src.imputation.apportionment import run_apportionment
-from src.staging import postcode_validation as pcval
+import toml
 
 rootpath = "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/PNP/"
 
