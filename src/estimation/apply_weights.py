@@ -32,10 +32,12 @@ def apply_weights(
 
     # if the dataframe is for QA output, create new columns with the weights applied.
     if for_qa:
-
         estimated_cols = pd.concat(
-            [round(df[col] * df["a_weight"], round_val).rename(
-                f"{col}_estimated") for col in cols_list], axis=1
+            [
+                round(df[col] * df["a_weight"], round_val).rename(f"{col}_estimated")
+                for col in cols_list
+            ],
+            axis=1,
         )
         df = pd.concat([df, estimated_cols], axis=1)
 

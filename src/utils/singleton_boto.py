@@ -4,7 +4,7 @@ A class that initialises a single instance of boto3 client
 import boto3
 import raz_client
 
-      
+
 class SingletonBoto:
     _instance = None
     _bucket = None
@@ -16,10 +16,7 @@ class SingletonBoto:
     def get_client(cls, config={}):
         if cls._instance is None:
             client = boto3.client("s3")
-            raz_client.configure_ranger_raz(
-                client,
-                ssl_file=config["s3"]["ssl_file"]
-            )
+            raz_client.configure_ranger_raz(client, ssl_file=config["s3"]["ssl_file"])
             cls._bucket = config["s3"]["s3_bucket"]
             cls._instance = client
         return cls._instance

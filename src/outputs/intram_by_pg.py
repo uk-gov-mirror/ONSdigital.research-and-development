@@ -14,7 +14,7 @@ def output_intram_by_pg(
     config: Dict[str, Any],
     intram_tot_dict: Dict[str, int],
     write_csv: Callable,
-    uk_output: bool = False
+    uk_output: bool = False,
 ) -> Dict[str, int]:
     """Run the outputs module.
 
@@ -35,9 +35,7 @@ def output_intram_by_pg(
         gb_df, ni_df, pg_detailed, config, uk_output
     )
 
-    _save_output_intram_as_csv(
-        df_merge, config, write_csv, uk_output
-    )
+    _save_output_intram_as_csv(df_merge, config, write_csv, uk_output)
 
     # calculate the intram total for QA across different outputs
     intram_tot_dict[f"intram_by_pg_{'uk' if uk_output else 'gb'}"] = round(value_tot, 0)
@@ -50,7 +48,7 @@ def _generate_intarm_by_pg(
     ni_df: pd.DataFrame,
     pg_detailed: pd.DataFrame,
     config: Dict[str, Any],
-    uk_output: bool = False
+    uk_output: bool = False,
 ):
     """Generate the intramural by PG output dataframe and intramural by PG total.
 
@@ -97,8 +95,9 @@ def _generate_intarm_by_pg(
     detail = "Detailed product groups (Alphabetical product groups A-AH)"
     notes = "Notes"
     survey_year = config["survey"]["survey_year"]
-    df_merge = df_merge[[detail, value_col, notes]].rename(columns={
-        value_col: survey_year})
+    df_merge = df_merge[[detail, value_col, notes]].rename(
+        columns={value_col: survey_year}
+    )
     return df_merge, value_tot
 
 
@@ -106,7 +105,7 @@ def _save_output_intram_as_csv(
     df_merge: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    uk_output: bool = False
+    uk_output: bool = False,
 ):
     """Save the intramural by PG output as a CSV file.
 
@@ -123,9 +122,10 @@ def _save_output_intram_as_csv(
     # Outputting the CSV file
     output_path = config["outputs_paths"]["outputs_master"]
 
-    filename = (f"output_intram_by_pg_{'uk' if uk_output else 'gb'}")
+    filename = f"output_intram_by_pg_{'uk' if uk_output else 'gb'}"
     filename = filename_amender(filename, config)
 
     write_csv(
         f"{output_path}/output_intram_by_pg_{'uk' if uk_output else 'gb'}/{filename}",
-        df_merge)
+        df_merge,
+    )

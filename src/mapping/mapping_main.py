@@ -120,10 +120,7 @@ def run_mapping(
 
     if config["global"]["output_mapping_qa"]:
         MappingMainLogger.info("Outputting Mapping QA files.")
-        full_responses_filename = filename_amender(
-            "full_responses_mapped",
-            config
-        )
+        full_responses_filename = filename_amender("full_responses_mapped", config)
         rd_write_csv(os.path.join(qa_path, full_responses_filename), full_responses)
     MappingMainLogger.info("Finished Mapping QA calculation.")
 

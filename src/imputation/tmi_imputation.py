@@ -350,7 +350,6 @@ def create_mean_dict(
             trim_qa["clear_class_size"] = clear_class_size
             trim_qa_dfs.append(trim_qa)
 
-
     full_qa = pd.concat(trim_qa_dfs, axis=0)
     df = pd.concat(df_list)
     df["qa_index"] = df.index
@@ -564,13 +563,15 @@ def run_tmi(
     imputed_only_df = imputed_only_df.sort_values(
         ["formtype", "imp_class"], ascending=True
     ).reset_index(drop=True)
-    
+
     # Set dtype of manual_trim column to bool before concatination
-    convert_dict = {'manual_trim': bool,
-                    'empty_pgsic_group': bool,
-                    'empty_pg_group': bool,
-                    '305_trim': bool,
-                    '211_trim': bool}
+    convert_dict = {
+        "manual_trim": bool,
+        "empty_pgsic_group": bool,
+        "empty_pg_group": bool,
+        "305_trim": bool,
+        "211_trim": bool,
+    }
     full_qa_df = full_qa_df.astype(convert_dict)
     imputed_only_df = imputed_only_df.astype(convert_dict)
 

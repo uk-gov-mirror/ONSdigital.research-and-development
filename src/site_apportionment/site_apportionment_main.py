@@ -42,7 +42,12 @@ def run_site_apportionment(
 
     # Conditionally output the records to be removed
     if config["global"]["output_status_filtered"]:
-        output_status_filtered(df, imp_markers_to_keep, config, write_csv,)
+        output_status_filtered(
+            df,
+            imp_markers_to_keep,
+            config,
+            write_csv,
+        )
 
     # Calculate the intramural totals before apportionment
     intram_tot_dict = {}
