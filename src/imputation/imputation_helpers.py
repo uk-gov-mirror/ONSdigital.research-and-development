@@ -34,6 +34,45 @@ def get_imputation_cols(config: dict) -> list:
     return numeric_cols
 
 
+def create_imp_class_col(
+    df: pd.DataFrame,
+    column_list: List[str],
+    class_name: str = "imp_class",
+    use_cellno: bool = True,
+) -> pd.DataFrame:
+    """Creates a column for the imputation class.
+
+    This is done by concatenating the R&D business type, C or D from  q200
+    and the product group from  q201.
+
+    special case for cell number 817 is added as a suffix.
+
+    Args:
+        df (pd.DataFrame): Full dataframe
+        column_list: List of column names that will be concatenated to form the class.
+        class_name (str): The name of the column to save the class to.
+            Defaults to "imp_class"
+        use_cellno (bool): Whether to use the cellno column or not. Default to True.
+
+    Returns:
+        pd.DataFrame: Dataframe which contains a new column with the
+            imputation classes.
+    """
+    # check that column_list is a non-empty list and its elements are in the dataframe
+    if not column_list:
+        raise ValueError("column_list is empty")
+    if not all(col in df.columns for col in column_list):
+        raise ValueError("column_list contains columns not in the dataframe")
+
+    # create a new column with the concatenation of the columns in column_list with  "_"
+    df[class_name] = df[column_list].astype(str).agg("_".join, axis=1)
+
+    if use_cellno:
+        df.loc[df.cellnumber == 817, class_name] = df[class_name] + "_817"
+
+    return df
+
+
 def create_notnull_mask(df: pd.DataFrame, col: str) -> pd.Series:
     """Return a mask for string values in column col that are not null."""
     return df[col].str.len() > 0
@@ -264,8 +303,8 @@ def split_df_on_trim(df: pd.DataFrame, trim_bool_col: str) -> pd.DataFrame:
         # TODO: remove this temporary fix to cast Nans to False
         df_copy = df.copy()
         df_copy.loc[:, trim_bool_col] = df_copy.loc[:, trim_bool_col].fillna(False)
-        #df[trim_bool_col] = df.copy()[trim_bool_col].fillna(False)
-        #df.loc[:,trim_bool_col] = df.copy().loc[:,trim_bool_col].fillna(False)
+        # df[trim_bool_col] = df.copy()[trim_bool_col].fillna(False)
+        # df.loc[:,trim_bool_col] = df.copy().loc[:,trim_bool_col].fillna(False)
 
         df_not_trimmed = df_copy.loc[~df_copy[trim_bool_col]]
         df_trimmed = df_copy.loc[df_copy[trim_bool_col]]
