@@ -1,11 +1,8 @@
 import logging
-import os
-from datetime import datetime
-from typing import Union, Callable, Dict
+from typing import Callable, Dict
 
 import pandas as pd
 
-from src.utils.helpers import values_in_column
 from src.freezing.freezing_utils import _add_last_frozen_column
 
 
@@ -147,7 +144,7 @@ def apply_amendments(
         amended_df (pd.DataFrame): The main snapshot with amendments applied.
     """
     changes_refs = amendments_df[
-        amendments_df.accept_changes == True
+        amendments_df.accept_changes.isin([True])
     ].reference.unique()
 
     accepted_amendments_df = amendments_df[amendments_df.reference.isin(changes_refs)]
@@ -200,7 +197,9 @@ def apply_additions(
         FreezingLogger.info("Skipping additions since the additions csv is invalid...")
         return main_df
     # Drop records where accept_changes is False and if any remain, add them to main df
-    changes_refs = additions_df[additions_df.accept_changes == True].reference.unique()
+    changes_refs = additions_df[
+        additions_df.accept_changes.isin([True])
+    ].reference.unique()
 
     accepted_additions_df = additions_df[additions_df.reference.isin(changes_refs)]
 

@@ -316,7 +316,10 @@ def validate_freezing_run_config(config: dict) -> Tuple[bool, bool, bool, bool]:
         run_updates_and_freeze,
         run_with_frozen_data,
     ]
-    if len([val for val in values if val == True]) > 1:
+    # TODO:
+    # Check this suggested improvement:
+    # if sum(1 for val in values if val) > 1:
+    if len([val for val in values if val == True]) > 1:  # noqa W503
         raise ValueError(
             "Only one type of pipeline run is allowed (freezing). Please update"
             " the user config."

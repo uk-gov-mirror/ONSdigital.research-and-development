@@ -16,18 +16,12 @@ To do:
     Read  feather - possibly, not needed
     Write to feather - possibly, not needed
 """
-
-# Standard libraries
 import json
 import logging
 
-
-# Third party libraries
 import pandas as pd
-from io import StringIO, TextIOWrapper, BytesIO
+from io import StringIO, TextIOWrapper
 
-
-# Local libraries
 from rdsa_utils.cdp.helpers.s3_utils import (
     file_exists,
     create_folder_on_s3,
@@ -35,8 +29,6 @@ from rdsa_utils.cdp.helpers.s3_utils import (
     is_s3_directory,
     copy_file,
     move_file,
-    validate_bucket_name,
-    validate_s3_file_path,
 )
 from src.utils.singleton_boto import SingletonBoto
 
