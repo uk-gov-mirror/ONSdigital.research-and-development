@@ -413,7 +413,7 @@ def tidy_imputation_dataframe(df: pd.DataFrame, to_impute_cols: List) -> pd.Data
     ]
 
     to_drop += ["200_original", "pg_sic_class", "empty_pgsic_group", "empty_pg_group"]
-    to_drop += ["200_imp_marker"]
+    to_drop += ["200_imp_marker", "pnp_key", "osmotherly", "area"]
 
     df = df.drop(columns=to_drop)
 
