@@ -186,8 +186,6 @@ def run_pipeline(user_config_path, dev_config_path):
         
         # Data processing: Apportionment to sites
 
-        df = pd.merge (full_responses, backdata, on = "reference", how = "left")
-
         apportioned_responses_df, intram_tot_dict = run_site_apportionment(
             full_responses,
             config,
