@@ -220,7 +220,7 @@ def create_additional_ni_cols(ni_full_responses: pd.DataFrame, config: dict) -> 
     return ni_full_responses
 
 
-def add_area_columns(df):
+def add_area_column(df):
     """
     Add area columns to the dataframe bassed on ITL121NM column.
 
