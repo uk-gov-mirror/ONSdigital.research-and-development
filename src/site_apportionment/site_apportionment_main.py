@@ -39,9 +39,7 @@ def run_site_apportionment(
     """
     if config ["survey"]["survey_type"] == "PNP":
         pnp_pre_processing(df)
-    else:
-       None
-
+    
     # Create variable for output of QA apportionment file
     qa_path = config["apportionment_paths"]["qa_path"]
 
