@@ -218,30 +218,3 @@ def create_additional_ni_cols(ni_full_responses: pd.DataFrame, config: dict) -> 
     ni_full_responses["itl"] = config["mappers"]["ni_itl"]
 
     return ni_full_responses
-
-
-def add_area_column(df):
-    """
-    Add area columns to the dataframe bassed on ITL121NM column.
-
-    Args:
-        df (pd.DataFrame): The dataframe to add the area columns to.
-
-    Returns:
-        pd.DataFrame: The dataframe with the area columns added.
-    """
-    area_dict = {'South East (England)': 'select',
-                   'East': 'select',
-                   'London': 'select',
-                   'West Midlands (England)': 'other',
-                   'Wales': 'other',
-                   'North East (England)': 'other',
-                   'East Midlands (England)': 'other',
-                   'Yorkshire and The Humber': 'other',
-                   'Scotland': 'other',
-                   'South West (England)': 'other',
-                   'North West (England)': 'other'}
-
-    df['area'] = df['ITL121NM'].map(area_dict)
-
-    return df
