@@ -404,3 +404,28 @@ def validate_construction_config_settings(config):
                 "If running NI construction, a NI construction file path must be"
                 " provided."
             )
+
+def validate_config(config: dict) -> dict:
+    """Validate the configuration settings.
+
+    Args:
+        config (dict): The configuration dictionary.
+
+    Returns:
+        dict: The validated configuration dictionary.
+
+    Raises:
+        ValueError: If PNP is set and Northern Ireland data is configured to run.
+    """
+    survey_config = config.get("survey", {})
+    if survey_config.get("survey_type") == "PNP":
+        # List of values not compatible with PNP
+        values = [
+            config.get("global", {}).get("load_ni_data", False)
+        ]
+        if any(values):
+            raise ValueError(
+                "Error: PNP is set. Northern Ireland data cannot be run. Please update "
+                "the user config."
+            )
+    return config

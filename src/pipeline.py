@@ -7,7 +7,7 @@ import pandas as pd
 # Our local modules
 from src.utils import runlog
 from src._version import __version__ as version
-from src.utils.config import config_setup
+from src.utils.config import config_setup,validate_config
 from src.utils.wrappers import logger_creator
 from src.utils.path_helpers import filename_validation
 from src.staging.staging_main import run_staging
@@ -43,6 +43,9 @@ def run_pipeline(user_config_path, dev_config_path):
 
     # validate the filenames in the config
     config = filename_validation(config)
+
+    # Check validate survey config
+    config = validate_config(config)    
 
     # Check the environment switch
     platform = config["global"]["platform"]
@@ -179,14 +182,6 @@ def run_pipeline(user_config_path, dev_config_path):
         mods.rd_file_exists,
     )
     MainLogger.info("Finished Mapping...")
-
-    if config["survey"]["survey_type"] == "PNP":
-        MainLogger.info("Finishing ipeline after mapping as PNP is set................")
-
-        runlog_obj.write_runlog()
-        runlog_obj.mark_mainlog_passed()
-
-        return runlog_obj.time_taken
 
     # Imputation module
     MainLogger.info("Starting Imputation...")
