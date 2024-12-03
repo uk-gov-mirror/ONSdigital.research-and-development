@@ -440,3 +440,20 @@ def create_new_backdata(backdata: pd.DataFrame, config) -> pd.DataFrame:
     wanted_cols = list(schema.keys())
 
     return backdata[wanted_cols]
+
+# Add a column for imputation marker
+def imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
+    """Initialize 'imp_marker' column with 'R' for clear responders and 'no_imputation' for others.
+    Args:
+        df (pd.DataFrame): the main dataset to add the imp_marker column to    
+    Returns:
+        pd.DataFrame: dataframe with the imp_marker column updated
+    """
+    # Initialise imp_marker column with a value of 'R' for clear responders
+    # and a default value "no_imputation" for all other rows for now.
+   
+    clear_responders_mask = df.status.isin(["Clear", "Clear - overridden"])
+    df.loc[clear_responders_mask, "imp_marker"] = "R"
+    df.loc[~clear_responders_mask, "imp_marker"] = "no_imputation"
+    
+    return df
