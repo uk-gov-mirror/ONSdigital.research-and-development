@@ -111,6 +111,10 @@ def run_mapping(
         full_responses, postcode_mapper, itl_mapper, config
     )
 
+    # add area column if PNP
+    if config["survey"]["survey_type"] == "PNP":
+        full_responses = hlp.add_area_columns(full_responses)
+
     # Process the NI full responses if they exist
     if not ni_full_responses.empty:
         ni_full_responses = hlp.create_additional_ni_cols(ni_full_responses, config)
