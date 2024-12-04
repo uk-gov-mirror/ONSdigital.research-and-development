@@ -11,7 +11,6 @@ from src.utils.path_helpers import (
     create_module_config,
     create_exports_config,
     update_config_with_paths,
-    snapshot_validation,
     snapshot_validation_logger
 )
 
