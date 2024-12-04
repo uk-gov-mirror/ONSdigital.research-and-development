@@ -151,7 +151,7 @@ def get_region(df):
                    'YY': 'other'  # Northern Ireland
                    }
 
-    df['ITL121NM'] = df['Region'].map(region_dict)
+    df['area'] = df['Region'].map(region_dict)
 
     return df
 
@@ -238,7 +238,24 @@ def create_201(df):
     return df
 
 
-def prep_2021_backdata(backdata) -> pd.DataFrame:
+def create_imp_class(df):
+    """ Function to create the imp_class column.
+
+    Combines the imp_marker, area, and pnp_key columns to create the imp_class column.
+
+    Args:
+        df (pd.DataFrame): The dataframe to create the imp_class column.
+    Return:
+        df (pd.DataFrame): The dataframe with the created imp_class column.
+
+    """
+
+    df['imp_class'] = df['imp_marker'] + "_" + df['area'] + "_" + df['pnp_key']
+
+    return df
+
+
+def prep_2021_backdata(df) -> pd.DataFrame:
     """Prepare the backdata for MoR imputation.
     Args:
         backdata (pd.DataFrame): Backdata for the current year.
@@ -248,14 +265,14 @@ def prep_2021_backdata(backdata) -> pd.DataFrame:
     # Convert backdata column names from qXXX to XXX
     # Note that this is only applicable when using the backdata on the network
     p = re.compile(r"q\d{3}")
-    cols = [col for col in list(backdata.columns) if p.match(col)]
+    cols = [col for col in list(df.columns) if p.match(col)]
     to_rename = {col: col[1:] for col in cols}
-    backdata = backdata.rename(columns=to_rename)
+    df = df.rename(columns=to_rename)
 
     # Apply the postcode formatting to clean the postcodes in col 601 of the back data
-    backdata["601"] = backdata["601"].apply(pcval.format_postcodes)
+    df["601"] = df["601"].apply(pcval.format_postcodes)
 
-    return backdata
+    return df
 
 
 def remove_leading_zeros(df):
@@ -372,10 +389,6 @@ def create_pnp_backdata(df):
                               'q0327',
                               'q0328',
                               'q0330',
-                              'q0510',
-                              'q0512',
-                              'q0514',
-                              'q0516',
                               'q0603',
                               'q0703',
                               'q0704',
@@ -434,9 +447,13 @@ def create_pnp_backdata(df):
                               'q0507': '507',
                               'q0508': '508',
                               'q0509': '405',
+                              'q0510': '406',
                               'q0511': '407',
+                              'q0512': '408',
                               'q0513': '409',
+                              'q0514': '410',
                               'q0515': '411',
+                              'q0516': '412',
                               'q0601': '601',
                               'q0602': '602',
                               'q0701': '708',
@@ -481,6 +498,11 @@ def create_pnp_backdata(df):
 
     # Create the 201 columns
     df = create_201(df)
+
+    # Create the imp_class column
+    df = create_imp_class(df)
+
+    print(df.columns)
 
     # Prepare the backdata for MoR imputation
     df = prep_2021_backdata(df)
