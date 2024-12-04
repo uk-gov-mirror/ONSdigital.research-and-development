@@ -104,7 +104,7 @@ def identify_osmotherly_businesses(df):
     osmotherly_businesses_list = list(osmotherly_businesses_df["ruref"])
 
     df['osmotherly'] = df['reference'].apply(
-        lambda x: True if x in osmotherly_businesses_list else False
+        lambda x: "osTrue" if x in osmotherly_businesses_list else "osFalse"
     )
 
     return df
@@ -241,7 +241,7 @@ def create_201(df):
 def create_imp_class(df):
     """ Function to create the imp_class column.
 
-    Combines the imp_marker, area, and pnp_key columns to create the imp_class column.
+    Combines the osmotherly, area, and pnp_key columns to create the imp_class column.
 
     Args:
         df (pd.DataFrame): The dataframe to create the imp_class column.
@@ -250,7 +250,7 @@ def create_imp_class(df):
 
     """
 
-    df['imp_class'] = df['imp_marker'] + "_" + df['area'] + "_" + df['pnp_key']
+    df['imp_class'] = df['osmotherly'] + "_" + df['area'] + "_" + df['pnp_key']
 
     return df
 
@@ -501,8 +501,6 @@ def create_pnp_backdata(df):
 
     # Create the imp_class column
     df = create_imp_class(df)
-
-    print(df.columns)
 
     # Prepare the backdata for MoR imputation
     df = prep_2021_backdata(df)
