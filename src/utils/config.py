@@ -429,3 +429,31 @@ def validate_config(config: dict) -> dict:
                 "the user config."
             )
     return config
+
+def validate_pnp_config(config: dict) -> dict:
+
+    # Check if PNP is set
+    survey_config = config.get("survey", {})
+    if survey_config.get("survey_type") == "PNP":
+        # List of values not compatible with PNP
+        incompatible_settings = [
+            "output_ni_sas",
+            "itl_uk",
+            "pg_uk"
+        ]
+        values = [
+            config.get("outputs", {}).get(setting, False)
+            for setting in incompatible_settings
+        ]
+        if any(values):
+            raise CustomAttributeError(
+                "Attribute Error: PNP is set. The following settings are not compatible with PNP:"
+                 "output_ni_sas, itl_uk, pg_uk. User config will be updated to False."
+
+            )
+        
+        # Update the config to False for incompatible settings
+        for setting in incompatible_settings:
+            config["global"][setting] = False
+
+        return config
