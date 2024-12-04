@@ -431,7 +431,15 @@ def validate_config(config: dict) -> dict:
     return config
 
 def validate_pnp_config(config: dict) -> dict:
+    """Validate the PNP configuration settings.
 
+    Args:
+        config (dict): The configuration dictionary.
+
+    Returns:
+        dict: The validated configuration dictionary.
+
+    """
     # Check if PNP is set
     survey_config = config.get("survey", {})
     if survey_config.get("survey_type") == "PNP":
@@ -441,19 +449,17 @@ def validate_pnp_config(config: dict) -> dict:
             "itl_uk",
             "pg_uk"
         ]
-        values = [
-            config.get("outputs", {}).get(setting, False)
-            for setting in incompatible_settings
-        ]
+        values = [config.get("outputs", {}).get(setting, True) 
+                  for setting in incompatible_settings]
+
         if any(values):
-            raise CustomAttributeError(
-                "Attribute Error: PNP is set. The following settings are not compatible with PNP:"
-                 "output_ni_sas, itl_uk, pg_uk. User config will be updated to False."
-
+            print(
+                "WARNING: PNP is set. The following settings are not compatible with PNP: "
+                "output_ni_sas, itl_uk, pg_uk. User config will be updated to False."
             )
-        
-        # Update the config to False for incompatible settings
-        for setting in incompatible_settings:
-            config["global"][setting] = False
 
-        return config
+            # Update the config to False for incompatible settings
+            for setting in incompatible_settings:
+                config["outputs"][setting] = False
+
+    return config
