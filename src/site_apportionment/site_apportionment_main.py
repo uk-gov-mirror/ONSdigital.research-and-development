@@ -38,8 +38,9 @@ def run_site_apportionment(
             to apportion  for long forms
     """
     if config ["survey"]["survey_type"] == "PNP":
-        pnp_pre_processing(df)
-    
+        df = pnp_pre_processing(df)
+
+
     # Create variable for output of QA apportionment file
     qa_path = config["apportionment_paths"]["qa_path"]
 
