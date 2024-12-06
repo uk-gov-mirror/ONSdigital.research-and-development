@@ -141,10 +141,12 @@ def get_region(df):
                    'JG': 'select',  # South East
                    'KJ': 'other',  # South West
                    'GG': 'select',  # East if England
+                   'GF': 'other',  # East of England
                    'FE': 'other',  # West Midlands
                    'ED': 'other',  # East Midlands
                    'DC': 'other',  # Yorkshire and The Humber
-                   'BB': 'other',  # BA or BB North West
+                   'BA': 'other',  # North West
+                   'BB': 'other',  # North West
                    'AA': 'other',  # North East
                    'XX': 'other',  # Scotland
                    'WW': 'other',  # Wales
