@@ -16,7 +16,7 @@ path1 = os.path.join(csv_path, input_file)
 df1 = pd.read_csv(path1)
 
 # specify string columns- these will have quotes applied
-string_cols = ["formtype", "200", "201", "imp_class"] #"601", "status", "imp_marker", "postcodes_harmonised"]
+string_cols = ["formtype", "200", "201", "imp_class"]
 
 # specify float columns
 float_cols = ["211"]
