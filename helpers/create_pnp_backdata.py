@@ -1,5 +1,6 @@
 from src.imputation.apportionment import run_apportionment
 from src.staging import postcode_validation as pcval
+from src.imputation import imputation_helpers as hlp
 import argparse
 import os
 import pandas as pd
@@ -81,7 +82,7 @@ def identify_key_business(df):
     key_businesses_list = list(key_businesses_df["2023 KEYS"])
 
     df['pnp_key'] = df['reference'].apply(
-        lambda x: 'Key0' if x in key_businesses_list else 'Key1'
+        lambda x: 'key0' if x in key_businesses_list else 'key1'
     )
 
     return df
@@ -137,20 +138,20 @@ def get_region(df):
     Return:
         df (pd.DataFrame): The dataframe with the populated ITL121NM column.
     """
-    region_dict = {'HH': 'select',  # London
-                   'JG': 'select',  # South East
-                   'KJ': 'other',  # South West
-                   'GG': 'select',  # East if England
-                   'GF': 'other',  # East of England
-                   'FE': 'other',  # West Midlands
-                   'ED': 'other',  # East Midlands
-                   'DC': 'other',  # Yorkshire and The Humber
-                   'BA': 'other',  # North West
-                   'BB': 'other',  # North West
-                   'AA': 'other',  # North East
-                   'XX': 'other',  # Scotland
-                   'WW': 'other',  # Wales
-                   'YY': 'other'  # Northern Ireland
+    region_dict = {'HH': 'se',  # London
+                   'JG': 'se',  # South East
+                   'KJ': 'oth',  # South West
+                   'GG': 'se',  # East if England
+                   'GF': 'oth',  # East of England
+                   'FE': 'oth',  # West Midlands
+                   'ED': 'oth',  # East Midlands
+                   'DC': 'oth',  # Yorkshire and The Humber
+                   'BA': 'oth',  # North West
+                   'BB': 'oth',  # North West
+                   'AA': 'oth',  # North East
+                   'XX': 'ot',  # Scotland
+                   'WW': 'oth',  # Wales
+                   'YY': 'oth'  # Northern Ireland
                    }
 
     df['area'] = df['Region'].map(region_dict)
@@ -236,23 +237,6 @@ def create_201(df):
                   68209: "AD"}
 
     df['201'] = df['RUSICcur'].map(rusic_dict)
-
-    return df
-
-
-def create_imp_class(df):
-    """ Function to create the imp_class column.
-
-    Combines the osmotherly, area, and pnp_key columns to create the imp_class column.
-
-    Args:
-        df (pd.DataFrame): The dataframe to create the imp_class column.
-    Return:
-        df (pd.DataFrame): The dataframe with the created imp_class column.
-
-    """
-
-    df['imp_class'] = df['osmotherly'] + "_" + df['area'] + "_" + df['pnp_key']
 
     return df
 
@@ -502,7 +486,10 @@ def create_pnp_backdata(df):
     df = create_201(df)
 
     # Create the imp_class column
-    df = create_imp_class(df)
+    df = hlp.create_imp_class_col(df,
+                                  ["pnp_key", "area"],
+                                  use_osmotherly=True,
+                                  use_cellno=False)
 
     # Prepare the backdata for MoR imputation
     df = prep_2021_backdata(df)
