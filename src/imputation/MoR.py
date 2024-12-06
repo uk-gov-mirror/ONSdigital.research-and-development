@@ -3,7 +3,8 @@ import itertools
 import re
 import pandas as pd
 
-from src.imputation.tmi_imputation import create_imp_class_col, trim_bounds
+from src.imputation.imputation_helpers import create_imp_class_col
+from src.imputation.tmi_imputation import trim_bounds
 from src.staging.postcode_validation import format_postcodes
 from src.construction.construction_helpers import convert_formtype
 
@@ -78,7 +79,7 @@ def mor_preprocessing(df, backdata, is_2022):
         pd.DataFrame: DataFrame of backdata records to use for impuation
     """
     # Create imp_class column
-    df = create_imp_class_col(df, "200", "201")
+    df = create_imp_class_col(df, ["200", "201"])
 
     # ensure the "formtype" column is in the correct format
     df["formtype"] = df["formtype"].apply(convert_formtype)
@@ -159,7 +160,7 @@ def carry_forwards(df, backdata, impute_vars):
     df.loc[pc_update_cond, "postcodes_harmonised"] = df.loc[match_cond, "601"]
 
     # Update the imputation classes based on the new 200 and 201 values
-    df = create_imp_class_col(df, "200", "201")
+    df = create_imp_class_col(df, ["200", "201"])
 
     # Update the varibles to be imputed by the corresponding previous values
     for var in impute_vars:

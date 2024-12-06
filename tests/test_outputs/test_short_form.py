@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import unittest
 from pandas._testing import assert_frame_equal
 
 from src.outputs.short_form import create_headcount_cols
@@ -9,48 +8,36 @@ from src.outputs.short_form import create_headcount_cols
 class TestCreateHeadcountCols:
     """Test for create_headcount_cols function."""
 
-    def create_input_df(self):
-        """Create input dataframe."""
-        data = {
-            "reference": [1, 2, 3, 4, 5, 6],
-            "701": [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
-            "702": [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
-            "703": [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
-            "704": [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
-            "705": [100.0, 0.0, 200.0, 300.0, np.nan, 400],
-            "706": [20.0, 0.0, 80.0, 0.0, 10.0, 20],
-            "707": [10.0, 0.0, 0.0, 0.0, np.nan, np.nan],
-            "709": [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
-            "710": [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
-            "711": [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
-            "formtype": ["0006", "0006", "0006", "0006", "0006", "0006"],
-            "status": ["Clear", "Clear", "Clear", "Clear", "Clear", "Clear"],
-        }
-
-        input_data_df = pd.DataFrame(data)
+    def create_input_data(self):
+        """Create input data as list of columns and list of rows."""
+        columns = [
+            "reference", "701", "702", "703", "704", "705", "706", "707", "709", "710", "711", "formtype", "status"
+        ]
+        data = [
+            [1, np.nan, np.nan, np.nan, np.nan, 100.0, 20.0, 10.0, np.nan, np.nan, np.nan, "0006", "Clear"],
+            [2, np.nan, np.nan, np.nan, np.nan, 0.0, 0.0, 0.0, np.nan, np.nan, np.nan, "0006", "Clear"],
+            [3, np.nan, np.nan, np.nan, np.nan, 200.0, 80.0, 0.0, np.nan, np.nan, np.nan, "0006", "Clear"],
+            [4, np.nan, np.nan, np.nan, np.nan, 300.0, 0.0, 0.0, np.nan, np.nan, np.nan, "0006", "Clear"],
+            [5, np.nan, np.nan, np.nan, np.nan, np.nan, 10.0, np.nan, np.nan, np.nan, np.nan, "0006", "Clear"],
+            [6, np.nan, np.nan, np.nan, np.nan, 400, 20, np.nan, np.nan, np.nan, np.nan, "0006", "Clear"]
+        ]
+        input_data_df = pd.DataFrame(data=data, columns=columns)
         return input_data_df
 
     def create_expected_df(self):
-        """Create expected output dataframe."""
-        data = {
-            "reference": [1, 2, 3, 4, 5, 6],
-            "701": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            "702": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            "703": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            "704": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            "705": [100.0, 0.0, 200.0, 300.0, 0.0, 400],
-            "706": [20.0, 0.0, 80.0, 0.0, 10.0, 20],
-            "707": [10.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            "709": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            "710": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            "711": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            "formtype": ["0006", "0006", "0006", "0006", "0006", "0006"],
-            "status": ["Clear", "Clear", "Clear", "Clear", "Clear", "Clear"],
-            "headcount_civil": [66.6667, 0.0, 200.0, 0.0, 0.0, 400],
-            "headcount_defence": [33.3333, 0.0, 0.0, 0.0, 0.0, 0],
-        }
-
-        expected_data_df = pd.DataFrame(data)
+        """Create expected data as list of columns and list of rows."""
+        columns = [
+            "reference", "701", "702", "703", "704", "705", "706", "707", "709", "710", "711", "formtype", "status", "headcount_civil", "headcount_defence"
+        ]
+        data = [
+            [1, 0.0, 0.0, 0.0, 0.0, 100.0, 20.0, 10.0, 0.0, 0.0, 0.0, "0006", "Clear", 66.6667, 33.3333],
+            [2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "0006", "Clear", 0.0, 0.0],
+            [3, 0.0, 0.0, 0.0, 0.0, 200.0, 80.0, 0.0, 0.0, 0.0, 0.0, "0006", "Clear", 200.0, 0.0],
+            [4, 0.0, 0.0, 0.0, 0.0, 300.0, 0.0, 0.0, 0.0, 0.0, 0.0, "0006", "Clear", 0.0, 0.0],
+            [5, 0.0, 0.0, 0.0, 0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, "0006", "Clear", 0.0, 0.0],
+            [6, 0.0, 0.0, 0.0, 0.0, 400, 20, 0.0, 0.0, 0.0, 0.0, "0006", "Clear", 400, 0]
+        ]
+        expected_data_df = pd.DataFrame(data=data, columns=columns)
         return expected_data_df
 
     def test_create_headcount_cols(self):
@@ -62,7 +49,7 @@ class TestCreateHeadcountCols:
         Behaviour for nulls is checked.
         Rounding is also checked.
         """
-        input_df = self.create_input_df()
+        input_df = self.create_input_data()
         expected_df = self.create_expected_df()
 
         result_df = create_headcount_cols(input_df, 4)
