@@ -55,6 +55,7 @@ def run_imputation(
         df = hlp.identify_key_business(df)
         df = hlp.identify_osmotherly_businesses(df)
         df = hlp.add_area_column(df)
+        df = hlp.create_imp_class(df)
 
     # Apportion cols 4xx and 5xx to create FTE and headcount values
     df = run_apportionment(df)
