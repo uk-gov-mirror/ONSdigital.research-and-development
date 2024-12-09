@@ -2,12 +2,12 @@ config_validation:
   validate: True
   path: src/user_config_schema.yaml
 survey:
-  survey_type: "BERD"
+  survey_type: "PNP"
   survey_year: 2023
 global:
   # Staging and validation settings
   postcode_csv_check: True
-  load_ni_data: True
+  load_ni_data: False
   # Pipeline run type
   run_with_snapshot: True                         # Run until point of freezing
   run_with_snapshot_and_freeze: False             # Last run with frozen snapshot - produces frozen csv
