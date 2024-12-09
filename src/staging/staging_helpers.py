@@ -6,7 +6,6 @@ import logging
 import re
 import os
 import pathlib
-from datetime import datetime
 from typing import Callable, Tuple, Dict, Union
 
 # Our own modules
@@ -14,6 +13,7 @@ from src.staging import validation as val
 from src.staging import postcode_validation as pcval
 from src.staging import spp_snapshot_processing as processing
 from src.staging import spp_parser
+from src.utils.helpers import filename_amender
 
 # Create logger for this module
 StagingHelperLogger = logging.getLogger(__name__)
@@ -248,7 +248,6 @@ def df_to_feather(
 def stage_validate_harmonise_postcodes(
     config: Dict,
     full_responses: pd.DataFrame,
-    run_id: str,
     check_file_exists: Callable,
     read_csv: Callable,
     write_csv: Callable,
@@ -268,7 +267,6 @@ def stage_validate_harmonise_postcodes(
         config (Dict): A dictionary containing configuration options.
         full_responses (pd.DataFrame): The DataFrame containing the data to be
         validated.
-        run_id (str): The run ID for this execution.
         check_file_exists (Callable): A function that checks if a file exists.
         read_csv (Callable): A function that reads a CSV file into a DataFrame.
         write_csv (Callable): A function that writes a DataFrame to a CSV file.
@@ -299,9 +297,7 @@ def stage_validate_harmonise_postcodes(
 
     # Save the invalid postcodes to a CSV file
     pcodes_folder = staging_dict["pcode_val_path"]
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["survey"]["survey_year"]
-    invalid_filename = f"{survey_year}_invalid_postcodes_{tdate}_v{run_id}.csv"
+    invalid_filename = filename_amender(filename="invalid_postcodes", config=config)
     write_csv(f"{pcodes_folder}/{invalid_filename}", invalid_df)
 
     # Log the end of postcode validation
@@ -310,21 +306,24 @@ def stage_validate_harmonise_postcodes(
     return full_responses, postcode_mapper
 
 
-def filter_pnp_data(full_responses):
+def filter_pnp_data(full_responses, config):
     """
-    Filter out all PNP data or equivalently all records with legalstatus of 7
+    Filter for either PNP data or BERD data.
 
     Args:
         full_responses (pandas.DataFrame):
             The DataFrame containing the full resonses data.
 
     Returns:
-        Tuple[pd.DataFrame, pd.DataFrame]: Two dataframes; the BERD data without
-        PNP data and the PNP data
+        pd.DataFrame:t PNP data or BERD data.
     """
-    # create dataframe with PNP data legalstatus=='7'
-    pnp_full_responses = full_responses.loc[(full_responses["legalstatus"] == "7")]
-    # filter out PNP data or equivalently records with legalstatus!='7'
-    full_responses = full_responses.loc[(full_responses["legalstatus"] != "7")]
 
-    return full_responses, pnp_full_responses
+    # filter out PNP data or equivalently records with legalstatus!='7'
+    if config["survey"]["survey_type"] == "BERD":
+        full_responses = full_responses.loc[(full_responses["legalstatus"] != "7")]
+
+    # create dataframe with PNP data legalstatus=='7'
+    elif config["survey"]["survey_type"] == "PNP":
+        full_responses = full_responses.loc[(full_responses["legalstatus"] == "7")]
+
+    return full_responses

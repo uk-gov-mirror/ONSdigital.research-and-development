@@ -274,6 +274,7 @@ def run_export(user_config_path: str, dev_config_path: str):
         stat_size_func=mods.rd_stat_size,
         isdir_func=mods.rd_isdir,
         isfile_func=mods.rd_isfile,
+        config=config,
         read_header_func=mods.rd_read_header,
         string_to_file_func=mods.rd_write_string_to_file,
     )

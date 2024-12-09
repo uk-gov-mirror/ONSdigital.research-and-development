@@ -4,7 +4,7 @@ import pytest
 import pandas as pd
 
 from src.utils.helpers import (
-    convert_formtype, values_in_column, tree_to_list
+    convert_formtype, values_in_column, tree_to_list, filename_amender
 )
 
 
@@ -87,7 +87,7 @@ class TestTreeToList:
     def create_wrong_type_tree(self) -> dict:
         '''
         Create an "bad" input tree with a type error for negative unit-test.
-        
+
         Args:
             self (class): An instance of TestTreeToList unit-test class.
 
@@ -100,11 +100,10 @@ class TestTreeToList:
         bad_tree = {"BERD": []}
         return bad_tree
 
-    # 
     def create_expected_list(self) -> list:
         '''
         Create an expected output list for the test.
-        
+
         Args:
             self (class): An instance of TestTreeToList unit-test class.
 
@@ -119,8 +118,8 @@ class TestTreeToList:
 
     def test_tree_to_list_positive(self):
         '''
-        Test for tree_to_list(). Runs a positive test to assert that the actual 
-        result equls the expected result.        
+        Test for tree_to_list(). Runs a positive test to assert that the actual
+        result equls the expected result.
 
         Args:
             self (class): An instance of TestTreeToList unit-test class.
@@ -136,26 +135,61 @@ class TestTreeToList:
         result_list = tree_to_list(inp_tree, prefix="R:/2023")
         assert result_list == exp_output_list
 
-
     def test_tree_to_list_negative(self):
-            '''
-            Test for tree_to_list(). Runs a negative test to demonstrate that
-            the function would raise a TypeError if the input dictionary has
-            values other than dictionaries and shows a correct error message.        
+        '''
+        Test for tree_to_list(). Runs a negative test to demonstrate that
+        the function would raise a TypeError if the input dictionary has
+        values other than dictionaries and shows a correct error message.
 
-            Args:
-                self (class): An instance of TestTreeToList unit-test class.
+        Args:
+            self (class): An instance of TestTreeToList unit-test class.
 
-            Returns:
-                None
-            '''
-            # Prepare an "bad" input with deliberate type error
-            bad_tree = self.create_wrong_type_tree()
+        Returns:
+            None
+        '''
+        # Prepare an "bad" input with deliberate type error
+        bad_tree = self.create_wrong_type_tree()
 
-            # Run negative test
-            with pytest.raises(TypeError) as excinfo:
-                tree_to_list(bad_tree, prefix="R:/2023")
-            assert (
-                str(excinfo.value) ==
-                "Input must be a dictionary, but <class 'list'> is given"
-            )
+        # Run negative test
+        with pytest.raises(TypeError) as excinfo:
+            tree_to_list(bad_tree, prefix="R:/2023")
+        assert (str(excinfo.value) ==
+                "Input must be a dictionary, but <class 'list'> is given")
+
+
+def test_filename_amender_PNG():
+    """Test the filename_amender function where survey type is PNG."""
+    # Set up objects
+    filename = "a_file_name"
+
+    config = {"survey": {"survey_year": 2021,
+                         "survey_type": "PNP"},
+              "filename_items": {"run_id": 88,
+                                 "tdate": "2021-01-01"}}
+
+    expected_filename = "PNP_2021_a_file_name_2021-01-01_v88.csv"
+
+    # Act
+    result_filename = filename_amender(filename, config)
+
+    # Assert
+    assert result_filename == expected_filename
+
+
+def test_filename_amender_BERD():
+    """Test the filename_amender function where curvey type is PNG."""
+    # Set up objects
+    filename = "a_file_name"
+
+    config = {"survey": {"survey_year": 2021,
+                         "survey_type": "BERD"},
+              "filename_items": {"run_id": 88,
+                                 "tdate": "2021-01-01"}}
+
+    expected_filename = "2021_a_file_name_2021-01-01_v88.csv"
+
+    # Act
+    result_filename = filename_amender(filename, config)
+
+    # Assert
+    assert result_filename == expected_filename

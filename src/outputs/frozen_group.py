@@ -4,11 +4,11 @@ import logging
 from typing import Callable, Dict, Any
 
 import pandas as pd
-from datetime import datetime
 
 from src.outputs.outputs_helpers import create_output_df
 import src.outputs.map_output_cols as map_o
 from src.staging.validation import load_schema
+from src.utils.helpers import filename_amender
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -19,7 +19,6 @@ def output_frozen_group(
     config: Dict[str, Any],
     intram_tot_dict: Dict[str, int],
     write_csv: Callable,
-    run_id: int,
     deduplicate: bool = True,
 ) -> Dict[str, int]:
     """Creates a "frozen group" output  for the entire UK. In BERD (GB) data,
@@ -37,7 +36,6 @@ def output_frozen_group(
         intram_tot_dict: (dict): Intram totals for various outputs for QA
         write_csv (Callable): Function to write to a csv file.
          This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
         deduplicate (bool): If true, the data is deduplicated by aggregation.
 
     Returns:
@@ -206,10 +204,8 @@ def output_frozen_group(
     schema_dict = load_schema(schema_path)
     output = create_output_df(df_agg, schema_dict)
 
-    # Outputting the CSV file with timestamp and run_id
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["survey"]["survey_year"]
-    filename = f"{survey_year}_output_frozen_group_{tdate}_v{run_id}.csv"
+    # Outputting the CSV file
+    filename = filename_amender("output_frozen_group", config)
     write_csv(f"{output_path}output_frozen_group/{filename}", output)
 
     return intram_tot_dict

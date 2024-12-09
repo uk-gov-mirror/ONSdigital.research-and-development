@@ -2,13 +2,13 @@
 # Core imports
 import logging
 from typing import Callable, Tuple
-from datetime import datetime
 import os
 
 import pandas as pd
 
 import src.staging.staging_helpers as helpers
 from src.staging import validation as val
+from src.utils.helpers import filename_amender
 
 # from src.utils.breakdown_validation import run_breakdown_validation
 
@@ -23,7 +23,6 @@ def run_staging(  # noqa: C901
     rd_write_csv: callable,
     rd_read_feather: Callable,
     rd_write_feather: Callable,
-    run_id: int,
 ) -> Tuple:
     """Run the staging and validation module.
 
@@ -48,7 +47,6 @@ def run_staging(  # noqa: C901
             Available in HDFS and Windows only.
         rd_write_feather (Callable): Function to write feather files from Pandas
             Available in HDFS and Windows only.
-        run_id (int): The run id for this run.
     Returns:
         tuple
             full_responses (pd.DataFrame): The staged and vaildated snapshot data,
@@ -141,7 +139,6 @@ def run_staging(  # noqa: C901
             ) = helpers.stage_validate_harmonise_postcodes(
                 config,
                 full_responses,
-                run_id,
                 rd_file_exists,
                 rd_read_csv,
                 rd_write_csv,
@@ -223,15 +220,6 @@ def run_staging(  # noqa: C901
 
         StagingMainLogger.info("Backdata File Loaded Successfully...")
 
-        # Loading Civil or Defence detailed mapper
-        civil_defence_detailed_mapper = helpers.load_validate_mapper(
-            "civil_defence_detailed_mapper_path",
-            config,
-            StagingMainLogger,
-            rd_file_exists,
-            rd_read_csv,
-        )
-
         # Loading SIC division detailed mapper
         sic_division_detailed_mapper = helpers.load_validate_mapper(
             "sic_division_detailed_mapper_path",
@@ -249,36 +237,23 @@ def run_staging(  # noqa: C901
             rd_read_csv,
         )
 
-        # seaparate PNP data from full_responses (BERD data)
+        # filter for either PNP data or BERD data
         if stage_frozen_snapshot or stage_updated_snapshot:
-            full_responses, pnp_full_responses = helpers.filter_pnp_data(full_responses)
+            full_responses = helpers.filter_pnp_data(full_responses, config)
 
         if config["global"]["output_full_responses"]:
-            StagingMainLogger.info("Starting output of staged BERD data...")
+            survey_type = config["survey"]["survey_type"]
+            StagingMainLogger.info(f"Starting output of staged {survey_type} data...")
             staging_folder = staging_dict["staging_output_path"]
-            tdate = datetime.now().strftime("%y-%m-%d")
-            survey_year = config["survey"]["survey_year"]
-            staged_filename = (
-                f"{survey_year}_staged_BERD_full_responses_{tdate}_v{run_id}.csv"
-            )
-            rd_write_csv(f"{staging_folder}/{staged_filename}", full_responses)
-            StagingMainLogger.info("Finished output of staged BERD data.")
-        else:
-            StagingMainLogger.info("Skipping output of staged BERD data...")
+            if survey_type == "PNP":
+                staged_filename = filename_amender("staged_full_responses", config)
+            else:
+                staged_filename = filename_amender("staged_BERD_full_responses", config)
 
-        # Output the staged PNP data.
-        if config["global"]["output_pnp_full_responses"]:
-            StagingMainLogger.info("Starting output of staged PNP data...")
-            staging_folder = staging_dict["pnp_staging_qa_path"]
-            tdate = datetime.now().strftime("%y-%m-%d")
-            survey_year = config["survey"]["survey_year"]
-            staged_filename = (
-                f"{survey_year}_staged_PNP_full_responses_{tdate}_v{run_id}.csv"
-            )
-            rd_write_csv(f"{staging_folder}/{staged_filename}", pnp_full_responses)
-            StagingMainLogger.info("Finished output of staged PNP data.")
+            rd_write_csv(f"{staging_folder}/{staged_filename}", full_responses)
+            StagingMainLogger.info(f"Finished output of staged {survey_type} data.")
         else:
-            StagingMainLogger.info("Skipping output of staged PNP data...")
+            StagingMainLogger.info("Skipping output of staged data...")
 
         # Return staged BERD data, additional data and mappers
         return (
@@ -287,7 +262,6 @@ def run_staging(  # noqa: C901
             postcode_mapper,
             backdata,
             pg_detailed_mapper,
-            civil_defence_detailed_mapper,
             sic_division_detailed_mapper,
             manual_trim_df,
         )

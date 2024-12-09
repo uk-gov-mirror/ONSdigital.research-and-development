@@ -1,7 +1,7 @@
 """The main file for the BERD Intram by PG output."""
 import logging
 import pandas as pd
-from datetime import datetime
+from src.utils.helpers import filename_amender
 from typing import Callable, Dict, Any
 
 OutputMainLogger = logging.getLogger(__name__)
@@ -14,7 +14,6 @@ def output_intram_by_pg(
     config: Dict[str, Any],
     intram_tot_dict: Dict[str, int],
     write_csv: Callable,
-    run_id: int,
     uk_output: bool = False
 ) -> Dict[str, int]:
     """Run the outputs module.
@@ -27,7 +26,6 @@ def output_intram_by_pg(
         intram_tot_dict (dict): Dictionary with the intramural totals.
         write_csv (Callable): Function to write to a csv file.
             This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
         uk_output (bool): If True, the output will include NI data.
 
     Returns:
@@ -38,7 +36,7 @@ def output_intram_by_pg(
     )
 
     _save_output_intram_as_csv(
-        df_merge, config, write_csv, run_id, uk_output
+        df_merge, config, write_csv, uk_output
     )
 
     # calculate the intram total for QA across different outputs
@@ -60,8 +58,8 @@ def _generate_intarm_by_pg(
         gb_df (pd.DataFrame): The GB dataset
         ni_df (pd.DataFrame): The NI dataset
         pg_detailed (pd.DataFrame): Detailed info for the product groups.
-        uk_output (bool): If True, the output will include NI data.
         config (dict): The configuration settings.
+        uk_output (bool): If True, the output will include NI data.
 
     Returns:
         df_merge(pd.DataFrame): The intramural by PG output dataframe.
@@ -99,9 +97,8 @@ def _generate_intarm_by_pg(
     detail = "Detailed product groups (Alphabetical product groups A-AH)"
     notes = "Notes"
     survey_year = config["survey"]["survey_year"]
-    value_title = f"{survey_year}"
     df_merge = df_merge[[detail, value_col, notes]].rename(columns={
-        value_col: value_title})
+        value_col: survey_year})
     return df_merge, value_tot
 
 
@@ -109,7 +106,6 @@ def _save_output_intram_as_csv(
     df_merge: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
     uk_output: bool = False
 ):
     """Save the intramural by PG output as a CSV file.
@@ -118,21 +114,18 @@ def _save_output_intram_as_csv(
         df_merge (pd.DataFrame): The dataframe to be saved.
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
-        run_id (int): The current run id
         uk_output (bool): If True, the output will include NI data.
 
     Returns:
         None
     """
 
-    # Outputting the CSV file with timestamp and run_id
+    # Outputting the CSV file
     output_path = config["outputs_paths"]["outputs_master"]
 
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["survey"]["survey_year"]
-    filename = (
-        f"{survey_year}_output_intram_by_pg_{'uk' if uk_output else 'gb'}"
-        f"_{tdate}_v{run_id}.csv")
+    filename = (f"output_intram_by_pg_{'uk' if uk_output else 'gb'}")
+    filename = filename_amender(filename, config)
+
     write_csv(
         f"{output_path}/output_intram_by_pg_{'uk' if uk_output else 'gb'}/{filename}",
         df_merge)

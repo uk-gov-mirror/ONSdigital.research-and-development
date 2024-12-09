@@ -1,8 +1,9 @@
 """The main file for the Outputs module."""
 import logging
 import pandas as pd
-from datetime import datetime
 from typing import Callable, Dict, List, Any
+
+from src.utils.helpers import filename_amender
 
 
 StatusFilteredLogger = logging.getLogger(__name__)
@@ -58,7 +59,6 @@ def output_status_filtered(
     imp_markers_to_keep: List[str],
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
 ):
     """Output rows that are neither clear nor imputed, before these are removed.
 
@@ -67,7 +67,7 @@ def output_status_filtered(
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
          This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
+
     """
     StatusFilteredLogger.info("Starting status filtered output...")
 
@@ -76,9 +76,7 @@ def output_status_filtered(
 
     output_path = config["outputs_paths"]["outputs_master"]
 
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["survey"]["survey_year"]
-    filename = f"{survey_year}_status_filtered_qa_{tdate}_v{run_id}.csv"
+    filename = filename_amender("status_filtered_qa", config)
     write_csv(f"{output_path}/output_status_filtered_qa/{filename}", filtered_df)
 
     StatusFilteredLogger.info("Finished status filtered output.")

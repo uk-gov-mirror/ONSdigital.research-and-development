@@ -1,9 +1,8 @@
 """The main file for the BERD Intram by Civil or Defence output."""
 import logging
 import pandas as pd
-import numpy as np
-from datetime import datetime
 from typing import Callable, Dict, Any
+from src.utils.helpers import filename_amender
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -12,25 +11,36 @@ def output_intram_by_civil_defence(
     df: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
-    civil_defence_detailed: pd.DataFrame,
-):
+) -> pd.DataFrame:
     """Run the outputs module.
 
     Args:
-        df (pd.DataFrame): The dataset main with weights not applied
+        df (pd.DataFrame): The dataset main.
+        df_for_output (pd.DataFrame): The summed dataset for output
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
-         This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
-        civil_defence_detailed (pd.DataFrame): Detailed schema of C/D output
-
-
+            This will be the hdfs or network version depending on settings.
+    Returns:
+        None.
     """
-    output_path = config["outputs_paths"]["outputs_master"]
 
-    period = config["survey"]["survey_year"]
-    period_str = str(period)
+    df_for_output = generate_intram_by_civil_defence(df)
+
+    # Outputting the CSV file
+    _save_output_intram_civil_def_as_csv(df_for_output, config, write_csv)
+
+    return None
+
+
+def generate_intram_by_civil_defence(
+    df: pd.DataFrame,
+) -> pd.DataFrame:
+    """Generate the intramural.
+    Args:
+        df (pd.DataFrame): The dataset main.
+    Returns: df_for output (pd.Dataframe: Total intram expenditure by Civil/Defence)
+    """
+    # Generating the Total Intramural Expenditure by Civil or Defence
 
     # Group by civil/defence (200) and aggregate intram (211)
     key_col = "200"
@@ -38,24 +48,38 @@ def output_intram_by_civil_defence(
 
     df_agg = df.groupby([key_col]).agg({value_col: "sum"}).reset_index()
 
-    # Merge with output table
-    df_merge = civil_defence_detailed.merge(
-        df_agg, how="left", left_on="CD", right_on=key_col
+    # Replace C and D with Civil or Defence
+    df_agg["200"] = df_agg["200"].replace({"C": "Civil", "D": "Defence"})
+
+    # Rename Columns with dictionary
+    columns = {"200": "Catergory", "211": "Total Intramural Expenditure"}
+
+    df_for_output = df_agg.rename(columns=columns)
+
+    return df_for_output
+
+
+def _save_output_intram_civil_def_as_csv(
+    df_for_output: pd.DataFrame,
+    config: Dict[str, Any],
+    write_csv: Callable,
+):
+    """Save the intramural by civil_defence output as a CSV file.
+
+    Args:
+        df_for_output(pd.DataFrame): The dataframe to be saved.
+        config (dict): The configuration settings.
+        write_csv (Callable): Function to write to a csv file.
+
+    Returns:
+        None
+    """
+
+    # Outputting the CSV file
+    output_path = config["outputs_paths"]["outputs_master"]
+
+    filename = filename_amender(
+        filename="output_intram_by_civil_defence", config=config
     )
 
-    # Replace placeholder "period" with year from config
-    df_merge["B"] = df_merge["B"].replace("period", period_str)
-
-    # Copy summed values to correct column
-    df_merge["B"] = np.where(df_merge["211"].notnull(), df_merge["211"], df_merge["B"])
-
-    # Drop the columns/rows not required for output
-    df_merge = df_merge.drop(columns=["CD", "200", "211"])
-    df_merge.columns = df_merge.iloc[0]
-    df_for_output = df_merge.iloc[1:]
-
-    # Outputting the CSV file with timestamp and run_id
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["survey"]["survey_year"]
-    filename = f"{survey_year}_output_intram_by_civil_defence{tdate}_v{run_id}.csv"
     write_csv(f"{output_path}/output_intram_by_civil_defence/{filename}", df_for_output)
