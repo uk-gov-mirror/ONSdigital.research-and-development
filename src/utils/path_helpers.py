@@ -321,11 +321,12 @@ def filename_validation(config: dict) -> dict:
     return config
 
 
-def update_config_with_paths(config: dict, modules) -> dict:
+def update_config_with_paths(config: dict, modules: list) -> dict:
     """Update the config with all the paths needed for the pipeline.
 
     Args:
         config (dict): The pipeline configuration.
+        modules (list): A list of module names to be processed.
 
     Returns:
         dict: The updated configuration dictionary.
