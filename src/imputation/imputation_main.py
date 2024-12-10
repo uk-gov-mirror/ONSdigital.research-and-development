@@ -50,16 +50,6 @@ def run_imputation(
     Returns:
         pd.DataFrame: dataframe with the imputed columns updated
     """
-    # add osmotherly & key businesses columns to PNP data
-    if config["survey"]["survey_type"] == "PNP":
-        df = hlp.identify_key_business(df)
-        df = hlp.identify_osmotherly_businesses(df)
-        df = hlp.add_area_column(df)
-        df = hlp.create_imp_class_col(df,
-                                  ["pnp_key", "area"],
-                                  use_osmotherly=True,
-                                  use_cellno=False)
-
     # Apportion cols 4xx and 5xx to create FTE and headcount values
     df = run_apportionment(df)
 
