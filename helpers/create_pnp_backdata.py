@@ -351,54 +351,65 @@ def create_pnp_backdata(df):
                               'SICprevfro',
                               'SICprev',
                               'map cora status to column "status"',
-                              '1',
-                              '2',
-                              '3',
-                              '708',
-                              '712',
-                              '703',
-                              '704',
-                              '706',
-                              '705',
-                              '901',
-                              '903',
-                              '905',
-                              '907',
-                              '909',
-                              '213',
-                              '215',
-                              '217',
-                              '306',
-                              '310',
-                              '312',
-                              '314',
-                              '316',
-                              '318',
-                              '319',
-                              '320',
-                              '322',
-                              '324',
-                              '326',
-                              '327',
-                              '328',
-                              '330',
-                              '331',
-                              '332',
-                              '333',
-                              '334',
-                              '335',
-                              '336',
-                              '337',
-                              '338',
-                              '339',
-                              '340',
-                              '341',
-                              '342',
-                              '343',
-                              '344',
-                              '345',
-                              '346']
-
+                              'q0001',
+                              'q0002',
+                              'q0003',
+                              'q0203',
+                              'q0205',
+                              'q0207',
+                              'q0209',
+                              'q0211',
+                              'q0213',
+                              'q0215',
+                              'q0217',
+                              'q0219',
+                              'q0223',
+                              'q0225',
+                              'q0227',
+                              'q0229',
+                              'q0302',
+                              'q0304',
+                              'q0306',
+                              'q0308',
+                              'q0310',
+                              'q0312',
+                              'q0314',
+                              'q0316',
+                              'q0318',
+                              'q0319',
+                              'q0320',
+                              'q0322',
+                              'q0324',
+                              'q0326',
+                              'q0327',
+                              'q0328',
+                              'q0330',
+                              'q0331',
+                              'q0332',
+                              'q0333',
+                              'q0334',
+                              'q0335',
+                              'q0336',
+                              'q0337',
+                              'q0338',
+                              'q0339',
+                              'q0340',
+                              'q0341',
+                              'q0342',
+                              'q0343',
+                              'q0344',
+                              'q0345',
+                              'q0346',
+                              'q0603',
+                              'q0703',
+                              'q0704',
+                              'q0705',
+                              'q0706',
+                              'q0901',
+                              'q0903',
+                              'q0905',
+                              'q0907',
+                              'q0909']
 
     columns_to_rename_dict = {'IDBRPeriod': 'period',
                               'FormType': 'formtype',
@@ -463,6 +474,22 @@ def create_pnp_backdata(df):
                               'q0906': '304',
                               'q0908': '305'}
 
+    new_column_order = ['period', 'reference', 'formtype', 'emp_total', 'Region',
+                        'period_year', 'instance', '101', '103', '104', '200',
+                        '201', '202', '204', '205', '206', '207', '209', '210',
+                        '211', '212', '214', '216', '218', '219', '220', '221',
+                        '222', '223', '226', '228', '237', '242', '243', '244',
+                        '245', '246', '247', '248', '249', '250', '302', '303',
+                        '304', '305', '405', '406', '407', '408', '409', '410',
+                        '411', '412', '501', '502', '503', '504', '505', '506',
+                        '507', '508', '601', '602', '604', '605', '708', '712',
+                        'statusencoded', 'status', 'imp_marker', 'pnp_key',
+                        'osmotherly', 'area', 'imp_class', 'emp_researcher',
+                        'emp_technician', 'emp_other', 'headcount_res_m',
+                        'headcount_res_f', 'headcount_tec_m', 'headcount_tec_f',
+                        'headcount_oth_m', 'headcount_oth_f', 'headcount_tot_m',
+                        'headcount_tot_f', 'headcount_total']
+
     # Rename wanted columns
     df = df.rename(columns=columns_to_rename_dict)
 
@@ -502,9 +529,6 @@ def create_pnp_backdata(df):
                                   use_osmotherly=True,
                                   use_cellno=False)
 
-    # Prepare the backdata for MoR imputation
-    df = prep_2021_backdata(df)
-
     # Run the apportionment on the PNP backdata
     df = run_apportionment(df)
 
@@ -516,6 +540,9 @@ def create_pnp_backdata(df):
 
     # Remove unwanted columns
     df = df.drop(columns=columns_to_remove_list)
+
+    # Re-order columns to match BERD (for ease of comparrison)
+    df = df[new_column_order]
 
     return df
 
@@ -542,7 +569,6 @@ def main(input_file, output_file):
     pnp_backdata_df = create_pnp_backdata(df)
 
     # Save the cleaned DataFrame to the output CSV file
-    print(list(pnp_backdata_df.columns))
     pnp_backdata_df.to_csv(output_file, index=False)
 
 
