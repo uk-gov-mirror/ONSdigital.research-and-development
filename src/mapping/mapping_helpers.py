@@ -219,43 +219,6 @@ def create_additional_ni_cols(ni_full_responses: pd.DataFrame, config: dict) -> 
 
     return ni_full_responses
 
-def create_imp_class_col(
-    df: pd.DataFrame,
-    column_list: List[str],
-    class_name: str = "imp_class",
-    use_cellno: bool = True,
-    use_osmotherly: bool = False,
-) -> pd.DataFrame:
-    """Creates a column for the imputation class.
-    This is done by concatenating the R&D business type, C or D from  q200
-    and the product group from  q201.
-    special case for cell number 817 is added as a suffix.
-    Args:
-        df (pd.DataFrame): Full dataframe
-        column_list: List of column names that will be concatenated to form the class.
-        class_name (str): The name of the column to save the class to.
-            Defaults to "imp_class"
-        use_cellno (bool): Whether to use the cellno column or not. Default to True.
-    Returns:
-        pd.DataFrame: Dataframe which contains a new column with the
-            imputation classes.
-    """
-    # check that column_list is a non-empty list and its elements are in the dataframe
-    if not column_list:
-        raise ValueError("column_list is empty")
-    if not all(col in df.columns for col in column_list):
-        raise ValueError("column_list contains columns not in the dataframe")
-
-    # create a new column with the concatenation of the columns in column_list with  "_"
-    df[class_name] = df[column_list].astype(str).agg("_".join, axis=1)
-
-    if use_cellno:
-        df.loc[df.cellnumber == 817, class_name] = df[class_name] + "_817"
-
-    if use_osmotherly:
-        df.loc[df.osmotherly == "osTrue", class_name] = df[class_name] + "_os"
-
-    return df
 
 def identify_key_business(df):
     """ Function to identify the key business using reference column & key
