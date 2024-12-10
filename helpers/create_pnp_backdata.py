@@ -318,6 +318,7 @@ def create_pnp_backdata(df):
                               'Contact',
                               'Curr',
                               'Email',
+                              'ReceiptDate',
                               'EmpsIDBR',
                               'Empt',
                               'Emptfro',
@@ -344,47 +345,60 @@ def create_pnp_backdata(df):
                               'Turnover',
                               'TOfro',
                               'TOIDBR',
-                              'q0001',
-                              'q0002',
-                              'q0003',
-                              'q0205',
-                              'q0209',
-                              'q0211',
-                              'q0213',
-                              'q0215',
-                              'q0217',
-                              'q0219',
-                              'q0223',
-                              'q0225',
-                              'q0227',
-                              'q0229',
-                              'q0302',
-                              'q0304',
-                              'q0306',
-                              'q0308',
-                              'q0310',
-                              'q0312',
-                              'q0314',
-                              'q0316',
-                              'q0318',
-                              'q0319',
-                              'q0320',
-                              'q0322',
-                              'q0324',
-                              'q0326',
-                              'q0327',
-                              'q0328',
-                              'q0330',
-                              'q0603',
-                              'q0703',
-                              'q0704',
-                              'q0705',
-                              'q0706',
-                              'q0901',
-                              'q0903',
-                              'q0905',
-                              'q0907',
-                              'q0909']
+                              'RUSICcur',
+                              'RUSICprev',
+                              'SICcurfro',
+                              'SICprevfro',
+                              'SICprev',
+                              'map cora status to column "status"',
+                              '1',
+                              '2',
+                              '3',
+                              '708',
+                              '712',
+                              '703',
+                              '704',
+                              '706',
+                              '705',
+                              '901',
+                              '903',
+                              '905',
+                              '907',
+                              '909',
+                              '213',
+                              '215',
+                              '217',
+                              '306',
+                              '310',
+                              '312',
+                              '314',
+                              '316',
+                              '318',
+                              '319',
+                              '320',
+                              '322',
+                              '324',
+                              '326',
+                              '327',
+                              '328',
+                              '330',
+                              '331',
+                              '332',
+                              '333',
+                              '334',
+                              '335',
+                              '336',
+                              '337',
+                              '338',
+                              '339',
+                              '340',
+                              '341',
+                              '342',
+                              '343',
+                              '344',
+                              '345',
+                              '346']
+
 
     columns_to_rename_dict = {'IDBRPeriod': 'period',
                               'FormType': 'formtype',
@@ -452,9 +466,6 @@ def create_pnp_backdata(df):
     # Rename wanted columns
     df = df.rename(columns=columns_to_rename_dict)
 
-    # Remove unwanted columns
-    df = df.drop(columns=columns_to_remove_list)
-
     # convert column datatypes
     df = convert_column_datatypes(df)
 
@@ -503,6 +514,9 @@ def create_pnp_backdata(df):
     # add missing columns manually
     df = add_missing_columns(df)
 
+    # Remove unwanted columns
+    df = df.drop(columns=columns_to_remove_list)
+
     return df
 
 
@@ -528,6 +542,7 @@ def main(input_file, output_file):
     pnp_backdata_df = create_pnp_backdata(df)
 
     # Save the cleaned DataFrame to the output CSV file
+    print(list(pnp_backdata_df.columns))
     pnp_backdata_df.to_csv(output_file, index=False)
 
 
