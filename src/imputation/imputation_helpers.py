@@ -55,6 +55,8 @@ def create_imp_class_col(
         class_name (str): The name of the column to save the class to.
             Defaults to "imp_class"
         use_cellno (bool): Whether to use the cellno column or not. Default to True.
+        use_osmotherly (bool): Whether to use the osmotherly column or not. Default
+        to False.
 
     Returns:
         pd.DataFrame: Dataframe which contains a new column with the
