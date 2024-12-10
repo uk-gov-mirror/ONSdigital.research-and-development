@@ -303,9 +303,5 @@ def identify_osmotherly_key_area(df: pd.DataFrame) -> pd.DataFrame:
     df = hlp.identify_key_business(df)
     df = hlp.identify_osmotherly_businesses(df)
     df = hlp.add_area_column(df)
-    df = hlp.create_imp_class(df)
 
     return df
-
-
-
