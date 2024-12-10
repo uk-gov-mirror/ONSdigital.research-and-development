@@ -218,3 +218,23 @@ def create_additional_ni_cols(ni_full_responses: pd.DataFrame, config: dict) -> 
     ni_full_responses["itl"] = config["mappers"]["ni_itl"]
 
     return ni_full_responses
+
+def identify_osmotherly_key_area(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Identify osmotherly and key area businesses in PNP data.
+
+    Args:
+        df (pd.DataFrame): The main DataFrame.
+        config (dict): The pipeline configuration settings.
+
+    Returns:
+        pd.DataFrame: The DataFrame with additional columns.
+    """
+    # add osmotherly & key businesses columns to PNP data
+    df = hlp.identify_key_business(df)
+    df = hlp.identify_osmotherly_businesses(df)
+    df = hlp.add_area_column(df)
+    df = hlp.create_imp_class(df)
+
+    return df
+
