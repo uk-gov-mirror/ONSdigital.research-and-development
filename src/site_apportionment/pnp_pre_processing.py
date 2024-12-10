@@ -17,21 +17,6 @@ def pnp_pre_processing(df: pd.DataFrame) -> pd.DataFrame:
     # Add a column for imputation marker
     df = imputation_marker(df)
     # Add a column for a weight
-    df = pnp_columns(df)
-    
-    return df
-
-# Add a column for a weight
-def pnp_columns(df: pd.DataFrame) -> pd.DataFrame:
-
-    """Adding columns to run PNP data.
-  Args:
-        df (pd.DataFrame): The input DataFrame.
-    Returns:
-        pd.DataFrame: The DataFrame with the added weight and pg_numeric column.
-    """
-    # Add a class column to the PNP data
     df["a_weight"] = 1.0
-    df["pg_numeric"] = 10
-
+    
     return df
