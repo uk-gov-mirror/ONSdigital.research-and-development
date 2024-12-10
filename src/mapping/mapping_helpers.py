@@ -219,6 +219,112 @@ def create_additional_ni_cols(ni_full_responses: pd.DataFrame, config: dict) -> 
 
     return ni_full_responses
 
+def create_imp_class_col(
+    df: pd.DataFrame,
+    column_list: List[str],
+    class_name: str = "imp_class",
+    use_cellno: bool = True,
+    use_osmotherly: bool = False,
+) -> pd.DataFrame:
+    """Creates a column for the imputation class.
+    This is done by concatenating the R&D business type, C or D from  q200
+    and the product group from  q201.
+    special case for cell number 817 is added as a suffix.
+    Args:
+        df (pd.DataFrame): Full dataframe
+        column_list: List of column names that will be concatenated to form the class.
+        class_name (str): The name of the column to save the class to.
+            Defaults to "imp_class"
+        use_cellno (bool): Whether to use the cellno column or not. Default to True.
+    Returns:
+        pd.DataFrame: Dataframe which contains a new column with the
+            imputation classes.
+    """
+    # check that column_list is a non-empty list and its elements are in the dataframe
+    if not column_list:
+        raise ValueError("column_list is empty")
+    if not all(col in df.columns for col in column_list):
+        raise ValueError("column_list contains columns not in the dataframe")
+
+    # create a new column with the concatenation of the columns in column_list with  "_"
+    df[class_name] = df[column_list].astype(str).agg("_".join, axis=1)
+
+    if use_cellno:
+        df.loc[df.cellnumber == 817, class_name] = df[class_name] + "_817"
+
+    if use_osmotherly:
+        df.loc[df.osmotherly == "osTrue", class_name] = df[class_name] + "_os"
+
+    return df
+
+def identify_key_business(df):
+    """ Function to identify the key business using reference column & key
+    busineses lookup table.
+    Args:
+        df (pd.DataFrame): The dataframe to identify the key business columns.
+    Return:
+        df (pd.DataFrame): The dataframe with the identified key business columns.
+    """
+    # get key businesses
+    rootpath = "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/PNP/"
+    key_businesses_df = pd.read_csv(os.path.join(rootpath, 'KEYS 2023.csv'))
+    key_businesses_list = list(key_businesses_df["2023 KEYS"])
+
+    df['pnp_key'] = df['reference'].apply(
+        lambda x: 'Key0' if x in key_businesses_list else 'Key1'
+    )
+    return df
+
+    
+    def identify_osmotherly_businesses(df):
+    """ Function to identify the osmotherly businesses using reference
+    column & osmotherly busineses lookup table.
+    Args:
+        df (pd.DataFrame): The dataframe to identify the osmotherly business
+        columns.
+    Return:
+        df (pd.DataFrame): The dataframe with the identified osmotherly business
+        columns.
+    """
+    # get osmotherly businesses
+    rootpath = "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/PNP/"
+
+    osmotherly_businesses_df = pd.read_csv(os.path.join(rootpath,
+                                                        "Osmotherly PNP 2023.csv"))
+    osmotherly_businesses_list = list(osmotherly_businesses_df["ruref"])
+
+    df['osmotherly'] = df['reference'].apply(
+        lambda x: "osTrue" if x in osmotherly_businesses_list else "osFalse"
+    )
+
+    return df
+
+
+def add_area_column(df):
+    """
+    Add area columns to the dataframe bassed on ITL121NM column.
+    Args:
+        df (pd.DataFrame): The dataframe to add the area columns to.
+    Returns:
+        pd.DataFrame: The dataframe with the area columns added.
+    """
+    area_dict = {'South East (England)': 'select',
+                 'East': 'select',
+                 'London': 'select',
+                 'West Midlands (England)': 'other',
+                 'Wales': 'other',
+                 'North East (England)': 'other',
+                 'East Midlands (England)': 'other',
+                 'Yorkshire and The Humber': 'other',
+                 'Scotland': 'other',
+                 'South West (England)': 'other',
+                 'North West (England)': 'other'}
+
+    df['area'] = df['ITL121NM'].map(area_dict)
+
+    return df
+
+
 def identify_osmotherly_key_area(df: pd.DataFrame) -> pd.DataFrame:
     """
     Identify osmotherly and key area businesses in PNP data.
@@ -237,4 +343,6 @@ def identify_osmotherly_key_area(df: pd.DataFrame) -> pd.DataFrame:
     df = hlp.create_imp_class(df)
 
     return df
+
+
 
