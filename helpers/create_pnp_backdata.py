@@ -159,6 +159,26 @@ def get_region(df):
     return df
 
 
+def map_to_yes_no(df):
+    """
+    Function to map integer values to Yes/No.
+
+    Args:
+        df (pd.DataFrame): The dataframe to map integer values to Yes/No.
+
+    Return:
+        df (pd.DataFrame): The dataframe with the integer values mapped to Yes/No.
+    """
+    mapper_dict = {1: "Yes", 2: "No", 3: ""}
+
+    cols_to_map = ['101', '604', '605', '708']
+
+    for col in cols_to_map:
+        df[col] = df[col].map(mapper_dict)
+
+    return df
+
+
 def get_imp_marker(df):
     """ Function to populate the IMP_MARKER column based on the status column.
 
@@ -516,6 +536,9 @@ def create_pnp_backdata(df):
 
     # Region mapping
     df = get_region(df)
+
+    # Map integer values to Yes/No
+    df = map_to_yes_no(df)
 
     # Create the 200 column
     df = create_200(df)
