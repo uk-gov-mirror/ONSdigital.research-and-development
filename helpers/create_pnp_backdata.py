@@ -1,14 +1,35 @@
 from src.imputation.apportionment import run_apportionment
-from src.staging import postcode_validation as pcval
+from src.staging import staging_helpers as stage_hlp
 from src.imputation import imputation_helpers as hlp
-import argparse
+from src.mapping.pg_conversion import pg_to_pg_mapper
+from src.utils.config import config_setup
+from src.utils.local_file_mods import rd_read_csv, rd_write_csv, rd_file_exists
+import logging
 import os
-import pandas as pd
-import re
 import toml
 
-rootpath = "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/PNP/"
+MappingMainLogger = logging.getLogger(__name__)
 
+# Change to the project repository location
+my_wd = os.getcwd()
+my_repo = "research-and-development"
+if not my_wd.endswith(my_repo):
+    os.chdir(my_repo)
+
+user_config_path = os.path.join(
+    "src",
+    "user_config.yaml"
+)
+
+dev_config_path = os.path.join(
+    "src",
+    "dev_config.yaml"
+)
+
+config = config_setup(
+    user_config_path,
+    dev_config_path
+)
 
 def convert_column_datatypes(df):
     """ Function to convert the column datatypes of a dataframe if they appear
@@ -78,7 +99,12 @@ def identify_key_business(df):
         df (pd.DataFrame): The dataframe with the identified key business columns.
     """
     # get key businesses
-    key_businesses_df = pd.read_csv(os.path.join(rootpath, 'KEYS 2023.csv'))
+    backdata_in_path = config["imputation_paths"]["backdata_in_path"]
+    key_businesses_df = rd_read_csv(
+        os.path.join(backdata_in_path,
+                     "KEYS 2023.csv")
+    )
+
     key_businesses_list = list(key_businesses_df["2023 KEYS"])
 
     df['pnp_key'] = df['reference'].apply(
@@ -100,8 +126,11 @@ def identify_osmotherly_businesses(df):
         columns.
     """
     # get osmotherly businesses
-    osmotherly_businesses_df = pd.read_csv(os.path.join(rootpath,
-                                                        "Osmotherly PNP 2023.csv"))
+    backdata_in_path = config["imputation_paths"]["backdata_in_path"]
+    osmotherly_businesses_df = rd_read_csv(
+        os.path.join(backdata_in_path,
+                     "Osmotherly PNP 2023.csv")
+    )
     osmotherly_businesses_list = list(osmotherly_businesses_df["ruref"])
 
     df['osmotherly'] = df['reference'].apply(
@@ -149,7 +178,7 @@ def get_region(df):
                    'BA': 'oth',  # North West
                    'BB': 'oth',  # North West
                    'AA': 'oth',  # North East
-                   'XX': 'ot',  # Scotland
+                   'XX': 'oth',  # Scotland
                    'WW': 'oth',  # Wales
                    'YY': 'oth'  # Northern Ireland
                    }
@@ -208,7 +237,7 @@ def create_200(df):
     return df
 
 
-def create_201(df):
+def create_201(df, config, rd_file_exists, rd_read_csv):
     """ Function to create the 201 column.
 
     Args:
@@ -216,68 +245,19 @@ def create_201(df):
     Return:
         df (pd.DataFrame): The dataframe with the created 201 column.
     """
-    rusic_dict = {72190: 'AF',
-                  62020: 'AE',
-                  70229: 'AD',
-                  71200: 'AD',
-                  88100: 'AG',
-                  88990: 'AG',
-                  59120: 'AD',
-                  94110: 'AG',
-                  72200: 'AF',
-                  94120: 'AG',
-                  52220: 'AH',
-                  91040: 'AG',
-                  86102: 'AG',
-                  94990: 'AG',
-                  93199: 'AG',
-                  71111: 'Z',
-                  71122: 'AD',
-                  71129: 'AB',
-                  85590: 'AG',
-                  86101: 'AG',
-                  71121: 'AD',
-                  94200: 'AG',
-                  68201: 'AD',
-                  82990: 'AD',
-                  86900: 'AG',
-                  61900: 'AC',
-                  72110: 'AF',
-                  2100: 'A',
-                  73120: 'AD',
-                  71112: 'AD',
-                  73200: 'AD',
-                  69202: 'AD',
-                  96090: 'AG',
-                  86210: 'AG',
-                  88910: 'AG',
-                  47799: 'AA',
-                  74909: 'AF',
-                  87900: "AG",
-                  68209: "AD"}
+    # Load and validate the PG mappers
+    pg_num_alpha = stage_hlp.load_validate_mapper(
+        "pg_num_alpha_mapper_path",
+        config,
+        MappingMainLogger,
+        rd_file_exists,
+        rd_read_csv,
+    )
 
-    df['201'] = df['RUSICcur'].map(rusic_dict)
-
-    return df
-
-
-def prep_2021_backdata(df) -> pd.DataFrame:
-    """Prepare the backdata for MoR imputation.
-    Args:
-        backdata (pd.DataFrame): Backdata for the current year.
-    Returns:
-        pd.DataFrame: Prepped backdata.
-    """
-    # Convert backdata column names from qXXX to XXX
-    # Note that this is only applicable when using the backdata on the network
-    p = re.compile(r"q\d{3}")
-    cols = [col for col in list(df.columns) if p.match(col)]
-    to_rename = {col: col[1:] for col in cols}
-    df = df.rename(columns=to_rename)
-
-    # Apply the postcode formatting to clean the postcodes in col 601 of the back data
-    df["601"] = df["601"].apply(pcval.format_postcodes)
-
+    df = pg_to_pg_mapper(
+        df,
+        pg_num_alpha,
+    )
     return df
 
 
@@ -365,7 +345,6 @@ def create_pnp_backdata(df):
                               'Turnover',
                               'TOfro',
                               'TOIDBR',
-                              'RUSICcur',
                               'RUSICprev',
                               'SICcurfro',
                               'SICprevfro',
@@ -438,6 +417,7 @@ def create_pnp_backdata(df):
                               'Employees': 'emp_total',
                               'Year': 'period_year',
                               'Instance': 'instance',
+                              'RUSICcur': '201',
                               'q0101': '101',
                               'q0102': '103',
                               'q0103': '104',
@@ -544,13 +524,20 @@ def create_pnp_backdata(df):
     df = create_200(df)
 
     # Create the 201 columns
-    df = create_201(df)
+    df = create_201(
+        df,
+        config,
+        rd_file_exists,
+        rd_read_csv
+    )
 
     # Create the imp_class column
-    df = hlp.create_imp_class_col(df,
-                                  ["pnp_key", "area"],
-                                  use_osmotherly=True,
-                                  use_cellno=False)
+    df = hlp.create_imp_class_col(
+        df,
+        ["pnp_key", "area"],
+        use_osmotherly=True,
+        use_cellno=False
+    )
 
     # Run the apportionment on the PNP backdata
     df = run_apportionment(df)
@@ -570,7 +557,7 @@ def create_pnp_backdata(df):
     return df
 
 
-def main(input_file, output_file):
+def main():
     """ Main function to clean the PNP backdata.
 
     Read in csv file as a dataframe, clean with create_pnp_backdata function,
@@ -586,19 +573,21 @@ def main(input_file, output_file):
     """
 
     # Read the input CSV file into a DataFrame
-    df = pd.read_csv(os.path.join(rootpath, input_file))
+    backdata_in_path = config["imputation_paths"]["backdata_in_path"]
+    df = rd_read_csv(
+        os.path.join(backdata_in_path,
+                     "210_202112 Raw data from CORA.csv")
+    )
 
     # Clean the DataFrame
     pnp_backdata_df = create_pnp_backdata(df)
 
     # Save the cleaned DataFrame to the output CSV file
-    pnp_backdata_df.to_csv(output_file, index=False)
+    backdata_out_path = config["imputation_paths"]["backdata_out_path"]
+    rd_write_csv(
+        os.path.join(backdata_out_path, "PNP_2021_cleaned_backdata.csv"),
+        pnp_backdata_df)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Clean PNP backdata.")
-    parser.add_argument("input_file", help="Path to the input CSV file.")
-    parser.add_argument("output_file", help="Path to save the cleaned CSV file.")
-    args = parser.parse_args()
-
-    main(args.input_file, args.output_file)
+    main()
