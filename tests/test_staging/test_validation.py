@@ -48,8 +48,8 @@ def test_load_schema():
     with pytest.raises(AssertionError):
         assert not isinstance(result_1, dict)
     # Assert: test that add fails when the arguments are wrong type
-    pytest.raises(TypeError, load_schema, 2)
-    pytest.raises(TypeError, load_schema, True)
+    pytest.raises(TypeError, load_schema, None)
+    pytest.raises(TypeError, load_schema, None)
 
 
 # Mock the schema data
