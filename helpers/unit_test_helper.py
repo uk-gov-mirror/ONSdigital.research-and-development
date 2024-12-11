@@ -4,10 +4,10 @@ import os
 
 # configuration settings
 csv_path = "D:/coding_projects/randd_test_data/"
-input_file = "percent_test.csv"
+input_file = "create_imp_class_col_input.csv"
 
 # whether the unit test data is input or expected output (set "input" or "exp_output")
-in_or_output = "input"  # "exp_output"
+in_or_output =  "exp_output"
 
 output_filename = f"{in_or_output}_function"
 
@@ -16,10 +16,10 @@ path1 = os.path.join(csv_path, input_file)
 df1 = pd.read_csv(path1)
 
 # specify string columns- these will have quotes applied
-string_cols = ["formtype", "601", "status", "imp_marker", "postcodes_harmonised"]
+string_cols = ["formtype", "200", "201", "imp_class"]
 
 # specify float columns
-float_cols = ["601_count"]
+float_cols = ["211"]
 
 # set all datatypes to string - we are outputting all the data as a string
 df1 = df1.astype(str)

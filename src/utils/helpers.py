@@ -1,6 +1,6 @@
 """Define helper functions to be used throughout the pipeline.."""
 import yaml
-import toml
+import tomli
 import pandas as pd
 
 from typing import Union
@@ -44,7 +44,8 @@ def user_config_reader(configfile: str = user_config_path) -> dict:
         {'title': 'TOML Example config', 'period': {'start_period':
         datetime.date(1990, 10, 10), 'end_period': datetime.date(2000, 10, 5)}}
     """
-    toml_dict = toml.load(configfile)
+    with open(configfile, 'rb') as file:
+        toml_dict = tomli.load(file)
 
     return toml_dict
 
