@@ -91,7 +91,7 @@ def mor_preprocessing(df, backdata, is_2022, config):
         )
     elif config["survey"]["survey_type"] == "PNP":
         df = create_imp_class_col(
-            df, ["key", "area"],
+            df, ["pnp_key", "area"],
             use_osmotherly=True,
             use_cellno=False
         )
