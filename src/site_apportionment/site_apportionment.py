@@ -155,9 +155,9 @@ def split_dataframes(
 
 
 def create_notnull_mask(df: pd.DataFrame, col: str) -> pd.Series:
-    """Return a mask for string values in column col that are not null."""
-      # Convert the column to strings and handle NaNs
-    return df[col].notna() & df[col].astype(str).str.len() > 0
+    """Return a mask for string values in column col that are not null,
+    treating empty strings as null."""
+    return ~(df[col].isnull() | (df[col] == ""))
 
 
 def deduplicate_codes_values(
