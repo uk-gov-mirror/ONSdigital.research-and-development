@@ -1,10 +1,12 @@
 from src.imputation.apportionment import run_apportionment
 from src.staging import staging_helpers as stage_hlp
+from src.staging.postcode_validation import format_postcodes
 from src.imputation import imputation_helpers as hlp
 from src.mapping.pg_conversion import pg_to_pg_mapper
 from src.utils.config import config_setup
 from src.utils.local_file_mods import rd_read_csv, rd_write_csv, rd_file_exists
 import logging
+import numpy as np
 import os
 import toml
 
@@ -199,7 +201,7 @@ def map_to_yes_no(df):
     Return:
         df (pd.DataFrame): The dataframe with the integer values mapped to Yes/No.
     """
-    mapper_dict = {1: "Yes", 2: "No", 3: ""}
+    mapper_dict = {1: "Yes", 2: "Yes", 3: "Yes", np.nan: "Yes"}
 
     cols_to_map = ['101', '604', '605', '708']
 
@@ -548,6 +550,10 @@ def create_pnp_backdata(df):
 
     # add missing columns manually
     df = add_missing_columns(df)
+
+    # clean postcodes
+    df["601"] = df["601"].str.replace("'", "")
+    df["601"] = df["601"].apply(format_postcodes)
 
     # Remove unwanted columns
     df = df.drop(columns=columns_to_remove_list)
