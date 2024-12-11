@@ -300,6 +300,21 @@ def add_missing_columns(df):
     return df
 
 
+def clean_postcodes(df):
+    """ Function to format the postcodes in the dataframe.
+
+    Args:
+        df (pd.DataFrame): The dataframe to format the postcodes.
+
+    Return:
+        df (pd.DataFrame): The dataframe with the formatted postcodes.
+    """
+    df["601"] = df["601"].str.replace("'", "")
+    df["601"] = df["601"].apply(format_postcodes)
+
+    return df
+
+
 def create_pnp_backdata(df):
     """ Function to clean the PNP backdata.
 
@@ -552,8 +567,7 @@ def create_pnp_backdata(df):
     df = add_missing_columns(df)
 
     # clean postcodes
-    df["601"] = df["601"].str.replace("'", "")
-    df["601"] = df["601"].apply(format_postcodes)
+    df = clean_postcodes(df)
 
     # Remove unwanted columns
     df = df.drop(columns=columns_to_remove_list)
