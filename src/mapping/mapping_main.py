@@ -36,8 +36,8 @@ def run_mapping(
         rd_file_exists (Callable): Function to check if a file exists.
 
     Returns:
-        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]: The BERD full responses and
-        Northern Ireland full responses dataframes with the mappers added.
+        Tuple[pd.DataFrame, pd.DataFrame]: The BERD full responses and Northern Ireland
+        full responses dataframes with the mappers added.
     """
     # Load ultfoc (Foreign Ownership) mapper
     ultfoc_mapper = stage_hlp.load_validate_mapper(
