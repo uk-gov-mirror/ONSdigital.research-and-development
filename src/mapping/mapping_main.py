@@ -96,19 +96,20 @@ def run_mapping(
     else:
         MappingMainLogger.info(f"Reference list not updated for survey year {year}.")
 
+    # Add custom mappers if PNP is true for later imp_class column creation
+    if config["survey"]["survey_type"] == "PNP":
+        full_responses = hlp.identify_osmotherly_key_area(
+            full_responses,
+            config
+        )
+        MappingMainLogger.info("Custom mappers applied to responses.")
+
     # create a tuple for the full_responses and ni_full_responses
     responses = (full_responses, ni_full_responses)
     # Join the mappers to the full responses dataframe, with validation.
     responses = run_pg_conversion(responses, pg_num_alpha, sic_pg_num)
     responses = join_fgn_ownership(responses, ultfoc_mapper)
     responses = validate_join_cellno_mapper(responses, cellno_df, config)
-
-    # Add custom mappers if PNP is true for later imp_class column creation
-    if config["survey"]["survey_type"] == "PNP":
-        responses = hlp.identify_osmotherly_key_area(
-            responses
-        )
-        MappingMainLogger.info("Custom mappers applied to responses.")
 
     # unpack the responses
     full_responses, ni_full_responses = responses

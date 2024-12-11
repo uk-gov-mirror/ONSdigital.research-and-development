@@ -1,4 +1,6 @@
 """Specific functions applied in mapping_main.py"""
+from src.mapping import mapping_helpers as hlp
+import os
 import pandas as pd
 import logging
 
@@ -220,7 +222,7 @@ def create_additional_ni_cols(ni_full_responses: pd.DataFrame, config: dict) -> 
     return ni_full_responses
 
 
-def identify_key_business(df):
+def identify_key_business(df, config):
     """ Function to identify the key business using reference column & key
     busineses lookup table.
     Args:
@@ -229,17 +231,17 @@ def identify_key_business(df):
         df (pd.DataFrame): The dataframe with the identified key business columns.
     """
     # get key businesses
-    rootpath = "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/PNP/"
-    key_businesses_df = pd.read_csv(os.path.join(rootpath, 'KEYS 2023.csv'))
-    key_businesses_list = list(key_businesses_df["2023 KEYS"])
+    path = config["mapping_paths"]["key_references"]
+    key_businesses_df = pd.read_csv(path)
+    key_businesses_list = list(key_businesses_df["keys"])
 
     df['pnp_key'] = df['reference'].apply(
-        lambda x: 'Key0' if x in key_businesses_list else 'Key1'
+        lambda x: 'key0' if x in key_businesses_list else 'key1'
     )
     return df
 
-    
-    def identify_osmotherly_businesses(df):
+
+def identify_osmotherly_businesses(df, config):
     """ Function to identify the osmotherly businesses using reference
     column & osmotherly busineses lookup table.
     Args:
@@ -250,10 +252,8 @@ def identify_key_business(df):
         columns.
     """
     # get osmotherly businesses
-    rootpath = "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/PNP/"
-
-    osmotherly_businesses_df = pd.read_csv(os.path.join(rootpath,
-                                                        "Osmotherly PNP 2023.csv"))
+    path = config["mapping_paths"]["osmotherly_references"]
+    osmotherly_businesses_df = pd.read_csv(path)
     osmotherly_businesses_list = list(osmotherly_businesses_df["ruref"])
 
     df['osmotherly'] = df['reference'].apply(
@@ -271,24 +271,26 @@ def add_area_column(df):
     Returns:
         pd.DataFrame: The dataframe with the area columns added.
     """
-    area_dict = {'South East (England)': 'select',
-                 'East': 'select',
-                 'London': 'select',
-                 'West Midlands (England)': 'other',
-                 'Wales': 'other',
-                 'North East (England)': 'other',
-                 'East Midlands (England)': 'other',
-                 'Yorkshire and The Humber': 'other',
-                 'Scotland': 'other',
-                 'South West (England)': 'other',
-                 'North West (England)': 'other'}
+    area_dict = {'JG': 'se',
+                 'GF': 'se',
+                 'GG': 'se',
+                 'HH': 'se',
+                 'FE': 'oth',
+                 'WW': 'oth',
+                 'AA': 'oth',
+                 'ED': 'oth',
+                 'DC': 'oth',
+                 'XX': 'oth',
+                 'KJ': 'oth',
+                 'BA': 'oth',
+                 'BB': 'oth'}
 
-    df['area'] = df['ITL121NM'].map(area_dict)
+    df['area'] = df['region'].map(area_dict)
 
     return df
 
 
-def identify_osmotherly_key_area(df: pd.DataFrame) -> pd.DataFrame:
+def identify_osmotherly_key_area(df: pd.DataFrame, config: dict) -> pd.DataFrame:
     """
     Identify osmotherly and key area businesses in PNP data.
 
@@ -299,9 +301,10 @@ def identify_osmotherly_key_area(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The DataFrame with additional columns.
     """
+
     # add osmotherly & key businesses columns to PNP data
-    df = hlp.identify_key_business(df)
-    df = hlp.identify_osmotherly_businesses(df)
+    df = hlp.identify_key_business(df, config)
+    df = hlp.identify_osmotherly_businesses(df, config)
     df = hlp.add_area_column(df)
 
     return df
