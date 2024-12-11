@@ -20,7 +20,6 @@ def run_mapping(
     ni_full_responses,
     postcode_mapper,
     config: dict,
-    backdata,
     rd_read_csv: Callable,
     rd_write_csv: Callable,
     rd_file_exists: Callable,
@@ -32,15 +31,13 @@ def run_mapping(
         ni_full_responses (pd.DataFrame): The Northern Ireland full responses dataframe.
         postcode_mapper (pd.DataFrame): The postcode mapper dataframe.
         config (dict): The configuration settings.
-        backdata (pd.DataFrame): The backdata dataframe.
         rd_read_csv (Callable): Function to read a csv file.
         rd_write_csv (Callable): Function to write a dataframe to a csv file.
         rd_file_exists (Callable): Function to check if a file exists.
 
     Returns:
         Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]: The BERD full responses and
-        Northern Ireland full responses dataframes with the mappers added. Returned in
-        addition is the backdata dataframe with custom mappers applied.
+        Northern Ireland full responses dataframes with the mappers added.
     """
     # Load ultfoc (Foreign Ownership) mapper
     ultfoc_mapper = stage_hlp.load_validate_mapper(
@@ -106,6 +103,13 @@ def run_mapping(
     responses = join_fgn_ownership(responses, ultfoc_mapper)
     responses = validate_join_cellno_mapper(responses, cellno_df, config)
 
+    # Add custom mappers if PNP is true for later imp_class column creation
+    if config["survey"]["survey_type"] == "PNP":
+        responses = hlp.identify_osmotherly_key_area(
+            responses
+        )
+        MappingMainLogger.info("Custom mappers applied to responses.")
+
     # unpack the responses
     full_responses, ni_full_responses = responses
 
@@ -140,11 +144,5 @@ def run_mapping(
         )
     MappingMainLogger.info("Finished Mapping NI QA calculation.")
 
-    if config["survey"]["survey_type"] == "PNP":
-        backdata = hlp.identify_osmotherly_key_area(
-            backdata
-        )
-        MappingMainLogger.info("Custom mappers applied to PNP backdata.")
-
     # return mapped_df
-    return (full_responses, ni_full_responses, itl_mapper, backdata)
+    return (full_responses, ni_full_responses, itl_mapper)
