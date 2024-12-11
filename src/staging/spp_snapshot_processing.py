@@ -45,7 +45,6 @@ def create_contextual_dataframe(
 
 @validate_dataframe_not_empty
 def full_responses(contributors: pd.DataFrame, responses: pd.DataFrame) -> pd.DataFrame:
-
     """Merges contributor and response data together into a dataframe that is in a
     format allowing for easier manipulation later in pipeline - notably through
     having each questioncode as its own column.
@@ -87,7 +86,6 @@ def full_responses(contributors: pd.DataFrame, responses: pd.DataFrame) -> pd.Da
 
 @validate_dataframe_not_empty
 def response_rate(contributors: pd.DataFrame, responses: pd.DataFrame) -> float:
-
     """Generates a response rate based on the contributor and response data
     from the SPP Snapshot file.
 
@@ -111,3 +109,4 @@ def response_rate(contributors: pd.DataFrame, responses: pd.DataFrame) -> float:
     SppProcessingLogger.info(f"The response rate is {int(rounded_resp_rate*100)}%")
 
     return response_rate
+

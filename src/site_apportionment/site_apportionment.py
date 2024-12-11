@@ -41,11 +41,19 @@ long_code: str = "0001"
 
 def set_percentages(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Set percentage column to 100 for short forms and single site long forms.
+    Set percentage column for short forms and single site long forms.
+
+    The percentage column for short forms is set to 100.
 
     The condtitions for the long forms needing 100 in the percentage column are:
-    - long forms, exactly 1 site, instance >=1 and notnull postcode
-    - long forms with status "Form sent out" that have not been through MoR
+    - long forms, exactly 1 site, instance >=1 and notnull postcode but null percentage.
+    - imputed long forms, instance >=1 and no postcode or percentage.
+
+    There are cases why an imputed long form might have no postcode or percentage:
+    - The form was a short form in the previous period and has been imputed with MoR/CF.
+    - The form had status "Form sent out" and was imputed using TMI.
+    In these cases, we fill the postcode column with the postcodes_harmonised value
+    (from IDBR) and set the count to 1.
 
     Args:
         df (pd.DataFrame): The input DataFrame.
@@ -56,20 +64,8 @@ def set_percentages(df: pd.DataFrame) -> pd.DataFrame:
     Raises:
         ValueError: If the percent column for short forms is not blank.
     """
-    # Condition for long forms with status "Form sent out"
-    # Note: those imputed by MoR will have had the postcode column imputed, so we check
-    # for null in the postcode count column
-    sent_out_condition = (
-        (df[form_col] == long_code)
-        & (df[status_col] == "Form sent out")
-        & (df[postcode_col + "_count"].isna())
-        & (df[postcode_col].isna())
-    )
-    # Update records matching the sent_out_condition with a postcode and count of 1
-    df.loc[sent_out_condition, postcode_col] = df.loc[
-        sent_out_condition, "postcodes_harmonised"
-    ]
-    df.loc[sent_out_condition, postcode_col + "_count"] = 1
+    # Condition for short forms
+    df.loc[(df[form_col] == short_code), percent_col] = 100
 
     # Condition for long forms, exactly 1 site, instance >=1 and notnull postcode
     single_cond = (
@@ -78,7 +74,21 @@ def set_percentages(df: pd.DataFrame) -> pd.DataFrame:
         & (df[instance_col] >= 1)
         & create_notnull_mask(df, postcode_col)
     )
+
     df.loc[single_cond, percent_col] = 100
+
+    # Condition for imputed long forms with no postcode or percentage
+    imputed_cond = (
+        (df[form_col] == long_code)
+        & (df[instance_col] >= 1)
+        & (df["imp_marker"].isin(["MoR", "CF", "TMI"]))
+        & (df[postcode_col + "_count"].isna())
+    )
+
+    # Update records matching the imputed_cond with a postcode and count of 1
+    df.loc[imputed_cond, postcode_col] = df.loc[imputed_cond, "postcodes_harmonised"]
+    df.loc[imputed_cond, percent_col] = 100
+    df.loc[imputed_cond, postcode_col + "_count"] = 1
 
     return df
 
@@ -105,17 +115,15 @@ def count_unique_postcodes_in_col(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def split_sites_df(
+def split_dataframes(
     df: pd.DataFrame, imp_markers_to_keep: List[str]
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Split dataframe into two based on whether there are sites or not.
+    Split dataframe into two, one for site apportionment and the remainder.
 
-    This will be the basis on whether or not records are included in site apportionment.
-
-    All long form records that include postcodes in the postcode_col are used for site
-    apportionment, and all orther records, including short forms, are included in a
-    second dataframe.
+    All long form records that include at least one postcode in the postcode_col are
+    used for site apportionment, and all orther records, including short forms, are
+    split off in a second dataframe.
 
     Args:
         df (pd.DataFrame): The input DataFrame.
@@ -126,21 +134,21 @@ def split_sites_df(
             and a second containing all other records.
     """
 
-    # Condition for records to apportion: long forms, at least one site, instance >=1
+    # Condition for records to apportion: long forms, more than one site, instance >=1
     to_apportion_cond = (
         (df[form_col] == long_code)
         & (df[postcode_col + "_count"] >= 1)
         & (df[instance_col] >= 1)
     )
 
-    # Dataframe to_apportion_df with many products - for apportionment
+    # Dataframe
+    # to_apportion_df with many products - for apportionment
     to_apportion_df = df.copy()[to_apportion_cond]
 
     # Dataframe with everything else - save unchanged
     df_out = df.copy()[~to_apportion_cond]
 
     # Remove "bad" imputation markers from df_out
-    # NOTE: Probably this isn't needed: can't think of a case where it would be.
     df_out = keep_good_markers(df_out, imp_markers_to_keep)
 
     return to_apportion_df, df_out
@@ -300,11 +308,11 @@ def create_sites_df(
     # Check for postcode duplicates for QA
     count_duplicate_sites(sites_df)
 
-    # De-duplicate by summing percents
+    # De-duplicate by taking the first occurence in case of duplicates
+    # Note: We do not want to sum percentages as this can lead to values over 100%.
     sites_df[percent_col] = sites_df[percent_col].fillna(0)
-
     agg_dict = {c: "first" for c in ([instance_col] + geo_cols)}
-    agg_dict[percent_col] = "sum"
+    agg_dict[percent_col] = "max"
 
     sites_df = (
         sites_df.groupby(groupby_cols + [postcode_col, postcodes_harmonised_col])
@@ -516,7 +524,7 @@ def run_apportion_sites(
     df = set_percentages(df)
 
     # Split the dataframe in two based on whether there's one or more postcodes
-    to_apportion_df, df_out = split_sites_df(df, imp_markers_to_keep)
+    to_apportion_df, df_out = split_dataframes(df, imp_markers_to_keep)
 
     # category_df: dataframe with codes, textual and numerical values
     category_df = create_category_df(
