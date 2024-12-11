@@ -24,7 +24,7 @@ def run_mapping(
     rd_write_csv: Callable,
     rd_file_exists: Callable,
 ):
-    """Perform mapping to the responses and backdata dataframes and output QA to csv.
+    """Perform mapping to the responses dataframes and output QA to csv.
 
     Args:
         full_responses (pd.DataFrame): The full responses dataframe.
