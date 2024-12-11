@@ -80,8 +80,8 @@ network_paths:
   freezing_amendments_path: "R:/BERD Results System Development 2023/DAP_emulation/2023_surveys/BERD/02_freezing/freezing_updates/2023_freezing_amendments_to_review_24-09-12_v1324.csv"
   # Imputation and outliers input paths
   # backdata_path: "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/BERD/06_imputation/backdata_output/2021_backdata_oct_24.csv"
-  # backdata_path: "R:/BERD Results System Development 2023/DAP_emulation/2022_surveys/BERD/06_imputation/backdata_output/2022_backdata_published_v347.csv"
-  backdata_path: "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/PNP/processed_210_202112 Raw data from CORA.csv"
+  backdata_path: "R:/BERD Results System Development 2023/DAP_emulation/2022_surveys/BERD/06_imputation/backdata_output/2022_backdata_published_v347.csv"
+  pnp_backdata_path: "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/PNP/06_imputation/backdata_output/PNP_2021_cleaned_backdata.csv"
   manual_imp_trim_path: "06_imputation/manual_trimming/2023_manual_trimming_v1.csv"
   manual_outliers_path: "07_outliers/manual_outliers/2023_manual_outliers_v1.csv"
   # Construction paths

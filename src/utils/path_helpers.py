@@ -131,7 +131,15 @@ def create_staging_config(config: dict) -> dict:
     staging_dict["snapshot_path"] = paths["snapshot_path"]
     staging_dict["updated_snapshot_path"] = paths["updated_snapshot_path"]
     staging_dict["postcode_masterlist"] = paths["postcode_masterlist"]
-    staging_dict["backdata_path"] = paths["backdata_path"]
+
+    # choose the correct backdata path based on the survey type
+    # This is for development so we don't have to keep changing the backdata path each
+    # time we switch between survey types
+    if config["survey"]["survey_type"] == "BERD":
+        staging_dict["backdata_path"] = paths["backdata_path"]
+    elif config["survey"]["survey_type"] == "PNP":
+        staging_dict["backdata_path"] = paths["pnp_backdata_path"]
+
     staging_dict["manual_outliers_path"] = f"{surv_path}{paths['manual_outliers_path']}"
     staging_dict["manual_imp_trim_path"] = f"{surv_path}{paths['manual_imp_trim_path']}"
 
@@ -139,8 +147,7 @@ def create_staging_config(config: dict) -> dict:
 
 
 def create_ni_staging_config(config: dict) -> dict:
-    """
-    Create a configuration dictionary with all paths needed for staging NI data.
+    """Create a configuration dictionary with all paths needed for staging NI data.
 
     This dictionary will update the ni_paths section of the config with full paths.
 
@@ -319,7 +326,7 @@ def update_config_with_paths(config: dict, modules: list) -> dict:
 
     Args:
         config (dict): The pipeline configuration.
-        modules (list): A list of module names to update the paths for.
+        modules (list): A list of module names to be processed.
 
     Returns:
         dict: The updated configuration dictionary.
@@ -334,6 +341,7 @@ def update_config_with_paths(config: dict, modules: list) -> dict:
     config["construction_paths"] = create_construction_config(config)
     config["export_paths"] = create_exports_config(config)
 
+    # update the config with the full paths
     for module_name in modules:
         config[f"{module_name}_paths"] = create_module_config(config, module_name)
 
