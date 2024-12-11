@@ -315,6 +315,34 @@ def clean_postcodes(df):
     return df
 
 
+def populate_instance_1_columns(df):
+    """ Function to populate instance 1 columns that begin with 3 or 2.
+
+    Args:
+        df (pd.DataFrame): The dataframe to populate the instance 1 columns.
+
+    Return:
+        df (pd.DataFrame): The dataframe with the populated instance 1 columns.
+    """
+    df["period_reference"] = df["period"].astype(str) + \
+        df["reference"].astype(str) + \
+        df["instance"].astype(str)
+    df = df.set_index("period_reference")
+
+    source_df = df[df["instance"] == 0].copy()
+
+    for col in config["breakdowns"]["211"] + \
+        config["breakdowns"]["305"] + \
+            ["211", "305"]:
+        if col in source_df.columns:
+            for period_reference in source_df.index.values:
+                df.loc[period_reference[0:-1] + "1", col] = source_df.loc[
+                    period_reference, col
+                ]
+
+    return df
+
+
 def create_pnp_backdata(df):
     """ Function to clean the PNP backdata.
 
@@ -568,6 +596,9 @@ def create_pnp_backdata(df):
 
     # clean postcodes
     df = clean_postcodes(df)
+
+    # Populate instance 1 columns that begin with 3 or 2.
+    df = populate_instance_1_columns(df)
 
     # Remove unwanted columns
     df = df.drop(columns=columns_to_remove_list)
