@@ -4,7 +4,7 @@ Created on Thu Nov 16 10:54:27 2023
 Create schema
 @author: zoring
 """
-import pandas as p
+import pandas as pd
 import os
 
 # Imputation file location and name
