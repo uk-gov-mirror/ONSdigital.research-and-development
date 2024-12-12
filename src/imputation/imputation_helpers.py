@@ -428,12 +428,13 @@ def breakdown_checks_after_imputation(df: pd.DataFrame) -> None:
     # the sum of the other cols should equal the total
 
 
-def tidy_imputation_dataframe(df: pd.DataFrame, to_impute_cols: List) -> pd.DataFrame:
+def tidy_imputation_dataframe(df: pd.DataFrame, to_impute_cols: List, config) -> pd.DataFrame:
     """Update cols with imputed values and remove rows and columns no longer needed.
 
     Args:
         df (pd.DataFrame): The dataframe with imputed values.
         to_impute_cols (List): The columns that were imputed.
+        config (dict): The pipeline configuration settings.
 
     Returns:
         pd.DataFrame: The dataframe with the imputed values applied and qa cols dropped.
@@ -458,7 +459,10 @@ def tidy_imputation_dataframe(df: pd.DataFrame, to_impute_cols: List) -> pd.Data
     ]
 
     to_drop += ["200_original", "pg_sic_class", "empty_pgsic_group", "empty_pg_group"]
-    to_drop += ["200_imp_marker", "pnp_key", "osmotherly", "area"]
+    to_drop += ["200_imp_marker"]
+
+    if config["survey"]["survey_type"] == "PNP":
+        to_drop += ["pnp_key", "osmotherly", "area"]
 
     df = df.drop(columns=to_drop)
 

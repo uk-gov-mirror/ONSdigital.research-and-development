@@ -150,7 +150,7 @@ def run_imputation(
         write_csv(os.path.join(qa_path, trimmed_counts_filename), trim_counts_qa)
 
     # remove rows and columns no longer needed from the imputed dataframe
-    imputed_df = hlp.tidy_imputation_dataframe(imputed_df, to_impute_cols)
+    imputed_df = hlp.tidy_imputation_dataframe(imputed_df, to_impute_cols, config)
 
     # Check the imputed values are consistent with breakdown cols summing to totals.
     run_breakdown_validation(imputed_df, config, check="imputed")
