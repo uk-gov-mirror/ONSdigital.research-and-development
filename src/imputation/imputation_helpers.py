@@ -39,6 +39,7 @@ def create_imp_class_col(
     column_list: List[str],
     class_name: str = "imp_class",
     use_cellno: bool = True,
+    use_osmotherly: bool = False,
 ) -> pd.DataFrame:
     """Creates a column for the imputation class.
 
@@ -69,6 +70,9 @@ def create_imp_class_col(
 
     if use_cellno:
         df.loc[df.cellnumber == 817, class_name] = df[class_name] + "_817"
+
+    if use_osmotherly:
+        df.loc[df.osmotherly == "osTrue", class_name] = df[class_name] + "_os"
 
     return df
 
