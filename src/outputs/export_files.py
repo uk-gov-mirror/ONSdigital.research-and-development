@@ -52,7 +52,7 @@ def get_schema_headers(config: dict):
     for output_name, path in schema_paths.items():
         with open(path, 'rb') as file:
             schema_headers_dict[output_name] = tomli.load(file)
-            
+
     # schema_headers_dict = {
     #     output_name: tomli.loads(path) for output_name, path in schema_paths.items()
     # }
