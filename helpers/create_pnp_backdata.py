@@ -455,7 +455,8 @@ def create_pnp_backdata(df):
                               'q0903',
                               'q0905',
                               'q0907',
-                              'q0909']
+                              'q0909'
+                              'period_reference']
 
     columns_to_rename_dict = {'IDBRPeriod': 'period',
                               'FormType': 'formtype',
