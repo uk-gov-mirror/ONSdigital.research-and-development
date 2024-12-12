@@ -84,7 +84,7 @@ def mor_preprocessing(df, backdata, is_2022, config):
         pd.DataFrame: DataFrame of backdata records to use for impuation
     """
     # Create imp_class column
-    if config["survey"]["survey_type"] == "BERS":
+    if config["survey"]["survey_type"] == "BERD":
         df = create_imp_class_col(
             df,
             ["200", "201"]
