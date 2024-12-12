@@ -311,6 +311,7 @@ def clean_postcodes(df):
     """
     df["601"] = df["601"].str.replace("'", "")
     df["601"] = df["601"].apply(format_postcodes)
+    
 
     return df
 
@@ -636,9 +637,14 @@ def main():
 
     # Save the cleaned DataFrame to the output CSV file
     backdata_out_path = config["imputation_paths"]["backdata_out_path"]
+    backdata_out_path = backdata_out_path.replace("2023_surveys", "2021_surveys")
+
     rd_write_csv(
-        os.path.join(backdata_out_path, "PNP_2021_cleaned_backdata.csv"),
-        pnp_backdata_df)
+        os.path.join(
+            backdata_out_path,
+            "PNP_2021_cleaned_backdata.csv"),
+        pnp_backdata_df
+    )
 
 
 if __name__ == "__main__":
