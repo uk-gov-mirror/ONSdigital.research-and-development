@@ -9,23 +9,17 @@ import os
 
 # Imputation file location and name
 root = "R:/BERD Results System Development 2023/DAP_emulation/"
-input_dir = "2023_surveys/PNP/05_mapping/mapping_qa/"
+input_dir = "2023_surveys/BERD/06_imputation/imputation_qa/"
 
-output_name = "full_responses_mapped"
+output_name = "tmi_trim_count_qa"
 year = 2023
-suff = "24-12-11_v212.csv"
+suff = "24-08-30_v733.csv"
 
 # Output folder for all schemas
 out_dir = r"config\output_schemas"
 
-pnp = True
-
-if pnp == True:
-    # Read the top 10 rows, inferrring the schema from csv
-    mypath = os.path.join(root, input_dir, f"PNP_{year}_{output_name}_{suff}")
 # Read the top 10 rows, inferrring the schema from csv
-if pnp == False:
-    mypath = os.path.join(root, input_dir, f"{year}_{output_name}_{suff}")
+mypath = os.path.join(root, input_dir, f"{year}_{output_name}_{suff}")
 
 # check the file exists
 if not os.path.exists(mypath):
