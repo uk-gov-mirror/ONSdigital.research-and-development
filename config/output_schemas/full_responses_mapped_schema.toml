@@ -336,11 +336,11 @@ Deduced_Data_Type = "object"
 
 [713]
 old_name = "713"
-Deduced_Data_Type = "object"
+Deduced_Data_Type = "float64"
 
 [714]
 old_name = "714"
-Deduced_Data_Type = "object"
+Deduced_Data_Type = "float64"
 
 [9000]
 old_name = "9000"
@@ -548,7 +548,7 @@ Deduced_Data_Type = "object"
 
 [tradingstyle]
 old_name = "tradingstyle"
-Deduced_Data_Type = "object"
+Deduced_Data_Type = "float64"
 
 [selectiontype]
 old_name = "selectiontype"
@@ -568,6 +568,10 @@ Deduced_Data_Type = "int64"
 
 [postcodes_harmonised]
 old_name = "postcodes_harmonised"
+Deduced_Data_Type = "object"
+
+[last_frozen]
+old_name = "last_frozen"
 Deduced_Data_Type = "object"
 
 [pg_numeric]
