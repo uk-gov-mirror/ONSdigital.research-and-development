@@ -201,12 +201,14 @@ def map_to_yes_no(df):
     Return:
         df (pd.DataFrame): The dataframe with the integer values mapped to Yes/No.
     """
-    mapper_dict = {1: "Yes", 2: "Yes", 3: "Yes", np.nan: "Yes"}
+    mapper_dict = {1: "Yes", 2: "No", 3: np.nan}
 
-    cols_to_map = ['101', '604', '605', '708']
+    cols_to_map = ['101']
 
     for col in cols_to_map:
         df[col] = df[col].map(mapper_dict)
+
+    df["604"] = "Yes"
 
     return df
 
@@ -340,6 +342,7 @@ def populate_instance_1_columns(df):
                 df.loc[period_reference[0:-1] + "1", col] = source_df.loc[
                     period_reference, col
                 ]
+    df = df.reset_index()
 
     return df
 
@@ -413,6 +416,7 @@ def create_pnp_backdata(df):
                               'q0225',
                               'q0227',
                               'q0229',
+                              'q0230',
                               'q0302',
                               'q0304',
                               'q0306',
@@ -451,12 +455,18 @@ def create_pnp_backdata(df):
                               'q0704',
                               'q0705',
                               'q0706',
+                              'q0701',
+                              'q0702',
                               'q0901',
                               'q0903',
                               'q0905',
                               'q0907',
-                              'q0909'
-                              'period_reference']
+                              'q0909',
+                              'period_reference',
+                              'pnp_key',
+                              'osmotherly',
+                              'area',
+                              ]
 
     columns_to_rename_dict = {'IDBRPeriod': 'period',
                               'FormType': 'formtype',
@@ -483,7 +493,6 @@ def create_pnp_backdata(df):
                               'q0224': '205',
                               'q0226': '206',
                               'q0228': '207',
-                              'q0230': '605',
                               'q0301': '212',
                               'q0303': '214',
                               'q0305': '216',
@@ -515,14 +524,12 @@ def create_pnp_backdata(df):
                               'q0516': '412',
                               'q0601': '601',
                               'q0602': '602',
-                              'q0701': '708',
-                              'q0702': '712',
                               'q0902': '302',
                               'q0904': '303',
                               'q0906': '304',
                               'q0908': '305'}
 
-    new_column_order = ['period', 'reference', 'formtype', 'emp_total', 'Region',
+    new_column_order = ['period', 'reference', 'formtype', 'Region',
                         'period_year', 'instance', '101', '103', '104', '200',
                         '201', '202', '204', '205', '206', '207', '209', '210',
                         '211', '212', '214', '216', '218', '219', '220', '221',
@@ -530,13 +537,13 @@ def create_pnp_backdata(df):
                         '245', '246', '247', '248', '249', '250', '302', '303',
                         '304', '305', '405', '406', '407', '408', '409', '410',
                         '411', '412', '501', '502', '503', '504', '505', '506',
-                        '507', '508', '601', '602', '604', '605', '708', '712',
-                        'statusencoded', 'status', 'imp_marker', 'pnp_key',
-                        'osmotherly', 'area', 'imp_class', 'emp_researcher',
-                        'emp_technician', 'emp_other', 'headcount_res_m',
-                        'headcount_res_f', 'headcount_tec_m', 'headcount_tec_f',
-                        'headcount_oth_m', 'headcount_oth_f', 'headcount_tot_m',
-                        'headcount_tot_f', 'headcount_total']
+                        '507', '508', '601', '602', '604', 
+                        'statusencoded', 'status', 'imp_marker', 'imp_class', 
+                        'emp_researcher', 'emp_technician', 'emp_other', 'emp_total', 
+                        'headcount_res_m','headcount_res_f', 
+                        'headcount_tec_m', 'headcount_tec_f',
+                        'headcount_oth_m', 'headcount_oth_f', 
+                        'headcount_tot_m','headcount_tot_f', 'headcount_total']
 
     # Rename wanted columns
     df = df.rename(columns=columns_to_rename_dict)
