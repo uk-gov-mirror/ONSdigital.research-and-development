@@ -14,7 +14,7 @@ from src.imputation import manual_imputation as mimp
 from src.imputation.MoR import run_mor
 from src.outputs.outputs_helpers import create_output_df
 from src.utils.breakdown_validation import run_breakdown_validation
-from src.utils.helpers import filename_amender, add_additional_columns_to_schema
+from src.utils.helpers import filename_amender
 
 
 ImputationMainLogger = logging.getLogger(__name__)
@@ -140,7 +140,6 @@ def run_imputation(
         # create trimming qa dataframe with required columns from schema
         schema_path = config["schema_paths"]["manual_trimming_schema"]
         schema_dict = load_schema(schema_path)
-        schema_dict = add_additional_columns_to_schema(schema_dict, config)
         trimming_qa_output = create_output_df(qa_df, schema_dict)
 
         write_csv(os.path.join(qa_path, trim_qa_filename), trimming_qa_output)

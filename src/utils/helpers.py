@@ -251,30 +251,3 @@ def filename_amender(filename, config):
         filename = f"{survey_year}_{filename}_{tdate}_v{run_id}.csv"
 
     return filename
-
-
-def add_additional_columns_to_schema(schema_dict, config):
-    """Function add items to schema dict if PNP is set as the survey type.
-
-    The added dict values are the following:
-    - pnp_key
-    - osmotherly
-    - area
-
-    Args:
-        schema_dict (dict): The schema dictionary
-
-    Returns:
-        dict: The updated schema dictionary
-    """
-    if config["survey"]["survey_type"] == "PNP":
-        schema_dict.update({'pnp_key': {'old_name': 'pnp_key',
-                                        'Deduced_Data Type': 'string'}})
-        schema_dict.update({'osmotherly': {'old_name': 'osmotherly',
-                                           'Deduced_Data Type': 'string'}})
-        schema_dict.update({'area': {'old_name': 'area',
-                                     'Deduced_Data Type': 'string'}})
-    else:
-        None
-
-    return schema_dict
