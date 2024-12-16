@@ -8,7 +8,7 @@ my_repo = "research-and-development"
 if not my_wd.endswith(my_repo):
     os.chdir(my_repo)
 
-import src.pipeline as src
+import src.pipeline as src  # noqa: E402
 
 # reload the pipeline module to implement any changes
 reload(src)

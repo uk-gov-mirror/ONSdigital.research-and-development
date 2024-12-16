@@ -10,6 +10,7 @@ from src.imputation.imputation_helpers import (
     check_604_fix,
     calculate_totals,
     create_imp_class_col,
+    imputation_marker
 )
 
 
@@ -363,3 +364,51 @@ class TestCreateImpClassCol:
 
         result_df = create_imp_class_col(input_df, ["200", "201"])
         assert_frame_equal(result_df.reset_index(drop=True), exp_output_df)
+
+    
+    class TestImputationMarker:
+        """Unit tests for imputation_marker function."""
+
+        def create_input_df(self):
+            """Create an input dataframe for the test."""
+            input_cols = [
+                "reference",
+                "status"        
+            ]
+
+            data = [
+                [111, "Clear"],
+                [222, "Clear - overridden"],
+                [333, "Check needed"],
+                [444, "Form sent out"],
+                [555, "Clear"]
+            ]
+            input_df = pandasDF(data=data, columns=input_cols)
+            return input_df
+
+        def create_exp_output_df(self):
+            """Create an exp_output dataframe for the test."""
+            exp_output_cols = [
+                "reference",
+                "status",
+                "imp_marker"
+            ]
+
+            data = [
+                [111, "Clear", "R"],
+                [222, "Clear - overridden", "R"],
+                [333, "Check needed", "no_imputation"],
+                [444, "Form sent out", "no_imputation"],
+                [555, "Clear", "R"]
+            ]
+
+            exp_output_df = pandasDF(data=data, columns=exp_output_cols)
+            return exp_output_df
+
+        def test_imputation_marker(self):
+            """Test for function imputation_marker."""
+            input_df = self.create_input_df()
+            exp_output_df = self.create_exp_output_df()
+
+            result_df = imputation_marker(input_df)
+            assert_frame_equal(result_df.reset_index(drop=True), exp_output_df)           
