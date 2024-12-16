@@ -26,7 +26,7 @@ from src.outputs.outputs_main import run_outputs
 MainLogger = logging.getLogger(__name__)
 
 
-def run_pipeline(user_config_path, dev_config_path):
+def run_pipeline(user_config_path, dev_config_path):  # noqa C901
     """The main pipeline.
 
     Args:
@@ -181,72 +181,36 @@ def run_pipeline(user_config_path, dev_config_path):
     )
     MainLogger.info("Finished Mapping...")
 
-    if config["survey"]["survey_type"] == "PNP":
-        MainLogger.info(
-            "PNP is set so skipping modules:" "Imputation, Outliering and Estimation."
-        )
+    # Imputation module
+    MainLogger.info("Starting Imputation...")
+    imputed_df = run_imputation(
+        mapped_df,
+        manual_trimming_df,
+        backdata,
+        config,
+        mods.rd_write_csv,
+    )
+    MainLogger.info("Finished Imputation...")
 
-        # Data processing: Apportionment to sites
-
-        apportioned_responses_df, intram_tot_dict = run_site_apportionment(
-            mapped_df,
-            config,
-            mods.rd_write_csv,
-        )
-
-        MainLogger.info("Finished Site Apportionment module.")
-
-        MainLogger.info("Starting Outputs...")
-
-        run_outputs(
-            apportioned_responses_df,
-            ni_full_responses,
-            config,
-            intram_tot_dict,
-            mods.rd_write_csv,
-            pg_detailed,
-            sic_division_detailed,
-        )
-
-        run_id = runlog_obj.run_id
-        MainLogger.info(f"Finishing Pipeline run id {run_id}.........")
-
-        runlog_obj.write_runlog()
-        runlog_obj.mark_mainlog_passed()
-
-        return runlog_obj.time_taken
-    else:
-        # Add any specific processing for BERD survey here if needed)
-
-        # Imputation module
-        MainLogger.info("Starting Imputation...")
-        imputed_df = run_imputation(
-            mapped_df,
-            manual_trimming_df,
-            backdata,
-            config,
-            mods.rd_write_csv,
-        )
-        MainLogger.info("Finished Imputation...")
-
-        # Perform postcode construction now imputation is complete
-        run_postcode_construction = config["global"]["run_postcode_construction"]
-        if run_postcode_construction:
-            imputed_df = run_construction(
-                imputed_df,
-                config,
-                mods.rd_file_exists,
-                mods.rd_read_csv,
-                is_run_postcode_construction=True,
-            )
-
-        imputed_df = validate_updated_postcodes(
+    # Perform postcode construction now imputation is complete
+    run_postcode_construction = config["global"]["run_postcode_construction"]
+    if run_postcode_construction:
+        imputed_df = run_construction(
             imputed_df,
-            postcode_mapper,
-            itl_mapper,
             config,
+            mods.rd_file_exists,
+            mods.rd_read_csv,
+            is_run_postcode_construction=True,
         )
 
+    imputed_df = validate_updated_postcodes(
+        imputed_df,
+        postcode_mapper,
+        itl_mapper,
+        config,
+    )
+
+    if config["survey"]["survey_type"] == "BERD":
         # Outlier detection module
         MainLogger.info("Starting Outlier Detection...")
         outliered_responses_df = run_outliers(
@@ -261,31 +225,35 @@ def run_pipeline(user_config_path, dev_config_path):
         )
         MainLogger.info("Finished Estimation module.")
 
-        # Data processing: Apportionment to sites
-        apportioned_responses_df, intram_tot_dict = run_site_apportionment(
-            estimated_responses_df,
-            config,
-            mods.rd_write_csv,
-        )
+    elif config["survey"]["survey_type"] == "PNP":
+        MainLogger.info("PNP is set so skipping modules Outliering and Estimation.")
+        estimated_responses_df = imputed_df
 
-        MainLogger.info("Finished Site Apportionment module.")
+    # Data processing: Apportionment to sites
+    apportioned_responses_df, intram_tot_dict = run_site_apportionment(
+        estimated_responses_df,
+        config,
+        mods.rd_write_csv,
+    )
 
-        MainLogger.info("Starting Outputs...")
+    MainLogger.info("Finished Site Apportionment module.")
 
-        run_outputs(
-            apportioned_responses_df,
-            ni_full_responses,
-            config,
-            intram_tot_dict,
-            mods.rd_write_csv,
-            pg_detailed,
-            sic_division_detailed,
-        )
+    MainLogger.info("Starting Outputs...")
 
-        run_id = runlog_obj.run_id
-        MainLogger.info(f"Finishing Pipeline run id {run_id}.........")
+    run_outputs(
+        apportioned_responses_df,
+        ni_full_responses,
+        config,
+        intram_tot_dict,
+        mods.rd_write_csv,
+        pg_detailed,
+        sic_division_detailed,
+    )
 
-        runlog_obj.write_runlog()
-        runlog_obj.mark_mainlog_passed()
+    run_id = runlog_obj.run_id
+    MainLogger.info(f"Finishing Pipeline run id {run_id}.........")
 
-        return runlog_obj.time_taken
+    runlog_obj.write_runlog()
+    runlog_obj.mark_mainlog_passed()
+
+    return runlog_obj.time_taken
