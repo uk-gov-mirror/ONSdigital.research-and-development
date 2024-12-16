@@ -31,7 +31,12 @@ def run_mor(df, backdata, impute_vars, config):
     # If the survey year is 2022, there is no shortform backdata
     is_2022 = config["survey"]["survey_year"] == 2022
 
-    to_impute_df, remainder_df, backdata = mor_preprocessing(df, backdata, is_2022)
+    to_impute_df, remainder_df, backdata = mor_preprocessing(
+        df,
+        backdata,
+        is_2022,
+        config
+    )
 
     # Carry forwards method
     carried_forwards_df = carry_forwards(to_impute_df, backdata, impute_vars)
@@ -61,7 +66,7 @@ def run_mor(df, backdata, impute_vars, config):
     return imputed_df, links_df
 
 
-def mor_preprocessing(df, backdata, is_2022):
+def mor_preprocessing(df, backdata, is_2022, config):
     """Apply filtering and pre-processing ready for MoR.
 
     This function creates imputation classes, cleans the "formtype" column.
@@ -79,7 +84,17 @@ def mor_preprocessing(df, backdata, is_2022):
         pd.DataFrame: DataFrame of backdata records to use for impuation
     """
     # Create imp_class column
-    df = create_imp_class_col(df, ["200", "201"])
+    if config["survey"]["survey_type"] == "BERD":
+        df = create_imp_class_col(
+            df,
+            ["200", "201"]
+        )
+    elif config["survey"]["survey_type"] == "PNP":
+        df = create_imp_class_col(
+            df, ["pnp_key", "area"],
+            use_osmotherly=True,
+            use_cellno=False
+        )
 
     # ensure the "formtype" column is in the correct format
     df["formtype"] = df["formtype"].apply(convert_formtype)

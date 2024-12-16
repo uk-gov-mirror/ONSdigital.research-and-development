@@ -173,8 +173,8 @@ def get_region(df):
     region_dict = {'HH': 'se',  # London
                    'JG': 'se',  # South East
                    'KJ': 'oth',  # South West
-                   'GG': 'se',  # East if England
-                   'GF': 'oth',  # East of England
+                   'GG': 'se',  # East of England
+                   'GF': 'se',  # East of England
                    'FE': 'oth',  # West Midlands
                    'ED': 'oth',  # East Midlands
                    'DC': 'oth',  # Yorkshire and The Humber
@@ -313,7 +313,7 @@ def clean_postcodes(df):
     """
     df["601"] = df["601"].str.replace("'", "")
     df["601"] = df["601"].apply(format_postcodes)
-    
+
 
     return df
 
@@ -537,12 +537,12 @@ def create_pnp_backdata(df):
                         '245', '246', '247', '248', '249', '250', '302', '303',
                         '304', '305', '405', '406', '407', '408', '409', '410',
                         '411', '412', '501', '502', '503', '504', '505', '506',
-                        '507', '508', '601', '602', '604', 
-                        'statusencoded', 'status', 'imp_marker', 'imp_class', 
-                        'emp_researcher', 'emp_technician', 'emp_other', 'emp_total', 
-                        'headcount_res_m','headcount_res_f', 
+                        '507', '508', '601', '602', '604',
+                        'statusencoded', 'status', 'imp_marker', 'imp_class',
+                        'emp_researcher', 'emp_technician', 'emp_other', 'emp_total',
+                        'headcount_res_m','headcount_res_f',
                         'headcount_tec_m', 'headcount_tec_f',
-                        'headcount_oth_m', 'headcount_oth_f', 
+                        'headcount_oth_m', 'headcount_oth_f',
                         'headcount_tot_m','headcount_tot_f', 'headcount_total']
 
     # Rename wanted columns

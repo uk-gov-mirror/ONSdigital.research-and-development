@@ -1,6 +1,7 @@
 """Utility functions  to be used in the imputation module."""
 
 import logging
+import os
 import pandas as pd
 from typing import List, Tuple
 from itertools import chain
@@ -55,6 +56,8 @@ def create_imp_class_col(
         class_name (str): The name of the column to save the class to.
             Defaults to "imp_class"
         use_cellno (bool): Whether to use the cellno column or not. Default to True.
+        use_osmotherly (bool): Whether to use the osmotherly column or not. Default
+        to False.
 
     Returns:
         pd.DataFrame: Dataframe which contains a new column with the
@@ -426,12 +429,13 @@ def breakdown_checks_after_imputation(df: pd.DataFrame) -> None:
     # the sum of the other cols should equal the total
 
 
-def tidy_imputation_dataframe(df: pd.DataFrame, to_impute_cols: List) -> pd.DataFrame:
+def tidy_imputation_dataframe(df: pd.DataFrame, to_impute_cols: List, config) -> pd.DataFrame:
     """Update cols with imputed values and remove rows and columns no longer needed.
 
     Args:
         df (pd.DataFrame): The dataframe with imputed values.
         to_impute_cols (List): The columns that were imputed.
+        config (dict): The pipeline configuration settings.
 
     Returns:
         pd.DataFrame: The dataframe with the imputed values applied and qa cols dropped.
@@ -457,6 +461,9 @@ def tidy_imputation_dataframe(df: pd.DataFrame, to_impute_cols: List) -> pd.Data
 
     to_drop += ["200_original", "pg_sic_class", "empty_pgsic_group", "empty_pg_group"]
     to_drop += ["200_imp_marker"]
+
+    if config["survey"]["survey_type"] == "PNP":
+        to_drop += ["pnp_key", "osmotherly", "area"]
 
     df = df.drop(columns=to_drop)
 
