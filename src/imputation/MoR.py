@@ -1,4 +1,5 @@
 """Functions for the Mean of Ratios (MoR) methods."""
+
 import itertools
 import re
 import pandas as pd
@@ -29,17 +30,16 @@ def run_mor(df, backdata, impute_vars, config):
         pd.DataFrame: QA DataFrame showing how imputation links are calculated.
     """
     # If the survey year is 2022, there is no shortform backdata
-    is_2022 = config["survey"]["survey_year"] == 2022
+    is_2022 = (config["survey"]["survey_year"] == 2022) | (
+        config["survey"]["survey_type"] == "PNP"
+    )
 
     to_impute_df, remainder_df, backdata = mor_preprocessing(
-        df,
-        backdata,
-        is_2022,
-        config
+        df, backdata, is_2022, config
     )
 
     # Carry forwards method
-    carried_forwards_df = carry_forwards(to_impute_df, backdata, impute_vars)
+    carried_forwards_df = carry_forwards(to_impute_df, backdata, impute_vars, config)
 
     # apply MoR for long form responders
     imputed_df_long, links_df_long = calculate_mor(
@@ -85,15 +85,10 @@ def mor_preprocessing(df, backdata, is_2022, config):
     """
     # Create imp_class column
     if config["survey"]["survey_type"] == "BERD":
-        df = create_imp_class_col(
-            df,
-            ["200", "201"]
-        )
+        df = create_imp_class_col(df, ["200", "201"])
     elif config["survey"]["survey_type"] == "PNP":
         df = create_imp_class_col(
-            df, ["pnp_key", "area"],
-            use_osmotherly=True,
-            use_cellno=False
+            df, ["pnp_key", "area"], use_osmotherly=True, use_cellno=False
         )
 
     # ensure the "formtype" column is in the correct format
@@ -123,7 +118,7 @@ def mor_preprocessing(df, backdata, is_2022, config):
     return to_impute_df, remainder_df, backdata
 
 
-def carry_forwards(df, backdata, impute_vars):
+def carry_forwards(df, backdata, impute_vars, config):
     """Carry forwards matcing `backdata` values for references to be imputed.
 
     Records are matched based on 'reference'.
@@ -175,7 +170,8 @@ def carry_forwards(df, backdata, impute_vars):
     df.loc[pc_update_cond, "postcodes_harmonised"] = df.loc[match_cond, "601"]
 
     # Update the imputation classes based on the new 200 and 201 values
-    df = create_imp_class_col(df, ["200", "201"])
+    if config["survey"]["survey_type"] == "BERD":
+        df = create_imp_class_col(df, ["200", "201"])
 
     # Update the varibles to be imputed by the corresponding previous values
     for var in impute_vars:
