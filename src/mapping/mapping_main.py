@@ -1,4 +1,5 @@
 """The main file for the mapping module."""
+
 import logging
 import os
 from typing import Callable
@@ -38,7 +39,7 @@ def run_mapping(
 
     Returns:
         Tuple[pd.DataFrame, pd.DataFrame]: The BERD full responses and Northern Ireland
-        full responses dataframes with the mappers added.
+            full responses dataframes with the mappers added.
     """
     # Load ultfoc (Foreign Ownership) mapper
     ultfoc_mapper = stage_hlp.load_validate_mapper(
@@ -99,10 +100,7 @@ def run_mapping(
 
     # Add custom mappers if PNP is true for later imp_class column creation
     if config["survey"]["survey_type"] == "PNP":
-        full_responses = identify_osmotherly_key_area(
-            full_responses,
-            config
-        )
+        full_responses = identify_osmotherly_key_area(full_responses, config)
         MappingMainLogger.info("Custom mappers applied to responses.")
 
     # create a tuple for the full_responses and ni_full_responses
@@ -129,10 +127,7 @@ def run_mapping(
 
     if config["global"]["output_mapping_qa"]:
         MappingMainLogger.info("Outputting Mapping QA files.")
-        full_responses_filename = filename_amender(
-            "full_responses_mapped",
-            config
-        )
+        full_responses_filename = filename_amender("full_responses_mapped", config)
         rd_write_csv(os.path.join(qa_path, full_responses_filename), full_responses)
     MappingMainLogger.info("Finished Mapping QA calculation.")
 
