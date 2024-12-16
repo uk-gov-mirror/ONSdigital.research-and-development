@@ -14,7 +14,6 @@ from src.utils.helpers import filename_amender
 SitesMainLogger = logging.getLogger(__name__)
 
 
-
 def run_site_apportionment(
     df: pd.DataFrame,
     config: Dict[str, Any],
@@ -37,9 +36,8 @@ def run_site_apportionment(
         df_out (pd.DataFrame): Percentages filled in for short forms and applied
             to apportion  for long forms
     """
-    if config ["survey"]["survey_type"] == "PNP":
+    if config["survey"]["survey_type"] == "PNP":
         df = pnp_pre_processing(df)
-
 
     # Create variable for output of QA apportionment file
     qa_path = config["apportionment_paths"]["qa_path"]
@@ -48,7 +46,12 @@ def run_site_apportionment(
 
     # Conditionally output the records to be removed
     if config["global"]["output_status_filtered"]:
-        output_status_filtered(df, imp_markers_to_keep, config, write_csv,)
+        output_status_filtered(
+            df,
+            imp_markers_to_keep,
+            config,
+            write_csv,
+        )
 
     # Calculate the intramural totals before apportionment
     intram_tot_dict = {}
