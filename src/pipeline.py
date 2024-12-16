@@ -1,4 +1,5 @@
 """The main pipeline"""
+
 # Core Python modules
 from datetime import datetime
 import logging
@@ -181,9 +182,10 @@ def run_pipeline(user_config_path, dev_config_path):
     MainLogger.info("Finished Mapping...")
 
     if config["survey"]["survey_type"] == "PNP":
-        MainLogger.info( "PNP is set so skipping modules:"
-                        "Imputation, Outliering and Estimation." )
-        
+        MainLogger.info(
+            "PNP is set so skipping modules:" "Imputation, Outliering and Estimation."
+        )
+
         # Data processing: Apportionment to sites
 
         apportioned_responses_df, intram_tot_dict = run_site_apportionment(
@@ -214,7 +216,7 @@ def run_pipeline(user_config_path, dev_config_path):
 
         return runlog_obj.time_taken
     else:
-    # Add any specific processing for BERD survey here if needed)
+        # Add any specific processing for BERD survey here if needed)
 
         # Imputation module
         MainLogger.info("Starting Imputation...")

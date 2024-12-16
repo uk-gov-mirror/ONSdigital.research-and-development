@@ -18,6 +18,32 @@ from src.utils.path_helpers import (
 
 
 @pytest.fixture(scope="module")
+def berd_config():
+    config = {
+        "survey": {
+            "survey_type": "BERD",
+            "survey_year": 2022
+        },
+        "global": {"platform": "network"},
+        "network_paths": {
+            "root": "R:/DAP_emulation/",
+            "snapshot_path": "/2023_snapshots/snapshot_file-202212.json",
+            "updated_snapshot_path": "2023_snapshots/updated_snapshot_file-202212.json",
+            "postcode_masterlist": "postcode_masterlist_path/postcode.csv",
+            "ni_full_responses_path": "R:/DAP_emulation/2022_surveys/PNP/03_northern_ireland/2021/TEST_ni.csv",
+            "manual_imp_trim_path": "06_imputation/man_trim/trim_qa.csv",
+            "manual_outliers_path": "07_outliers/man_out/man_out.csv",
+            "backdata_path": "2021_data/backdata.csv",
+            "pnp_backdata_path": "2021_data/2021_pnp_backdata.csv",
+        },
+        "staging_paths": {
+            "folder": "01_staging",
+            "feather_output": "feather",
+        },
+    }
+    return config
+
+@pytest.fixture(scope="module")
 def config():
     config = {
         "survey": {
@@ -34,6 +60,8 @@ def config():
             "manual_imp_trim_path": "06_imputation/man_trim/trim_qa.csv",
             "manual_outliers_path": "07_outliers/man_out/man_out.csv",
             "backdata_path": "2021_data/backdata.csv",
+            "pnp_backdata_path": "2021_data/2021_pnp_backdata.csv",
+
             "all_data_construction_file_path": (
                 "04_construction/man_con/construction_file.csv"
             ),
@@ -101,6 +129,7 @@ def test_get_paths(config):
         "manual_outliers_path": "07_outliers/man_out/man_out.csv",
         "manual_imp_trim_path": "06_imputation/man_trim/trim_qa.csv",
         "backdata_path": "2021_data/backdata.csv",
+        "pnp_backdata_path": "2021_data/2021_pnp_backdata.csv",
         "all_data_construction_file_path": (
             "04_construction/man_con/construction_file.csv"
         ),
@@ -133,7 +162,7 @@ def expected_staging_dict():
         "manual_imp_trim_path": (
             "R:/DAP_emulation/2022_surveys/PNP/06_imputation/man_trim/trim_qa.csv"
         ),
-        "backdata_path": "2021_data/backdata.csv",
+        "backdata_path": "2021_data/2021_pnp_backdata.csv",
     }
     return expected_staging_dict
 
@@ -145,6 +174,27 @@ def test_create_staging_config(config, expected_staging_dict):
 
     assert staging_dict == expected_staging_dict, "Staging config is not as expected"
 
+
+def test_create_staging_config_berd(berd_config):
+    """Test create_staging_config function for BERD survey type."""
+    expected_staging_dict = {
+        "feather_output": "R:/DAP_emulation/2022_surveys/BERD/01_staging/feather",
+        "snapshot_path": "/2023_snapshots/snapshot_file-202212.json",
+        "updated_snapshot_path": "2023_snapshots/updated_snapshot_file-202212.json",
+        "postcode_masterlist": "postcode_masterlist_path/postcode.csv",
+        "manual_outliers_path": (
+            "R:/DAP_emulation/2022_surveys/BERD/07_outliers/man_out/man_out.csv"
+        ),
+        "manual_imp_trim_path": (
+            "R:/DAP_emulation/2022_surveys/BERD/06_imputation/man_trim/trim_qa.csv"
+        ),
+
+        "backdata_path": "2021_data/backdata.csv",
+    }
+
+    staging_dict = create_staging_config(berd_config)
+
+    assert staging_dict == expected_staging_dict, "Staging config is not as expected"
 
 def test_validate_snapshot_files_success(config, caplog):
     """Tests for staging_validation function."""
