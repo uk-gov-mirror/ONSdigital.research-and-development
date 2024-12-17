@@ -419,7 +419,7 @@ def validate_config(config: dict) -> dict:
     if survey_config.get("survey_type") == "PNP":
         # List of values not compatible with PNP
         values = [
-            config.get("global", {}).get("load_ni_data", False)
+            config.get("global", {}).get("load_ni_data", True)
         ]
         if any(values):
             raise ValueError(
@@ -428,36 +428,34 @@ def validate_config(config: dict) -> dict:
             )
     return config
 
-def validate_pnp_config(config: dict) -> dict:
-    """Validate the PNP configuration settings.
 
+def validate_pnp_config(config: dict) -> None:
+    """
+        Validate the PNP configuration settings.
     Args:
         config (dict): The configuration dictionary.
-
     Returns:
         dict: The validated configuration dictionary.
-
     """
     # Check if PNP is set
-    survey_config = config.get("survey", {})
-    if survey_config.get("survey_type") == "PNP":
+    if config["survey"]["survey_type"] == "PNP":
         # List of values not compatible with PNP
-        incompatible_settings = [
-            "output_ni_sas",
-            "itl_uk",
-            "pg_uk"
-        ]
-        values = [config.get("outputs", {}).get(setting, True) 
+        incompatible_settings = ["output_short_form",
+                                 "load_ni_data",
+                                 "output_ni_sas",
+                                 "output_intram_by_pg_gb"]
+ 
+        values = [config.get("global", {}).get(setting, True)
                   for setting in incompatible_settings]
-
+ 
         if any(values):
-            print(
+             print(
                 "WARNING: PNP is set. The following settings are not compatible with PNP: "
-                "output_ni_sas, itl_uk, pg_uk. User config will be updated to False."
+                "output_short_form, load_ni_data, output_ni_sas, output_intram_by_pg_gb.
+                 " User config will be updated to False."
             )
-
             # Update the config to False for incompatible settings
             for setting in incompatible_settings:
-                config["outputs"][setting] = False
-
+                config["global"][setting] = False
+    
     return config
