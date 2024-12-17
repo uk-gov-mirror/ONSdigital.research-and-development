@@ -324,6 +324,23 @@ def clean_postcodes(df):
     return df
 
 
+def multiply_by_1000(df, config):
+    """Values in columns starting 2xx or 3xx are multiplied by 1000."""
+    # a list of columns to be updated
+    numcols = config["breakdowns"]["211"] + config["breakdowns"]["305"] + ["211", "305"]
+    cols = [c for c in numcols if c in df.columns]
+
+    for col in cols:
+        # check if the column is float or integer:
+        try:
+            df[col] = df[col].apply(lambda x: x * 1000 if x > 0 else x)
+        except:
+            print(f"colum {col} is of type {df[col].dtype}")
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+            df[col] = df[col].apply(lambda x: x * 1000 if x > 0 else x)
+    return df
+
+
 def populate_instance_1_columns(df, config):
     """ Function to populate instance 1 columns that begin with 3 or 2.
 
@@ -661,6 +678,9 @@ def create_pnp_backdata(df):
 
     # clean postcodes
     df = clean_postcodes(df)
+
+    # Multiply values in columns starting 2xx or 3xx by 1000
+    df = multiply_by_1000(df, config)
 
     # Test the populate_instance_1_columns function
     test_populate_instance_1_columns()
