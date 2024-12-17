@@ -3,6 +3,7 @@ import logging
 import pandas as pd
 from typing import Callable, Dict, Any
 
+from src.site_apportionment.pnp_pre_processing import pnp_pre_processing
 from src.site_apportionment.site_apportionment import run_apportion_sites
 from src.site_apportionment.output_status_filtered import (
     output_status_filtered,
@@ -35,6 +36,9 @@ def run_site_apportionment(
         df_out (pd.DataFrame): Percentages filled in for short forms and applied
             to apportion  for long forms
     """
+    if config["survey"]["survey_type"] == "PNP":
+        df = pnp_pre_processing(df)
+
     # Create variable for output of QA apportionment file
     qa_path = config["apportionment_paths"]["qa_path"]
 
@@ -42,7 +46,12 @@ def run_site_apportionment(
 
     # Conditionally output the records to be removed
     if config["global"]["output_status_filtered"]:
-        output_status_filtered(df, imp_markers_to_keep, config, write_csv,)
+        output_status_filtered(
+            df,
+            imp_markers_to_keep,
+            config,
+            write_csv,
+        )
 
     # Calculate the intramural totals before apportionment
     intram_tot_dict = {}

@@ -1,4 +1,5 @@
 """The main pipeline"""
+
 # Core Python modules
 from datetime import datetime
 import logging
@@ -186,74 +187,111 @@ def run_pipeline(user_config_path, dev_config_path):
     )
     MainLogger.info("Finished Mapping...")
 
-    # Imputation module
-    MainLogger.info("Starting Imputation...")
-    imputed_df = run_imputation(
-        mapped_df,
-        manual_trimming_df,
-        backdata,
-        config,
-        mods.rd_write_csv,
-    )
-    MainLogger.info("Finished Imputation...")
-
-    # Perform postcode construction now imputation is complete
-    run_postcode_construction = config["global"]["run_postcode_construction"]
-    if run_postcode_construction:
-        imputed_df = run_construction(
-            imputed_df,
-            config,
-            mods.rd_file_exists,
-            mods.rd_read_csv,
-            is_run_postcode_construction=True,
+    if config["survey"]["survey_type"] == "PNP":
+        MainLogger.info(
+            "PNP is set so skipping modules:" "Imputation, Outliering and Estimation."
         )
 
-    imputed_df = validate_updated_postcodes(
-        imputed_df,
-        postcode_mapper,
-        itl_mapper,
-        config,
-    )
+        # Data processing: Apportionment to sites
 
-    # Outlier detection module
-    MainLogger.info("Starting Outlier Detection...")
-    outliered_responses_df = run_outliers(
-        imputed_df, manual_outliers, config, mods.rd_write_csv
-    )
-    MainLogger.info("Finished Outlier module.")
+        apportioned_responses_df, intram_tot_dict = run_site_apportionment(
+            mapped_df,
+            config,
+            mods.rd_write_csv,
+        )
 
-    # Estimation module
-    MainLogger.info("Starting Estimation...")
-    estimated_responses_df = run_estimation(
-        outliered_responses_df, config, mods.rd_write_csv
-    )
-    MainLogger.info("Finished Estimation module.")
+        MainLogger.info("Finished Site Apportionment module.")
 
-    # Data processing: Apportionment to sites
-    apportioned_responses_df, intram_tot_dict = run_site_apportionment(
-        estimated_responses_df,
-        config,
-        mods.rd_write_csv,
-    )
+        MainLogger.info("Starting Outputs...")
 
-    MainLogger.info("Finished Site Apportionment module.")
+        run_outputs(
+            apportioned_responses_df,
+            ni_full_responses,
+            config,
+            intram_tot_dict,
+            mods.rd_write_csv,
+            pg_detailed,
+            sic_division_detailed,
+        )
 
-    MainLogger.info("Starting Outputs...")
+        run_id = runlog_obj.run_id
+        MainLogger.info(f"Finishing Pipeline run id {run_id}.........")
 
-    run_outputs(
-        apportioned_responses_df,
-        ni_full_responses,
-        config,
-        intram_tot_dict,
-        mods.rd_write_csv,
-        pg_detailed,
-        sic_division_detailed,
-    )
+        runlog_obj.write_runlog()
+        runlog_obj.mark_mainlog_passed()
 
-    run_id = runlog_obj.run_id
-    MainLogger.info(f"Finishing Pipeline run id {run_id}.........")
+        return runlog_obj.time_taken
+    else:
+        # Add any specific processing for BERD survey here if needed)
 
-    runlog_obj.write_runlog()
-    runlog_obj.mark_mainlog_passed()
+        # Imputation module
+        MainLogger.info("Starting Imputation...")
+        imputed_df = run_imputation(
+            mapped_df,
+            manual_trimming_df,
+            backdata,
+            config,
+            mods.rd_write_csv,
+        )
+        MainLogger.info("Finished Imputation...")
 
-    return runlog_obj.time_taken
+        # Perform postcode construction now imputation is complete
+        run_postcode_construction = config["global"]["run_postcode_construction"]
+        if run_postcode_construction:
+            imputed_df = run_construction(
+                imputed_df,
+                config,
+                mods.rd_file_exists,
+                mods.rd_read_csv,
+                is_run_postcode_construction=True,
+            )
+
+        imputed_df = validate_updated_postcodes(
+            imputed_df,
+            postcode_mapper,
+            itl_mapper,
+            config,
+        )
+
+        # Outlier detection module
+        MainLogger.info("Starting Outlier Detection...")
+        outliered_responses_df = run_outliers(
+            imputed_df, manual_outliers, config, mods.rd_write_csv
+        )
+        MainLogger.info("Finished Outlier module.")
+
+        # Estimation module
+        MainLogger.info("Starting Estimation...")
+        estimated_responses_df = run_estimation(
+            outliered_responses_df, config, mods.rd_write_csv
+        )
+        MainLogger.info("Finished Estimation module.")
+
+        # Data processing: Apportionment to sites
+        apportioned_responses_df, intram_tot_dict = run_site_apportionment(
+            estimated_responses_df,
+            config,
+            mods.rd_write_csv,
+        )
+
+        MainLogger.info("Finished Site Apportionment module.")
+
+        MainLogger.info("Starting Outputs...")
+
+        run_outputs(
+            apportioned_responses_df,
+            ni_full_responses,
+            config,
+            intram_tot_dict,
+            mods.rd_write_csv,
+            pg_detailed,
+            sic_division_detailed,
+        )
+
+        run_id = runlog_obj.run_id
+        MainLogger.info(f"Finishing Pipeline run id {run_id}.........")
+
+        runlog_obj.write_runlog()
+        runlog_obj.mark_mainlog_passed()
+
+        return runlog_obj.time_taken

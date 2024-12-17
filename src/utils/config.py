@@ -22,13 +22,7 @@ def config_setup(user_config_path: str, dev_config_path: str) -> Dict:
     del user_config, dev_config
 
     # update the config with the full paths
-    modules = [
-        "imputation",
-        "outliers",
-        "estimation",
-        "apportionment",
-        "outputs",
-    ]
+    modules = ["imputation", "outliers", "estimation", "apportionment", "outputs"]
     combined_config = update_config_with_paths(combined_config, modules)
 
     validate_freezing_config_settings(combined_config)
@@ -304,7 +298,9 @@ def validate_freezing_run_config(config: dict) -> Tuple[bool, bool, bool, bool]:
     """
     run_with_snapshot = config["global"]["run_with_snapshot"]
     run_with_snapshot_and_freeze = config["global"]["run_with_snapshot_and_freeze"]
-    load_updated_snapshot_for_comparison = config["global"]["load_updated_snapshot_for_comparison"]
+    load_updated_snapshot_for_comparison = config["global"][
+        "load_updated_snapshot_for_comparison"
+    ]
     run_updates_and_freeze = config["global"]["run_updates_and_freeze"]
     run_with_frozen_data = config["global"]["run_with_frozen_data"]
     values = [
@@ -314,7 +310,7 @@ def validate_freezing_run_config(config: dict) -> Tuple[bool, bool, bool, bool]:
         run_updates_and_freeze,
         run_with_frozen_data,
     ]
-    if len([val for val in values if val==True]) > 1:
+    if sum(values) > 1:
         raise ValueError(
             "Only one type of pipeline run is allowed (freezing). Please update"
             " the user config."
@@ -382,7 +378,9 @@ def validate_construction_config_settings(config):
     postcode_construction_file_path = config["construction_paths"][
         "postcode_construction_file_path"
     ]
-    construction_file_path_ni = config["construction_paths"]["construction_file_path_ni"]
+    construction_file_path_ni = config["construction_paths"][
+        "construction_file_path_ni"
+    ]
 
     if run_all_data_construction:
         if all_data_construction_file_path is None:

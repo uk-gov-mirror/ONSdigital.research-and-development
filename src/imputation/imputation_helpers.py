@@ -1,5 +1,7 @@
 """Utility functions  to be used in the imputation module."""
+
 import logging
+import os
 import pandas as pd
 from typing import List, Tuple
 from itertools import chain
@@ -32,6 +34,51 @@ def get_imputation_cols(config: dict) -> list:
     numeric_cols = master_cols + bd_cols + other_sum_cols
 
     return numeric_cols
+
+
+def create_imp_class_col(
+    df: pd.DataFrame,
+    column_list: List[str],
+    class_name: str = "imp_class",
+    use_cellno: bool = True,
+    use_osmotherly: bool = False,
+) -> pd.DataFrame:
+    """Creates a column for the imputation class.
+
+    This is done by concatenating the R&D business type, C or D from  q200
+    and the product group from  q201.
+
+    special case for cell number 817 is added as a suffix.
+
+    Args:
+        df (pd.DataFrame): Full dataframe
+        column_list: List of column names that will be concatenated to form the class.
+        class_name (str): The name of the column to save the class to.
+            Defaults to "imp_class"
+        use_cellno (bool): Whether to use the cellno column or not. Default to True.
+        use_osmotherly (bool): Whether to use the osmotherly column or not. Default
+        to False.
+
+    Returns:
+        pd.DataFrame: Dataframe which contains a new column with the
+            imputation classes.
+    """
+    # check that column_list is a non-empty list and its elements are in the dataframe
+    if not column_list:
+        raise ValueError("column_list is empty")
+    if not all(col in df.columns for col in column_list):
+        raise ValueError("column_list contains columns not in the dataframe")
+
+    # create a new column with the concatenation of the columns in column_list with  "_"
+    df[class_name] = df[column_list].astype(str).agg("_".join, axis=1)
+
+    if use_cellno:
+        df.loc[df.cellnumber == 817, class_name] = df[class_name] + "_817"
+
+    if use_osmotherly:
+        df.loc[df.osmotherly == "osTrue", class_name] = df[class_name] + "_os"
+
+    return df
 
 
 def create_notnull_mask(df: pd.DataFrame, col: str) -> pd.Series:
@@ -264,8 +311,8 @@ def split_df_on_trim(df: pd.DataFrame, trim_bool_col: str) -> pd.DataFrame:
         # TODO: remove this temporary fix to cast Nans to False
         df_copy = df.copy()
         df_copy.loc[:, trim_bool_col] = df_copy.loc[:, trim_bool_col].fillna(False)
-        #df[trim_bool_col] = df.copy()[trim_bool_col].fillna(False)
-        #df.loc[:,trim_bool_col] = df.copy().loc[:,trim_bool_col].fillna(False)
+        # df[trim_bool_col] = df.copy()[trim_bool_col].fillna(False)
+        # df.loc[:,trim_bool_col] = df.copy().loc[:,trim_bool_col].fillna(False)
 
         df_not_trimmed = df_copy.loc[~df_copy[trim_bool_col]]
         df_trimmed = df_copy.loc[df_copy[trim_bool_col]]
@@ -382,12 +429,13 @@ def breakdown_checks_after_imputation(df: pd.DataFrame) -> None:
     # the sum of the other cols should equal the total
 
 
-def tidy_imputation_dataframe(df: pd.DataFrame, to_impute_cols: List) -> pd.DataFrame:
+def tidy_imputation_dataframe(df: pd.DataFrame, to_impute_cols: List, config) -> pd.DataFrame:
     """Update cols with imputed values and remove rows and columns no longer needed.
 
     Args:
         df (pd.DataFrame): The dataframe with imputed values.
         to_impute_cols (List): The columns that were imputed.
+        config (dict): The pipeline configuration settings.
 
     Returns:
         pd.DataFrame: The dataframe with the imputed values applied and qa cols dropped.
@@ -413,6 +461,9 @@ def tidy_imputation_dataframe(df: pd.DataFrame, to_impute_cols: List) -> pd.Data
 
     to_drop += ["200_original", "pg_sic_class", "empty_pgsic_group", "empty_pg_group"]
     to_drop += ["200_imp_marker"]
+
+    if config["survey"]["survey_type"] == "PNP":
+        to_drop += ["pnp_key", "osmotherly", "area"]
 
     df = df.drop(columns=to_drop)
 
@@ -440,3 +491,21 @@ def create_new_backdata(backdata: pd.DataFrame, config) -> pd.DataFrame:
     wanted_cols = list(schema.keys())
 
     return backdata[wanted_cols]
+
+
+# Add a column for imputation marker
+def imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
+    """Initialize 'imp_marker' column with 'R' for clear responders or 'no_imputation.'
+    Args:
+        df (pd.DataFrame): the main dataset to add the imp_marker column to
+    Returns:
+        pd.DataFrame: dataframe with the imp_marker column updated
+    """
+    # Initialise imp_marker column with a value of 'R' for clear responders
+    # and a default value "no_imputation" for all other rows for now.
+
+    clear_responders_mask = df.status.isin(["Clear", "Clear - overridden"])
+    df.loc[clear_responders_mask, "imp_marker"] = "R"
+    df.loc[~clear_responders_mask, "imp_marker"] = "no_imputation"
+
+    return df
