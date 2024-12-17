@@ -1,4 +1,5 @@
 """The main file for the Imputation module."""
+
 import logging
 import os
 import pandas as pd
@@ -20,7 +21,7 @@ from src.utils.helpers import filename_amender
 ImputationMainLogger = logging.getLogger(__name__)
 
 
-def run_imputation(
+def run_imputation(  # noqa: C901
     df: pd.DataFrame,
     manual_trimming_df: pd.DataFrame,
     backdata: pd.DataFrame,
@@ -91,32 +92,36 @@ def run_imputation(
     # Run MoR
     if backdata is not None:
         # MoR will be re-written with new backdata
-        df, links_df = run_mor(df, backdata, to_impute_cols, config)
+        imputed_df, links_df = run_mor(df, backdata, to_impute_cols, config)
 
     # Run TMI for long forms and short forms
-    imputed_df, qa_df, trim_counts_qa = tmi.run_tmi(df, config)
+    # Skip this step for PNP survey for now
+    if config["survey"]["survey_type"] == "BERD":
+        imputed_df, qa_df, trim_counts_qa = tmi.run_tmi(imputed_df, config)
+
+        # After TMI imputation, overwrite the "604" == "No" in any records with
+        # Status "check needed" (they are now being imputed")
+        chk_mask = imputed_df["status"].str.contains("Check needed")
+        imputation_mask = imputed_df["imp_marker"] == "TMI"
+        imputed_df.loc[(chk_mask & imputation_mask), "604"] = "Yes"
 
     # Perform TMI step 5, which calculates employment and headcount totals
     imputed_df = hlp.calculate_totals(imputed_df)
-
-    # After TMI imputation, overwrite the "604" == "No" in any records with
-    # Status "check needed" (they are now being imputed")
-    chk_mask = imputed_df["status"].str.contains("Check needed")
-    imputation_mask = imputed_df["imp_marker"] == "TMI"
-    imputed_df.loc[(chk_mask & imputation_mask), "604"] = "Yes"
 
     # join constructed rows back to the imputed df
     # Note that constructed rows need to be included in short form expansion
     if "is_constructed" in df.columns:
         imputed_df = pd.concat([imputed_df, constructed_df])
 
-    # Run short form expansion
-    imputed_df = run_sf_expansion(imputed_df, config)
+    # Run short form expansion imputation for BERD surveys
+    if config["survey"]["survey_type"] == "BERD":
+        imputed_df = run_sf_expansion(imputed_df, config)
 
     # join manually trimmed columns back to the imputed df
     if not trimmed_df.empty:
         imputed_df = pd.concat([imputed_df, trimmed_df])
-        qa_df = pd.concat([qa_df, trimmed_df]).reset_index(drop=True)
+        if config["survey"]["survey_type"] == "BERD":
+            qa_df = pd.concat([qa_df, trimmed_df]).reset_index(drop=True)
 
     imputed_df = imputed_df.sort_values(
         ["reference", "instance"], ascending=[True, True]
@@ -134,16 +139,18 @@ def run_imputation(
         links_filename = filename_amender("links_qa", config)
         trimmed_counts_filename = filename_amender("tmi_trim_count_qa", config)
 
-        # create trimming qa dataframe with required columns from schema
-        schema_path = config["schema_paths"]["manual_trimming_schema"]
-        schema_dict = load_schema(schema_path)
-        trimming_qa_output = create_output_df(qa_df, schema_dict)
+        if config["survey"]["survey_type"] == "BERD":
+            # create trimming qa dataframe with required columns from schema
+            schema_path = config["schema_paths"]["manual_trimming_schema"]
+            schema_dict = load_schema(schema_path)
+            trimming_qa_output = create_output_df(qa_df, schema_dict)
 
-        write_csv(os.path.join(qa_path, trim_qa_filename), trimming_qa_output)
+            write_csv(os.path.join(qa_path, trim_qa_filename), trimming_qa_output)
+            write_csv(os.path.join(qa_path, trimmed_counts_filename), trim_counts_qa)
+            write_csv(os.path.join(qa_path, wrong_604_filename), wrong_604_qa_df)
+
         write_csv(os.path.join(qa_path, full_imp_filename), imputed_df)
-        write_csv(os.path.join(qa_path, wrong_604_filename), wrong_604_qa_df)
         write_csv(os.path.join(qa_path, links_filename), links_df)
-        write_csv(os.path.join(qa_path, trimmed_counts_filename), trim_counts_qa)
 
     # remove rows and columns no longer needed from the imputed dataframe
     imputed_df = hlp.tidy_imputation_dataframe(imputed_df, to_impute_cols, config)

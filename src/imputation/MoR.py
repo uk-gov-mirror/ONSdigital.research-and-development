@@ -29,13 +29,13 @@ def run_mor(df, backdata, impute_vars, config):
         pd.DataFrame: df with MoR applied.
         pd.DataFrame: QA DataFrame showing how imputation links are calculated.
     """
-    # If the survey year is 2022, there is no shortform backdata
-    is_2022 = (config["survey"]["survey_year"] == 2022) | (
+    # There are only long form entries in PNP surveys or in the BERD 2021 backdata
+    lf_only = (config["survey"]["survey_year"] == 2022) | (
         config["survey"]["survey_type"] == "PNP"
     )
 
     to_impute_df, remainder_df, backdata = mor_preprocessing(
-        df, backdata, is_2022, config
+        df, backdata, lf_only, config
     )
 
     # Carry forwards method
@@ -46,8 +46,8 @@ def run_mor(df, backdata, impute_vars, config):
         carried_forwards_df, remainder_df, backdata, config, "long"
     )
 
-    # If the survey year is 2022, there is no shortform backdata
-    if is_2022:
+    # the cases where there are only long forms is treated differently
+    if lf_only:
         imputed_df = pd.concat([remainder_df, imputed_df_long]).reset_index(drop=True)
         links_df = links_df_long
 
@@ -66,7 +66,7 @@ def run_mor(df, backdata, impute_vars, config):
     return imputed_df, links_df
 
 
-def mor_preprocessing(df, backdata, is_2022, config):
+def mor_preprocessing(df, backdata, lf_only, config):
     """Apply filtering and pre-processing ready for MoR.
 
     This function creates imputation classes, cleans the "formtype" column.
@@ -76,7 +76,7 @@ def mor_preprocessing(df, backdata, is_2022, config):
     Args:
         df (pd.DataFrame): full responses for the current year
         backdata (pd.Dataframe): backdata file read in during staging.
-        is_2022 (bool): whether the survey year is 2022
+        lf_only (bool): whether the survey only contains long forms.
 
     Returns:
         pd.DataFrame: DataFrame of records to impute
@@ -100,8 +100,8 @@ def mor_preprocessing(df, backdata, is_2022, config):
     lf_cond = df["formtype"] == "0001"
     stat_cond = df["status"].isin(bad_statuses)
 
-    # there is no shortform backdata if the survey year is 2022
-    if is_2022:
+    # the case where there are only long forms is treated differently
+    if lf_only:
         imputation_cond = stat_cond & lf_cond
 
     else:
@@ -319,7 +319,7 @@ def calculate_links(gr_df, target_vars, config):
 def get_threshold_value(config: dict) -> int:
     """Read, validate and return threshold value from the config."""
     threshold_num = config["imputation"]["mor_threshold"]
-    if (type(threshold_num) == int) & (threshold_num >= 0):
+    if isinstance(threshold_num, int) & (threshold_num >= 0):
         return threshold_num
     else:
         raise Exception(
@@ -413,10 +413,10 @@ def apply_links(cf_df, links_df, target_vars, config, formtype):
     for var in target_vars:
         # Only apply MoR where the link is non null/0
         no_zero_mask = pd.notnull(cf_df[f"{var}_link"]) & (cf_df[f"{var}_link"] != 0)
-        full_mask = matched_mask & no_zero_mask
+        mask = matched_mask & no_zero_mask
         # Apply the links to the previous values
-        cf_df.loc[full_mask, f"{var}_imputed"] = (
-            cf_df.loc[full_mask, f"{var}_imputed"] * cf_df.loc[full_mask, f"{var}_link"]
+        cf_df.loc[mask, f"{var}_imputed"] = (
+            cf_df.loc[mask, f"{var}_imputed"] * cf_df.loc[mask, f"{var}_link"]
         )
         cf_df.loc[matched_mask, "imp_marker"] = "MoR"
 
@@ -427,16 +427,18 @@ def apply_links(cf_df, links_df, target_vars, config, formtype):
             q for q in q_targets if q in config["imputation"]["lf_target_vars"]
         ]
     for var in q_targets:
-        for breakdown in config["breakdowns"][var]:
+        for bd in config["breakdowns"][var]:
             # As above but using different elements to multiply
             no_zero_mask = pd.notnull(cf_df[f"{var}_link"]) & (
                 cf_df[f"{var}_link"] != 0
             )
-            full_mask = matched_mask & no_zero_mask
+            mask = matched_mask & no_zero_mask
             # Apply the links to the previous values
-            cf_df.loc[full_mask, f"{breakdown}_imputed"] = (
-                cf_df.loc[full_mask, f"{breakdown}_imputed"]
-                * cf_df.loc[full_mask, f"{var}_link"]
+            cf_df[f"{bd}_imputed"] = pd.to_numeric(
+                cf_df[f"{bd}_imputed"], errors="coerce"
+            )
+            cf_df.loc[mask, f"{bd}_imputed"] = (
+                cf_df.loc[mask, f"{bd}_imputed"] * cf_df.loc[mask, f"{var}_link"]
             )
             cf_df.loc[matched_mask, "imp_marker"] = "MoR"
 
