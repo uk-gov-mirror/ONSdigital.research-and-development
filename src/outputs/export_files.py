@@ -14,6 +14,7 @@ from src.utils.config import config_setup
 from src.outputs.manifest_output import Manifest
 
 
+
 # Set up logging
 OutgoingLogger = logging.getLogger(__name__)
 
@@ -217,8 +218,12 @@ def log_exports(
     )
 
 
-def run_export(user_config_path: str, dev_config_path: str):
+#def run_export(user_config_path: str, dev_config_path: str):
+def run_export():
     """Main function to run the data export pipeline."""
+
+    user_config_path = os.path.join("src", "user_config.yaml")
+    dev_config_path = os.path.join("src", "dev_config.yaml")
 
     # Load config
     config = config_setup(user_config_path, dev_config_path)

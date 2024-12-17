@@ -36,14 +36,14 @@ global:
   # Final output settings
   output_long_form: False
   output_short_form: False
-  output_gb_sas: False
+  output_gb_sas: True
   output_ni_sas: False
   output_tau: False
   output_intram_by_pg_gb: False
   output_intram_by_pg_uk: False
   output_intram_gb_itl: False
   output_intram_uk_itl: False
-  output_intram_by_civil_defence: False
+  output_intram_by_civil_defence: True
   output_intram_by_sic: False
   output_fte_total_qa: False
   output_status_filtered: False
@@ -140,7 +140,7 @@ export_choices:
   export_short_form: None
   export_long_form: None
   export_tau: None
-  export_gb_sas: None
+  export_gb_sas: "PNP_2023_output_gb_sas_24-11-19_v914.csv"
   export_ni_sas: None
   export_intram_by_pg_gb: None
   export_intram_by_pg_uk: None
