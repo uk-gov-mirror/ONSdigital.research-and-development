@@ -1,4 +1,5 @@
 """The main file for the mapping module."""
+
 import logging
 import os
 from typing import Callable
@@ -8,6 +9,7 @@ from src.mapping.pg_conversion import run_pg_conversion
 from src.mapping.ultfoc_mapping import join_fgn_ownership
 from src.mapping.cellno_mapping import validate_join_cellno_mapper
 from src.mapping.itl_mapping import join_itl_regions
+from src.mapping.pnp_mapping import identify_osmotherly_key_area
 from src.staging import staging_helpers as stage_hlp
 from src.staging import validation as val
 from src.utils.helpers import filename_amender
@@ -96,6 +98,11 @@ def run_mapping(
     else:
         MappingMainLogger.info(f"Reference list not updated for survey year {year}.")
 
+    # Add custom mappers if PNP is true for later imp_class column creation
+    if config["survey"]["survey_type"] == "PNP":
+        full_responses = identify_osmotherly_key_area(full_responses, config)
+        MappingMainLogger.info("Custom mappers applied to responses.")
+
     # create a tuple for the full_responses and ni_full_responses
     responses = (full_responses, ni_full_responses)
     # Join the mappers to the full responses dataframe, with validation.
@@ -120,10 +127,7 @@ def run_mapping(
 
     if config["global"]["output_mapping_qa"]:
         MappingMainLogger.info("Outputting Mapping QA files.")
-        full_responses_filename = filename_amender(
-            "full_responses_mapped",
-            config
-        )
+        full_responses_filename = filename_amender("full_responses_mapped", config)
         rd_write_csv(os.path.join(qa_path, full_responses_filename), full_responses)
     MappingMainLogger.info("Finished Mapping QA calculation.")
 

@@ -44,6 +44,7 @@ imputation_paths:
   qa_path: "imputation_qa"
   manual_trimming_path: "manual_trimming"
   backdata_out_path: "backdata_output"
+  backdata_in_path: "backdata_input"
 outliers_paths:
   folder: "07_outliers"
   qa_path: "outliers_qa"

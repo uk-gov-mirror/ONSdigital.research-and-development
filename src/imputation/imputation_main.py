@@ -50,18 +50,14 @@ def run_imputation(
     Returns:
         pd.DataFrame: dataframe with the imputed columns updated
     """
-
     # Apportion cols 4xx and 5xx to create FTE and headcount values
     df = run_apportionment(df)
 
     # Convert shortform responses to longform format
     df = run_short_to_long(df)
 
-    # Initialise imp_marker column with a value of 'R' for clear responders
-    # and a default value "no_imputation" for all other rows for now.
-    clear_responders_mask = df.status.isin(["Clear", "Clear - overridden"])
-    df.loc[clear_responders_mask, "imp_marker"] = "R"
-    df.loc[~clear_responders_mask, "imp_marker"] = "no_imputation"
+    # Add a column for imputation marker
+    df = hlp.imputation_marker(df)
 
     # Create an 'instance' of value 1 for non-responders and refs with 'No R&D'
     df = hlp.instance_fix(df)
@@ -150,7 +146,7 @@ def run_imputation(
         write_csv(os.path.join(qa_path, trimmed_counts_filename), trim_counts_qa)
 
     # remove rows and columns no longer needed from the imputed dataframe
-    imputed_df = hlp.tidy_imputation_dataframe(imputed_df, to_impute_cols)
+    imputed_df = hlp.tidy_imputation_dataframe(imputed_df, to_impute_cols, config)
 
     # Check the imputed values are consistent with breakdown cols summing to totals.
     run_breakdown_validation(imputed_df, config, check="imputed")
