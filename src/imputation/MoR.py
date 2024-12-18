@@ -87,7 +87,7 @@ def mor_preprocessing(df, backdata, config):
 
 
 def carry_forwards(df, backdata, impute_vars, config):
-    """Carry forwards matcing `backdata` values for references to be imputed.
+    """Carry forwards matching `backdata` values for references to be imputed.
 
     Records are matched based on 'reference'.
 
