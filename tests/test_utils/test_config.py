@@ -626,7 +626,7 @@ class TestValidateConfig (object):
 
             }
         with pytest.raises(ValueError, match="Error: PNP is set. Northern Ireland data cannot be run. Please update "
-                "the user config.")
+                "the user config."):
             validate_config(input_config)
 
     def test_validate_pnp_config(self):
@@ -644,6 +644,14 @@ class TestValidateConfig (object):
 
         }
         results = validate_pnp_config(input_config)
-        assert results == (False, False, False, False, False, False), (
-            "PNP config validation returned the expected config values."
+        assert results == ("survey":{ "survey_type": "PNP"},        
+            "global": {
+                "output_ni_full_responses": False,
+                "output_mapping_ni_qa": False,
+                "output_short_form": False,
+                "load_ni_data": False,
+                "output_ni_sas": False,
+                "output_intram_by_pg_gb": False
+                }, 
+                ( "PNP config validation returned the expected config values."
         )
