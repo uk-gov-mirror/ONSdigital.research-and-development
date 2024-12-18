@@ -631,7 +631,7 @@ class TestValidatePNPConfig (object):
     def test_validate_pnp_config(self):
 
         input_config = {
-            "survey":{ "survey_type": "PNP"},        
+            "survey": { "survey_type": "PNP"},        
             "global": {
                 "output_ni_full_responses": True,
                 "output_mapping_ni_qa": True,
@@ -643,7 +643,7 @@ class TestValidatePNPConfig (object):
 
         }
         results = validate_pnp_config(input_config)
-        assert results == ("survey":{ "survey_type": "PNP"},        
+        assert results ==({"survey" : { "survey_type": "PNP"},        
             "global": {
                 "output_ni_full_responses": False,
                 "output_mapping_ni_qa": False,
@@ -651,6 +651,6 @@ class TestValidatePNPConfig (object):
                 "load_ni_data": False,
                 "output_ni_sas": False,
                 "output_intram_by_pg_gb": False
-                }, 
-                ( "PNP config validation returned the expected config values."
-        )
+                }
+                })
+        ("PNP config validation returned the expected config values.")
