@@ -403,7 +403,7 @@ def validate_construction_config_settings(config):
                 " provided."
             )
 
-def validate_config(config: dict) -> dict:
+def validate_survey_config(config: dict) -> dict:
     """Validate the configuration settings.
 
     Args:

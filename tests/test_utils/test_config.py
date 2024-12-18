@@ -19,7 +19,7 @@ from src.utils.config import (
     validate_construction_config_settings,
     validate_freezing_run_config,
     validate_pnp_config,
-    validate_config
+    validate_survey_config
 
 )
 
@@ -613,11 +613,10 @@ class TestValidateFreezingRunConfig(object):
         with pytest.raises(ValueError, match=msg):
             validate_freezing_run_config(config)
 
-class TestValidateConfig (object):
+class TestValidatePNPConfig (object):
     """Tests for validate_config."""
 
-    def test_validate_config(self):
-
+    def test_survey_validate_config(self):
         input_config = {
             "survey":{ "survey_type": "PNP"},        
             "global": {
@@ -627,7 +626,7 @@ class TestValidateConfig (object):
             }
         with pytest.raises(ValueError, match="Error: PNP is set. Northern Ireland data cannot be run. Please update "
                 "the user config."):
-            validate_config(input_config)
+            validate_survey_config(input_config)
 
     def test_validate_pnp_config(self):
 
