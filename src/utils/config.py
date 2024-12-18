@@ -432,15 +432,20 @@ def validate_config(config: dict) -> dict:
 def validate_pnp_config(config: dict) -> None:
     """
         Validate the PNP configuration settings.
+
     Args:
         config (dict): The configuration dictionary.
+
     Returns:
         dict: The validated configuration dictionary.
+
     """
     # Check if PNP is set
     if config["survey"]["survey_type"] == "PNP":
         # List of values not compatible with PNP
-        incompatible_settings = ["output_short_form",
+        incompatible_settings = ["output_ni_full_responses",
+                                 "output_mapping_ni_qa",
+                                 "output_short_form",
                                  "load_ni_data",
                                  "output_ni_sas",
                                  "output_intram_by_pg_gb"]
@@ -451,11 +456,11 @@ def validate_pnp_config(config: dict) -> None:
         if any(values):
              print(
                 "WARNING: PNP is set. The following settings are not compatible with PNP: "
-                "output_short_form, load_ni_data, output_ni_sas, output_intram_by_pg_gb.
-                 " User config will be updated to False."
+                "output_ni_full_responses, output_mapping_ni_qa, output_short_form, load_ni_data,"
+                " output_ni_sas, output_intram_by_pg_gb. User config will be updated to False."
             )
-            # Update the config to False for incompatible settings
-            for setting in incompatible_settings:
+             # Update the user config to False
+             for setting in incompatible_settings:
                 config["global"][setting] = False
     
     return config

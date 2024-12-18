@@ -17,7 +17,10 @@ from src.utils.config import (
     _nulltype_conversion,
     validate_freezing_config_settings,
     validate_construction_config_settings,
-    validate_freezing_run_config
+    validate_freezing_run_config,
+    validate_pnp_config,
+    validate_config
+
 )
 
 
@@ -609,3 +612,38 @@ class TestValidateFreezingRunConfig(object):
         msg = "Only one type of pipeline run is allowed.*"
         with pytest.raises(ValueError, match=msg):
             validate_freezing_run_config(config)
+
+class TestValidateConfig (object):
+    """Tests for validate_config."""
+
+    def test_validate_config(self):
+
+        input_config = {
+            "survey":{ "survey_type": "PNP"},        
+            "global": {
+                "load_ni_data": True,
+                  }
+
+            }
+        with pytest.raises(ValueError, match="Error: PNP is set. Northern Ireland data cannot be run. Please update "
+                "the user config.")
+            validate_config(input_config)
+
+    def test_validate_pnp_config(self):
+
+        input_config = {
+            "survey":{ "survey_type": "PNP"},        
+            "global": {
+                "output_ni_full_responses": True,
+                "output_mapping_ni_qa": True,
+                "output_short_form": True,
+                "load_ni_data": True,
+                "output_ni_sas": True,
+                "output_intram_by_pg_gb": True
+                }
+
+        }
+        results = validate_pnp_config(input_config)
+        assert results == (False, False, False, False, False, False), (
+            "PNP config validation returned the expected config values."
+        )
