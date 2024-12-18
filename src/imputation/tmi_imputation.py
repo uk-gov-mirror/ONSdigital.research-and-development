@@ -37,54 +37,6 @@ def filter_by_column_content(
     return filtered_df
 
 
-def create_imp_class_col(
-    df: pd.DataFrame,
-    col_first_half: str,
-    col_second_half: str,
-    class_name: str = "imp_class",
-    use_cellno: bool = True,
-) -> pd.DataFrame:
-    """Creates a column for the imputation class.
-
-    This is done by concatenating the R&D business type, C or D from  q200
-    and the product group from  q201.
-
-    special case for cell number 817 is added as a suffix.
-
-    Args:
-        df (pd.DataFrame): Full dataframe
-        col_first_half (str): The first half of the class string
-            "200" is generally used.
-        col_second_half (str): The second half of the class string
-            "201" is generally used.
-        class_name (str): The name of the column to save the class to.
-            Defaults to "imp_class"
-        use_cellno (bool): Whether to use the cellno column or not. Default to True.
-
-    Returns:
-        pd.DataFrame: Dataframe which contains a new column with the
-            imputation classes.
-    """
-    df = df.copy()
-
-    # Create class col with concatenation
-    if col_second_half:
-        df[class_name] = (
-            df[col_first_half].astype(str) + "_" + df[col_second_half].astype(str)
-        )
-    else:
-        df[class_name] = df[col_first_half].astype(str)
-
-    if use_cellno:
-        fil_df = filter_by_column_content(df, "cellnumber", [817])
-        # Create class col with concatenation + 817
-        fil_df[class_name] = fil_df[class_name] + "_817"
-
-        df = apply_to_original(fil_df, df)
-
-    return df
-
-
 def apply_fill_zeros(df: pd.DataFrame, target_variables: list) -> pd.DataFrame:
     """Applies the fill zeros function to filtered dataframes.
 
@@ -125,7 +77,7 @@ def tmi_pre_processing(df: pd.DataFrame, target_variables_list: list) -> pd.Data
     df = apply_fill_zeros(df, target_variables_list)
 
     # Calculate imputation classes for each row
-    imp_df = create_imp_class_col(df, "200", "201", "imp_class")
+    imp_df = hlp.create_imp_class_col(df, ["200", "201"], "imp_class")
 
     return imp_df
 
@@ -493,7 +445,7 @@ def run_shortform_tmi(
     tmi_df.loc[qa_df.index, "305_trim"] = qa_df["305_trim"]
 
     # create imputation classes for shortform entries not imputed (selectiontype 'P')
-    not_imputed_df = create_imp_class_col(not_imputed_df, "200", "201", "imp_class")
+    not_imputed_df = hlp.create_imp_class_col(not_imputed_df, ["200", "201"])
     # concatinate qa dataframes from short forms and long forms
     shortforms_updated_df = pd.concat([tmi_df, not_imputed_df])
 

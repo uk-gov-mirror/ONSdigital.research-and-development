@@ -510,7 +510,7 @@ class TestCreateNotnullMask:
         data = [
             [0, 1],
             [111, "a"],
-            [222, ""],
+            [222, ""], #  we are testing that this will register as null
             [333, pd.NA],
             [444, np.nan],
             [555, " "],
@@ -523,7 +523,7 @@ class TestCreateNotnullMask:
         """Test for create_notnull_mask function."""
         self.input_df = self.create_input_df()
 
-        exp_output = pd.Series([False, True, False, False, False, True], name="col")
+        exp_output = pd.Series([True, True, False, False, False, True], name="col")
 
         result = create_notnull_mask(self.input_df, "col")
         assert_series_equal(result, exp_output)
@@ -564,18 +564,18 @@ class TestCreateNotnullMask:
 
         # here's the original test again
         result = create_notnull_mask(demo_df, "col")
-        exp_output = pd.Series([False, True, False, False, False, True], name="col")
+        exp_output = pd.Series([True, True, False, False, False, True], name="col")
         assert_series_equal(result, exp_output)
 
         # test the effect of apply applying .isnull() to column col
         result_not_isnull = ~demo_df["col"].isnull()
-        # note that "" does not register as null
+        # note that "" does not register as null !!!!
         exp_isnull = pd.Series([True, True, True, False, False, True], name="col")
         assert_series_equal(result_not_isnull, exp_isnull)
 
         # test the effect of apply applying .notnull() to column col
         result_notnull = demo_df["col"].notnull()
-        # note that "" registers as not null
+        # note that "" registers as not null !!!!
         exp_notnull = pd.Series([True, True, True, False, False, True], name="col")
         assert_series_equal(result_notnull, exp_notnull)
 

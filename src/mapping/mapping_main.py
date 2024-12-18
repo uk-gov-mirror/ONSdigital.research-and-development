@@ -1,4 +1,5 @@
 """The main file for the mapping module."""
+
 import logging
 import os
 from typing import Callable
@@ -8,6 +9,7 @@ from src.mapping.pg_conversion import run_pg_conversion
 from src.mapping.ultfoc_mapping import join_fgn_ownership
 from src.mapping.cellno_mapping import validate_join_cellno_mapper
 from src.mapping.itl_mapping import join_itl_regions
+from src.mapping.pnp_mapping import identify_osmotherly_key_area
 from src.staging import staging_helpers as stage_hlp
 from src.staging import validation as val
 from src.utils.helpers import filename_amender
@@ -95,6 +97,11 @@ def run_mapping(
         full_responses = hlp.update_ref_list(full_responses, ref_list_817_mapper)
     else:
         MappingMainLogger.info(f"Reference list not updated for survey year {year}.")
+
+    # Add custom mappers if PNP is true for later imp_class column creation
+    if config["survey"]["survey_type"] == "PNP":
+        full_responses = identify_osmotherly_key_area(full_responses, config)
+        MappingMainLogger.info("Custom mappers applied to responses.")
 
     # create a tuple for the full_responses and ni_full_responses
     responses = (full_responses, ni_full_responses)
