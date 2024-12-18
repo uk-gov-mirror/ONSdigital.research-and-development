@@ -320,7 +320,6 @@ def clean_postcodes(df):
     df["601"] = df["601"].str.replace("'", "")
     df["601"] = df["601"].apply(format_postcodes)
 
-
     return df
 
 
@@ -618,10 +617,10 @@ def create_pnp_backdata(df):
                         '601', '602', '604',
                         'statusencoded', 'status', 'imp_marker', 'imp_class',
                         'emp_researcher', 'emp_technician', 'emp_other', 'emp_total',
-                        'headcount_res_m','headcount_res_f',
+                        'headcount_res_m', 'headcount_res_f',
                         'headcount_tec_m', 'headcount_tec_f',
                         'headcount_oth_m', 'headcount_oth_f',
-                        'headcount_tot_m','headcount_tot_f', 'headcount_total']
+                        'headcount_tot_m', 'headcount_tot_f', 'headcount_total']
 
     # Rename wanted columns
     df = df.rename(columns=columns_to_rename_dict)
