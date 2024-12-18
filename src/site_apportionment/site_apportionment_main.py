@@ -1,9 +1,9 @@
 """The main file for the Apportionment to sites module."""
+
 import logging
 import pandas as pd
 from typing import Callable, Dict, Any
 
-from src.site_apportionment.pnp_pre_processing import pnp_pre_processing
 from src.site_apportionment.site_apportionment import run_apportion_sites
 from src.site_apportionment.output_status_filtered import (
     output_status_filtered,
@@ -37,7 +37,7 @@ def run_site_apportionment(
             to apportion  for long forms
     """
     if config["survey"]["survey_type"] == "PNP":
-        df = pnp_pre_processing(df)
+        df["a_weight"] = 1.0
 
     # Create variable for output of QA apportionment file
     qa_path = config["apportionment_paths"]["qa_path"]
