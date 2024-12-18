@@ -13,60 +13,28 @@ good_statuses = ["Clear", "Clear - overridden"]
 bad_statuses = ["Form sent out", "Check needed"]
 
 
-def run_mor(df, backdata, impute_vars, config):
-    """Function to implement Mean of Ratios method.
+def is_lf_only(config):
+    """
+    Determine if there are only long form entries in the current data or backdata.
 
-    This is implemented by first carrying forward data from last year
-    for non-responders, and then calculating and applying growth rates
-    for each imputation class.
+     PNP surveys only have long forms. Also, the BERD 2021 backdata only contains
+     long forms, so if the current year for BERD processing is 2022, then only long
+     forms can be imputed. (Note: we only have BERD data in 2022 so we only need to
+     check the survey year and not the type for this case.)
 
     Args:
-        df (pd.DataFrame): Processed full responses DataFrame
-        backdata (pd.DataFrame): One period of backdata.
-        impute_vars ([string]): List of variables to impute.
+        config (dict): Configuration dictionary containing survey details.
 
     Returns:
-        pd.DataFrame: df with MoR applied.
-        pd.DataFrame: QA DataFrame showing how imputation links are calculated.
+        bool: True if there are only long form entries, False otherwise.
     """
-    # There are only long form entries in PNP surveys or in the BERD 2021 backdata
-    lf_only = (config["survey"]["survey_year"] == 2022) | (
-        config["survey"]["survey_type"] == "PNP"
-    )
+    pnp_survey_cond = config["survey"]["survey_type"] == "PNP"
+    berd_2021_backdata_cond = config["survey"]["survey_year"] == 2022
 
-    to_impute_df, remainder_df, backdata = mor_preprocessing(
-        df, backdata, lf_only, config
-    )
-
-    # Carry forwards method
-    carried_forwards_df = carry_forwards(to_impute_df, backdata, impute_vars, config)
-
-    # apply MoR for long form responders
-    imputed_df_long, links_df_long = calculate_mor(
-        carried_forwards_df, remainder_df, backdata, config, "long"
-    )
-
-    # the cases where there are only long forms is treated differently
-    if lf_only:
-        imputed_df = pd.concat([remainder_df, imputed_df_long]).reset_index(drop=True)
-        links_df = links_df_long
-
-    else:
-        # apply MoR for short form responders
-        imputed_df_short, links_df_short = calculate_mor(
-            carried_forwards_df, remainder_df, backdata, config, "short"
-        )
-
-        imputed_df = pd.concat(
-            [remainder_df, imputed_df_long, imputed_df_short]
-        ).reset_index(drop=True)
-
-        links_df = pd.concat([links_df_long, links_df_short]).reset_index(drop=True)
-
-    return imputed_df, links_df
+    return pnp_survey_cond or berd_2021_backdata_cond
 
 
-def mor_preprocessing(df, backdata, lf_only, config):
+def mor_preprocessing(df, backdata, config):
     """Apply filtering and pre-processing ready for MoR.
 
     This function creates imputation classes, cleans the "formtype" column.
@@ -76,7 +44,7 @@ def mor_preprocessing(df, backdata, lf_only, config):
     Args:
         df (pd.DataFrame): full responses for the current year
         backdata (pd.Dataframe): backdata file read in during staging.
-        lf_only (bool): whether the survey only contains long forms.
+        config (dict): Configuration settings.
 
     Returns:
         pd.DataFrame: DataFrame of records to impute
@@ -101,7 +69,7 @@ def mor_preprocessing(df, backdata, lf_only, config):
     stat_cond = df["status"].isin(bad_statuses)
 
     # the case where there are only long forms is treated differently
-    if lf_only:
+    if is_lf_only(config):
         imputation_cond = stat_cond & lf_cond
 
     else:
@@ -485,5 +453,52 @@ def calculate_mor(cf_df, remainder_df, backdata, config, formtype):
         links_df["formtype"] = "0006"
 
     imputed_df = apply_links(cf_df, links_df, target_vars, config, formtype)
+
+    return imputed_df, links_df
+
+
+def run_mor(df, backdata, impute_vars, config):
+    """Function to implement Mean of Ratios method.
+
+    This is implemented by first carrying forward data from last year
+    for non-responders, and then calculating and applying growth rates
+    for each imputation class.
+
+    Args:
+        df (pd.DataFrame): Processed full responses DataFrame
+        backdata (pd.DataFrame): One period of backdata.
+        impute_vars ([string]): List of variables to impute.
+
+    Returns:
+        pd.DataFrame: df with MoR applied.
+        pd.DataFrame: QA DataFrame showing how imputation links are calculated.
+    """
+
+    to_impute_df, remainder_df, backdata = mor_preprocessing(df, backdata, config)
+
+    # Carry forwards method
+    carried_forwards_df = carry_forwards(to_impute_df, backdata, impute_vars, config)
+
+    # apply MoR for long form responders
+    imputed_df_long, links_df_long = calculate_mor(
+        carried_forwards_df, remainder_df, backdata, config, "long"
+    )
+
+    # the cases where there are only long forms is treated differently
+    if is_lf_only(config):
+        imputed_df = pd.concat([remainder_df, imputed_df_long]).reset_index(drop=True)
+        links_df = links_df_long
+
+    else:
+        # apply MoR for short form responders
+        imputed_df_short, links_df_short = calculate_mor(
+            carried_forwards_df, remainder_df, backdata, config, "short"
+        )
+
+        imputed_df = pd.concat(
+            [remainder_df, imputed_df_long, imputed_df_short]
+        ).reset_index(drop=True)
+
+        links_df = pd.concat([links_df_long, links_df_short]).reset_index(drop=True)
 
     return imputed_df, links_df
