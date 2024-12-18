@@ -637,8 +637,10 @@ class TestValidatePNPConfig (object):
                 "output_mapping_ni_qa": True,
                 "output_short_form": True,
                 "load_ni_data": True,
+                "run_ni_construction": True,
                 "output_ni_sas": True,
-                "output_intram_by_pg_gb": True
+                "output_intram_by_pg_gb": True,
+                "output_outlier_qa": True
                 }
 
         }
@@ -649,8 +651,11 @@ class TestValidatePNPConfig (object):
                 "output_mapping_ni_qa": False,
                 "output_short_form": False,
                 "load_ni_data": False,
+                "run_ni_construction": False,
                 "output_ni_sas": False,
-                "output_intram_by_pg_gb": False
+                "output_intram_by_pg_gb": False,
+                "output_outlier_qa" : False
+
                 }
                 })
         ("PNP config validation returned the expected config values.")
