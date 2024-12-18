@@ -446,24 +446,22 @@ def validate_pnp_config(config: dict) -> None:
         incompatible_settings = ["output_ni_full_responses",
                                  "output_mapping_ni_qa",
                                  "output_short_form",
-                                 "load_ni_data",
                                  "run_ni_construction",
                                  "output_ni_sas",
                                  "output_intram_by_pg_gb",
                                  "output_outlier_qa"]
- 
-        values = [config.get("global", {}).get(setting, True)
-                  for setting in incompatible_settings]
- 
-        if any(values):
-             print(
-                "WARNING: PNP is set. The following settings are not compatible with PNP: "
-                "output_ni_full_responses, output_mapping_ni_qa, output_short_form, load_ni_data,"
-                "run_ni_construction, output_ni_sas, output_intram_by_pg_gb and output_outlier_qa."
-                " User config will be updated to False."
-            )
-             # Update the user config to False
-             for setting in incompatible_settings:
-                config["global"][setting] = False
+        
+        result = []
+        for setting in incompatible_settings:
+            # Check if setting is True
+            if config.get("global", {}).get(setting, True):
+                # Add setting to result list
+                result.append(setting)
+                # Print warning message with setting that has bee updated.
+                print( "WARNING: PNP is set. The following settings are not compatible with PNP: "
+                 f"{result}" "User config will be updated to False.")
+                #Update to False
+                for setting in incompatible_settings:
+                  config["global"][setting] = False
     
     return config
