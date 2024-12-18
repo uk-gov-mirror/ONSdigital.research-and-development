@@ -370,7 +370,9 @@ def populate_instance_1_columns(df, config):
 
     df = pd.concat([df, extra_rows_df], ignore_index=True)
 
-    merged_df = pd.merge(df, update_df, on=["reference", "instance"], how="left", suffixes=("", "_y"))
+    merged_df = pd.merge(
+        df, update_df, on=["reference", "instance"], how="left", suffixes=("", "_y")
+    )
 
     # replace all values in the columns with the values from the update_df
     for col in cols:
