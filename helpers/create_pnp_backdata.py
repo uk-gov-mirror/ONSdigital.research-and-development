@@ -300,7 +300,9 @@ def add_missing_columns(df):
     Return:
         df (pd.DataFrame): The dataframe with the added missing columns.
     """
-    missing_list = ['226', '228', '237', '203', '225', '227', '229']
+    missing_list = ['226', '228', '237', '203', '225', '227', '229', '251',
+                    '300', '301', '307', '308', '309', '708',
+                    'survey', 'formid', 'cellnumber', 'pg_numeric']
     for col in missing_list:
         if col not in df.columns:
             df[col] = np.nan
