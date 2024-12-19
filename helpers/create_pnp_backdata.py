@@ -607,22 +607,20 @@ def create_pnp_backdata(df):
                               'q0906': '304',
                               'q0908': '305'}
 
-    new_column_order = ['period', 'reference', 'formtype', 'Region',
-                        'period_year', 'instance', '101', '103', '104', '200', '201',
-                        '202', '203', '204', '205', '206', '207', '209', '210',
-                        '211', '212', '214', '216', '218', '219', '220', '221',
-                        '222', '223', '225', '226', '227', '228', '229', '237',
-                        '242', '243', '244', '245', '246', '247', '248', '249', '250',
-                        '302', '303', '304', '305',
-                        '405', '406', '407', '408', '409', '410', '411', '412',
-                        '501', '502', '503', '504', '505', '506', '507', '508',
-                        '601', '602', '604',
-                        'statusencoded', 'status', 'imp_marker', 'imp_class',
-                        'emp_researcher', 'emp_technician', 'emp_other', 'emp_total',
-                        'headcount_res_m', 'headcount_res_f',
-                        'headcount_tec_m', 'headcount_tec_f',
-                        'headcount_oth_m', 'headcount_oth_f',
-                        'headcount_tot_m', 'headcount_tot_f', 'headcount_total']
+    new_column_order = ['reference', 'period', 'survey', 'status', 'formid', 'instance',
+                        '101', '103', '104', '200', '201', '202', '203', '204', '205',
+                        '206', '207', '209', '210', '211', '212', '214', '216', '218',
+                        '219', '220', '221', '222', '223', '225', '226', '227', '228',
+                        '229', '237', '242', '243', '244', '245', '246', '247', '248',
+                        '249', '250', '251', '300', '301', '302', '303', '304', '305',
+                        '307', '308', '309', '405', '406', '407', '408', '409', '410',
+                        '411', '412', '501', '502', '503', '504', '505', '506', '507',
+                        '508', '601', '602', '604', '708',
+                        'cellnumber', 'pg_numeric', 'emp_researcher', 'emp_technician',
+                        'emp_other', 'emp_total', 'headcount_res_m', 'headcount_res_f',
+                        'headcount_tec_m', 'headcount_tec_f', 'headcount_oth_m',
+                        'headcount_oth_f', 'headcount_tot_m', 'headcount_tot_f',
+                        'headcount_total', 'imp_class', 'imp_marker', 'formtype']
 
     # Rename wanted columns
     df = df.rename(columns=columns_to_rename_dict)
@@ -700,7 +698,6 @@ def create_pnp_backdata(df):
 
     # Re-order columns to match BERD (for ease of comparrison)
     df = df[[c for c in new_column_order if c in df.columns]]
-    # df = df[new_column_order]
 
     return df
 
