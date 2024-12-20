@@ -426,6 +426,25 @@ def test_populate_instance_1_columns():
     assert_frame_equal(result_df, expected_df, check_dtype=False)
 
 
+def format_103_104(df):
+    """ Function to format the 103 and 104 columns.
+    Args:
+        df (pd.DataFrame): The dataframe to format the 103 and 104 columns.
+
+    Return:
+        df (pd.DataFrame): The dataframe with the formatted 103 and 104 columns.
+    """
+
+    for col in ["103", "104"]:
+        # Convert the 'date_column' to datetime format
+        df[col] = pd.to_datetime(df[col], format='%d/%m/%Y')
+
+        # Format the 'date_column' to 'YYYYMMDD'
+        df[col] = df[col].dt.strftime('%Y%m%d')
+
+    return df
+
+
 def create_pnp_backdata(df):
     """ Function to clean the PNP backdata.
 
@@ -680,6 +699,9 @@ def create_pnp_backdata(df):
     # clean postcodes
     df = clean_postcodes(df)
 
+    # Format the 103 and 104 columns
+    df = format_103_104(df)
+
     # Multiply values in columns starting 2xx or 3xx by 1000
     df = multiply_by_1000(df, config)
 
@@ -732,7 +754,7 @@ def main():
     rd_write_csv(
         os.path.join(
             backdata_out_path,
-            "PNP_2021_backdata_for_checking.csv"),
+            "PNP_2021_backdata_clean.csv"),
         pnp_backdata_df
     )
 
