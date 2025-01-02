@@ -2,7 +2,6 @@ import logging
 
 from pandas._testing import assert_frame_equal
 from pandas import DataFrame as pandasDF
-import numpy as np
 import pytest
 
 import src.outlier_detection.auto_outliers as auto
@@ -157,6 +156,49 @@ class TestFilterValidEmpty:
             auto.filter_valid(input_df, "701")
 
         assert "has no valid returns for outliers" in caplog.text
+
+
+class TestGetClipBands:
+    """Unit tests for get_clip_bands function."""
+    def input_df(self):
+        cols = ["cell_no", "gr_count"]
+
+        data = [
+            [111, 9],
+            [222, 10],
+            [333, 19],
+            [444, 20],
+            [555, 29],
+            [666, 30]
+        ]
+
+        return pandasDF(data=data, columns=cols)
+
+    def expected_df(self):
+        cols = ["cell_no", "gr_count", "band", "rows_to_clip", "clip_higher_than"]
+
+        data = [
+            [111, 9, 0.45, 0, 9],  # no rows to clip
+            [222, 10,  0.5, 1, 9],  # 1 row to clip, clip rows higher than rank 9
+            [333, 19, 0.95, 1, 18],
+            [444, 20, 1.0, 1, 19],
+            [555, 29, 1.45, 1, 28],
+            [666, 30, 1.5, 2, 28]
+        ]
+
+        return pandasDF(data=data, columns=cols)
+
+    def test_get_clip_bands(self):
+        """Test for get_clip_bands function."""
+        upper_clip = 0.05
+        lower_clip = 0.0
+        df = self.input_df()
+
+        result_df = auto.get_clip_bands(df, upper_clip)
+        expected_df = self.expected_df()
+
+        assert_frame_equal(result_df, expected_df)
+
 
 
 # Seven tests for `flag_outliers()`:

@@ -79,6 +79,7 @@ def get_clip_bands(count_df: pd.DataFrame, clip: float, upper=True) -> pd.DataFr
     Args:
         count_df (pd.DataFrame): The dataframe with the count of rows
         clip (float): The percentage to clip as a float
+        upper (bool): Whether to clip the highest values or lower values
 
     Returns:
         pd.DataFrame: The dataframe with the number of rows to clip
@@ -87,10 +88,10 @@ def get_clip_bands(count_df: pd.DataFrame, clip: float, upper=True) -> pd.DataFr
     count_df["rows_to_clip"] = count_df["band"].apply(lambda x: normal_round(x))
 
     if upper:
-        count_df["upper_clipped_rows"] = count_df["gr_count"] - count_df["rows_to_clip"]
+        count_df["clip_higher_than"] = count_df["gr_count"] - count_df["rows_to_clip"]
 
     else:
-        count_df["lower_clipped_rows"] = count_df["rows_to_clip"]
+        count_df["clip_lower_than"] = count_df["rows_to_clip"]
 
     return count_df
 
@@ -133,15 +134,15 @@ def flag_outliers(
     filtered_df = filtered_df.merge(count_df, how="left", on=groupby_cols)
 
     # Create outlier condition
-    outlier_cond = filtered_df["group_rank"] > filtered_df["upper_clipped_rows"]
+    outlier_cond = filtered_df["group_rank"] > filtered_df["clip_higher_than"]
 
     # If lower clipping is specified, add the condition
     if lower_clip > 0:
         count_df = get_clip_bands(count_df, lower_clip, upper=False)
         filtered_df = filtered_df.merge(
-            count_df[groupby_cols + ["lower_clipped_rows"]], how="left", on=groupby_cols
+            count_df[groupby_cols + ["clip_lower_than"]], how="left", on=groupby_cols
         )
-        lower_cond = filtered_df["group_rank"] <= filtered_df["lower_clipped_rows"]
+        lower_cond = filtered_df["group_rank"] <= filtered_df["clip_lower_than"]
 
         outlier_cond = outlier_cond | lower_cond
 
