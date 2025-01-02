@@ -99,7 +99,7 @@ def prepare_short_to_long(
     updated_snapshot_df: pd.DataFrame,
     construction_df: pd.DataFrame,
     unique_references: list,
-    ) -> Tuple[pd.DataFrame, list]:
+) -> Tuple[pd.DataFrame, list]:
     """Create addional instances for short to long construction.
 
     Args:
@@ -181,7 +181,9 @@ def finalise_forms_gb(updated_snapshot_df: pd.DataFrame) -> pd.DataFrame:
             and short forms reset.
     """
 
-    constructed_df = updated_snapshot_df[updated_snapshot_df.is_constructed.isin([True])]
+    constructed_df = updated_snapshot_df[
+        updated_snapshot_df.is_constructed.isin([True])
+    ]
     not_constructed_df = updated_snapshot_df[
         updated_snapshot_df.is_constructed.isin([False])
     ]

@@ -705,4 +705,3 @@ Deduced_Data_Type = "float64"
 [outlier]
 old_name = "outlier"
 Deduced_Data_Type = "bool"
-

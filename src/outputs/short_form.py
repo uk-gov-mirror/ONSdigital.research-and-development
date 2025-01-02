@@ -99,7 +99,7 @@ def output_short_form(
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
             This will be the hdfs or network version depending on settings.
-       
+
     """
     output_path = config["outputs_paths"]["outputs_master"]
 

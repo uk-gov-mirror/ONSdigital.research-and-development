@@ -9,7 +9,9 @@ OutputMainLogger = logging.getLogger(__name__)
 
 
 def qa_output_total_fte(
-    df: pd.DataFrame, config: Dict[str, Any], write_csv: Callable,
+    df: pd.DataFrame,
+    config: Dict[str, Any],
+    write_csv: Callable,
 ):
     """Run the outputs module.
 

@@ -1,5 +1,4 @@
 import logging
-from typing import Callable
 
 import pandas as pd
 import numpy as np
@@ -20,7 +19,7 @@ from src.construction.construction_validation import (
 )
 
 
-def all_data_construction(
+def all_data_construction(  # noqa: C901
     construction_df: pd.DataFrame,
     snapshot_df: pd.DataFrame,
     construction_logger: logging.Logger,
@@ -48,7 +47,7 @@ def all_data_construction(
             columns={"short_to_long": "construction_type"}, inplace=True
         )
         construction_df.loc[
-            construction_df["construction_type"] == True, "construction_type"
+            construction_df["construction_type"].isin([True]), "construction_type"
         ] = "short_to_long"
 
     # clean construction type column

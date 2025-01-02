@@ -17,7 +17,6 @@ from src.utils.config import config_setup
 
 
 def run_postcode_reduction(user_config_path, dev_config_path):
-
     # load and validate the config
     config = config_setup(user_config_path, dev_config_path)
 
