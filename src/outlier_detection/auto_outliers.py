@@ -1,4 +1,5 @@
 """Apply outlier detection to the dataset."""
+
 import logging
 import pandas as pd
 from typing import List
@@ -72,6 +73,28 @@ def filter_valid(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
     return filtered_df
 
 
+def get_clip_bands(count_df: pd.DataFrame, clip: float, upper=True) -> pd.DataFrame:
+    """Calculate the number of rows to clip based on the count and clip percentage.
+
+    Args:
+        count_df (pd.DataFrame): The dataframe with the count of rows
+        clip (float): The percentage to clip as a float
+
+    Returns:
+        pd.DataFrame: The dataframe with the number of rows to clip
+    """
+    count_df["band"] = count_df["gr_count"] * clip
+    count_df["rows_to_clip"] = count_df["band"].apply(lambda x: normal_round(x))
+
+    if upper:
+        count_df["upper_clipped_rows"] = count_df["gr_count"] - count_df["rows_to_clip"]
+
+    else:
+        count_df["lower_clipped_rows"] = count_df["rows_to_clip"]
+
+    return count_df
+
+
 def flag_outliers(
     df: pd.DataFrame, upper_clip: float, lower_clip: float, value_col: str
 ) -> pd.DataFrame:
@@ -95,32 +118,32 @@ def flag_outliers(
     # Filter for valid sampled data and positive values in the value column
     filtered_df = filter_valid(df, value_col)
 
-    # Add group count - how many RU refs there are in a cell, perod
-    filtered_df["group_count"] = filtered_df.groupby(groupby_cols)[value_col].transform(
-        "count"
-    )  # noqa
+    # created a dataframe with the group count and how many rows should be clipped
+    count_df = filtered_df.groupby(groupby_cols).size().reset_index(name="gr_count")
 
-    # Rank margins
-    filtered_df["high"] = filtered_df["group_count"] * upper_clip
-    filtered_df["high_rounded"] = filtered_df.apply(
-        lambda row: normal_round(row["high"]), axis=1
-    )
-    filtered_df["upper_band"] = filtered_df["group_count"] - filtered_df["high_rounded"]
-
-    filtered_df["low"] = filtered_df["group_count"] * lower_clip
-    filtered_df["lower_band"] = filtered_df.apply(
-        lambda row: normal_round(row["low"]), axis=1
-    )
+    # Calculate the number of rows to clip for each group
+    count_df = get_clip_bands(count_df, upper_clip, upper=True)
 
     # Ranks of RU refs in each group, depending on their value
     filtered_df["group_rank"] = filtered_df.groupby(groupby_cols)[value_col].rank(
         method="first", ascending=True
     )
 
-    # Outlier conditions
-    outlier_cond = (filtered_df["group_rank"] > filtered_df["upper_band"]) | (
-        filtered_df["group_rank"] <= filtered_df["lower_band"]
-    )
+    # Calculate the number of rows to clip by merging in the group count
+    filtered_df = filtered_df.merge(count_df, how="left", on=groupby_cols)
+
+    # Create outlier condition
+    outlier_cond = filtered_df["group_rank"] > filtered_df["upper_clipped_rows"]
+
+    # If lower clipping is specified, add the condition
+    if lower_clip > 0:
+        count_df = get_clip_bands(count_df, lower_clip, upper=False)
+        filtered_df = filtered_df.merge(
+            count_df[groupby_cols + ["lower_clipped_rows"]], how="left", on=groupby_cols
+        )
+        lower_cond = filtered_df["group_rank"] <= filtered_df["lower_clipped_rows"]
+
+        outlier_cond = outlier_cond | lower_cond
 
     # Create outlier flag
     filtered_df[f"{value_col}_outlier_flag"] = outlier_cond
