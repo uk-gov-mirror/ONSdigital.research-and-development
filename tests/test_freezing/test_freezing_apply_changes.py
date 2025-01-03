@@ -186,7 +186,7 @@ class TestApplyAdditions(object):
         df = pd.DataFrame(data=data, columns=columns)
         return df
 
-    
+
     def test_apply_additions(self, frozen_df, dummy_additions):
         """General tests for apply_additions"""
         amended = apply_additions(frozen_df, dummy_additions, {"filename_items": {"run_id": "1"}}, test_logger)

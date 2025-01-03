@@ -164,7 +164,7 @@ Deduced_Data_Type = "float64"
 
 [251]
 old_name = "251"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "object"
 
 [300]
 old_name = "300"
@@ -268,7 +268,7 @@ Deduced_Data_Type = "float64"
 
 [601]
 old_name = "601"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "object"
 
 [602]
 old_name = "602"
@@ -332,7 +332,7 @@ Deduced_Data_Type = "float64"
 
 [712]
 old_name = "712"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "object"
 
 [713]
 old_name = "713"
@@ -408,7 +408,7 @@ Deduced_Data_Type = "int64"
 
 [formid]
 old_name = "formid"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "int64"
 
 [status]
 old_name = "status"
@@ -508,7 +508,7 @@ Deduced_Data_Type = "float64"
 
 [companyregistrationnumber]
 old_name = "companyregistrationnumber"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "int64"
 
 [numberlivelocalunits]
 old_name = "numberlivelocalunits"
@@ -570,10 +570,6 @@ Deduced_Data_Type = "int64"
 old_name = "postcodes_harmonised"
 Deduced_Data_Type = "object"
 
-[last_frozen]
-old_name = "last_frozen"
-Deduced_Data_Type = "object"
-
 [pg_numeric]
 old_name = "pg_numeric"
 Deduced_Data_Type = "int64"
@@ -605,319 +601,3 @@ Deduced_Data_Type = "object"
 [ITL121NM]
 old_name = "ITL121NM"
 Deduced_Data_Type = "object"
-
-[emp_researcher]
-old_name = "emp_researcher"
-Deduced_Data_Type = "float64"
-
-[emp_technician]
-old_name = "emp_technician"
-Deduced_Data_Type = "float64"
-
-[emp_other]
-old_name = "emp_other"
-Deduced_Data_Type = "float64"
-
-[emp_total]
-old_name = "emp_total"
-Deduced_Data_Type = "float64"
-
-[headcount_res_m]
-old_name = "headcount_res_m"
-Deduced_Data_Type = "float64"
-
-[headcount_res_f]
-old_name = "headcount_res_f"
-Deduced_Data_Type = "float64"
-
-[headcount_tec_m]
-old_name = "headcount_tec_m"
-Deduced_Data_Type = "float64"
-
-[headcount_tec_f]
-old_name = "headcount_tec_f"
-Deduced_Data_Type = "float64"
-
-[headcount_oth_m]
-old_name = "headcount_oth_m"
-Deduced_Data_Type = "float64"
-
-[headcount_oth_f]
-old_name = "headcount_oth_f"
-Deduced_Data_Type = "float64"
-
-[headcount_tot_m]
-old_name = "headcount_tot_m"
-Deduced_Data_Type = "float64"
-
-[headcount_tot_f]
-old_name = "headcount_tot_f"
-Deduced_Data_Type = "float64"
-
-[headcount_total]
-old_name = "headcount_total"
-Deduced_Data_Type = "float64"
-
-[imp_marker]
-old_name = "imp_marker"
-Deduced_Data_Type = "object"
-
-[imp_class]
-old_name = "imp_class"
-Deduced_Data_Type = "object"
-
-[auto_outlier]
-old_name = "auto_outlier"
-Deduced_Data_Type = "bool"
-
-[manual_outlier]
-old_name = "manual_outlier"
-Deduced_Data_Type = "float64"
-
-[outlier]
-old_name = "outlier"
-Deduced_Data_Type = "bool"
-
-[a_weight]
-old_name = "a_weight"
-Deduced_Data_Type = "float64"
-
-[701_estimated]
-old_name = "701_estimated"
-Deduced_Data_Type = "float64"
-
-[702_estimated]
-old_name = "702_estimated"
-Deduced_Data_Type = "float64"
-
-[703_estimated]
-old_name = "703_estimated"
-Deduced_Data_Type = "float64"
-
-[704_estimated]
-old_name = "704_estimated"
-Deduced_Data_Type = "float64"
-
-[705_estimated]
-old_name = "705_estimated"
-Deduced_Data_Type = "float64"
-
-[706_estimated]
-old_name = "706_estimated"
-Deduced_Data_Type = "float64"
-
-[707_estimated]
-old_name = "707_estimated"
-Deduced_Data_Type = "float64"
-
-[709_estimated]
-old_name = "709_estimated"
-Deduced_Data_Type = "float64"
-
-[710_estimated]
-old_name = "710_estimated"
-Deduced_Data_Type = "float64"
-
-[711_estimated]
-old_name = "711_estimated"
-Deduced_Data_Type = "float64"
-
-[211_estimated]
-old_name = "211_estimated"
-Deduced_Data_Type = "float64"
-
-[305_estimated]
-old_name = "305_estimated"
-Deduced_Data_Type = "float64"
-
-[emp_total_estimated]
-old_name = "emp_total_estimated"
-Deduced_Data_Type = "float64"
-
-[headcount_total_estimated]
-old_name = "headcount_total_estimated"
-Deduced_Data_Type = "float64"
-
-[headcount_tot_m_estimated]
-old_name = "headcount_tot_m_estimated"
-Deduced_Data_Type = "float64"
-
-[headcount_tot_f_estimated]
-old_name = "headcount_tot_f_estimated"
-Deduced_Data_Type = "float64"
-
-[202_estimated]
-old_name = "202_estimated"
-Deduced_Data_Type = "float64"
-
-[203_estimated]
-old_name = "203_estimated"
-Deduced_Data_Type = "float64"
-
-[204_estimated]
-old_name = "204_estimated"
-Deduced_Data_Type = "float64"
-
-[205_estimated]
-old_name = "205_estimated"
-Deduced_Data_Type = "float64"
-
-[206_estimated]
-old_name = "206_estimated"
-Deduced_Data_Type = "float64"
-
-[207_estimated]
-old_name = "207_estimated"
-Deduced_Data_Type = "float64"
-
-[209_estimated]
-old_name = "209_estimated"
-Deduced_Data_Type = "float64"
-
-[210_estimated]
-old_name = "210_estimated"
-Deduced_Data_Type = "float64"
-
-[212_estimated]
-old_name = "212_estimated"
-Deduced_Data_Type = "float64"
-
-[214_estimated]
-old_name = "214_estimated"
-Deduced_Data_Type = "float64"
-
-[216_estimated]
-old_name = "216_estimated"
-Deduced_Data_Type = "float64"
-
-[218_estimated]
-old_name = "218_estimated"
-Deduced_Data_Type = "float64"
-
-[219_estimated]
-old_name = "219_estimated"
-Deduced_Data_Type = "float64"
-
-[220_estimated]
-old_name = "220_estimated"
-Deduced_Data_Type = "float64"
-
-[221_estimated]
-old_name = "221_estimated"
-Deduced_Data_Type = "float64"
-
-[222_estimated]
-old_name = "222_estimated"
-Deduced_Data_Type = "float64"
-
-[223_estimated]
-old_name = "223_estimated"
-Deduced_Data_Type = "float64"
-
-[225_estimated]
-old_name = "225_estimated"
-Deduced_Data_Type = "float64"
-
-[226_estimated]
-old_name = "226_estimated"
-Deduced_Data_Type = "float64"
-
-[227_estimated]
-old_name = "227_estimated"
-Deduced_Data_Type = "float64"
-
-[228_estimated]
-old_name = "228_estimated"
-Deduced_Data_Type = "float64"
-
-[229_estimated]
-old_name = "229_estimated"
-Deduced_Data_Type = "float64"
-
-[237_estimated]
-old_name = "237_estimated"
-Deduced_Data_Type = "float64"
-
-[242_estimated]
-old_name = "242_estimated"
-Deduced_Data_Type = "float64"
-
-[243_estimated]
-old_name = "243_estimated"
-Deduced_Data_Type = "float64"
-
-[244_estimated]
-old_name = "244_estimated"
-Deduced_Data_Type = "float64"
-
-[245_estimated]
-old_name = "245_estimated"
-Deduced_Data_Type = "float64"
-
-[246_estimated]
-old_name = "246_estimated"
-Deduced_Data_Type = "float64"
-
-[247_estimated]
-old_name = "247_estimated"
-Deduced_Data_Type = "float64"
-
-[248_estimated]
-old_name = "248_estimated"
-Deduced_Data_Type = "float64"
-
-[249_estimated]
-old_name = "249_estimated"
-Deduced_Data_Type = "float64"
-
-[250_estimated]
-old_name = "250_estimated"
-Deduced_Data_Type = "float64"
-
-[302_estimated]
-old_name = "302_estimated"
-Deduced_Data_Type = "float64"
-
-[303_estimated]
-old_name = "303_estimated"
-Deduced_Data_Type = "float64"
-
-[304_estimated]
-old_name = "304_estimated"
-Deduced_Data_Type = "float64"
-
-[emp_researcher_estimated]
-old_name = "emp_researcher_estimated"
-Deduced_Data_Type = "float64"
-
-[emp_technician_estimated]
-old_name = "emp_technician_estimated"
-Deduced_Data_Type = "float64"
-
-[emp_other_estimated]
-old_name = "emp_other_estimated"
-Deduced_Data_Type = "float64"
-
-[headcount_res_m_estimated]
-old_name = "headcount_res_m_estimated"
-Deduced_Data_Type = "float64"
-
-[headcount_res_f_estimated]
-old_name = "headcount_res_f_estimated"
-Deduced_Data_Type = "float64"
-
-[headcount_tec_m_estimated]
-old_name = "headcount_tec_m_estimated"
-Deduced_Data_Type = "float64"
-
-[headcount_tec_f_estimated]
-old_name = "headcount_tec_f_estimated"
-Deduced_Data_Type = "float64"
-
-[headcount_oth_m_estimated]
-old_name = "headcount_oth_m_estimated"
-Deduced_Data_Type = "float64"
-
-[headcount_oth_f_estimated]
-old_name = "headcount_oth_f_estimated"
-Deduced_Data_Type = "float64"

@@ -1,7 +1,6 @@
 """Utility functions  to be used in the imputation module."""
 
 import logging
-import os
 import pandas as pd
 from typing import List, Tuple
 from itertools import chain
@@ -429,7 +428,9 @@ def breakdown_checks_after_imputation(df: pd.DataFrame) -> None:
     # the sum of the other cols should equal the total
 
 
-def tidy_imputation_dataframe(df: pd.DataFrame, to_impute_cols: List, config) -> pd.DataFrame:
+def tidy_imputation_dataframe(
+    df: pd.DataFrame, to_impute_cols: List, config
+) -> pd.DataFrame:
     """Update cols with imputed values and remove rows and columns no longer needed.
 
     Args:
@@ -459,11 +460,12 @@ def tidy_imputation_dataframe(df: pd.DataFrame, to_impute_cols: List, config) ->
         )
     ]
 
-    to_drop += ["200_original", "pg_sic_class", "empty_pgsic_group", "empty_pg_group"]
-    to_drop += ["200_imp_marker"]
-
     if config["survey"]["survey_type"] == "PNP":
         to_drop += ["pnp_key", "osmotherly", "area"]
+
+    else:
+        to_drop += ["200_original", "pg_sic_class", "empty_pgsic_group"]
+        to_drop += ["empty_pg_group", "200_imp_marker"]
 
     df = df.drop(columns=to_drop)
 

@@ -14,7 +14,7 @@ import logging
 import subprocess
 import os
 import pathlib
-from typing import List, Union
+from typing import Union
 
 import yaml
 
@@ -33,8 +33,8 @@ rd_logger = logging.getLogger(__name__)
 
 
 def rd_read_csv(filepath: str, **kwargs) -> pd.DataFrame:
-    """Reads a csv from HDFS into a Pandas Dataframe using pydoop. 
-    If "thousands" argument is not specified, sets it to ",". 
+    """Reads a csv from HDFS into a Pandas Dataframe using pydoop.
+    If "thousands" argument is not specified, sets it to ",".
     Allows to use any additional keyword arguments of Pandas read_csv method.
 
     Args:
@@ -48,7 +48,7 @@ def rd_read_csv(filepath: str, **kwargs) -> pd.DataFrame:
         # If "thousands" argument is not specified, set it to ","
         if "thousands" not in kwargs:
             kwargs["thousands"] = ","
-        
+
         # Read the scv file using the path and keyword arguments
         try:
             df = pd.read_csv(file, **kwargs)

@@ -5,8 +5,7 @@ import pandas as pd
 from src.utils.defence import type_defence
 
 
-def _add_last_frozen_column(frozen_df: pd.DataFrame,
-                            config: dict) -> pd.DataFrame:
+def _add_last_frozen_column(frozen_df: pd.DataFrame, config: dict) -> pd.DataFrame:
     """Add the last_frozen column to staged data.
 
     Args:

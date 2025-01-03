@@ -13,7 +13,7 @@ def output_intram_totals(
     intram_tot_dict: Dict[str, int],
     config: Dict[str, Any],
     write_csv: Callable,
-    ) -> None:
+) -> None:
     """Output the intramural totals.
 
     Args:
@@ -21,7 +21,7 @@ def output_intram_totals(
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
             This will be the hdfs or network version depending on settings.
-        
+
     Returns:
         None
     """
