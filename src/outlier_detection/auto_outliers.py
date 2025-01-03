@@ -1,4 +1,5 @@
 """Apply outlier detection to the dataset."""
+
 import logging
 import pandas as pd
 from typing import List

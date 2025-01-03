@@ -28,7 +28,7 @@ def load_schema(file_path: str = "./config/contributors_schema.toml") -> dict:
     if file_exists:
         try:
             # Open the file and load toml data schema into dictionary
-            with open(file_path, 'rb') as file:
+            with open(file_path, "rb") as file:
                 toml_dict = tomli.load(file)
             return toml_dict
         except tomli.TOMLDecodeError as e:
@@ -40,6 +40,7 @@ def load_schema(file_path: str = "./config/contributors_schema.toml") -> dict:
             "Validation schema does not exist! Path may be incorrect"
         )
         return None
+
 
 @exception_wrap
 def check_data_shape(
@@ -185,9 +186,11 @@ def combine_schemas_validate_full_df(
 
     # Create a dict for dtypes only
     dtypes = {
-        column_nm: dtypes_con_schema[column_nm]["Deduced_Data_Type"]
-        if column_nm in dtypes_con_schema
-        else dtypes_res_schema[column_nm]["Deduced_Data_Type"]
+        column_nm: (
+            dtypes_con_schema[column_nm]["Deduced_Data_Type"]
+            if column_nm in dtypes_con_schema
+            else dtypes_res_schema[column_nm]["Deduced_Data_Type"]
+        )
         for column_nm in full_columns_list
     }
 

@@ -404,6 +404,7 @@ def validate_construction_config_settings(config):
                 " provided."
             )
 
+
 def validate_survey_config(config: dict) -> dict:
     """Validate the configuration settings.
 
@@ -419,9 +420,7 @@ def validate_survey_config(config: dict) -> dict:
     survey_config = config.get("survey", {})
     if survey_config.get("survey_type") == "PNP":
         # List of values not compatible with PNP
-        values = [
-            config.get("global", {}).get("load_ni_data", True)
-        ]
+        values = [config.get("global", {}).get("load_ni_data", True)]
         if any(values):
             raise ValueError(
                 "Error: PNP is set. Northern Ireland data cannot be run. Please update "
@@ -444,14 +443,16 @@ def validate_pnp_config(config: dict) -> None:
     # Check if PNP is set
     if config["survey"]["survey_type"] == "PNP":
         # List of values not compatible with PNP
-        incompatible_settings = ["output_ni_full_responses",
-                                 "output_mapping_ni_qa",
-                                 "output_short_form",
-                                 "run_ni_construction",
-                                 "output_ni_sas",
-                                 "output_intram_by_pg_gb",
-                                 "output_outlier_qa"]
-        
+        incompatible_settings = [
+            "output_ni_full_responses",
+            "output_mapping_ni_qa",
+            "output_short_form",
+            "run_ni_construction",
+            "output_ni_sas",
+            "output_intram_by_pg_gb",
+            "output_outlier_qa",
+        ]
+
         result = []
         for setting in incompatible_settings:
             # Check if setting is True
@@ -461,7 +462,9 @@ def validate_pnp_config(config: dict) -> None:
                 # Update setting to False
                 config["global"][setting] = False
                 # Print warning message with setting that has bee updated.
-        print("WARNING: PNP is set. The following settings are not compatible with PNP: "
-             f"{', '.join(result)}. User config will be updated to False.")
-   
+        print(
+            "WARNING: PNP is set. The following settings are not compatible with PNP: "
+            f"{', '.join(result)}. User config will be updated to False."
+        )
+
     return config

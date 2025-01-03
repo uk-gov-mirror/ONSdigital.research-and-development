@@ -1,4 +1,5 @@
 """Function to validate the breakdown totals."""
+
 import logging
 import pandas as pd
 

@@ -1,4 +1,5 @@
 """Module containing all functions relating to short form expansion."""
+
 from typing import List, Union
 import pandas as pd
 import logging

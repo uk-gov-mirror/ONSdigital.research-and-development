@@ -1,4 +1,5 @@
 """Read and validate construction files the construction module."""
+
 import logging
 from typing import Callable, Tuple
 

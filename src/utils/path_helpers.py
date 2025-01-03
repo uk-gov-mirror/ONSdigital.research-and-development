@@ -1,4 +1,5 @@
 """This module contains helper functions for creating paths."""
+
 import os
 import logging
 
