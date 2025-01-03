@@ -458,11 +458,10 @@ def validate_pnp_config(config: dict) -> None:
             if config.get("global", {}).get(setting, True):
                 # Add setting to result list
                 result.append(setting)
+                # Update setting to False
+                config["global"][setting] = False
                 # Print warning message with setting that has bee updated.
-                print( "WARNING: PNP is set. The following settings are not compatible with PNP: "
-                 f"{result}" "User config will be updated to False.")
-                #Update to False
-                for setting in incompatible_settings:
-                  config["global"][setting] = False
-    
+        print("WARNING: PNP is set. The following settings are not compatible with PNP: "
+             f"{', '.join(result)}. User config will be updated to False.")
+   
     return config
