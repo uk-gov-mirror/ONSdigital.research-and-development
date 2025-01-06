@@ -300,7 +300,9 @@ def add_missing_columns(df):
     Return:
         df (pd.DataFrame): The dataframe with the added missing columns.
     """
-    missing_list = ['226', '228', '237', '203', '225', '227', '229']
+    missing_list = ['226', '228', '237', '203', '225', '227', '229', '251',
+                    '300', '301', '307', '308', '309', '708',
+                    'survey', 'formid', 'cellnumber', 'pg_numeric']
     for col in missing_list:
         if col not in df.columns:
             df[col] = np.nan
@@ -319,7 +321,6 @@ def clean_postcodes(df):
     """
     df["601"] = df["601"].str.replace("'", "")
     df["601"] = df["601"].apply(format_postcodes)
-
 
     return df
 
@@ -381,6 +382,48 @@ def populate_instance_1_columns(df, config):
         merged_df.drop(columns=[col + "_y"], inplace=True)
 
     return merged_df
+
+
+def test_populate_instance_1_columns():
+    """Test populate_instance_1_columns function."""
+
+    # Example input DataFrame
+    data = {
+        "reference": [1, 1, 2, 2, 3, 3, 4],
+        "instance": [0, 1, 0, 1, 0, 1, 0],
+        "211": [10, 0, 20, 5, 30, 0, 40],
+        "305": [30, 0, 40, 10, 50, 0, 60],
+        "202": [100, 200, 300, 400, 500, 600, 700],
+        "301": [100, 200, 300, 400, 500, 600, 700],
+        "oth": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]
+    }
+    df = pd.DataFrame(data)
+
+    # Example config
+    config = {
+        "breakdowns": {
+            "211": ["202"],
+            "305": ["301"]
+        }
+    }
+
+    # Define the expected output DataFrame
+    expected_data = {
+        "reference": [1, 1, 2, 2, 3, 3, 4, 4],
+        "instance": [0, 1, 0, 1, 0, 1, 0, 1],
+        "211": [0, 10, 0, 20, 0, 30, 0, 40],
+        "305": [0, 30, 0, 40, 0, 50, 0, 60],
+        "202": [0, 100, 0, 300, 0, 500, 0, 700],
+        "301": [0, 100, 0, 300, 0, 500, 0, 700],
+        "oth": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 7.0]
+    }
+    expected_df = pd.DataFrame(expected_data)
+
+    # Call the function
+    result_df = populate_instance_1_columns(df, config)
+
+    # Assert that the result DataFrame is equal to the expected DataFrame
+    assert_frame_equal(result_df, expected_df, check_dtype=False)
 
 
 def test_populate_instance_1_columns():
@@ -606,22 +649,20 @@ def create_pnp_backdata(df):
                               'q0906': '304',
                               'q0908': '305'}
 
-    new_column_order = ['period', 'reference', 'formtype', 'Region',
-                        'period_year', 'instance', '101', '103', '104', '200', '201',
-                        '202', '203', '204', '205', '206', '207', '209', '210',
-                        '211', '212', '214', '216', '218', '219', '220', '221',
-                        '222', '223', '225', '226', '227', '228', '229', '237',
-                        '242', '243', '244', '245', '246', '247', '248', '249', '250',
-                        '302', '303', '304', '305',
-                        '405', '406', '407', '408', '409', '410', '411', '412',
-                        '501', '502', '503', '504', '505', '506', '507', '508',
-                        '601', '602', '604',
-                        'statusencoded', 'status', 'imp_marker', 'imp_class',
-                        'emp_researcher', 'emp_technician', 'emp_other', 'emp_total',
-                        'headcount_res_m','headcount_res_f',
-                        'headcount_tec_m', 'headcount_tec_f',
-                        'headcount_oth_m', 'headcount_oth_f',
-                        'headcount_tot_m','headcount_tot_f', 'headcount_total']
+    new_column_order = ['reference', 'period', 'survey', 'status', 'formid', 'instance',
+                        '101', '103', '104', '200', '201', '202', '203', '204', '205',
+                        '206', '207', '209', '210', '211', '212', '214', '216', '218',
+                        '219', '220', '221', '222', '223', '225', '226', '227', '228',
+                        '229', '237', '242', '243', '244', '245', '246', '247', '248',
+                        '249', '250', '251', '300', '301', '302', '303', '304', '305',
+                        '307', '308', '309', '405', '406', '407', '408', '409', '410',
+                        '411', '412', '501', '502', '503', '504', '505', '506', '507',
+                        '508', '601', '602', '604', '708',
+                        'cellnumber', 'pg_numeric', 'emp_researcher', 'emp_technician',
+                        'emp_other', 'emp_total', 'headcount_res_m', 'headcount_res_f',
+                        'headcount_tec_m', 'headcount_tec_f', 'headcount_oth_m',
+                        'headcount_oth_f', 'headcount_tot_m', 'headcount_tot_f',
+                        'headcount_total', 'imp_class', 'imp_marker', 'formtype']
 
     # Rename wanted columns
     df = df.rename(columns=columns_to_rename_dict)
@@ -699,7 +740,6 @@ def create_pnp_backdata(df):
 
     # Re-order columns to match BERD (for ease of comparrison)
     df = df[[c for c in new_column_order if c in df.columns]]
-    # df = df[new_column_order]
 
     return df
 
@@ -734,7 +774,7 @@ def main():
     rd_write_csv(
         os.path.join(
             backdata_out_path,
-            "PNP_2021_backdata_for_checking.csv"),
+            "PNP_2021_backdata_clean.csv"),
         pnp_backdata_df
     )
 
