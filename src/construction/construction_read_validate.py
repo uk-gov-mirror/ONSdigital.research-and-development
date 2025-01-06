@@ -90,8 +90,8 @@ def read_validate_postcode_construction_file(
     Args:
         config (dict): The pipeline configuration.
         check_file_exists (Callable): Function to check if file exists.
-        read_csv (Callable): Function to read a csv file.nstruction (bool, optional): If true, run the postcode
-            only construction.
+        read_csv (Callable): Function to read a csv file.
+        construction_logger (logging.Logger): The logger for the construction module.
 
     Returns:
         pd.DataFrame: The construction dataframes for postcode constructions.

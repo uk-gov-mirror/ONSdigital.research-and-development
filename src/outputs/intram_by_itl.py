@@ -41,8 +41,7 @@ def save_detailed_csv(
     Returns:
         Dict[str, int]: A dictionary of intramural totals.
     """
-    save_name = filename_amender(filename=title,
-                                 config=config)
+    save_name = filename_amender(filename=title, config=config)
     save_path = os.path.join(output_dir, save_name)
     if not overwrite and os.path.exists(save_path):
         raise FileExistsError(

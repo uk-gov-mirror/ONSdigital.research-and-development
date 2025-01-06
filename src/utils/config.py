@@ -1,4 +1,5 @@
 """Simple utils to assist the config."""
+
 from copy import deepcopy
 from typing import Union, Tuple, Dict
 

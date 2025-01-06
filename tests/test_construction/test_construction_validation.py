@@ -264,5 +264,3 @@ class TestValidateShortToLong(object):
         )
         with pytest.raises(ValueError, match=msg):
             validate_short_to_long(short_to_long_df)
-
-

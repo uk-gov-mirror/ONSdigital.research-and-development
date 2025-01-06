@@ -198,7 +198,9 @@ def update_ref_list(full_df: pd.DataFrame, ref_list_df: pd.DataFrame) -> pd.Data
     return df
 
 
-def create_additional_ni_cols(ni_full_responses: pd.DataFrame, config: dict) -> pd.DataFrame:
+def create_additional_ni_cols(
+    ni_full_responses: pd.DataFrame, config: dict
+) -> pd.DataFrame:
     """
     Create additional columns for Northern Ireland data.
 

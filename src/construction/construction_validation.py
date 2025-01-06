@@ -161,7 +161,7 @@ def _references_in_snapshot(
         construction_df[["reference"]].isin(snapshot_refs), how="left", rsuffix="_valid"
     )
     # obtain a df of invalid references (not in snpashot)
-    invalid_refs = valid_df[valid_df.reference_valid == False]
+    invalid_refs = valid_df[valid_df.reference_valid.isin([False])]
     if len(invalid_refs) > 0:
         inv = invalid_refs["reference"].unique()
         if logger:

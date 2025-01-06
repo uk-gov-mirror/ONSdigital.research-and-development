@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Sep 11 13:50:53 2024
-This script extracts numeric pg codes that map to more than one pg_alpha, 
+This script extracts numeric pg codes that map to more than one pg_alpha,
 depending on the sic code
 @author: zoring
 """
@@ -20,9 +20,9 @@ from os.path import join
 import pandas as pd
 
 #%% Load input
-mypath = join(fol_in, map_in) 
+mypath = join(fol_in, map_in)
 df = pd.read_csv(
-    mypath, 
+    mypath,
     usecols=[sic_col, alpha_col, num_col]
 ).drop_duplicates()
 
@@ -31,7 +31,7 @@ df_agg = df[[alpha_col, num_col]].drop_duplicates().groupby(num_col).agg("count"
 df_multy = df_agg.loc[df_agg[alpha_col] > 1][[num_col]]
 multi_list = list(df_multy[num_col])
 
-#%% Extract potential multiplicate 
+#%% Extract potential multiplicate
 df_out = df.loc[df[num_col].isin(multi_list)]
 mypath = join(fol_out, map_out)
 df_out.to_csv(mypath, index=None)
