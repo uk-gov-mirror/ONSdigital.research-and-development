@@ -426,40 +426,6 @@ def test_populate_instance_1_columns():
     assert_frame_equal(result_df, expected_df, check_dtype=False)
 
 
-def format_103_104(df):
-    """ Function to format the 103 and 104 columns.
-    Args:
-        df (pd.DataFrame): The dataframe to format the 103 and 104 columns.
-
-    Return:
-        df (pd.DataFrame): The dataframe with the formatted 103 and 104 columns.
-    """
-
-    for col in ["103", "104"]:
-        # Convert the 'date_column' to datetime format
-        df[col] = pd.to_datetime(df[col], format='%d/%m/%Y')
-
-        # Format the 'date_column' to 'YYYYMMDD'
-        df[col] = df[col].dt.strftime('%Y%m%d')
-
-    extra_rows_df = df[df["reference"].isin(refs_without_ins_1)].copy()
-    extra_rows_df["instance"] = 1
-
-    df = pd.concat([df, extra_rows_df], ignore_index=True)
-
-    merged_df = pd.merge(
-        df, update_df, on=["reference", "instance"], how="left", suffixes=("", "_y")
-    )
-
-    # replace all values in the columns with the values from the update_df
-    for col in cols:
-        merged_df.loc[merged_df["instance"] == 1, col] = merged_df[col + "_y"]
-        merged_df.loc[merged_df["instance"] == 0, col] = 0
-        merged_df.drop(columns=[col + "_y"], inplace=True)
-
-    return merged_df
-
-
 def test_populate_instance_1_columns():
     """Test populate_instance_1_columns function."""
 
@@ -755,9 +721,6 @@ def create_pnp_backdata(df):
 
     # clean postcodes
     df = clean_postcodes(df)
-
-    # Format the 103 and 104 columns
-    df = format_103_104(df)
 
     # Multiply values in columns starting 2xx or 3xx by 1000
     df = multiply_by_1000(df, config)
