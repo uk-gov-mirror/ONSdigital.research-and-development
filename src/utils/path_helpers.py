@@ -306,7 +306,7 @@ def validate_mapping_filenames(config: dict) -> dict:
     return bool_dict, msg
 
 
-def filename_validation(config: dict) -> dict:
+def filename_year_validation(config: dict) -> dict:
     """Checks that the snapshot and mapping filenames are valid"""
     # check the snapshot filenames have the current year in them
     snapshot_validation_logger(config)

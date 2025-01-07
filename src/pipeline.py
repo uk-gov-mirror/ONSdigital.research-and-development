@@ -8,9 +8,8 @@ import pandas as pd
 # Our local modules
 from src.utils import runlog
 from src._version import __version__ as version
-from src.utils.config import config_setup, validate_survey_config, validate_pnp_config
+from src.utils.config import config_setup, file_validation
 from src.utils.wrappers import logger_creator
-from src.utils.path_helpers import filename_validation
 from src.staging.staging_main import run_staging
 from src.utils.helpers import validate_updated_postcodes
 from src.freezing.freezing_main import run_freezing
@@ -42,14 +41,8 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
     global_config = config["global"]
     logger = logger_creator(global_config)
 
-    # validate the filenames in the config
-    config = filename_validation(config)
-
-    # Check validate survey config
-    config = validate_survey_config(config)
-
-    # Check if PNP is set and config is valid
-    config = validate_pnp_config(config)
+    # validate the filenames and survey type in the config
+    config = file_validation(config)
 
     # Check the environment switch
     platform = config["global"]["platform"]

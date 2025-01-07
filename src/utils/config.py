@@ -5,7 +5,7 @@ from typing import Union, Tuple, Dict
 
 from src.utils.defence import type_defence, validate_file_extension
 from src.utils.local_file_mods import safeload_yaml
-from src.utils.path_helpers import update_config_with_paths
+from src.utils.path_helpers import update_config_with_paths, filename_year_validation
 
 
 def config_setup(user_config_path: str, dev_config_path: str) -> Dict:
@@ -406,7 +406,7 @@ def validate_construction_config_settings(config):
 
 
 def validate_survey_config(config: dict) -> dict:
-    """Validate the configuration settings.
+    """Validate the configuration settings for PNP survey if NI data is set to True.
 
     Args:
         config (dict): The configuration dictionary.
@@ -415,7 +415,7 @@ def validate_survey_config(config: dict) -> dict:
         dict: The validated configuration dictionary.
 
     Raises:
-        ValueError: If PNP is set and Northern Ireland data is configured to run.
+        ValueError: If PNP is set and Northern Ireland data is configured to True.
     """
     survey_config = config.get("survey", {})
     if survey_config.get("survey_type") == "PNP":
@@ -467,4 +467,20 @@ def validate_pnp_config(config: dict) -> None:
             f"{', '.join(result)}. User config will be updated to False."
         )
 
+    return config
+
+
+def file_validation(config: dict) -> dict:
+    """Combining various config validation functions to keep pipeline as clean as
+        possible.
+
+    Args:
+        config (dict): The configuration dictionary.
+
+    Returns:
+        dict: The updated configuration dictionary.
+    """
+    filename_year_validation(config)
+    validate_survey_config(config)
+    validate_pnp_config(config)
     return config
