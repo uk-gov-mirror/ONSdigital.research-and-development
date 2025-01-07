@@ -44,7 +44,6 @@ imputation_paths:
   qa_path: "imputation_qa"
   manual_trimming_path: "manual_trimming"
   backdata_out_path: "backdata_output"
-  backdata_in_path: "backdata_input"
 outliers_paths:
   folder: "07_outliers"
   qa_path: "outliers_qa"
@@ -81,7 +80,7 @@ network_paths:
   # Imputation and outliers input paths
   # backdata_path: "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/BERD/06_imputation/backdata_output/2021_backdata_oct_24.csv"
   backdata_path: "R:/BERD Results System Development 2023/DAP_emulation/2022_surveys/BERD/06_imputation/backdata_output/2022_backdata_published_v347.csv"
-  pnp_backdata_path: "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/PNP/06_imputation/backdata_output/PNP_2021_backdata_thousands.csv"
+  pnp_backdata_path: "R:/BERD Results System Development 2023/DAP_emulation/2021_surveys/PNP/06_imputation/backdata_output/PNP_2021_backdata.csv"
   manual_imp_trim_path: "06_imputation/manual_trimming/2023_manual_trimming_v1.csv"
   manual_outliers_path: "07_outliers/manual_outliers/2023_manual_outliers_v1.csv"
   # Construction paths
