@@ -15,7 +15,7 @@ def output_tau(
     config: Dict[str, Any],
     intram_tot_dict: Dict[str, int],
     write_csv: Callable,
-   ) -> Dict[str, int]:
+) -> Dict[str, int]:
     """Run the outputs module.
 
     Args:

@@ -9,10 +9,39 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 
 # Local Imports
-from src.imputation.MoR import run_mor
+from src.imputation.MoR import run_mor, is_lf_only
 from src.imputation.imputation_helpers import get_imputation_cols
 
 # pytestmark = pytest.mark.runwip
+
+class TestIsLfOnly(object):
+    """Tests for is_lf_only."""
+    def test_pnp_survey(self):
+        config = {
+            "survey": {
+                "survey_type": "PNP",
+                "survey_year": 2021
+            }
+        }
+        assert is_lf_only(config) == True
+
+    def test_berd_2021_backdata(self):
+        config = {
+            "survey": {
+                "survey_type": "BERD",
+                "survey_year": 2022
+            }
+        }
+        assert is_lf_only(config) == True
+
+    def test_neither_condition(self):
+        config = {
+            "survey": {
+                "survey_type": "BERD",
+                "survey_year": 2021
+            }
+        }
+        assert is_lf_only(config) == False
 
 class TestRunMoRLongForm(object):
     """Tests for run_mor."""

@@ -242,6 +242,3 @@ class TestBringTogetherSplitCases:
         assert_frame_equal(
             expected_amendments_df, result_amendments_df.reset_index(drop=True)
         )
-
-
-

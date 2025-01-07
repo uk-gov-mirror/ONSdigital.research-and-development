@@ -452,6 +452,3 @@ class TestReplaceValuesInConstruction:
             expected_snapshot_output,
             check_dtype=False
         )
-
-
-

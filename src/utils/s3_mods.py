@@ -16,18 +16,12 @@ To do:
     Read  feather - possibly, not needed
     Write to feather - possibly, not needed
 """
-
-# Standard libraries
 import json
 import logging
 
-
-# Third party libraries
 import pandas as pd
-from io import StringIO, TextIOWrapper, BytesIO
+from io import StringIO, TextIOWrapper
 
-
-# Local libraries
 from rdsa_utils.cdp.helpers.s3_utils import (
     file_exists,
     create_folder_on_s3,
@@ -35,10 +29,9 @@ from rdsa_utils.cdp.helpers.s3_utils import (
     is_s3_directory,
     copy_file,
     move_file,
-    validate_bucket_name,
-    validate_s3_file_path,
 )
 from src.utils.singleton_boto import SingletonBoto
+
 # from src.utils.singleton_config import SingletonConfig
 
 # set up logging, boto3 client and s3 bucket
@@ -99,9 +92,7 @@ def rd_write_csv(filepath: str, data: pd.DataFrame) -> None:
     csv_buffer.seek(0)
 
     # Write the buffer into the s3 bucket
-    _ = s3_client.put_object(
-        Bucket=s3_bucket, Body=csv_buffer.getvalue(), Key=filepath
-    )
+    _ = s3_client.put_object(Bucket=s3_bucket, Body=csv_buffer.getvalue(), Key=filepath)
     return None
 
 
@@ -136,9 +127,7 @@ def rd_file_exists(filepath: str, raise_error=False) -> bool:
         result (bool): A boolean value which is true if the file exists.
     """
 
-    result = file_exists(
-        client=s3_client, bucket_name=s3_bucket, object_name=filepath
-    )
+    result = file_exists(client=s3_client, bucket_name=s3_bucket, object_name=filepath)
 
     if not result and raise_error:
         raise FileExistsError(f"File: {filepath} does not exist")
@@ -188,7 +177,7 @@ def rd_file_size(filepath: str) -> int:
     """
 
     _response = s3_client.head_object(Bucket=s3_bucket, Key=filepath)
-    file_size = _response['ContentLength']
+    file_size = _response["ContentLength"]
 
     return file_size
 
@@ -215,10 +204,7 @@ def rd_md5sum(filepath: str) -> str:
     """
 
     try:
-        md5result = s3_client.head_object(
-            Bucket=s3_bucket,
-            Key=filepath
-        )['ETag'][1:-1]
+        md5result = s3_client.head_object(Bucket=s3_bucket, Key=filepath)["ETag"][1:-1]
     except s3_client.exceptions.ClientError as e:
         s3_logger.error(f"Failed to compute the md5 checksum: {str(e)}")
         md5result = None
@@ -236,18 +222,16 @@ def rd_isdir(dirpath: str) -> bool:
 
     """
     # The directory name must end with forward slash
-    if not dirpath.endswith('/'):
-        dirpath = dirpath + '/'
+    if not dirpath.endswith("/"):
+        dirpath = dirpath + "/"
 
     # Any slashes at the beginning should be removed
-    while dirpath.startswith('/'):
+    while dirpath.startswith("/"):
         dirpath = dirpath[1:]
 
     # Use the function from rdsa_utils
     response = is_s3_directory(
-        client=s3_client,
-        bucket_name=s3_bucket,
-        object_name=dirpath
+        client=s3_client, bucket_name=s3_bucket, object_name=dirpath
     )
     return response
 
@@ -297,7 +281,7 @@ def rd_read_header(path: str) -> str:
         status (bool): True if the dirpath is a directory, false otherwise.
     """
     # Create an input/output stream pointer, same as open
-    stream = TextIOWrapper(s3_client.get_object(Bucket=s3_bucket, Key=path)['Body'])
+    stream = TextIOWrapper(s3_client.get_object(Bucket=s3_bucket, Key=path)["Body"])
 
     # Read the first line from the stream
     response = stream.readline()
@@ -320,9 +304,7 @@ def rd_write_string_to_file(content: bytes, filepath: str):
     str_buffer.seek(0)
 
     # Write the buffer into the s3 bucket
-    _ = s3_client.put_object(
-        Bucket=s3_bucket, Body=str_buffer.getvalue(), Key=filepath
-    )
+    _ = s3_client.put_object(Bucket=s3_bucket, Body=str_buffer.getvalue(), Key=filepath)
     return None
 
 
@@ -336,7 +318,7 @@ def _path_long2short(path: "str") -> str:
     """
     if "/" in path:
         last_slash = path.rfind("/")
-        return path[last_slash + 1:]
+        return path[last_slash + 1 :]
     else:
         return path
 
@@ -358,14 +340,14 @@ def rd_copy_file(src_path: str, dst_path: str) -> bool:
     removed. This is needed for the library method copy_file to work correctly.
 
     Library method copy_file requires that the paths are file paths:
-    old_dir/old.file and new_dir/new.file. The rd_copy_file takes full file name 
+    old_dir/old.file and new_dir/new.file. The rd_copy_file takes full file name
     with the full file path as a source, and just a directory path as a
     destination, like this: old_dir/old.file and new_dir/ or new_dir without the
-    slash at the end. old.file will become new_dir/old.file, i.e. the file is 
+    slash at the end. old.file will become new_dir/old.file, i.e. the file is
     copied with the same name, not renamed.
-    Supplementary function _path_long2short decouples old.file from the full 
+    Supplementary function _path_long2short decouples old.file from the full
     source path and "glues it" to the end of destination path.
-    
+
     Args:
         src_path (string): Full path of the source file, not including the
         bucket name, but including the quasi-directories and slashes preceding
@@ -408,7 +390,7 @@ def rd_move_file(src_path: str, dst_path: str) -> bool:
         source_bucket_name=s3_bucket,
         source_object_name=src_path,
         destination_bucket_name=s3_bucket,
-        destination_object_name=dst_path
+        destination_object_name=dst_path,
     )
     return success
 
@@ -433,8 +415,8 @@ def s3walk(locations: list, prefix: str) -> tuple:
         if prefixLocal not in root:
             root[prefixLocal] = (set(), set())
         # check how many folders are available after prefix
-        remainder = location[len(prefixLocal):]
-        structure = remainder.split('/')
+        remainder = location[len(prefixLocal) :]
+        structure = remainder.split("/")
 
         # If we are not yet in the folder of the file we need to continue with
         # a larger prefix
@@ -442,7 +424,7 @@ def s3walk(locations: list, prefix: str) -> tuple:
             # add folder dir
             root[prefixLocal][0].add(structure[0])
             # make sure file is added allong the way
-            processLocation(root, prefixLocal + '/' + structure[0], location)
+            processLocation(root, prefixLocal + "/" + structure[0], location)
         else:
             # add to file
             root[prefixLocal][1].add(structure[0])
@@ -474,11 +456,10 @@ def rd_search_file(dir_path: str, ending: str) -> str:
     response = s3_client.list_objects_v2(Bucket=s3_bucket, Prefix=dir_path)
 
     # retrieve key values
-    locations = [object['Key'] for object in response['Contents']]
+    locations = [object["Key"] for object in response["Contents"]]
 
     for _, (__, files) in s3walk(locations, dir_path):
         for file in files:
-
             # Check for ending
             if file.endswith(ending):
                 target_file = str(file)

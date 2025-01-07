@@ -22,7 +22,7 @@ def output_ni_sas(
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
             This will be the hdfs or network version depending on settings.
-     """
+    """
     output_path = config["outputs_paths"]["outputs_master"]
 
     # Map the sizebands based on frozen employment

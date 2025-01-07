@@ -1,4 +1,5 @@
 import os
+
 # import csv
 from datetime import datetime
 from typing import Tuple
@@ -63,7 +64,7 @@ class RunLog:
             # Check if the dataframe has at least one data row
             if len(runfile):
                 latest_id = max(runfile.run_id)
-                
+
         # increment the latest id by 1
         run_id = latest_id + 1
         return run_id
@@ -137,7 +138,7 @@ class RunLog:
 
         Returns: None
         """
-        # Check if the runolg file exists. 
+        # Check if the runolg file exists.
         if not self.file_exists_func(filepath):
             # Create an empty dataframe with column names
             df = pd.DataFrame(columns=columns)

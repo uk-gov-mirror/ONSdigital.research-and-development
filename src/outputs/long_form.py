@@ -15,7 +15,7 @@ def output_long_form(
     df: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    ):
+):
     """Run the outputs module on long forms.
 
     Args:

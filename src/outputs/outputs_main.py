@@ -92,7 +92,10 @@ def run_outputs(  # noqa: C901
     if config["global"]["output_gb_sas"]:
         OutputMainLogger.info("Starting GB SAS output...")
         intram_tot_dict = output_gb_sas(
-            outputs_df, config, intram_tot_dict, write_csv,
+            outputs_df,
+            config,
+            intram_tot_dict,
+            write_csv,
         )
         OutputMainLogger.info("Finished GB SAS output.")
 

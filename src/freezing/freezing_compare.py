@@ -38,11 +38,7 @@ def get_amendments(
         "704", "705", "706", "707", "709", "711",
     ]
 
-    non_numeric_cols = [
-        "200",
-        "201",
-        "601",
-    ]
+    non_numeric_cols = ["200", "201", "601"]
     # numeric_cols_new = [f"{i}_updated" for i in numeric_cols]
     numeric_cols_diff = [f"{i}_diff" for i in numeric_cols]
     # non_numeric_cols_new = [f"{i}_updated" for i in non_numeric_cols]
