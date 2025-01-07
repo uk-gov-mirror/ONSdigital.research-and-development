@@ -156,7 +156,8 @@ def validate_data_with_schema(survey_df: pd.DataFrame, schema_path: str):  # noq
                         " the data."
                     )
             else:
-                survey_df[column] = survey_df[column].astype(dtypes_dict[column])
+                if survey_df[column].isna().all() is False:
+                    survey_df[column] = survey_df[column].astype(dtypes_dict[column])
         except Exception as e:
             ValidationLogger.error(e)
     ValidationLogger.info("Validation successful")
