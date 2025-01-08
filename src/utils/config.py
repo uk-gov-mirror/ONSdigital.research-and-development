@@ -406,7 +406,10 @@ def validate_construction_config_settings(config):
 
 
 def validate_survey_config(config: dict) -> dict:
-    """Validate the configuration settings for PNP survey if NI data is set to True.
+    """
+    Checking the logic surrounding the type of survey.
+    If survey_type is set to PNP and NI data is set to True, an error will be raised
+    and pipeline will stop.
 
     Args:
         config (dict): The configuration dictionary.
@@ -431,7 +434,9 @@ def validate_survey_config(config: dict) -> dict:
 
 def validate_pnp_config(config: dict) -> None:
     """
-        Validate the PNP configuration settings.
+        Checking the logic of the outputs are compatible with PNP survey.
+        If an output that is incompatible with PNP survey is set to True,
+        a warning message will be printed and the setting will be updated to False.
 
     Args:
         config (dict): The configuration dictionary.
@@ -449,8 +454,10 @@ def validate_pnp_config(config: dict) -> None:
             "output_short_form",
             "run_ni_construction",
             "output_ni_sas",
-            "output_intram_by_pg_gb",
+            "output_intram_by_pg_uk",
             "output_outlier_qa",
+            "output_intram_uk_itl1",
+            "output_intram_uk_itl2",
         ]
 
         result = []
@@ -471,8 +478,8 @@ def validate_pnp_config(config: dict) -> None:
 
 
 def file_validation(config: dict) -> dict:
-    """Combining various config validation functions to keep pipeline as clean as
-        possible.
+    """
+    Checking the logic is consistent in the config file for the pipeline to run.
 
     Args:
         config (dict): The configuration dictionary.
