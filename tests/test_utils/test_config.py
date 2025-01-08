@@ -638,8 +638,10 @@ class TestValidatePNPConfig (object):
                 "output_short_form": True,
                 "run_ni_construction": True,
                 "output_ni_sas": True,
-                "output_intram_by_pg_gb": True,
-                "output_outlier_qa": True
+                "output_intram_by_pg_uk": True,
+                "output_outlier_qa": True,
+                "output_intram_uk_itl1": True,
+                "output_intram_uk_itl2": True
                 }
 
         }
@@ -651,8 +653,10 @@ class TestValidatePNPConfig (object):
                 "output_short_form": False,
                 "run_ni_construction": False,
                 "output_ni_sas": False,
-                "output_intram_by_pg_gb": False,
+                "output_intram_by_pg_uk": False,
                 "output_outlier_qa" : False
+                "output_intram_uk_itl1": False,
+                "output_intram_uk_itl2": False
 
                 }
                 })
