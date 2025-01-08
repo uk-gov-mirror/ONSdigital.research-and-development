@@ -654,7 +654,7 @@ class TestValidatePNPConfig (object):
                 "run_ni_construction": False,
                 "output_ni_sas": False,
                 "output_intram_by_pg_uk": False,
-                "output_outlier_qa" : False
+                "output_outlier_qa" : False,
                 "output_intram_uk_itl1": False,
                 "output_intram_uk_itl2": False
 
