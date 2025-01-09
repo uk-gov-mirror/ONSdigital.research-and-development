@@ -1,4 +1,5 @@
 """Map the missing columns that are required for the outputs"""
+
 import logging
 
 import pandas as pd

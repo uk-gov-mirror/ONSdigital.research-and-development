@@ -365,7 +365,7 @@ class TestCreateImpClassCol:
         result_df = create_imp_class_col(input_df, ["200", "201"])
         assert_frame_equal(result_df.reset_index(drop=True), exp_output_df)
 
-    
+
     class TestImputationMarker:
         """Unit tests for imputation_marker function."""
 
@@ -373,7 +373,7 @@ class TestCreateImpClassCol:
             """Create an input dataframe for the test."""
             input_cols = [
                 "reference",
-                "status"        
+                "status"
             ]
 
             data = [
@@ -411,4 +411,4 @@ class TestCreateImpClassCol:
             exp_output_df = self.create_exp_output_df()
 
             result_df = imputation_marker(input_df)
-            assert_frame_equal(result_df.reset_index(drop=True), exp_output_df)           
+            assert_frame_equal(result_df.reset_index(drop=True), exp_output_df)

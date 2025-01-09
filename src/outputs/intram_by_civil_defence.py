@@ -1,4 +1,5 @@
 """The main file for the BERD Intram by Civil or Defence output."""
+
 import logging
 import pandas as pd
 from typing import Callable, Dict, Any

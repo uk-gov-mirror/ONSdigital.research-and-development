@@ -1,11 +1,11 @@
 """All general functions for the hdfs file system which uses PyDoop.
-    These functions will need to be tested separately, using mocking.
+These functions will need to be tested separately, using mocking.
 
-    NOTE: these functions used to be name-spaced with the prefix 'hdfs_',
-    but these have now been updated to 'rd_' representing "R and D".
-    This is so that the corresponding functions in the local_file_mods.py file, which
-    are used when running code locally (or on the network), can be imported with the
-    same name.
+NOTE: these functions used to be name-spaced with the prefix 'hdfs_',
+but these have now been updated to 'rd_' representing "R and D".
+This is so that the corresponding functions in the local_file_mods.py file, which
+are used when running code locally (or on the network), can be imported with the
+same name.
 """
 
 import pandas as pd

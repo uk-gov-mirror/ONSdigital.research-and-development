@@ -1,4 +1,5 @@
 """Utilities to validate the construction process."""
+
 import logging
 from typing import Union, Tuple
 

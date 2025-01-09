@@ -1,4 +1,5 @@
 """Utility functions for the freezing module."""
+
 from datetime import datetime
 import pandas as pd
 

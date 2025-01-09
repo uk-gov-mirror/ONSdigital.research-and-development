@@ -1,4 +1,5 @@
 """Main file for the estimation module."""
+
 import logging
 from typing import Any, Callable, Dict
 import pandas as pd

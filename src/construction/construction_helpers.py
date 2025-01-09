@@ -1,4 +1,5 @@
 """Useful utilities for the construction module."""
+
 import pathlib
 import logging
 from typing import Union, Callable, Tuple
