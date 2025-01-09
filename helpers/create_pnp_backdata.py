@@ -426,6 +426,26 @@ def test_populate_instance_1_columns():
     assert_frame_equal(result_df, expected_df, check_dtype=False)
 
 
+def perform_manual_summations(df):
+    """ Function to perform manual summations on specific columns in PNP backdata.
+
+    Columns for manual summation are 203, 204, and 305. These columns were chosen for
+    manual summation after QA of outputed PNP data.
+
+    Args:
+        df (pd.DataFrame): The dataframe to perform manual summations.
+
+    Return:
+        df (pd.DataFrame): The dataframe with the manual summations performed.
+    """
+
+    df["203"] = df[["222", "223"]].fillna(0).sum(axis=1)
+    df["204"] = df[["202", "203"]].fillna(0).sum(axis=1)
+    df["305"] = df[["302", "303", "304"]].fillna(0).sum(axis=1)
+
+    return df
+
+
 def create_pnp_backdata(df):
     """ Function to clean the PNP backdata.
 
@@ -687,6 +707,9 @@ def create_pnp_backdata(df):
 
     # Populate instance 1 columns that begin with 3xx or 2xx.
     df = populate_instance_1_columns(df, config)
+
+    # Perform manual summations
+    df = perform_manual_summations(df)
 
     # Run the apportionment on the PNP backdata
     df = run_apportionment(df)
