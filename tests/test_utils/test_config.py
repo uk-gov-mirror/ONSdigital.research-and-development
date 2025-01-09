@@ -633,28 +633,36 @@ class TestValidatePNPConfig (object):
         input_config = {
             "survey": { "survey_type": "PNP"},
             "global": {
+                "run_ni_construction": True,
+                "load_manual_outliers": True,
                 "output_ni_full_responses": True,
                 "output_mapping_ni_qa": True,
+                "output_outlier_qa": True,
+                "output_auto_outliers": True,
+                "output_estimation_qa": True,
                 "output_short_form": True,
-                "run_ni_construction": True,
                 "output_ni_sas": True,
                 "output_intram_by_pg_uk": True,
-                "output_outlier_qa": True,
                 "output_intram_uk_itl": True,
+                "output_intram_by_civil_defence": True,
               }
 
         }
         results = validate_pnp_config(input_config)
         assert results ==({"survey" : { "survey_type": "PNP"},
             "global": {
+                "run_ni_construction": False,
+                "load_manual_outliers": False,
                 "output_ni_full_responses": False,
                 "output_mapping_ni_qa": False,
+                "output_outlier_qa": False,
+                "output_auto_outliers": False,
+                "output_estimation_qa": False,
                 "output_short_form": False,
-                "run_ni_construction": False,
                 "output_ni_sas": False,
                 "output_intram_by_pg_uk": False,
-                "output_outlier_qa" : False,
-                "output_intram_uk_itl": False
+                "output_intram_uk_itl": False,
+                "output_intram_by_civil_defence": False,
                 }
                 })
         ("PNP config validation returned the expected config values.")
