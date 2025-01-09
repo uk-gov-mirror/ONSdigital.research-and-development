@@ -1,4 +1,5 @@
 """Simple defence utilities that validate user inputs."""
+
 import pathlib
 import warnings
 import os

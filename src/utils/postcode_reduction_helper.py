@@ -8,6 +8,7 @@ with only the required 2 columns, which will be saved in the relevant mappers fo
 
 Paths and file names as well as the survey year are read in from the config files.
 """
+
 import pandas as pd
 
 from typing import Callable

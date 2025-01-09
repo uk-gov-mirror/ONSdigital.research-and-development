@@ -1,4 +1,5 @@
 """Main file for the Outlier Detection module."""
+
 import logging
 import pandas as pd
 from typing import Callable, Dict, Any

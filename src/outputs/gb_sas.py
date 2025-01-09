@@ -1,4 +1,5 @@
 """The GB SAS for the Outputs module."""
+
 import logging
 import pandas as pd
 from typing import Callable, Dict, Any

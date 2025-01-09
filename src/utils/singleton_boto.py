@@ -1,6 +1,7 @@
 """
 A class that initialises a single instance of boto3 client
 """
+
 import boto3
 import raz_client
 

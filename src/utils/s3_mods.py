@@ -16,6 +16,7 @@ To do:
     Read  feather - possibly, not needed
     Write to feather - possibly, not needed
 """
+
 import json
 import logging
 
@@ -409,6 +410,7 @@ def s3walk(locations: list, prefix: str) -> tuple:
     Returns:
         A tuple of (root, (subdir, files)).
     """
+
     # recursively add location to roots starting from prefix
     def processLocation(root, prefixLocal, location):
         # add new root location if not available

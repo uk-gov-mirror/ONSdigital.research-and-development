@@ -1,5 +1,4 @@
-"""Expansion imputation for the 2xx and 3xx questions.
-"""
+"""Expansion imputation for the 2xx and 3xx questions."""
 
 import logging
 import pandas as pd

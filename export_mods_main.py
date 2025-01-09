@@ -1,4 +1,5 @@
 """Script that creates all directories"""
+
 import os
 
 # Change to the project repository location

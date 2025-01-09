@@ -1,4 +1,5 @@
 """The main file for the Tau output module."""
+
 import logging
 import pandas as pd
 from typing import Callable, Dict, Any

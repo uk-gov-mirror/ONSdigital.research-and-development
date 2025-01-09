@@ -5,7 +5,7 @@ from typing import Union, Tuple, Dict
 
 from src.utils.defence import type_defence, validate_file_extension
 from src.utils.local_file_mods import safeload_yaml
-from src.utils.path_helpers import update_config_with_paths
+from src.utils.path_helpers import update_config_with_paths, filename_year_validation
 
 
 def config_setup(user_config_path: str, dev_config_path: str) -> Dict:
@@ -403,3 +403,94 @@ def validate_construction_config_settings(config):
                 "If running NI construction, a NI construction file path must be"
                 " provided."
             )
+
+
+def validate_survey_config(config: dict) -> dict:
+    """
+    Checking the logic surrounding the type of survey.
+    If survey_type is set to PNP and NI data is set to True, an error will be raised
+    and pipeline will stop.
+
+    Args:
+        config (dict): The configuration dictionary.
+
+    Returns:
+        dict: The validated configuration dictionary.
+
+    Raises:
+        ValueError: If PNP is set and Northern Ireland data is configured to True.
+    """
+    survey_config = config.get("survey", {})
+    if survey_config.get("survey_type") == "PNP":
+        # List of values not compatible with PNP
+        values = [config.get("global", {}).get("load_ni_data", True)]
+        if any(values):
+            raise ValueError(
+                "Error: PNP is set. Northern Ireland data cannot be run. Please update "
+                "the user config."
+            )
+    return config
+
+
+def validate_pnp_config(config: dict) -> None:
+    """
+        Checking the logic of the outputs are compatible with PNP survey.
+        If an output that is incompatible with PNP survey is set to True,
+        a warning message will be printed and the setting will be updated to False.
+
+    Args:
+        config (dict): The configuration dictionary.
+
+    Returns:
+        dict: The validated configuration dictionary.
+
+    """
+    # Check if PNP is set
+    if config["survey"]["survey_type"] == "PNP":
+        # List of values not compatible with PNP
+        incompatible_settings = [
+            "run_ni_construction",
+            "load_manual_outliers",
+            "output_ni_full_responses",
+            "output_mapping_ni_qa",
+            "output_outlier_qa",
+            "output_auto_outliers",
+            "output_estimation_qa",
+            "output_short_form",
+            "output_ni_sas",
+            "output_intram_by_pg_uk",
+            "output_intram_uk_itl",
+            "output_intram_by_civil_defence",
+        ]
+
+        result = []
+        for setting in incompatible_settings:
+            # Check if setting is True
+            if config.get("global", {}).get(setting, True):
+                # Add setting to result list
+                result.append(setting)
+                # Update setting to False
+                config["global"][setting] = False
+                # Print warning message with setting that has bee updated.
+        print(
+            "WARNING: PNP is set. The following settings are not compatible with PNP: "
+            f"{', '.join(result)}. User config will be updated to False."
+        )
+
+    return config
+
+
+def file_validation(config: dict) -> dict:
+    """
+    Checking the logic is consistent in the config file for the pipeline to run.
+
+    Args:
+        config (dict): The configuration dictionary.
+
+    Returns:
+        dict: The updated configuration dictionary.
+    """
+    filename_year_validation(config)
+    validate_survey_config(config)
+    validate_pnp_config(config)
+    return config
