@@ -21,14 +21,6 @@ formtype_short = "0006"
 TMILogger = logging.getLogger(__name__)
 
 
-def apply_to_original(
-    filtered_df: pd.DataFrame, original_df: pd.DataFrame
-) -> pd.DataFrame:
-    """Overwrite a dataframe with updated row values."""
-    original_df.update(filtered_df)
-    return original_df
-
-
 def filter_by_column_content(
     df: pd.DataFrame, column: str, column_content: list
 ) -> pd.DataFrame:
@@ -356,9 +348,10 @@ def apply_tmi(
                 imp_class_df["imp_marker"] = "No mean found"
 
             # Apply changes to copy_df
-            final_df = apply_to_original(imp_class_df, filtered_df)
-
-    final_df = apply_to_original(final_df, df)
+            filtered_df.update(imp_class_df)
+        final_df = filtered_df
+        df.update(final_df)
+    final_df = df
 
     return final_df
 

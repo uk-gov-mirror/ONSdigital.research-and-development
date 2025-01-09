@@ -1,11 +1,11 @@
 """This code could eventually be added to tmi_imputation.py this
-doesn't impact on the readability of the existing code. """
+doesn't impact on the readability of the existing code."""
+
 import logging
 import pandas as pd
 import numpy as np
 from typing import Dict, Tuple
 
-from src.imputation import tmi_imputation as tmi
 from src.imputation.imputation_helpers import create_imp_class_col
 
 CivdefLogger = logging.getLogger(__name__)
@@ -215,6 +215,7 @@ def apply_civdev_imputation(
     cond1 = to_impute_df["empty_pg_group"] == False  # noqa: E712
     cond2 = ~to_impute_df["pg_class"].str.contains("nan")
 
+    # create a new variable that applies filtered conditions to to_impute_df
     filtered_df = to_impute_df.loc[cond1 & cond2].copy()
 
     # loop through the pg imputation classes to apply imputation
@@ -225,9 +226,11 @@ def apply_civdev_imputation(
             class_group_df = assign_random_civdef(class_group_df, pg_dict[pg_class])
             class_group_df["200_imp_marker"] = "pg_group_imputed"
 
-        tmi.apply_to_original(class_group_df, filtered_df)
+        # Apply changes from class_group_df to filtered_df
+        filtered_df.update(class_group_df)
 
-    tmi.apply_to_original(filtered_df, to_impute_df)
+    # Apply changes from filtered_df to to_impute_df
+    to_impute_df.update(filtered_df)
 
     # PASS 3: refine again based on product group and SIC imputation class
 
@@ -235,6 +238,7 @@ def apply_civdev_imputation(
     cond3 = to_impute_df["empty_pgsic_group"] == False  # noqa: E712
     cond4 = ~to_impute_df["pg_sic_class"].str.contains("nan")
 
+    # create a new variable that applies filtered conditions to to_impute_df
     filtered_df2 = to_impute_df.loc[cond3 & cond4].copy()
 
     # loop through the pg_sic imputation classes to apply imputation
@@ -247,10 +251,18 @@ def apply_civdev_imputation(
             )
             class_group_df["200_imp_marker"] = "pg_sic_group_imputed"
 
-        tmi.apply_to_original(class_group_df, filtered_df2)
-    tmi.apply_to_original(filtered_df2, to_impute_df)
+        # Apply changes from class_group_df to filtered_df2
+        filtered_df2.update(class_group_df)
 
-    updated_df = tmi.apply_to_original(to_impute_df, df)
+    # Apply changes from filtered_df2 to to_impute_df
+    to_impute_df.update(filtered_df2)
+
+    # Apply changes from to_impute_df to df
+    df.update(to_impute_df)
+
+    # Assign df to a new variable
+    updated_df = df
+
     updated_df["200"] = updated_df["200_imputed"]
 
     updated_df = updated_df.drop(["200_imputed", "pg_class"], axis=1)
@@ -284,6 +296,8 @@ def impute_civil_defence(df: pd.DataFrame) -> pd.DataFrame:
     pgsic_dict, pg_dict = create_civdef_dict(clear_df)
 
     imputed_df = apply_civdev_imputation(filtered_df, pgsic_dict, pg_dict)
-    final_df = tmi.apply_to_original(imputed_df, df)
+    # Apply changes from imputed_df to df
+    df.update(imputed_df)
+    final_df = df
 
     return final_df
