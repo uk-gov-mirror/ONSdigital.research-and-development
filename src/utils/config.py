@@ -449,14 +449,18 @@ def validate_pnp_config(config: dict) -> None:
     if config["survey"]["survey_type"] == "PNP":
         # List of values not compatible with PNP
         incompatible_settings = [
+            "run_ni_construction",
+            "load_manual_outliers",
             "output_ni_full_responses",
             "output_mapping_ni_qa",
+            "output_outlier_qa",
+            "output_auto_outliers",
+            "output_estimation_qa",
             "output_short_form",
-            "run_ni_construction",
             "output_ni_sas",
             "output_intram_by_pg_uk",
-            "output_outlier_qa",
             "output_intram_uk_itl",
+            "output_intram_by_civil_defence",
         ]
 
         result = []
