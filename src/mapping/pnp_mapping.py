@@ -32,19 +32,3 @@ def add_area_column(df):
     df["area"] = df["region"].map(area_dict)
 
     return df
-
-
-def identify_osmotherly_key_area(df: pd.DataFrame, config: dict) -> pd.DataFrame:
-    """
-    Identify osmotherly and key area businesses in PNP data.
-    Args:
-        df (pd.DataFrame): The main DataFrame.
-        config (dict): The pipeline configuration settings.
-    Returns:
-        pd.DataFrame: The DataFrame with additional columns.
-    """
-
-    # add osmotherly & key businesses columns to PNP data
-    df = add_area_column(df)
-
-    return df
