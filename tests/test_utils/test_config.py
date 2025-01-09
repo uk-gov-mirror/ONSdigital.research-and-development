@@ -640,9 +640,8 @@ class TestValidatePNPConfig (object):
                 "output_ni_sas": True,
                 "output_intram_by_pg_uk": True,
                 "output_outlier_qa": True,
-                "output_intram_uk_itl1": True,
-                "output_intram_uk_itl2": True
-                }
+                "output_intram_uk_itl": True,
+              }
 
         }
         results = validate_pnp_config(input_config)
@@ -655,9 +654,7 @@ class TestValidatePNPConfig (object):
                 "output_ni_sas": False,
                 "output_intram_by_pg_uk": False,
                 "output_outlier_qa" : False,
-                "output_intram_uk_itl1": False,
-                "output_intram_uk_itl2": False
-
+                "output_intram_uk_itl": False
                 }
                 })
         ("PNP config validation returned the expected config values.")

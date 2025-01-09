@@ -456,8 +456,7 @@ def validate_pnp_config(config: dict) -> None:
             "output_ni_sas",
             "output_intram_by_pg_uk",
             "output_outlier_qa",
-            "output_intram_uk_itl1",
-            "output_intram_uk_itl2",
+            "output_intram_uk_itl",
         ]
 
         result = []
