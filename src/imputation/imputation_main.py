@@ -96,6 +96,7 @@ def run_imputation(  # noqa: C901
 
     elif config["temporary_pnp_settings"]["use_mor"] is False:
         imputed_df = df.copy()
+        ImputationMainLogger.info("MoR imputation skipped...")
 
     # Run TMI for long forms and short forms
     # Skip this step for PNP survey for now
