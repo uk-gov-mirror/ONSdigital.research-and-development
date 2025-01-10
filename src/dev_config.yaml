@@ -222,3 +222,7 @@ s3:
   ssl_file: "/etc/pki/tls/certs/ca-bundle.crt"
   s3_bucket: "onscdp-dev-data01-5320d6ca"
   #s3_bucket: "onscdp-mig-data01-0221a8af"
+
+temporary_pnp_settings:
+  use_backdata: False
+  use_mor: False

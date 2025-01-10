@@ -216,10 +216,14 @@ def run_staging(  # noqa: C901
         StagingMainLogger.info("Loading Backdata File")
         backdata_path = staging_dict["backdata_path"]
         rd_file_exists(backdata_path, raise_error=True)
-        backdata = rd_read_csv(backdata_path)
-        val.validate_data_with_schema(backdata, "./config/backdata_schema.toml")
 
-        StagingMainLogger.info("Backdata File Loaded Successfully...")
+        if config["temporary_pnp_settings"]["use_backdata"] is True:
+            backdata = rd_read_csv(backdata_path)
+            val.validate_data_with_schema(backdata, "./config/backdata_schema.toml")
+            StagingMainLogger.info("Backdata File Loaded Successfully...")
+        elif config["temporary_pnp_settings"]["use_backdata"] is False:
+            backdata = pd.DataFrame()
+            StagingMainLogger.info("Loading of Backdata skipped...")
 
         # Loading SIC division detailed mapper
         sic_division_detailed_mapper = helpers.load_validate_mapper(
