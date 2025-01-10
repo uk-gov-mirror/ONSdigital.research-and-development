@@ -349,11 +349,10 @@ def apply_tmi(
 
             # Apply changes to copy_df
             filtered_df.update(imp_class_df)
-        final_df = filtered_df
-        df.update(final_df)
-    final_df = df
 
-    return final_df
+        df.update(filtered_df)
+
+    return df
 
 
 def run_longform_tmi(

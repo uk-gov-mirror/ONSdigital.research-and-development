@@ -260,12 +260,10 @@ def apply_civdev_imputation(
     # Apply changes from to_impute_df to df
     df.update(to_impute_df)
 
-    # Assign df to a new variable
-    updated_df = df
+    df["200"] = df["200_imputed"]
 
-    updated_df["200"] = updated_df["200_imputed"]
+    updated_df = df.drop(["200_imputed", "pg_class"], axis=1)
 
-    updated_df = updated_df.drop(["200_imputed", "pg_class"], axis=1)
     return updated_df
 
 
@@ -298,6 +296,5 @@ def impute_civil_defence(df: pd.DataFrame) -> pd.DataFrame:
     imputed_df = apply_civdev_imputation(filtered_df, pgsic_dict, pg_dict)
     # Apply changes from imputed_df to df
     df.update(imputed_df)
-    final_df = df
 
-    return final_df
+    return df
