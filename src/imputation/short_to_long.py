@@ -52,6 +52,4 @@ def run_short_to_long(df: pd.DataFrame) -> pd.DataFrame:
 
     df = df.drop(["headcount_civil", "headcount_defence"], axis=1)
 
-    df.to_csv("D:/research-and-development/output_df.csv")
-
     return df
