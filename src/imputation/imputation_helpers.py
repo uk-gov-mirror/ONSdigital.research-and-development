@@ -455,7 +455,7 @@ def tidy_imputation_dataframe(
     ]
 
     if config["survey"]["survey_type"] == "PNP":
-        to_drop += ["pnp_key", "osmotherly", "area"]
+        to_drop += ["area"]
 
     else:
         to_drop += ["200_original", "pg_sic_class", "empty_pgsic_group"]
