@@ -21,14 +21,6 @@ formtype_short = "0006"
 TMILogger = logging.getLogger(__name__)
 
 
-def filter_by_column_content(
-    df: pd.DataFrame, column: str, column_content: list
-) -> pd.DataFrame:
-    """Function to filter dataframe column by content."""
-    filtered_df = df[df[column].isin(column_content)].copy()
-    return filtered_df
-
-
 def apply_fill_zeros(df: pd.DataFrame, target_variables: list) -> pd.DataFrame:
     """Applies the fill zeros function to filtered dataframes.
 
@@ -158,7 +150,8 @@ def trim_bounds(
         df[f"{variable}_trim"] = False
         trimmed_length = full_length
     else:
-        df = filter_by_column_content(df, "trim_check", ["above_trim_threshold"])
+        df = df.loc[df["trim_check"].isin(["above_trim_threshold"])]
+
         df.reset_index(drop=True, inplace=True)
 
         # define the bounds for trimming
@@ -207,7 +200,7 @@ def calculate_mean(
     """
 
     # remove the "trim" tagged rows
-    trimmed_df = filter_by_column_content(df, f"{target_variable}_trim", [False])
+    trimmed_df = df.loc[df[f"{target_variable}_trim"].isin([False])]
 
     # convert to floats for mean calculation
     trimmed_df[target_variable] = trimmed_df[target_variable].astype("float")
@@ -253,7 +246,8 @@ def create_mean_dict(
 
     # Filter for clear statuses
     clear_statuses = ["Clear", "Clear - overridden"]
-    filtered_df = filter_by_column_content(df, "status", clear_statuses)
+
+    filtered_df = df.loc[df["status"].isin(clear_statuses)]
 
     # Filter out imputation classes that are missing either "200" or "201"
     filtered_df = filtered_df[~(filtered_df["imp_class"].str.contains("nan"))]
@@ -317,9 +311,7 @@ def apply_tmi(
     """
     df = df.copy()
 
-    filtered_df = filter_by_column_content(
-        df, "status", ["Form sent out", "Check needed"]
-    )
+    filtered_df = df.loc[df["status"].isin(["Form sent out", "Check needed"])]
 
     # Filter out any cases where 200 or 201 are missing from the imputation class
     # This ensures that means are calculated using only valid imputation classes
