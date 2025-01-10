@@ -102,4 +102,6 @@ def run_make_dirs():
 
 
 if __name__ == "__main__":
-    run_make_dirs()
+    years = ["2022", "2023"]
+    surveys = ["BERD", "PNP"]
+    run_make_dirs(years, surveys)
