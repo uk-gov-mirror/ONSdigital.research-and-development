@@ -32,3 +32,44 @@ def add_area_column(df):
     df["area"] = df["region"].map(area_dict)
 
     return df
+
+
+def identify_key_business(df, config):
+    """Function to identify the key business using reference column & key
+    busineses lookup table.
+    Args:
+        df (pd.DataFrame): The dataframe to identify the key business columns.
+    Return:
+        df (pd.DataFrame): The dataframe with the identified key business columns.
+    """
+    # get key businesses
+    path = config["mapping_paths"]["key_references"]
+    key_businesses_df = pd.read_csv(path)
+    key_businesses_list = list(key_businesses_df["keys"])
+
+    df["pnp_key"] = df["reference"].apply(
+        lambda x: "key0" if x in key_businesses_list else "key1"
+    )
+    return df
+
+
+def identify_osmotherly_businesses(df, config):
+    """Function to identify the osmotherly businesses using reference
+    column & osmotherly busineses lookup table.
+    Args:
+        df (pd.DataFrame): The dataframe to identify the osmotherly business
+        columns.
+    Return:
+        df (pd.DataFrame): The dataframe with the identified osmotherly business
+        columns.
+    """
+    # get osmotherly businesses
+    path = config["mapping_paths"]["osmotherly_references"]
+    osmotherly_businesses_df = pd.read_csv(path)
+    osmotherly_businesses_list = list(osmotherly_businesses_df["ruref"])
+
+    df["osmotherly"] = df["reference"].apply(
+        lambda x: "osTrue" if x in osmotherly_businesses_list else "osFalse"
+    )
+
+    return df
