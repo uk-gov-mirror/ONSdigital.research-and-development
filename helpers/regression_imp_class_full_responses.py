@@ -8,7 +8,7 @@ Compares if the old and new values are the same within tolerance
 Saves the ouotputs
 """
 
-#%% Configuration settings
+#  Configuration settings
 import pandas as pd
 
 # Input folder and file names
@@ -18,7 +18,7 @@ in_file_new = "PNP_2023_full_responses_imputed_25-01-14_v368_version_1091.csv"
 
 # Output folder and file
 out_fol = root_path
-out_file = "imputation_breakdown_check.csv"
+out_file = "imputation_qa_check.csv"
 
 # Columns to select
 key_cols = ["reference", "instance"]
