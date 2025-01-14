@@ -227,9 +227,11 @@ def run_full_postcode_process(
     # Create a copy to work from and add temp "postcode_source" column
     validation_df = df.copy()
     validation_df["postcode_source"] = validation_df.apply(
-        lambda row: "column '601'"
-        if pd.notna(row["601"])
-        else "column 'referencepostcode' (IDBR)",
+        lambda row: (
+            "column '601'"
+            if pd.notna(row["601"])
+            else "column 'referencepostcode' (IDBR)"
+        ),
         axis=1,
     )
 

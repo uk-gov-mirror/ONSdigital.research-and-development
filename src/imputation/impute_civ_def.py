@@ -1,5 +1,6 @@
 """This code could eventually be added to tmi_imputation.py this
-doesn't impact on the readability of the existing code. """
+doesn't impact on the readability of the existing code."""
+
 import logging
 import pandas as pd
 import numpy as np

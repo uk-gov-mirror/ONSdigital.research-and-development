@@ -1,4 +1,5 @@
 """The main file for the Outputs module."""
+
 # Standard Library Imports
 import logging
 from typing import Callable, Dict, Any

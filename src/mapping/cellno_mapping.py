@@ -1,4 +1,5 @@
 """Functions to clean and validate the cell no mapper."""
+
 import pandas as pd
 import logging
 

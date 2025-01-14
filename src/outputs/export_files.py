@@ -1,7 +1,6 @@
 """This is a stand alone pipeline to selectively transfer output files from
 the output folder to the outgoing folder, along with their manifest file."""
 
-
 import os
 import logging
 from datetime import datetime
@@ -50,7 +49,7 @@ def get_schema_headers(config: dict):
     # Get the headers for each
     schema_headers_dict = {}
     for output_name, path in schema_paths.items():
-        with open(path, 'rb') as file:
+        with open(path, "rb") as file:
             schema_headers_dict[output_name] = tomli.load(file)
 
     # schema_headers_dict = {

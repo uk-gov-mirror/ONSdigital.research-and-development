@@ -1,4 +1,5 @@
 """Code to join the ITL regions onto the full dataframe using the mapper provided."""
+
 import pandas as pd
 
 from src.mapping.mapping_helpers import join_with_null_check

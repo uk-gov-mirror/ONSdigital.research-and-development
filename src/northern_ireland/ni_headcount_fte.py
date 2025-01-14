@@ -1,4 +1,5 @@
 """Create the headcount and FTE columns for the NI data."""
+
 import logging
 import pandas as pd
 import numpy as np

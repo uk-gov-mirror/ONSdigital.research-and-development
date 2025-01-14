@@ -17,7 +17,10 @@ from src.utils.config import (
     _nulltype_conversion,
     validate_freezing_config_settings,
     validate_construction_config_settings,
-    validate_freezing_run_config
+    validate_freezing_run_config,
+    validate_pnp_config,
+    validate_survey_config
+
 )
 
 
@@ -609,3 +612,57 @@ class TestValidateFreezingRunConfig(object):
         msg = "Only one type of pipeline run is allowed.*"
         with pytest.raises(ValueError, match=msg):
             validate_freezing_run_config(config)
+
+class TestValidatePNPConfig (object):
+    """Tests for validate_config."""
+
+    def test_survey_validate_config(self):
+        input_config = {
+            "survey":{ "survey_type": "PNP"},
+            "global": {
+                "load_ni_data": True,
+                  }
+
+            }
+        with pytest.raises(ValueError, match="Error: PNP is set. Northern Ireland data cannot be run. Please update "
+                "the user config."):
+            validate_survey_config(input_config)
+
+    def test_validate_pnp_config(self):
+
+        input_config = {
+            "survey": { "survey_type": "PNP"},
+            "global": {
+                "run_ni_construction": True,
+                "load_manual_outliers": True,
+                "output_ni_full_responses": True,
+                "output_mapping_ni_qa": True,
+                "output_outlier_qa": True,
+                "output_auto_outliers": True,
+                "output_estimation_qa": True,
+                "output_short_form": True,
+                "output_ni_sas": True,
+                "output_intram_by_pg_uk": True,
+                "output_intram_uk_itl": True,
+                "output_intram_by_civil_defence": True,
+              }
+
+        }
+        results = validate_pnp_config(input_config)
+        assert results ==({"survey" : { "survey_type": "PNP"},
+            "global": {
+                "run_ni_construction": False,
+                "load_manual_outliers": False,
+                "output_ni_full_responses": False,
+                "output_mapping_ni_qa": False,
+                "output_outlier_qa": False,
+                "output_auto_outliers": False,
+                "output_estimation_qa": False,
+                "output_short_form": False,
+                "output_ni_sas": False,
+                "output_intram_by_pg_uk": False,
+                "output_intram_uk_itl": False,
+                "output_intram_by_civil_defence": False,
+                }
+                })
+        ("PNP config validation returned the expected config values.")
