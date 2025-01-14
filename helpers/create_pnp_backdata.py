@@ -300,7 +300,7 @@ def add_missing_columns(df):
     Return:
         df (pd.DataFrame): The dataframe with the added missing columns.
     """
-    missing_list = ['226', '228', '237', '203', '225', '227', '229', '251',
+    missing_list = ['203', '225', '226', '227', '228', '229', '237', '251',
                     '300', '301', '307', '308', '309', '708',
                     'survey', 'formid', 'cellnumber', 'pg_numeric']
     for col in missing_list:
@@ -356,7 +356,7 @@ def populate_instance_1_columns(df, config):
     cols = [c for c in numcols if c in df.columns]
 
     # the rows which contain the data use for the updates
-    source_df = df[df["instance"] == 0].copy()[["reference"]  + cols]
+    source_df = df[df["instance"] == 0].copy()[["reference"] + cols]
     # the dataframe to be used for the update
     update_df = source_df.copy()
     update_df["instance"] = 1
@@ -424,6 +424,26 @@ def test_populate_instance_1_columns():
 
     # Assert that the result DataFrame is equal to the expected DataFrame
     assert_frame_equal(result_df, expected_df, check_dtype=False)
+
+
+def perform_manual_summations(df):
+    """ Function to perform manual summations on specific columns in PNP backdata.
+
+    Columns for manual summation are 203, 204, and 305. These columns were chosen for
+    manual summation after QA of outputed PNP data.
+
+    Args:
+        df (pd.DataFrame): The dataframe to perform manual summations.
+
+    Return:
+        df (pd.DataFrame): The dataframe with the manual summations performed.
+    """
+
+    df["203"] = df[["222", "223"]].fillna(0).sum(axis=1)
+    df["204"] = df[["202", "203"]].fillna(0).sum(axis=1)
+    df["305"] = df[["302", "303", "304"]].fillna(0).sum(axis=1)
+
+    return df
 
 
 def test_populate_instance_1_columns():
@@ -731,6 +751,9 @@ def create_pnp_backdata(df):
     # Populate instance 1 columns that begin with 3xx or 2xx.
     df = populate_instance_1_columns(df, config)
 
+    # Perform manual summations
+    df = perform_manual_summations(df)
+
     # Run the apportionment on the PNP backdata
     df = run_apportionment(df)
 
@@ -781,7 +804,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# Example usage of the test function
-# if __name__ == "__main__":
-#     test_populate_instance_1_columns()
