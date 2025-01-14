@@ -660,12 +660,6 @@ def create_pnp_backdata(df):
     # Populate the imp_marker column
     df = get_imp_marker(df)
 
-    # Identify the key business
-    df = identify_key_business(df)
-
-    # Identify the osmotherly business
-    df = identify_osmotherly_businesses(df)
-
     # Region mapping
     df = get_region(df)
 
