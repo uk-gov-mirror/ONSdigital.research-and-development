@@ -426,6 +426,26 @@ def test_populate_instance_1_columns():
     assert_frame_equal(result_df, expected_df, check_dtype=False)
 
 
+def perform_manual_summations(df):
+    """ Function to perform manual summations on specific columns in PNP backdata.
+
+    Columns for manual summation are 203, 204, and 305. These columns were chosen for
+    manual summation after QA of outputed PNP data.
+
+    Args:
+        df (pd.DataFrame): The dataframe to perform manual summations.
+
+    Return:
+        df (pd.DataFrame): The dataframe with the manual summations performed.
+    """
+
+    df["203"] = df[["222", "223"]].fillna(0).sum(axis=1)
+    df["204"] = df[["202", "203"]].fillna(0).sum(axis=1)
+    df["305"] = df[["302", "303", "304"]].fillna(0).sum(axis=1)
+
+    return df
+
+
 def test_populate_instance_1_columns():
     """Test populate_instance_1_columns function."""
 
@@ -681,6 +701,9 @@ def create_pnp_backdata(df):
 
     # Populate the imp_marker column
     df = get_imp_marker(df)
+
+    # Perform manual summations
+    df = perform_manual_summations(df)
 
     # Identify the key business
     df = identify_key_business(df)
