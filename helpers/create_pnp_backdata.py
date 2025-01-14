@@ -176,20 +176,20 @@ def get_region(df):
     Return:
         df (pd.DataFrame): The dataframe with the populated ITL121NM column.
     """
-    region_dict = {'HH': 'area_se',  # London
-                   'JG': 'area_se',  # South East
-                   'KJ': 'area_oth',  # South West
-                   'GG': 'area_se',  # East of England
-                   'GF': 'area_se',  # East of England
-                   'FE': 'area_oth',  # West Midlands
-                   'ED': 'area_oth',  # East Midlands
-                   'DC': 'area_oth',  # Yorkshire and The Humber
-                   'BA': 'area_oth',  # North West
-                   'BB': 'area_oth',  # North West
-                   'AA': 'area_oth',  # North East
-                   'XX': 'area_oth',  # Scotland
-                   'WW': 'area_oth',  # Wales
-                   'YY': 'area_oth'  # Northern Ireland
+    region_dict = {'HH': 'se',  # London
+                   'JG': 'se',  # South East
+                   'KJ': 'oth',  # South West
+                   'GG': 'se',  # East of England
+                   'GF': 'se',  # East of England
+                   'FE': 'oth',  # West Midlands
+                   'ED': 'oth',  # East Midlands
+                   'DC': 'oth',  # Yorkshire and The Humber
+                   'BA': 'oth',  # North West
+                   'BB': 'oth',  # North West
+                   'AA': 'oth',  # North East
+                   'XX': 'oth',  # Scotland
+                   'WW': 'oth',  # Wales
+                   'YY': 'oth'  # Northern Ireland
                    }
 
     df['area'] = df['Region'].map(region_dict)
