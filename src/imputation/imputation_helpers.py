@@ -39,8 +39,7 @@ def create_imp_class_col(
     df: pd.DataFrame,
     column_list: List[str],
     class_name: str = "imp_class",
-    use_cellno: bool = True,
-    use_osmotherly: bool = False,
+    use_cellno: bool = True
 ) -> pd.DataFrame:
     """Creates a column for the imputation class.
 
@@ -55,8 +54,6 @@ def create_imp_class_col(
         class_name (str): The name of the column to save the class to.
             Defaults to "imp_class"
         use_cellno (bool): Whether to use the cellno column or not. Default to True.
-        use_osmotherly (bool): Whether to use the osmotherly column or not. Default
-        to False.
 
     Returns:
         pd.DataFrame: Dataframe which contains a new column with the
@@ -73,9 +70,6 @@ def create_imp_class_col(
 
     if use_cellno:
         df.loc[df.cellnumber == 817, class_name] = df[class_name] + "_817"
-
-    if use_osmotherly:
-        df.loc[df.osmotherly == "osTrue", class_name] = df[class_name] + "_os"
 
     return df
 
@@ -461,7 +455,7 @@ def tidy_imputation_dataframe(
     ]
 
     if config["survey"]["survey_type"] == "PNP":
-        to_drop += ["pnp_key", "osmotherly", "area"]
+        to_drop += ["area"]
 
     else:
         to_drop += ["200_original", "pg_sic_class", "empty_pgsic_group"]
