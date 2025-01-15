@@ -300,7 +300,7 @@ def add_missing_columns(df):
     Return:
         df (pd.DataFrame): The dataframe with the added missing columns.
     """
-    missing_list = ['203', '225', '226', '227', '228', '229', '237',  '251',
+    missing_list = ['203', '225', '226', '227', '228', '229', '237', '251',
                     '300', '301', '307', '308', '309', '708',
                     'survey', 'formid', 'cellnumber', 'pg_numeric']
     for col in missing_list:
@@ -755,7 +755,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# Example usage of the test function
-# if __name__ == "__main__":
-#     test_populate_instance_1_columns()
