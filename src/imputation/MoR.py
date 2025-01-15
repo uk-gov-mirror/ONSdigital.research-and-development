@@ -56,7 +56,7 @@ def mor_preprocessing(df, backdata, config):
         df = create_imp_class_col(df, ["200", "201"])
     elif config["survey"]["survey_type"] == "PNP":
         df = create_imp_class_col(
-            df, ["pnp_key", "area"], use_osmotherly=True, use_cellno=False
+            df, ["area"], use_cellno=False
         )
 
     # ensure the "formtype" column is in the correct format
