@@ -154,7 +154,13 @@ value_cols = ["emp_researcher",
               "headcount_oth_m_link",
               "headcount_oth_f_link"]
 
-tolerance = 0.001
+catagoricol_cols = ["imp_marker",
+                    "manual_trim",
+                    "imp_class",
+                    "imp_class_prev",
+                    "imp_marker_prev"]
+
+tolerance = 0.01
 # Read files
 df_old = pd.read_csv(root_path + in_file_old)
 df_new = pd.read_csv(root_path + in_file_new)
@@ -186,6 +192,11 @@ for col in value_cols:
     df_merge[f"{col}_value_different"] = (
         df_merge[col + "_old"] - df_merge[col + "_new"]
         ) ** 2 > tolerance**2
+
+for col in catagoricol_cols:
+    df_merge[f"{col}_value_different"] = (
+        df_merge[col + "_old"] != df_merge[col + "_new"]
+        )
 
 # %% Save output
 df_merge.to_csv(out_fol + out_file)
