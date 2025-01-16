@@ -342,7 +342,7 @@ def apply_tmi(
             # Apply changes to copy_df
             filtered_df.update(imp_class_df)
 
-        df.update(filtered_df)
+    df.update(filtered_df)
 
     return df
 
