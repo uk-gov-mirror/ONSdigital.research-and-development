@@ -19,11 +19,7 @@ config = {
 boto3_client = SingletonBoto.get_client(config)
 import src.utils.s3_mods as mods
 
-def run_make_dirs():
-    root = "/bat/res_dev/project_data"
-
-    years = ["2022", "2023"]
-    surveys = ["BERD", "PNP",]
+def run_make_dirs(years, surveys, root):
 
     for year in years:
         for survey in surveys:
@@ -102,4 +98,9 @@ def run_make_dirs():
 
 
 if __name__ == "__main__":
-    run_make_dirs()
+    root = "/bat/res_dev/project_data"
+
+    years = ["2022", "2023"]
+    surveys = ["BERD", "PNP"]
+
+    run_make_dirs(years, surveys, root)
