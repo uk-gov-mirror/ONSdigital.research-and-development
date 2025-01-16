@@ -313,16 +313,17 @@ class TestCreateImpClassCol:
             "formtype",
             "cellnumber",
             "rusic",
+            "area",
         ]
 
         data = [
-            [111, 1, "C", "AA", 600.0, 23.0, "0001", 45, 4445],
-            [111, 2, "C", "AB", 700.0, 24.0, "0001", 45, 4445],
-            [222, 1, "C", "AA", 55.0, 23.0, "0006", 35, 3335],
-            [222, 2, "D", "DE", 21.0, 14.0, "0006", 35, 3335],
-            [333, 1, "C", "E", 100.0, 25.0, "0001", 66, 5554],
-            [333, 2, np.nan, np.nan, np.nan, np.nan, "0001", 66, 5554],
-            [444, 1, "C", "AA", 200.0, 23.0, "0001", 817, 7777],
+            [111, 1, "C", "AA", 600.0, 23.0, "0001", 45, 4445, "area_oth"],
+            [111, 2, "C", "AB", 700.0, 24.0, "0001", 45, 4445, "area_oth"],
+            [222, 1, "C", "AA", 55.0, 23.0, "0006", 35, 3335, "area_se"],
+            [222, 2, "D", "DE", 21.0, 14.0, "0006", 35, 3335, "area_oth"],
+            [333, 1, "C", "E", 100.0, 25.0, "0001", 66, 5554, "area_se"],
+            [333, 2, np.nan, np.nan, np.nan, np.nan, "0001", 66, 5554, "area_se"],
+            [444, 1, "C", "AA", 200.0, 23.0, "0001", 817, 7777, "area_oth"],
         ]
 
         input_df = pandasDF(data=data, columns=input_columns)
@@ -341,17 +342,47 @@ class TestCreateImpClassCol:
             "formtype",
             "cellnumber",
             "rusic",
+            "area",
             "imp_class",
         ]
 
         data = [
-            [111, 1, "C", "AA", 600.0, 23.0, "0001", 45, 4445, "C_AA"],
-            [111, 2, "C", "AB", 700.0, 24.0, "0001", 45, 4445, "C_AB"],
-            [222, 1, "C", "AA", 55.0, 23.0, "0006", 35, 3335, "C_AA"],
-            [222, 2, "D", "DE", 21.0, 14.0, "0006", 35, 3335, "D_DE"],
-            [333, 1, "C", "E", 100.0, 25.0, "0001", 66, 5554, "C_E"],
-            [333, 2, np.nan, np.nan, np.nan, np.nan, "0001", 66, 5554, "nan_nan"],
-            [444, 1, "C", "AA", 200.0, 23.0, "0001", 817, 7777, "C_AA_817"],
+            [111, 1, "C", "AA", 600.0, 23.0, "0001", 45, 4445, "area_oth", "C_AA"],
+            [111, 2, "C", "AB", 700.0, 24.0, "0001", 45, 4445, "area_oth", "C_AB"],
+            [222, 1, "C", "AA", 55.0, 23.0, "0006", 35, 3335, "area_se", "C_AA"],
+            [222, 2, "D", "DE", 21.0, 14.0, "0006", 35, 3335, "area_oth", "D_DE"],
+            [333, 1, "C", "E", 100.0, 25.0, "0001", 66, 5554, "area_se", "C_E"],
+            [333, 2, np.nan, np.nan, np.nan, np.nan, "0001", 66, 5554, "area_se", "nan_nan"],
+            [444, 1, "C", "AA", 200.0, 23.0, "0001", 817, 7777, "area_oth", "C_AA_817"],
+        ]
+
+        exp_output_df = pandasDF(data=data, columns=exp_output_columns)
+        return exp_output_df
+
+    def create_exp_output_pnp_df(self):
+        """Create an exp_output dataframe for the test."""
+        exp_output_columns = [
+            "reference",
+            "instance",
+            "200",
+            "201",
+            "211",
+            "pg_numeric",
+            "formtype",
+            "cellnumber",
+            "rusic",
+            "area",
+            "imp_class",
+        ]
+
+        data = [
+            [111, 1, "C", "AA", 600.0, 23.0, "0001", 45, 4445, "area_oth", "area_oth"],
+            [111, 2, "C", "AB", 700.0, 24.0, "0001", 45, 4445, "area_oth", "area_oth"],
+            [222, 1, "C", "AA", 55.0, 23.0, "0006", 35, 3335, "area_se", "area_se"],
+            [222, 2, "D", "DE", 21.0, 14.0, "0006", 35, 3335, "area_oth", "area_oth"],
+            [333, 1, "C", "E", 100.0, 25.0, "0001", 66, 5554, "area_se", "area_se"],
+            [333, 2, np.nan, np.nan, np.nan, np.nan, "0001", 66, 5554, "area_se", "area_se"],
+            [444, 1, "C", "AA", 200.0, 23.0, "0001", 817, 7777, "area_oth", "area_oth"],
         ]
 
         exp_output_df = pandasDF(data=data, columns=exp_output_columns)
@@ -365,6 +396,13 @@ class TestCreateImpClassCol:
         result_df = create_imp_class_col(input_df, ["200", "201"])
         assert_frame_equal(result_df.reset_index(drop=True), exp_output_df)
 
+    def test_create_imp_class_col_pnp(self):
+        """Test for function create_imp_class_col."""
+        input_df = self.create_input_df()
+        exp_output_df = self.create_exp_output_pnp_df()
+
+        result_df = create_imp_class_col(input_df, ["area"], use_cellno=False)
+        assert_frame_equal(result_df.reset_index(drop=True), exp_output_df)
 
     class TestImputationMarker:
         """Unit tests for imputation_marker function."""
