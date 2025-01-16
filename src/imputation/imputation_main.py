@@ -90,13 +90,9 @@ def run_imputation(  # noqa: C901
     trimmed_df, df = hlp.split_df_on_trim(df, "manual_trim")
 
     # Run MoR
-    if config["temporary_pnp_settings"]["use_mor"] is True:
+    if backdata is not None:
         # MoR will be re-written with new backdata
         imputed_df, links_df = run_mor(df, backdata, to_impute_cols, config)
-
-    elif config["temporary_pnp_settings"]["use_mor"] is False:
-        imputed_df = df.copy()
-        ImputationMainLogger.info("MoR imputation skipped...")
 
     # Run TMI for long forms and short forms
     # Skip this step for PNP survey for now
