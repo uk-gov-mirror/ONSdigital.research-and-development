@@ -8,7 +8,7 @@ global:
   # Staging and validation settings
   postcode_csv_check: True
   load_ni_data: False
-  use_backdata: False
+  use_backdata: True
   # Pipeline run type
   run_with_snapshot: True                         # Run until point of freezing
   run_with_snapshot_and_freeze: False             # Last run with frozen snapshot - produces frozen csv

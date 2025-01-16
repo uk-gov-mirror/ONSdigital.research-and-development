@@ -93,6 +93,11 @@ def run_imputation(  # noqa: C901
     if backdata is not None:
         # MoR will be re-written with new backdata
         imputed_df, links_df = run_mor(df, backdata, to_impute_cols, config)
+        ImputationMainLogger.info("MoR executed: Backdata present.")
+
+    if backdata is None:
+        imputed_df = df.copy()
+        ImputationMainLogger.info("MoR skipped: No backdata.")
 
     # Run TMI for long forms and short forms
     # Skip this step for PNP survey for now
@@ -150,7 +155,8 @@ def run_imputation(  # noqa: C901
             write_csv(os.path.join(qa_path, wrong_604_filename), wrong_604_qa_df)
 
         write_csv(os.path.join(qa_path, full_imp_filename), imputed_df)
-        write_csv(os.path.join(qa_path, links_filename), links_df)
+        if backdata is not None:
+            write_csv(os.path.join(qa_path, links_filename), links_df)
 
     # remove rows and columns no longer needed from the imputed dataframe
     imputed_df = hlp.tidy_imputation_dataframe(imputed_df, to_impute_cols, config)
