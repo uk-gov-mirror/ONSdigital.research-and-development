@@ -92,15 +92,11 @@ class TestShortToLong:
         # Create an input DataFrame
         input_df = self.create_input_df()
 
-        input_df.to_csv("input_df.csv", index=False)
-
         # Create the expected DataFrame
         expected_df = self.create_expected_df()
 
         # Run the function
         output_df = run_short_to_long(input_df)
-
-        output_df.to_csv("output_df.csv", index=False)
 
         # Check the output
         assert_frame_equal(output_df, expected_df)
