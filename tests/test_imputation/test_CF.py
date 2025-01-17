@@ -1,15 +1,14 @@
 """Test for carry_forward imputation"""
+# Imports
 import os
 import pandas as pd
-import pytest
 from pandas._testing import assert_frame_equal
-
 from src.imputation.MoR import carry_forwards
 from src.imputation.imputation_helpers import get_imputation_cols
 
 
 
-class test_carry_forward(object):
+class Test_carry_forward(object):
     """Tests for carry_forwards."""
 
     @pytest.fixture(scope="function")
@@ -42,14 +41,24 @@ class test_carry_forward(object):
             dummy_CF_input,
             dummy_CF_backdata,
             expected_CF_output,
-            imputation_config):
+            imputation_config
+        ):
+        """Testing carry_forwards function on dummy data"""
 
-        impute_vars = get_imputation_cols(imputation_config)
+        wanted_cols = ["212", "emp_total"]
+
+        # Copy the df in preparation for new columns
+        df = dummy_CF_input.copy()
+
+        # Create new columns to hold the imputed values
+        for col in wanted_cols:
+            df[f"{col}_imputed"] = df[col]
+
 
         result_df = carry_forwards(
             df=dummy_CF_input,
             backdata=dummy_CF_backdata,
-            impute_vars=impute_vars,
+            impute_vars=wanted_cols,
             config=imputation_config
         )
-        assert_frame_equal(result_df, expected_CF_output, check_dtype=False, check_exact=False)
+        assert_frame_equal(result_df, expected_CF_output)
