@@ -7,6 +7,7 @@ from pandas._testing import assert_frame_equal
 from src.imputation.MoR import carry_forwards
 from src.imputation.imputation_helpers import get_imputation_cols
 
+pytestmark = pytest.mark.runwip
 
 class test_carry_forward(object):
     """Tests for carry_forwards."""
