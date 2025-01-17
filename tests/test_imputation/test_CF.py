@@ -31,7 +31,7 @@ class Test_carry_forward(object):
     @pytest.fixture(scope="function")
     def expected_CF_output(self) -> pd.DataFrame:
         """Expected output from carry_forwards."""
-        fpath = os.path.join("tests/data/imputation/expected_CF_output.csv")
+        fpath = os.path.join("tests/data/imputation/CF_expected_output.csv")
         df = pd.read_csv(fpath)
         df = df.astype({"reference": "Int64", "instance": "Int64"})
         return df
