@@ -1,4 +1,5 @@
 """Implement apportionment of headcount and FTE."""
+
 import logging
 import pandas as pd
 

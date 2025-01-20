@@ -1,7 +1,8 @@
 """The main file for the BERD total FTE output."""
+
 import logging
 import pandas as pd
-from datetime import datetime
+from src.utils.helpers import filename_amender
 from typing import Callable, Dict, Any
 
 
@@ -9,7 +10,9 @@ OutputMainLogger = logging.getLogger(__name__)
 
 
 def qa_output_total_fte(
-    df: pd.DataFrame, config: Dict[str, Any], write_csv: Callable, run_id: int
+    df: pd.DataFrame,
+    config: Dict[str, Any],
+    write_csv: Callable,
 ):
     """Run the outputs module.
 
@@ -18,7 +21,7 @@ def qa_output_total_fte(
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
          This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
+
 
     """
     output_path = config["outputs_paths"]["outputs_master"]
@@ -34,8 +37,6 @@ def qa_output_total_fte(
         list(zip(totals_names, totals_values)), columns=["Column", "Total"]
     )
 
-    # Outputting the CSV file with timestamp and run_id
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["years"]["survey_year"]
-    filename = f"{survey_year}_total_fte_qa_{tdate}_v{run_id}.csv"
+    # Outputting the CSV
+    filename = filename_amender("total_fte_qa", config)
     write_csv(f"{output_path}/output_fte_total_qa/{filename}", qa_total_fte_df)

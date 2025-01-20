@@ -1,14 +1,18 @@
 """The main file for the mapping module."""
+
 import logging
-from datetime import datetime
+import os
 from typing import Callable
 
 from src.mapping import mapping_helpers as hlp
 from src.mapping.pg_conversion import run_pg_conversion
 from src.mapping.ultfoc_mapping import join_fgn_ownership
 from src.mapping.cellno_mapping import validate_join_cellno_mapper
+from src.mapping.itl_mapping import join_itl_regions
+from src.mapping.pnp_mapping import add_area_column
 from src.staging import staging_helpers as stage_hlp
 from src.staging import validation as val
+from src.utils.helpers import filename_amender
 
 MappingMainLogger = logging.getLogger(__name__)
 
@@ -16,16 +20,30 @@ MappingMainLogger = logging.getLogger(__name__)
 def run_mapping(
     full_responses,
     ni_full_responses,
+    postcode_mapper,
     config: dict,
-    write_csv: Callable,
-    run_id: int,
+    rd_read_csv: Callable,
+    rd_write_csv: Callable,
+    rd_file_exists: Callable,
 ):
+    """Perform mapping to the responses dataframes and output QA to csv.
 
+    Args:
+        full_responses (pd.DataFrame): The full responses dataframe.
+        ni_full_responses (pd.DataFrame): The Northern Ireland full responses dataframe.
+        postcode_mapper (pd.DataFrame): The postcode mapper dataframe.
+        config (dict): The configuration settings.
+        rd_read_csv (Callable): Function to read a csv file.
+        rd_write_csv (Callable): Function to write a dataframe to a csv file.
+        rd_file_exists (Callable): Function to check if a file exists.
+
+    Returns:
+        Tuple[pd.DataFrame, pd.DataFrame]: The BERD full responses and Northern Ireland
+            full responses dataframes with the mappers added.
+    """
     # Load ultfoc (Foreign Ownership) mapper
     ultfoc_mapper = stage_hlp.load_validate_mapper(
-        "ultfoc_mapper_path",
-        config,
-        MappingMainLogger,
+        "ultfoc_mapper_path", config, MappingMainLogger, rd_file_exists, rd_read_csv
     )
 
     # Load ITL mapper
@@ -33,6 +51,8 @@ def run_mapping(
         "itl_mapper_path",
         config,
         MappingMainLogger,
+        rd_file_exists,
+        rd_read_csv,
     )
 
     # Loading cell number coverage
@@ -40,6 +60,8 @@ def run_mapping(
         "cellno_path",
         config,
         MappingMainLogger,
+        rd_file_exists,
+        rd_read_csv,
     )
 
     # Load and validate the PG mappers
@@ -47,6 +69,8 @@ def run_mapping(
         "pg_num_alpha_mapper_path",
         config,
         MappingMainLogger,
+        rd_file_exists,
+        rd_read_csv,
     )
     val.validate_many_to_one(pg_num_alpha, "pg_numeric", "pg_alpha")
 
@@ -55,59 +79,66 @@ def run_mapping(
         "sic_pg_num_mapper_path",
         config,
         MappingMainLogger,
+        rd_file_exists,
+        rd_read_csv,
     )
     val.validate_many_to_one(sic_pg_num, "SIC 2007_CODE", "2016 > Form PG")
 
-    # For survey year 2022 only, it's necessary to update the reference list
-    if config["years"]["survey_year"] == 2022:
+    # For survey year only 2022 it's necessary to update the reference list
+    year = config["survey"]["survey_year"]
+    if year == 2022:
         ref_list_817_mapper = stage_hlp.load_validate_mapper(
             "ref_list_817_mapper_path",
             config,
             MappingMainLogger,
+            rd_file_exists,
+            rd_read_csv,
         )
         full_responses = hlp.update_ref_list(full_responses, ref_list_817_mapper)
+    else:
+        MappingMainLogger.info(f"Reference list not updated for survey year {year}.")
 
+    # Add custom mappers if PNP is true for later imp_class column creation
+    if config["survey"]["survey_type"] == "PNP":
+        full_responses = add_area_column(full_responses)
+        MappingMainLogger.info("Custom mappers applied to responses.")
+
+    # create a tuple for the full_responses and ni_full_responses
+    responses = (full_responses, ni_full_responses)
     # Join the mappers to the full responses dataframe, with validation.
-    full_responses = run_pg_conversion(full_responses, pg_num_alpha, sic_pg_num)
-    full_responses = join_fgn_ownership(full_responses, ultfoc_mapper)
-    full_responses = validate_join_cellno_mapper(full_responses, cellno_df, config)
+    responses = run_pg_conversion(responses, pg_num_alpha, sic_pg_num)
+    responses = join_fgn_ownership(responses, ultfoc_mapper)
+    responses = validate_join_cellno_mapper(responses, cellno_df, config)
 
-    if ni_full_responses is not None:
-        ni_full_responses = hlp.create_additional_ni_cols(ni_full_responses)
-        ni_full_responses = run_pg_conversion(
-            ni_full_responses, pg_num_alpha, sic_pg_num
-        )
-        ni_full_responses = join_fgn_ownership(
-            ni_full_responses,
-            ultfoc_mapper,
-            is_northern_ireland=True,
-        )
+    # unpack the responses
+    full_responses, ni_full_responses = responses
+
+    # Join the ITL regions mapper to the BERD full_responses dataframe
+    full_responses = join_itl_regions(
+        full_responses, postcode_mapper, itl_mapper, config
+    )
+
+    # Process the NI full responses if they exist
+    if not ni_full_responses.empty:
+        ni_full_responses = hlp.create_additional_ni_cols(ni_full_responses, config)
 
     # output QA files
     qa_path = config["mapping_paths"]["qa_path"]
 
     if config["global"]["output_mapping_qa"]:
         MappingMainLogger.info("Outputting Mapping QA files.")
-        tdate = datetime.now().strftime("%y-%m-%d")
-        survey_year = config["years"]["survey_year"]
-        full_responses_filename = (
-            f"{survey_year}_full_responses_mapped_{tdate}_v{run_id}.csv"
-        )
-
-        write_csv(f"{qa_path}/{full_responses_filename}", full_responses)  # Changed
+        full_responses_filename = filename_amender("full_responses_mapped", config)
+        rd_write_csv(os.path.join(qa_path, full_responses_filename), full_responses)
     MappingMainLogger.info("Finished Mapping QA calculation.")
 
-    if config["global"]["output_mapping_ni_qa"]:
+    if config["global"]["output_mapping_ni_qa"] and not ni_full_responses.empty:
         MappingMainLogger.info("Outputting Mapping NI QA files.")
-        tdate = datetime.now().strftime("%y-%m-%d")
-        survey_year = config["years"]["survey_year"]
-        full_responses_NI_filename = (
-            f"{survey_year}_full_responses_ni_mapped_{tdate}_v{run_id}.csv"
+        full_responses_NI_filename = filename_amender(
+            "full_responses_ni_mapped", config
         )
-
-        write_csv(
-            f"{qa_path}/{full_responses_NI_filename}", ni_full_responses
-        )  # Changed
+        rd_write_csv(
+            os.path.join(qa_path, full_responses_NI_filename), ni_full_responses
+        )
     MappingMainLogger.info("Finished Mapping NI QA calculation.")
 
     # return mapped_df

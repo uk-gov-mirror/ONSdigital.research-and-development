@@ -58,8 +58,10 @@ class TestJoinFgnOwnership(object):
 
     def test_join_fgn_ownership(self, main_input, mapper_input, exp_output):
         """General tests for join_pg_numeric"""
-        output = join_fgn_ownership(main_input, mapper_input)
-        assert output.equals(
+        ni_df = pd.DataFrame()
+        input_data = (main_input, ni_df)
+        gb_output, ni_output = join_fgn_ownership(input_data, mapper_input)
+        assert gb_output.equals(
             exp_output
         ), "Output from join_fgn_ownership not as expected."
 
@@ -110,6 +112,6 @@ class TestValidateUltfocMapper(object):
             [24, "GB"],
         ]
         df = pd.DataFrame(data=data, columns=columns)
-        return df
-        result = validate_ultfoc_mapper(ultfoc_mapper_input_pass)
+
+        result = validate_ultfoc_mapper(df)
         assert result is None

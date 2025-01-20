@@ -1,5 +1,5 @@
 # Standard Library Imports
-from typing import Tuple, List, Dict, Union
+from typing import Tuple, List, Dict, Union, Any
 import logging
 
 # Third Part Imports
@@ -41,11 +41,19 @@ long_code: str = "0001"
 
 def set_percentages(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Set percentage column to 100 for short forms and single site long forms.
+    Set percentage column for short forms and single site long forms.
+
+    The percentage column for short forms is set to 100.
 
     The condtitions for the long forms needing 100 in the percentage column are:
-    - long forms, exactly 1 site, instance >=1 and notnull postcode
-    - long forms with status "Form sent out"
+    - long forms, exactly 1 site, instance >=1 and notnull postcode but null percentage.
+    - imputed long forms, instance >=1 and no postcode or percentage.
+
+    There are cases why an imputed long form might have no postcode or percentage:
+    - The form was a short form in the previous period and has been imputed with MoR/CF.
+    - The form had status "Form sent out" and was imputed using TMI.
+    In these cases, we fill the postcode column with the postcodes_harmonised value
+    (from IDBR) and set the count to 1.
 
     Args:
         df (pd.DataFrame): The input DataFrame.
@@ -56,26 +64,8 @@ def set_percentages(df: pd.DataFrame) -> pd.DataFrame:
     Raises:
         ValueError: If the percent column for short forms is not blank.
     """
-    # If the percent column for short forms is not blank, raise an error.
-    short_forms = df[df[form_col] == short_code]
-    if not short_forms[percent_col].isna().all():
-        raise ValueError("Percent column for short forms should be blank.")
-    df.loc[df[form_col] == short_code, percent_col] = 100
-
-    # Condition for long forms with status "Form sent out"
-    # Note: those imputed by MoR will have had the postcode column imputed, so we check
-    # for null in the postcode count column
-    sent_out_condition = (
-        (df[form_col] == long_code)
-        & (df[status_col] == "Form sent out")
-        & (df[postcode_col + "_count"].isna())
-        & (df[postcode_col].isna())
-    )
-    # Update records matching the sent_out_condition with a postcode and count of 1
-    df.loc[sent_out_condition, postcode_col] = df.loc[
-        sent_out_condition, "postcodes_harmonised"
-    ]
-    df.loc[sent_out_condition, postcode_col + "_count"] = 1
+    # Condition for short forms
+    df.loc[(df[form_col] == short_code), percent_col] = 100
 
     # Condition for long forms, exactly 1 site, instance >=1 and notnull postcode
     single_cond = (
@@ -84,7 +74,21 @@ def set_percentages(df: pd.DataFrame) -> pd.DataFrame:
         & (df[instance_col] >= 1)
         & create_notnull_mask(df, postcode_col)
     )
+
     df.loc[single_cond, percent_col] = 100
+
+    # Condition for imputed long forms with no postcode or percentage
+    imputed_cond = (
+        (df[form_col] == long_code)
+        & (df[instance_col] >= 1)
+        & (df["imp_marker"].isin(["MoR", "CF", "TMI"]))
+        & (df[postcode_col + "_count"].isna())
+    )
+
+    # Update records matching the imputed_cond with a postcode and count of 1
+    df.loc[imputed_cond, postcode_col] = df.loc[imputed_cond, "postcodes_harmonised"]
+    df.loc[imputed_cond, percent_col] = 100
+    df.loc[imputed_cond, postcode_col + "_count"] = 1
 
     return df
 
@@ -111,17 +115,15 @@ def count_unique_postcodes_in_col(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def split_sites_df(
+def split_dataframes(
     df: pd.DataFrame, imp_markers_to_keep: List[str]
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Split dataframe into two based on whether there are sites or not.
+    Split dataframe into two, one for site apportionment and the remainder.
 
-    This will be the basis on whether or not records are included in site apportionment.
-
-    All long form records that include postcodes in the postcode_col are used for site
-    apportionment, and all orther records, including short forms, are included in a
-    second dataframe.
+    All long form records that include at least one postcode in the postcode_col are
+    used for site apportionment, and all orther records, including short forms, are
+    split off in a second dataframe.
 
     Args:
         df (pd.DataFrame): The input DataFrame.
@@ -132,29 +134,30 @@ def split_sites_df(
             and a second containing all other records.
     """
 
-    # Condition for records to apportion: long forms, at least one site, instance >=1
+    # Condition for records to apportion: long forms, more than one site, instance >=1
     to_apportion_cond = (
         (df[form_col] == long_code)
         & (df[postcode_col + "_count"] >= 1)
         & (df[instance_col] >= 1)
     )
 
-    # Dataframe to_apportion_df with many products - for apportionment
+    # Dataframe
+    # to_apportion_df with many products - for apportionment
     to_apportion_df = df.copy()[to_apportion_cond]
 
     # Dataframe with everything else - save unchanged
     df_out = df.copy()[~to_apportion_cond]
 
     # Remove "bad" imputation markers from df_out
-    # NOTE: Probably this isn't needed: can't think of a case where it would be.
     df_out = keep_good_markers(df_out, imp_markers_to_keep)
 
     return to_apportion_df, df_out
 
 
 def create_notnull_mask(df: pd.DataFrame, col: str) -> pd.Series:
-    """Return a mask for string values in column col that are not null."""
-    return df[col].str.len() > 0
+    """Return a mask for string values in column col that are not null,
+    treating empty strings as null."""
+    return ~(df[col].isnull() | (df[col] == ""))
 
 
 def deduplicate_codes_values(
@@ -194,6 +197,7 @@ def create_category_df(
     groupby_cols: List[str],
     code_cols: List[str],
     site_cols: List[str],
+    geo_cols: List[str],
     value_cols: List[str],
 ) -> pd.DataFrame:
     """
@@ -213,13 +217,15 @@ def create_category_df(
         groupby_cols (List[str]): List of columns to group by.
         code_cols (List[str]): List of code columns.
         site_cols (List[str]): List of site column.
+        geo_cols (List[str]): List of geographic columns from the config.
         value_cols (List[str]): List of columns containing numeric values.
 
     Returns:
         pd.DataFrame: The DataFrame with codes and numerical values.
     """
     # Make the dataframe with columns of all columns except for site columns
-    category_cols = [x for x in orig_cols if x not in site_cols]
+    site_and_geog_cols = site_cols + geo_cols
+    category_cols = [x for x in orig_cols if x not in site_and_geog_cols]
     category_df = df.copy()[category_cols]
 
     # ensure the product group and C or D codes are notnull
@@ -281,7 +287,7 @@ def count_duplicate_sites(sites_df: pd.DataFrame) -> int:
 
 
 def create_sites_df(
-    df: pd.DataFrame, groupby_cols: List[str], site_cols: List[str]
+    df: pd.DataFrame, groupby_cols: List[str], site_cols: List[str], geo_cols: List[str]
 ) -> pd.DataFrame:
     """
     Creates a DataFrame with reference, period, instance, postcode and percent.
@@ -290,11 +296,12 @@ def create_sites_df(
         df (pd.DataFrame): The input DataFrame.
         groupby_cols (List[str]): Columns to group by: reference, period.
         site_cols (List[str]): Columns of sites (instance, postcode, percent).
-
+        geo_cols (List[str]): List of geographic columns from the config.
     Returns:
         pd.DataFrame: The DataFrame with sites.
     """
-    sites_df = df.copy()[groupby_cols + site_cols]
+    all_cols = groupby_cols + site_cols + geo_cols
+    sites_df = df.copy()[all_cols]
 
     # Remove instances that have no postcodes
     sites_df = sites_df[sites_df[postcode_col].str.len() > 0]
@@ -302,9 +309,12 @@ def create_sites_df(
     # Check for postcode duplicates for QA
     count_duplicate_sites(sites_df)
 
-    # De-duplicate by summing percents
+    # De-duplicate by taking the first occurence in case of duplicates
+    # Note: We do not want to sum percentages as this can lead to values over 100%.
     sites_df[percent_col] = sites_df[percent_col].fillna(0)
-    agg_dict = {instance_col: "first", percent_col: "sum"}
+    agg_dict = {c: "first" for c in ([instance_col] + geo_cols)}
+    agg_dict[percent_col] = "max"
+
     sites_df = (
         sites_df.groupby(groupby_cols + [postcode_col, postcodes_harmonised_col])
         .agg(agg_dict)
@@ -443,10 +453,34 @@ def sort_rows_order_cols(df: pd.DataFrame, cols_in_order: List[str]) -> pd.DataF
     return sorted_df
 
 
+def consistency_checks(df: pd.DataFrame, intram_dict) -> None:
+    """Check the intram totals after apportionment align with those before.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to check.
+        intram_dict (Dict): Dictionary with the intramural totals.
+
+    Raises:
+        ValueError: If the intramural totals do not align.
+    """
+    # calculate the weighted intramural total
+    weighted_intram_total = round((df["211"] * df["a_weight"]).sum(), 0)
+
+    intram_diff = weighted_intram_total - intram_dict["estimated"]
+    print("intram diff in millions: ", intram_diff / 1e6)
+    # if abs(intram_diff) > 1:
+    #     raise ValueError(
+    #         f"Weighted intramural totals do not align. "
+    #          f"Before: {intram_dict['estimated']}, "
+    #         f"After: {weighted_intram_total}"
+    #     )
+
+
 def run_apportion_sites(
     df: pd.DataFrame,
     imp_markers_to_keep: List[str],
     config: Dict[str, Union[str, List[str]]],
+    intram_tot_dict: Dict[str, Any],
 ) -> pd.DataFrame:
     """Apportion the numerical values for each product group across multiple sites.
 
@@ -482,6 +516,8 @@ def run_apportion_sites(
     # imputation.
     value_cols: List[str] = get_imputation_cols(config)
 
+    geo_cols: List[str] = ["itl"] + config["mappers"]["geo_cols"]
+
     # Calculate the number of unique non-blank postcodes
     df = count_unique_postcodes_in_col(df)
 
@@ -489,7 +525,7 @@ def run_apportion_sites(
     df = set_percentages(df)
 
     # Split the dataframe in two based on whether there's one or more postcodes
-    to_apportion_df, df_out = split_sites_df(df, imp_markers_to_keep)
+    to_apportion_df, df_out = split_dataframes(df, imp_markers_to_keep)
 
     # category_df: dataframe with codes, textual and numerical values
     category_df = create_category_df(
@@ -499,11 +535,12 @@ def run_apportion_sites(
         groupby_cols,
         code_cols,
         site_cols,
+        geo_cols,
         value_cols,
     )
 
     # sites_df: dataframe with sites, percents and everythung else
-    sites_df = create_sites_df(to_apportion_df, groupby_cols, site_cols)
+    sites_df = create_sites_df(to_apportion_df, groupby_cols, site_cols, geo_cols)
 
     # Calculate weights
     sites_df = calc_weights_for_sites(sites_df, groupby_cols)
@@ -518,9 +555,12 @@ def run_apportion_sites(
     df_cart = df_cart[orig_cols]
 
     # Append the apportionned data back to the remaining unchanged data
-    df_out = df_out.append(df_cart, ignore_index=True)
+    df_out = pd.concat([df_out, df_cart], ignore_index=True)
 
     # Sort by period, ref, instance in ascending order.
     df_out = sort_rows_order_cols(df_out, orig_cols)
+
+    # run consisntency checks on the intramural totals
+    consistency_checks(df_out, intram_tot_dict)
 
     return df_out

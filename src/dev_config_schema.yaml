@@ -24,21 +24,11 @@ global:
     singular: True
     dtype: "bool"
     accept_nonetype: False
-  network_or_hdfs:
+  platform:
     singular: True
     dtype: "str"
     accept_nonetype: False
-  # Construction Settings
-  load_reference_list:
-    singular: True
-    dtype: "bool"
-    accept_nonetype: False
   load_from_feather:
-    singular: True
-    dtype: "bool"
-    accept_nonetype: False
-  # Apportionment to sites settings
-  apportion_sites:
     singular: True
     dtype: "bool"
     accept_nonetype: False
@@ -93,10 +83,6 @@ run_log_sql:
   dtype: "str"
   accept_nonetype: False
 estimation:
-  num_expected_cellnos:
-    singular: True
-    dtype: "int"
-    accept_nonetype: False
   numeric_cols:
     singular: True
     dtype: "list[str]"

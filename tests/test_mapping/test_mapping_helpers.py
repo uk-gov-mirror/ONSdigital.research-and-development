@@ -4,15 +4,14 @@ import numpy as np
 
 # Local Imports
 from src.mapping.mapping_helpers import (
-    mapper_null_checks,
     col_validation_checks,
     check_mapping_unique,
     update_ref_list,
     create_additional_ni_cols,
-    join_with_null_check,
+    join_with_null_check
 )
 
-
+from src.utils.path_helpers import validate_mapping_filenames
 class TestJoinWithNullCheck(object):
     """Tests for join_with_null_check function."""
 
@@ -214,6 +213,16 @@ class TestUpdateRefList(object):
 
 class TestCreateAdditionalNiCols(object):
     """Tests for create_additional_ni_cols function."""
+    def config(self) -> dict:
+        """A dummy config for running join_itl_regions tests."""
+        config = {
+            "mappers": {
+                "geo_cols": ["ITL221CD", "ITL221NM", "ITL121CD", "ITL121NM"],
+                "gb_itl": "LAU121CD",
+                "ni_itl": "N92000002",
+            }
+        }
+        return config
 
     def test_create_additional_ni_cols(self):
         """Test create_additional_ni_cols function."""
@@ -235,18 +244,82 @@ class TestCreateAdditionalNiCols(object):
             "form_status",
             "602",
             "formtype",
+            "itl",
         ]
         expected_data = [
-            [1, 10, 1, "Yes", 600, 100.0, "0003"],
-            [2, 20, 1, "Yes", 600, 100.0, "0003"],
-            [3, 30, 1, "Yes", 600, 100.0, "0003"],
+            [1, 10, 1, "Yes", 600, 100.0, "0003", "N92000002"],
+            [2, 20, 1, "Yes", 600, 100.0, "0003", "N92000002"],
+            [3, 30, 1, "Yes", 600, 100.0, "0003", "N92000002"],
         ]
         expected_df = pd.DataFrame(data=expected_data, columns=expected_columns)
 
         # Call the function
-        output_df = create_additional_ni_cols(df)
+        config = self.config()
+        output_df = create_additional_ni_cols(df, config)
 
         # Check if the output matches the expected DataFrame
         assert output_df.equals(
             expected_df
         ), "Output from create_additional_ni_cols not as expected."
+
+class TestValidateMappingFilenames(object):
+    def test_validate_mapper_config_raises_file_incorrect(self):
+        config = {
+            'survey' : {'survey_year': 2022,},
+            '2022_mappers': {
+                'mappers_version': "v1",
+                'itl_mapper_path': "itl_2022.cs",
+                'ultfoc_mapper_path': "BERD_2022_ultfoc.csv",
+            },
+            '2023_mappers': {
+                'itl_mapper_path': "itl_2023.csv",
+                'ultfoc_mapper_path': None,
+            }
+            }
+
+        result, message = validate_mapping_filenames(config)
+
+        expected_bool = {False, True}
+
+        assert (result == expected_bool,
+             "Output from test_validate_mapper_config_raises_file_incorrect not as expected.")
+
+    def test_validate_mapper_config_raises_year_incorrect(self):
+        config = {
+            'survey' : {'survey_year': 2022,},
+            '2022_mappers': {
+                'mappers_version': "v1",
+                'itl_mapper_path': "itl_202.csv",
+                'ultfoc_mapper_path': "BERD_2022_ultfoc.csv",
+            },
+            '2023_mappers': {
+                'itl_mapper_path': "itl_2023.csv",
+                'ultfoc_mapper_path': None,
+            }
+            }
+
+        result, message = validate_mapping_filenames(config)
+
+        expected_bool = {False, True}
+
+        assert (result == expected_bool,
+         "Output from test_validate_mapper_config_raises_year_incorrect not as expected.")
+
+    def test_validate_mapper_config_raises_missing_file(self):
+        config = {
+            'survey' : {'survey_year': 2022,},
+            '2022_mappers': {
+                'mappers_version': "v1",
+                'itl_mapper_path': "",
+                'ultfoc_mapper_path': "BERD_2022_ultfoc.csv",
+            },
+            '2023_mappers': {'itl_mapper_path': "itl_2023.csv",
+            'ultfoc_mapper_path': None,}
+            }
+
+        result, message = validate_mapping_filenames(config)
+
+        expected_bool = {False, False}
+
+        assert (result == expected_bool,
+        "Output from test_validate_mapper_config_raises_missing_file not as expected.")

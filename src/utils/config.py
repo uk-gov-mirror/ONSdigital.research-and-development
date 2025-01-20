@@ -1,10 +1,11 @@
 """Simple utils to assist the config."""
+
 from copy import deepcopy
-from typing import Union, Dict
+from typing import Union, Tuple, Dict
 
 from src.utils.defence import type_defence, validate_file_extension
 from src.utils.local_file_mods import safeload_yaml
-from src.utils.path_helpers import update_config_with_paths
+from src.utils.path_helpers import update_config_with_paths, filename_year_validation
 
 
 def config_setup(user_config_path: str, dev_config_path: str) -> Dict:
@@ -22,15 +23,11 @@ def config_setup(user_config_path: str, dev_config_path: str) -> Dict:
     del user_config, dev_config
 
     # update the config with the full paths
-    modules = [
-        "imputation",
-        "outliers",
-        "estimation",
-        "apportionment",
-        "outputs",
-    ]
+    modules = ["imputation", "outliers", "estimation", "apportionment", "outputs"]
     combined_config = update_config_with_paths(combined_config, modules)
 
+    validate_freezing_config_settings(combined_config)
+    validate_construction_config_settings(combined_config)
     return combined_config
 
 
@@ -286,3 +283,214 @@ def validate_config(config: dict) -> None:
             validation_item=validation_config[validation_item],
             item_name=validation_item,
         )
+
+
+def validate_freezing_run_config(config: dict) -> Tuple[bool, bool, bool, bool]:
+    """Validate the four main config parameters of the freezing module.
+
+    Args:
+        config (dict): The pipeline config.
+
+    Raises:
+        ValueError: Raised if multiple pipeline run options are True.
+
+    Returns:
+        Tuple[bool, bool, bool, bool]: The main freezing config settings.
+    """
+    run_with_snapshot = config["global"]["run_with_snapshot"]
+    run_with_snapshot_and_freeze = config["global"]["run_with_snapshot_and_freeze"]
+    load_updated_snapshot_for_comparison = config["global"][
+        "load_updated_snapshot_for_comparison"
+    ]
+    run_updates_and_freeze = config["global"]["run_updates_and_freeze"]
+    run_with_frozen_data = config["global"]["run_with_frozen_data"]
+    values = [
+        run_with_snapshot,
+        run_with_snapshot_and_freeze,
+        load_updated_snapshot_for_comparison,
+        run_updates_and_freeze,
+        run_with_frozen_data,
+    ]
+    if sum(values) > 1:
+        raise ValueError(
+            "Only one type of pipeline run is allowed (freezing). Please update"
+            " the user config."
+        )
+    return tuple(values)
+
+
+def validate_freezing_config_settings(config: dict):
+    """Check that correct combination of freezing settings are used."""
+
+    # Determine and validate freezing settings
+    (
+        run_with_snapshot,
+        run_with_snapshot_and_freeze,
+        load_updated_snapshot_for_comparison,
+        run_updates_and_freeze,
+        run_with_frozen_data,
+    ) = validate_freezing_run_config(config)
+
+    snapshot_path = config["staging_paths"]["snapshot_path"]
+    frozen_data_staged_path = config["freezing_paths"]["frozen_data_staged_path"]
+    updated_snapshot_path = config["staging_paths"]["updated_snapshot_path"]
+    freezing_additions_path = config["freezing_paths"]["freezing_additions_path"]
+    freezing_amendments_path = config["freezing_paths"]["freezing_amendments_path"]
+
+    if run_with_snapshot:
+        if snapshot_path is None:
+            raise ValueError(
+                "If running first snapshot of results, a frozen snapshot path must be"
+                " provided."
+            )
+
+    if run_with_frozen_data:
+        if frozen_data_staged_path is None:
+            raise ValueError(
+                "If running frozen data, a frozen data staged path must be provided."
+            )
+
+    if load_updated_snapshot_for_comparison:
+        if updated_snapshot_path is None or frozen_data_staged_path is None:
+            raise ValueError(
+                "If loading an updated snapshot for comparison, a secondary snapshot"
+                " path and frozen data staged path must be provided."
+            )
+
+    if run_updates_and_freeze:
+        if frozen_data_staged_path is None or (
+            freezing_additions_path is None or freezing_amendments_path is None
+        ):
+            raise ValueError(
+                "If running updates and freezing, a frozen data staged path and a"
+                " freezing adds or amends path must be provided."
+            )
+
+
+def validate_construction_config_settings(config):
+    """Check that correct combination of construction settings are used."""
+
+    run_all_data_construction = config["global"]["run_all_data_construction"]
+    run_postcode_construction = config["global"]["run_postcode_construction"]
+    run_ni_construction = config["global"]["run_ni_construction"]
+    all_data_construction_file_path = config["construction_paths"][
+        "all_data_construction_file_path"
+    ]
+    postcode_construction_file_path = config["construction_paths"][
+        "postcode_construction_file_path"
+    ]
+    construction_file_path_ni = config["construction_paths"][
+        "construction_file_path_ni"
+    ]
+
+    if run_all_data_construction:
+        if all_data_construction_file_path is None:
+            raise ValueError(
+                "If running all data construction, an all data construction file path"
+                " must be provided."
+            )
+
+    if run_postcode_construction:
+        if postcode_construction_file_path is None:
+            raise ValueError(
+                "If running postcode construction, a postcode construction file path"
+                " must be provided."
+            )
+
+    if run_ni_construction:
+        if construction_file_path_ni is None:
+            raise ValueError(
+                "If running NI construction, a NI construction file path must be"
+                " provided."
+            )
+
+
+def validate_survey_config(config: dict) -> dict:
+    """
+    Checking the logic surrounding the type of survey.
+    If survey_type is set to PNP and NI data is set to True, an error will be raised
+    and pipeline will stop.
+
+    Args:
+        config (dict): The configuration dictionary.
+
+    Returns:
+        dict: The validated configuration dictionary.
+
+    Raises:
+        ValueError: If PNP is set and Northern Ireland data is configured to True.
+    """
+    survey_config = config.get("survey", {})
+    if survey_config.get("survey_type") == "PNP":
+        # List of values not compatible with PNP
+        values = [config.get("global", {}).get("load_ni_data", True)]
+        if any(values):
+            raise ValueError(
+                "Error: PNP is set. Northern Ireland data cannot be run. Please update "
+                "the user config."
+            )
+    return config
+
+
+def validate_pnp_config(config: dict) -> None:
+    """
+        Checking the logic of the outputs are compatible with PNP survey.
+        If an output that is incompatible with PNP survey is set to True,
+        a warning message will be printed and the setting will be updated to False.
+
+    Args:
+        config (dict): The configuration dictionary.
+
+    Returns:
+        dict: The validated configuration dictionary.
+
+    """
+    # Check if PNP is set
+    if config["survey"]["survey_type"] == "PNP":
+        # List of values not compatible with PNP
+        incompatible_settings = [
+            "run_ni_construction",
+            "load_manual_outliers",
+            "output_ni_full_responses",
+            "output_mapping_ni_qa",
+            "output_outlier_qa",
+            "output_auto_outliers",
+            "output_estimation_qa",
+            "output_short_form",
+            "output_ni_sas",
+            "output_intram_by_pg_uk",
+            "output_intram_uk_itl",
+            "output_intram_by_civil_defence",
+        ]
+
+        result = []
+        for setting in incompatible_settings:
+            # Check if setting is True
+            if config.get("global", {}).get(setting, True):
+                # Add setting to result list
+                result.append(setting)
+                # Update setting to False
+                config["global"][setting] = False
+                # Print warning message with setting that has bee updated.
+        print(
+            "WARNING: PNP is set. The following settings are not compatible with PNP: "
+            f"{', '.join(result)}. User config will be updated to False."
+        )
+
+    return config
+
+
+def file_validation(config: dict) -> dict:
+    """
+    Checking the logic is consistent in the config file for the pipeline to run.
+
+    Args:
+        config (dict): The configuration dictionary.
+
+    Returns:
+        dict: The updated configuration dictionary.
+    """
+    filename_year_validation(config)
+    validate_survey_config(config)
+    validate_pnp_config(config)
+    return config

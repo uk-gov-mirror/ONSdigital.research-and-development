@@ -1,4 +1,5 @@
 """Specific functions applied in mapping_main.py"""
+
 import pandas as pd
 import logging
 
@@ -32,6 +33,7 @@ def join_with_null_check(
     mapper_df: pd.DataFrame,
     mapper_name: str,
     join_col: str,
+    warn: bool = False,
 ) -> pd.DataFrame:
     """Perform a left join on two DataFrames and check for nulls on the join.
 
@@ -40,13 +42,14 @@ def join_with_null_check(
         mapper_df (pd.DataFrame): The mapper DataFrame.
         mapper_name (str): The name of the mapper being validated.
         join_col (str): The column to join on.
-    
+        warn (bool, optional): Whether to warn instead of raising an error.
+
     Returns:
         pd.DataFrame: The merged DataFrame.
-    
+
     Raises:
-        ValueError: Raised if nulls are found in the join.
-        
+        ValueError: Raised if nulls are found in the join and 'warn' bool is False.
+
     """
     df = df.merge(
         mapper_df,
@@ -54,14 +57,20 @@ def join_with_null_check(
         on=join_col,
         indicator=True,
     )
-    # Check for nulls in the join
+
+    # Check for nulls in the join. Either warn or raise an error.
     filter_df = df.loc[df[join_col].notnull() & df._merge.eq("left_only")]
     if not filter_df.empty:
-        raise ValueError(
+        msg = (
             f"Nulls found in the join on {join_col} of {mapper_name} mapper."
             f"The following {join_col} values are not in the {mapper_name} mapper: "
             f"{filter_df[join_col].unique()}"
         )
+        if warn:
+            MappingLogger.warning(msg)
+        else:
+            raise ValueError(msg)
+
     df = df.drop("_merge", axis=1)
     return df
 
@@ -190,12 +199,15 @@ def update_ref_list(full_df: pd.DataFrame, ref_list_df: pd.DataFrame) -> pd.Data
     return df
 
 
-def create_additional_ni_cols(ni_full_responses: pd.DataFrame) -> pd.DataFrame:
+def create_additional_ni_cols(
+    ni_full_responses: pd.DataFrame, config: dict
+) -> pd.DataFrame:
     """
     Create additional columns for Northern Ireland data.
 
     Args:
         df (pd.DataFrame): The main DataFrame.
+        config (dict): The pipeline configuration settings.
 
     Returns:
         pd.DataFrame: The DataFrame with additional columns.
@@ -206,5 +218,6 @@ def create_additional_ni_cols(ni_full_responses: pd.DataFrame) -> pd.DataFrame:
     ni_full_responses["form_status"] = 600
     ni_full_responses["602"] = 100.0
     ni_full_responses["formtype"] = "0003"
+    ni_full_responses["itl"] = config["mappers"]["ni_itl"]
 
     return ni_full_responses

@@ -1,26 +1,29 @@
 """The main file for the staging and validation module."""
+
 # Core imports
 import logging
 from typing import Callable, Tuple
-from datetime import datetime
 import os
+
+import pandas as pd
 
 import src.staging.staging_helpers as helpers
 from src.staging import validation as val
+from src.utils.helpers import filename_amender
+
+# from src.utils.breakdown_validation import run_breakdown_validation
 
 StagingMainLogger = logging.getLogger(__name__)
 
 
 def run_staging(  # noqa: C901
     config: dict,
-    check_file_exists: Callable,
-    load_json: Callable,
-    read_csv: Callable,
-    write_csv: Callable,
-    read_feather: Callable,
-    write_feather: Callable,
-    isfile: Callable,
-    run_id: int,
+    rd_file_exists: callable,
+    rd_load_json: callable,
+    rd_read_csv: callable,
+    rd_write_csv: callable,
+    rd_read_feather: Callable,
+    rd_write_feather: Callable,
 ) -> Tuple:
     """Run the staging and validation module.
 
@@ -33,15 +36,18 @@ def run_staging(  # noqa: C901
 
     Args:
         config (dict): The pipeline configuration
-        check_file_exists (Callable): Function to check if file exists
-            This will be the hdfs or network version depending on settings.
-        load_json (Callable): Function to load a json file.
-            This will be the hdfs or network version depending on settings.
-        read_csv (Callable): Function to read a csv file.
-            This will be the hdfs or network version depending on settings.
-        write_csv (Callable): Function to write to a csv file.
-            This will be the hdfs or network version depending on settings.
-        run_id (int): The run id for this run.
+        rd_file_exists (Callable): Function to check if file exists
+            Avaible in s3, hdfs or network version depending "platform".
+        rd_load_json (Callable): Function to load a json file.
+            Avaible in s3, hdfs or network version depending "platform".
+        rd_read_csv (Callable): Function to read a csv file.
+            Avaible in s3, hdfs or network version depending "platform".
+        rd_write_csv (Callable): Function to write to a csv file.
+            Avaible in s3, hdfs or network version depending "platform".
+        rd_read_feather (Callable): Function to read feather files to Pandas
+            Available in HDFS and Windows only.
+        rd_write_feather (Callable): Function to write feather files from Pandas
+            Available in HDFS and Windows only.
     Returns:
         tuple
             full_responses (pd.DataFrame): The staged and vaildated snapshot data,
@@ -56,231 +62,219 @@ def run_staging(  # noqa: C901
             sic_pg_alpha (pd.DataFrame): SIC code to product group alpha mapper.
     """
     # Check the environment switch
-    network_or_hdfs = config["global"]["network_or_hdfs"]
-    is_network = network_or_hdfs == "network"
+    platform = config["global"]["platform"]
+    is_network = platform == "network"
     load_from_feather = config["global"]["load_from_feather"]
-    load_updated_snapshot = config["global"]["load_updated_snapshot"]
 
     # set up dictionaries with all the paths needed for the staging module
     staging_dict = config["staging_paths"]
 
-    snapshot_name = os.path.basename(staging_dict["snapshot_path"]).split(".", 1)[0]
-    feather_path = staging_dict["feather_output"]
-    feather_file = os.path.join(feather_path, f"{snapshot_name}.feather")
-
-    if load_updated_snapshot:
-        secondary_snapshot_name = os.path.basename(
-            staging_dict["secondary_snapshot_path"]
-        ).split(".", 1)[0]
-        secondary_feather_file = os.path.join(
-            feather_path, f"{secondary_snapshot_name}.feather"
-        )
-    else:
-        secondary_feather_file = None
-
-    # Check if the if the snapshot feather and optionally the secondary
-    # snapshot feather exist
-    feather_files_exist = helpers.check_snapshot_feather_exists(
-        config, check_file_exists, feather_file, secondary_feather_file
+    stage_frozen_snapshot = (
+        config["global"]["run_with_snapshot"]
+        | config["global"]["run_with_snapshot_and_freeze"]
     )
+    stage_updated_snapshot = config["global"]["load_updated_snapshot_for_comparison"]
+    if stage_frozen_snapshot or stage_updated_snapshot:
+        feather_path = staging_dict["feather_output"]
 
-    # Only read from feather if feather files exist and we are on network
-    READ_FROM_FEATHER = is_network & feather_files_exist & load_from_feather
-    if READ_FROM_FEATHER:
-        # Load data from first feather file found
-        StagingMainLogger.info("Skipping data validation. Loading from feather")
-        full_responses = helpers.load_snapshot_feather(feather_file, read_feather)
-        # seaparate PNP data equivalent to legalstatus=7 from full_responses
-        full_responses, pnp_full_responses = helpers.filter_pnp_data(full_responses)
-        if load_updated_snapshot:
-            secondary_full_responses = helpers.load_snapshot_feather(
-                secondary_feather_file, read_feather
+        if stage_frozen_snapshot:
+            snapshot_name = os.path.basename(staging_dict["snapshot_path"]).split(
+                ".", 1
+            )[0]
+
+            feather_file = os.path.join(feather_path, f"{snapshot_name}.feather")
+
+        elif stage_updated_snapshot:
+            snapshot_name = os.path.basename(
+                staging_dict["updated_snapshot_path"]
+            ).split(".", 1)[0]
+            feather_file = os.path.join(feather_path, f"{snapshot_name}.feather")
+
+        # Check if the if the snapshot feather exists
+        feather_files_exist = rd_file_exists(feather_file)
+
+        # Only read from feather if feather files exist and we are on network
+        READ_FROM_FEATHER = is_network & feather_files_exist & load_from_feather
+        if READ_FROM_FEATHER:
+            # Load data from first feather file found
+            StagingMainLogger.info("Skipping data validation. Loading from feather")
+            full_responses = helpers.load_snapshot_feather(
+                feather_file, rd_read_feather
             )
-        else:
-            secondary_full_responses = None
 
-        # Read in postcode mapper (needed later in the pipeline)
-        postcode_masterlist = staging_dict["postcode_masterlist"]
-        check_file_exists(postcode_masterlist, raise_error=True)
-        postcode_mapper = read_csv(postcode_masterlist)
+            # Read in postcode mapper (needed later in the pipeline)
+            postcode_mapper = config["mapping_paths"]["postcode_mapper"]
+            rd_file_exists(postcode_mapper, raise_error=True)
+            postcode_mapper = rd_read_csv(postcode_mapper)
 
-    else:  # Read from JSON
+        else:  # Read from JSON
+            # Check data file exists, raise an error if it does not.
+            if stage_frozen_snapshot:
+                snapshot_path = staging_dict["snapshot_path"]
+            elif stage_updated_snapshot:
+                snapshot_path = staging_dict["updated_snapshot_path"]
 
-        # Check data file exists, raise an error if it does not.
-        snapshot_path = staging_dict["snapshot_path"]
-        secondary_snapshot_path = staging_dict["secondary_snapshot_path"]
-        check_file_exists(snapshot_path, raise_error=True)
-        full_responses, response_rate = helpers.load_val_snapshot_json(
-            snapshot_path, load_json, config, network_or_hdfs
-        )
-
-        StagingMainLogger.info(
-            f"Response rate: {response_rate}"
-        )  # TODO: We might want to use this in a QA output
-
-        # Data validation of json or feather data
-        val.check_data_shape(full_responses, raise_error=True)
-
-        # Validate the postcodes in data loaded from JSON
-        full_responses, postcode_mapper = helpers.stage_validate_harmonise_postcodes(
-            config,
-            full_responses,
-            run_id,
-            check_file_exists,
-            read_csv,
-            write_csv,
-        )
-        # TODO : this code hasn't been updated to use the new paths (in staging)
-        if load_updated_snapshot:
-            secondary_full_responses = helpers.load_validate_secondary_snapshot(
-                load_json,
-                secondary_snapshot_path,
+            rd_file_exists(snapshot_path, raise_error=True)
+            full_responses, response_rate = helpers.load_val_snapshot_json(
+                snapshot_path,
+                rd_load_json,
                 config,
-                network_or_hdfs,
             )
-        else:
-            secondary_full_responses = None
 
-        # Write both snapshots to feather file at given path
-        if is_network:
-            feather_fname = f"{snapshot_name}.feather"
-            helpers.df_to_feather(
-                feather_path, feather_fname, full_responses, write_feather
+            StagingMainLogger.info(
+                f"Response rate: {response_rate}"
+            )  # TODO: We might want to use this in a QA output
+
+            # Data validation of json or feather data
+            is_dev = config["global"]["dev_test"]
+            if is_dev:
+                StagingMainLogger.info("Platform is DEV, check data shape skipped")
+            else:
+                StagingMainLogger.info("Checking data shape")
+                val.check_data_shape(full_responses, raise_error=True)
+
+            # Validate the postcodes in data loaded from JSON
+            (
+                full_responses,
+                postcode_mapper,
+            ) = helpers.stage_validate_harmonise_postcodes(
+                config,
+                full_responses,
+                rd_file_exists,
+                rd_read_csv,
+                rd_write_csv,
             )
-            if secondary_full_responses is not None:
-                s_feather_fname = f"{secondary_snapshot_name}.feather"
+
+            # Write snapshot to feather file at given path
+            if is_network:
+                feather_fname = f"{snapshot_name}.feather"
                 helpers.df_to_feather(
-                    feather_path,
-                    s_feather_fname,
-                    secondary_full_responses,
-                    write_feather,
+                    feather_path, feather_fname, full_responses, rd_write_feather
                 )
 
-    # Flag invalid records
-    val.flag_no_rand_spenders(full_responses, "raise")
+        # Flag invalid records
+        val.flag_no_rand_spenders(full_responses, "raise")
 
-    if config["global"]["load_manual_outliers"]:
-        # Stage the manual outliers file
-        StagingMainLogger.info("Loading Manual Outlier File")
-        manual_path = staging_dict["manual_outliers_path"]
-        check_file_exists(manual_path, raise_error=True)
-        wanted_cols = ["reference", "manual_outlier"]
-        manual_outliers = read_csv(manual_path, wanted_cols)
-        manual_outliers["manual_outlier"] = manual_outliers["manual_outlier"].fillna(
-            False
-        )
-        manual_outliers = manual_outliers.drop_duplicates(
-            subset=["reference"], keep="first"
-        )
-        val.validate_data_with_schema(
-            manual_outliers, "./config/manual_outliers_schema.toml"
-        )
-        StagingMainLogger.info("Manual Outlier File Loaded Successfully...")
     else:
-        manual_outliers = None
-        StagingMainLogger.info("Loading of Manual Outlier File skipped")
-
-    # Get the latest manual trim file
-    manual_trim_path = staging_dict["manual_imp_trim_path"]
-
-    if config["global"]["load_manual_imputation"] and isfile(manual_trim_path):
-        StagingMainLogger.info("Loading Imputation Manual Trimming File")
-        wanted_cols = ["reference", "instance", "manual_trim"]
-        manual_trim_df = read_csv(manual_trim_path, wanted_cols)
-        manual_trim_df["manual_trim"] = manual_trim_df["manual_trim"].fillna(False)
-        manual_trim_df["instance"] = manual_trim_df["instance"].fillna(1)
-        manual_trim_df = manual_trim_df.drop_duplicates(
-            subset=["reference", "instance"], keep="first"
+        StagingMainLogger.info(
+            "Skipping json file staging and validation to read in frozen data..."
         )
-        val.validate_data_with_schema(
-            manual_trim_df, "./config/manual_trim_schema.toml"
-        )
-    else:
-        manual_trim_df = None
-        StagingMainLogger.info("Loading of Imputation Manual Trimming File skipped")
+        # create empty dataframe to pass to freezing
+        full_responses = pd.DataFrame()
 
-    if config["global"]["load_backdata"]:
-        # Stage the manual outliers file
+        StagingMainLogger.info("Loading postcode mapper")
+        # Read in postcode mapper (needed later in the pipeline)
+        postcode_mapper = config["mapping_paths"]["postcode_mapper"]
+        rd_file_exists(postcode_mapper, raise_error=True)
+        postcode_mapper = rd_read_csv(postcode_mapper)
+
+    # Staging of the main snapshot data is now complete
+    StagingMainLogger.info("Staging of main snapshot data complete.")
+    # run validation on the breakdowns
+    # run_breakdown_validation(full_responses, config, "staged")
+
+    if not config["global"]["load_updated_snapshot_for_comparison"]:
+        # Staging of the additional data
+        if config["global"]["load_manual_outliers"]:
+            # Stage the manual outliers file
+            StagingMainLogger.info("Loading Manual Outlier File")
+            manual_path = staging_dict["manual_outliers_path"]
+            rd_file_exists(manual_path, raise_error=True)
+            manual_outliers = rd_read_csv(manual_path)
+            manual_outliers = manual_outliers.drop_duplicates(
+                subset=["reference"], keep="first"
+            )
+            val.validate_data_with_schema(
+                manual_outliers, "./config/manual_outliers_schema.toml"
+            )
+            StagingMainLogger.info("Manual Outlier File Loaded Successfully...")
+        else:
+            manual_outliers = None
+            StagingMainLogger.info("Loading of Manual Outlier File skipped")
+
+        # Get the latest manual trim file
+        manual_trim_path = staging_dict["manual_imp_trim_path"]
+
+        if config["global"]["load_manual_imputation"] and rd_file_exists(
+            manual_trim_path
+        ):
+            StagingMainLogger.info("Loading Imputation Manual Trimming File")
+            manual_trim_df = rd_read_csv(manual_trim_path)
+            manual_trim_df["manual_trim"] = manual_trim_df["manual_trim"].fillna(False)
+            manual_trim_df["instance"] = manual_trim_df["instance"].fillna(1)
+            manual_trim_df = manual_trim_df.drop_duplicates(
+                subset=["reference", "instance"], keep="first"
+            )
+            val.validate_data_with_schema(
+                manual_trim_df, "./config/manual_trim_schema.toml"
+            )
+        else:
+            manual_trim_df = None
+            StagingMainLogger.info("Loading of Imputation Manual Trimming File skipped")
+
+        # stage the backdata for MoR
         StagingMainLogger.info("Loading Backdata File")
         backdata_path = staging_dict["backdata_path"]
-        check_file_exists(backdata_path, raise_error=True)
-        backdata = read_csv(backdata_path)
-        # To be added once schema is defined
-        # Network schema file matches working schema on DAP
-        # val.validate_data_with_schema(
-        #     backdata_path, "./config/backdata_schema.toml"
-        # )
+        rd_file_exists(backdata_path, raise_error=True)
+        backdata = rd_read_csv(backdata_path)
+        val.validate_data_with_schema(backdata, "./config/backdata_schema.toml")
 
         StagingMainLogger.info("Backdata File Loaded Successfully...")
-    else:
-        backdata = None
-        StagingMainLogger.info("Loading of Backdata File skipped")
 
-    # Loading ITL1 detailed mapper
-    itl1_detailed_mapper = helpers.load_validate_mapper(
-        "itl1_detailed_mapper_path",
-        config,
-        StagingMainLogger,
-    )
-
-    # Loading Civil or Defence detailed mapper
-    civil_defence_detailed_mapper = helpers.load_validate_mapper(
-        "civil_defence_detailed_mapper_path",
-        config,
-        StagingMainLogger,
-    )
-
-    # Loading SIC division detailed mapper
-    sic_division_detailed_mapper = helpers.load_validate_mapper(
-        "sic_division_detailed_mapper_path",
-        config,
-        StagingMainLogger,
-    )
-
-    pg_detailed_mapper = helpers.load_validate_mapper(
-        "pg_detailed_mapper_path",
-        config,
-        StagingMainLogger,
-    )
-
-    # Output the staged BERD data.
-    if config["global"]["output_full_responses"]:
-        StagingMainLogger.info("Starting output of staged BERD data...")
-        staging_folder = staging_dict["staging_output_path"]
-        tdate = datetime.now().strftime("%y-%m-%d")
-        survey_year = config["years"]["survey_year"]
-        staged_filename = (
-            f"{survey_year}_staged_BERD_full_responses_{tdate}_v{run_id}.csv"
+        # Loading SIC division detailed mapper
+        sic_division_detailed_mapper = helpers.load_validate_mapper(
+            "sic_division_detailed_mapper_path",
+            config,
+            StagingMainLogger,
+            rd_file_exists,
+            rd_read_csv,
         )
-        write_csv(f"{staging_folder}/{staged_filename}", full_responses)
-        StagingMainLogger.info("Finished output of staged BERD data.")
-    else:
-        StagingMainLogger.info("Skipping output of staged BERD data...")
 
-    # Output the staged PNP data.
-    if config["global"]["output_pnp_full_responses"]:
-        StagingMainLogger.info("Starting output of staged PNP data...")
-        staging_folder = staging_dict["pnp_staging_qa_path"]
-        tdate = datetime.now().strftime("%y-%m-%d")
-        survey_year = config["years"]["survey_year"]
-        staged_filename = (
-            f"{survey_year}_staged_PNP_full_responses_{tdate}_v{run_id}.csv"
+        pg_detailed_mapper = helpers.load_validate_mapper(
+            "pg_detailed_mapper_path",
+            config,
+            StagingMainLogger,
+            rd_file_exists,
+            rd_read_csv,
         )
-        write_csv(f"{staging_folder}/{staged_filename}", pnp_full_responses)
-        StagingMainLogger.info("Finished output of staged PNP data.")
-    else:
-        StagingMainLogger.info("Skipping output of staged PNP data...")
 
-    # Return staged BERD data, additional data and mappers
-    return (
-        full_responses,
-        secondary_full_responses,
-        manual_outliers,
-        postcode_mapper,
-        backdata,
-        pg_detailed_mapper,
-        itl1_detailed_mapper,
-        civil_defence_detailed_mapper,
-        sic_division_detailed_mapper,
-        manual_trim_df,
-    )
+        # filter for either PNP data or BERD data
+        if stage_frozen_snapshot or stage_updated_snapshot:
+            full_responses = helpers.filter_pnp_data(full_responses, config)
+
+        if config["global"]["output_full_responses"]:
+            survey_type = config["survey"]["survey_type"]
+            StagingMainLogger.info(f"Starting output of staged {survey_type} data...")
+            staging_folder = staging_dict["staging_output_path"]
+            if survey_type == "PNP":
+                staged_filename = filename_amender("staged_full_responses", config)
+            else:
+                staged_filename = filename_amender("staged_BERD_full_responses", config)
+
+            rd_write_csv(f"{staging_folder}/{staged_filename}", full_responses)
+            StagingMainLogger.info(f"Finished output of staged {survey_type} data.")
+        else:
+            StagingMainLogger.info("Skipping output of staged data...")
+
+        # Return staged BERD data, additional data and mappers
+        return (
+            full_responses,
+            manual_outliers,
+            postcode_mapper,
+            backdata,
+            pg_detailed_mapper,
+            sic_division_detailed_mapper,
+            manual_trim_df,
+        )
+
+    else:
+        return (
+            full_responses,
+            pd.DataFrame(),
+            pd.DataFrame(),
+            pd.DataFrame(),
+            pd.DataFrame(),
+            pd.DataFrame(),
+            pd.DataFrame(),
+            pd.DataFrame(),
+        )

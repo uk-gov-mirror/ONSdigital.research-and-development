@@ -9,7 +9,7 @@ CalcWeights_Logger = logging.getLogger(__name__)
 def create_estimation_filter(df: pd.DataFrame) -> pd.Series:
     """Return a boolean mask for the conditions needed to apply estimation."""
     sample_cond = df["selectiontype"] == "P"
-    status_cond = df.statusencoded.isin(["210", "211"])
+    status_cond = df.status.isin(["Clear", "Clear - overridden"])
     formtype_cond = df["formtype"] == "0006"
 
     estimation_filter = formtype_cond & sample_cond & status_cond
@@ -69,7 +69,7 @@ def calculate_weighting_factor(
     # Default a_weight = 1 for all entries
     df["a_weight"] = 1.0
 
-    grouped_by_cell = df.groupby("cellnumber").apply(calc_a_weight)
+    grouped_by_cell = df.groupby("cellnumber", group_keys=False).apply(calc_a_weight)
 
     # Create a QA dataframe
     qa_frame = create_a_weight_qa_df(grouped_by_cell)

@@ -1,5 +1,5 @@
 import os
-import toml
+import tomli
 import pandas as pd
 import numpy as np
 
@@ -26,16 +26,20 @@ def load_schema(file_path: str = "./config/contributors_schema.toml") -> dict:
 
     # Check if Data_Schema.toml exists
     if file_exists:
-        # Load toml data schema into dictionary if toml file exists
-        toml_dict = toml.load(file_path)
+        try:
+            # Open the file and load toml data schema into dictionary
+            with open(file_path, "rb") as file:
+                toml_dict = tomli.load(file)
+            return toml_dict
+        except tomli.TOMLDecodeError as e:
+            ValidationLogger.error(f"Failed to decode TOML file: {e}")
+            return None
     else:
-        # Return False if file does not exist
+        # Return None if file does not exist
         ValidationLogger.warning(
             "Validation schema does not exist! Path may be incorrect"
         )
-        return file_exists
-
-    return toml_dict
+        return None
 
 
 @exception_wrap
@@ -94,9 +98,7 @@ def check_data_shape(
         ValidationLogger.warning(missing_file_cols)
         ValidationLogger.warning(missing_df_cols)
         if raise_error:
-            raise ColumnMismatch(  # noqa: F821
-                "Error: The the number of columns do not match. Halted"
-            )
+            raise ValueError("Error: The the number of columns do not match. Halted")
 
     ValidationLogger.info(
         f"Length of data: {len(df_cols_set)}. Length of schema: "
@@ -106,8 +108,7 @@ def check_data_shape(
     return cols_match
 
 
-@time_logger_wrap  # noqa: C901
-def validate_data_with_schema(survey_df: pd.DataFrame, schema_path: str):
+def validate_data_with_schema(survey_df: pd.DataFrame, schema_path: str):  # noqa: C901
     """Takes the schema from the toml file and validates the survey data df.
 
     Args:
@@ -129,7 +130,6 @@ def validate_data_with_schema(survey_df: pd.DataFrame, schema_path: str):
 
     # Cast each column individually and catch any errors
     for column in dtypes_dict.keys():
-
         # Fix for the columns which contain empty strings. We want to cast as NaN
         if dtypes_dict[column] == "pd.NA":
             # Replace whatever is in that column with np.nan
@@ -149,7 +149,7 @@ def validate_data_with_schema(survey_df: pd.DataFrame, schema_path: str):
             elif "datetime" in dtypes_dict[column]:
                 try:
                     survey_df[column] = pd.to_datetime(
-                        survey_df[column], errors="coerce"
+                        survey_df[column], errors="coerce", dayfirst=True
                     )
                 except TypeError:
                     raise TypeError(
@@ -157,7 +157,8 @@ def validate_data_with_schema(survey_df: pd.DataFrame, schema_path: str):
                         " the data."
                     )
             else:
-                survey_df[column] = survey_df[column].astype(dtypes_dict[column])
+                if survey_df[column].isna().all() is False:
+                    survey_df[column] = survey_df[column].astype(dtypes_dict[column])
         except Exception as e:
             ValidationLogger.error(e)
     ValidationLogger.info("Validation successful")
@@ -186,9 +187,11 @@ def combine_schemas_validate_full_df(
 
     # Create a dict for dtypes only
     dtypes = {
-        column_nm: dtypes_con_schema[column_nm]["Deduced_Data_Type"]
-        if column_nm in dtypes_con_schema
-        else dtypes_res_schema[column_nm]["Deduced_Data_Type"]
+        column_nm: (
+            dtypes_con_schema[column_nm]["Deduced_Data_Type"]
+            if column_nm in dtypes_con_schema
+            else dtypes_res_schema[column_nm]["Deduced_Data_Type"]
+        )
         for column_nm in full_columns_list
     }
 
@@ -215,6 +218,12 @@ def combine_schemas_validate_full_df(
             survey_df[column] = survey_df[column].astype("float64", errors="ignore")
         elif dtypes[column] == "str":
             survey_df[column] = survey_df[column].astype("string")
+        elif pd.api.types.is_datetime64tz_dtype(survey_df[column]):
+            # Remove timezone information because some columns values are
+            # time-zone (tz) aware. To make the column homogeneous, we remove the
+            # tz info where it exists.
+            survey_df[column] = survey_df[column].dt.tz_localize(None)
+            survey_df[column] = survey_df[column].astype(dtypes[column])
         else:
             survey_df[column] = survey_df[column].astype(dtypes[column])
     ValidationLogger.info("Finished data type casting process")

@@ -1,24 +1,17 @@
 """The main file for the construction module."""
+
 import logging
 from typing import Callable
 
 import pandas as pd
-import numpy as np
 
-from src.construction.construction_helpers import (
-    read_construction_file,
-    prepare_forms_gb,
-    clean_construction_type,
+from src.construction.construction_read_validate import (
+    read_validate_all_construction_files,
+    read_validate_postcode_construction_file,
 )
-from src.construction.construction_validation import (
-    check_for_duplicates,
-    concat_construction_dfs,
-    validate_columns_not_empty,
-    validate_short_to_long,
-    validate_construction_references,
-)
-from src.staging.validation import validate_data_with_schema
-from src.staging import postcode_validation as pcval
+from src.construction.all_data_construction import all_data_construction
+from src.construction.postcode_construction import postcode_data_construction
+
 
 construction_logger = logging.getLogger(__name__)
 
@@ -28,6 +21,8 @@ def run_construction(  # noqa: C901
     config: dict,
     check_file_exists: Callable,
     read_csv: Callable,
+    is_run_all_data_construction: bool = False,
+    is_run_postcode_construction: bool = False,
     is_northern_ireland: bool = False,
 ) -> pd.DataFrame:
     """Run the construction module.
@@ -44,6 +39,13 @@ def run_construction(  # noqa: C901
             will be the hdfs or network version depending on settings.
         read_csv (callable): Function to read a csv file. This will be the hdfs
             or network version depending on settings.
+        is_run_all_data_construction (bool): A logical parameter to perform all
+            construction. If this flag is True, and there is a construction
+            file, all construction steps will be done before the imputation.
+        is_run_postcode_construction (bool): A logical parameter to perform
+            postcode construction. If this flag is True, and there is a postcode
+            construction file, the postcode constructions will be done after the
+            imputation.
         is_northern_ireland (bool): If true, do construction on Northern Ireland
             data instead of England, Wales and Scotland data.
     Returns:
@@ -52,183 +54,41 @@ def run_construction(  # noqa: C901
     """
     if is_northern_ireland:
         run_construction = config["global"]["run_ni_construction"]
-        schema_path = "./config/construction_ni_schema.toml"
         run_postcode_construction = False
-    else:
+        df = read_validate_all_construction_files(
+            config,
+            check_file_exists,
+            read_csv,
+            construction_logger,
+            is_northern_ireland=True,
+        )
+        updated_snapshot_df = all_data_construction(
+            df, snapshot_df, construction_logger, config, is_northern_ireland=True
+        )
+
+    elif is_run_all_data_construction:
         run_construction = config["global"]["run_all_data_construction"]
+        run_postcode_construction = False
+        df = read_validate_all_construction_files(
+            config, check_file_exists, read_csv, construction_logger
+        )
+        updated_snapshot_df = all_data_construction(
+            df, snapshot_df, construction_logger, config
+        )
+
+    elif is_run_postcode_construction:
         run_postcode_construction = config["global"]["run_postcode_construction"]
-        schema_path = "./config/all_data_construction_schema.toml"
-        postcode_schema_path = "./config/postcode_construction_schema.toml"
+        run_construction = False
+        df = read_validate_postcode_construction_file(
+            config, check_file_exists, read_csv, construction_logger
+        )
+        updated_snapshot_df = postcode_data_construction(
+            df, snapshot_df, construction_logger
+        )
 
     # Skip this module if not needed
     if not run_construction and not run_postcode_construction:
         construction_logger.info("Skipping Construction...")
         return snapshot_df
-
-    # Obtain construction paths
-    paths = config["construction_paths"]
-    if is_northern_ireland:
-        construction_file_path = paths["construction_file_path_ni"]
-    else:
-        construction_file_path = paths["all_data_construction_file_path"]
-        postcode_construction_fpath = paths["postcode_construction_file_path"]
-
-    # Check the construction file exists and has records, then read it
-    if run_construction:
-        construction_df = read_construction_file(
-            path=construction_file_path,
-            logger=construction_logger,
-            read_csv_func=read_csv,
-            file_exists_func=check_file_exists,
-        )
-
-        if isinstance(construction_df, type(None)):
-            construction_df = pd.DataFrame()
-            return construction_df
-
-        else:
-            # validate and merge schemas
-            validate_data_with_schema(construction_df, schema_path)
-            check_for_duplicates(
-                df=construction_df,
-                columns=["reference", "instance"],
-                logger=construction_logger,
-            )
-    else:
-        construction_df = pd.DataFrame()
-
-    # read in postcode construction file
-    if run_postcode_construction:
-        pc_construction_df = read_construction_file(
-            path=postcode_construction_fpath,
-            logger=construction_logger,
-            read_csv_func=read_csv,
-            file_exists_func=check_file_exists,
-        )
-        if isinstance(pc_construction_df, type(None)):
-            run_postcode_construction = False
-            pc_construction_df = pd.DataFrame()
-    else:
-        pc_construction_df = pd.DataFrame()
-
-    if run_postcode_construction:
-        validate_data_with_schema(pc_construction_df, postcode_schema_path)
-        check_for_duplicates(
-            df=pc_construction_df,
-            columns=["reference", "instance"],
-            logger=construction_logger,
-        )
-        validate_columns_not_empty(
-            df=pc_construction_df,
-            columns=["601", "referencepostcode"],
-            logger=construction_logger,
-            _raise=True,
-        )
-
-    construction_df = concat_construction_dfs(
-        df1=construction_df,
-        df2=pc_construction_df,
-        validate_dupes=True,
-        logger=construction_logger,
-    )
-    # clean construction type column
-    if "construction_type" in construction_df.columns:
-        construction_df.construction_type = construction_df.construction_type.apply(
-            lambda x: clean_construction_type(x)
-        )
-        # validate that 'construction_type' is valid
-        valid_types = ["short_to_long", "new", np.NaN]
-        if False in list(construction_df.construction_type.isin(valid_types)):
-            raise ValueError(
-                f"Invalid value for construction_type. Expected one of {valid_types}"
-            )
-    if not is_northern_ireland:
-        validate_short_to_long(construction_df, construction_logger)
-
-    # validate the references passed in construction
-    validate_construction_references(
-        df=construction_df,
-        snapshot_df=snapshot_df,
-        logger=construction_logger,
-    )
-
-    # Drop columns without constructed values
-    construction_df = construction_df.dropna(axis="columns", how="all")
-
-    # Make a copy of the snapshot
-    updated_snapshot_df = snapshot_df.copy()
-
-    # Add flags to indicate whether a row was constructed or should be imputed
-    updated_snapshot_df["is_constructed"] = False
-    updated_snapshot_df["force_imputation"] = False
-    construction_df["is_constructed"] = True
-    # Run GB specific actions
-    if not is_northern_ireland:
-        updated_snapshot_df, construction_df = prepare_forms_gb(
-            updated_snapshot_df, construction_df
-        )
-
-    # NI data has no instance but needs an instance of 1
-    if is_northern_ireland:
-        construction_df["instance"] = 1
-
-    # Update the values with the constructed ones
-    construction_df.set_index(
-        [
-            "reference",
-            "instance",
-            "period_year",
-        ],
-        inplace=True,
-    )
-    updated_snapshot_df.set_index(
-        [
-            "reference",
-            "instance",
-            "period_year",
-        ],
-        inplace=True,
-    )
-    updated_snapshot_df.update(construction_df)
-    updated_snapshot_df.reset_index(inplace=True)
-
-    updated_snapshot_df = updated_snapshot_df.astype(
-        {"reference": "Int64", "instance": "Int64", "period_year": "Int64"}
-    )
-
-    # Run GB specific actions
-    if not is_northern_ireland:
-        # Long form records with a postcode in 601 use this as the postcode
-        long_form_cond = ~updated_snapshot_df["601"].isnull()
-        updated_snapshot_df.loc[
-            long_form_cond, "postcodes_harmonised"
-        ] = updated_snapshot_df["601"]
-
-        # Short form records with nothing in 601 use referencepostcode instead
-        short_form_cond = (updated_snapshot_df["601"].isnull()) & (
-            ~updated_snapshot_df["referencepostcode"].isnull()
-        )
-        updated_snapshot_df.loc[
-            short_form_cond, "postcodes_harmonised"
-        ] = updated_snapshot_df["referencepostcode"]
-
-        # Top up all new postcodes so they're all eight characters exactly
-        postcode_cols = ["601", "referencepostcode", "postcodes_harmonised"]
-        for col in postcode_cols:
-            updated_snapshot_df[col] = updated_snapshot_df[col].apply(
-                pcval.format_postcodes
-            )
-
-        # Reset shortforms with status 'Form sent out' to instance=None
-        form_sent_condition = (updated_snapshot_df.formtype == "0006") & (
-            updated_snapshot_df.status == "Form sent out"
-        )
-        updated_snapshot_df.loc[form_sent_condition, "instance"] = None
-
-    updated_snapshot_df = updated_snapshot_df.sort_values(
-        ["reference", "instance"], ascending=[True, True]
-    ).reset_index(drop=True)
-
-    construction_logger.info(f"Construction edited {construction_df.shape[0]} rows.")
 
     return updated_snapshot_df

@@ -1,7 +1,8 @@
 """Function to run the mapping of foreign ownership (ultfoc)"""
 
-import pandas as pd
 import logging
+import pandas as pd
+from typing import Tuple
 
 from src.mapping import mapping_helpers as hlp
 
@@ -25,15 +26,14 @@ def validate_ultfoc_mapper(ultfoc_mapper: pd.DataFrame) -> None:
 
 
 def join_fgn_ownership(
-    df: pd.DataFrame,
+    responses: Tuple[pd.DataFrame, pd.DataFrame],
     mapper_df: pd.DataFrame,
-    is_northern_ireland: bool = False,
 ) -> pd.DataFrame:
     """
     Validate and join the foreign ownership (ultfoc) mapper to the responses dataframes.
 
     Args:
-        df (pd.DataFrame): The main DataFrame.
+        responses (Tuple[pd.DataFrame, pd.DataFrame]): The GB & NI responses dataframes
         mapper_df (pd.DataFrame): The mapper DataFrame.
 
     Returns:
@@ -42,22 +42,57 @@ def join_fgn_ownership(
     # perform validation on the foreign ownership (ultfoc) mapper
     validate_ultfoc_mapper(mapper_df)
 
-    if is_northern_ireland:
-        mapped_ni_df = df.rename(columns={"foc": "ultfoc"})
+    gb_df, ni_df = responses
+
+    # process NI data if it exists
+    if not ni_df.empty:
+        mapped_ni_df = ni_df.rename(columns={"foc": "ultfoc"})
         mapped_ni_df["ultfoc"] = mapped_ni_df["ultfoc"].fillna("GB")
         mapped_ni_df["ultfoc"] = mapped_ni_df["ultfoc"].replace("", "GB")
-        return mapped_ni_df
-
     else:
-        mapped_df = df.merge(
-            mapper_df,
-            how="left",
-            left_on="reference",
-            right_on="ruref",
-        )
-        mapped_df.drop(columns=["ruref"], inplace=True)
-        mapped_df["ultfoc"] = mapped_df["ultfoc"].fillna("GB")
-        mapped_df["ultfoc"] = mapped_df["ultfoc"].replace("", "GB")
+        mapped_ni_df = ni_df
 
-        MappingLogger.info("ultfoc mapping successfully completed.")
-        return mapped_df
+    # process GB data
+    mapped_gb_df = gb_df.merge(
+        mapper_df,
+        how="left",
+        left_on="reference",
+        right_on="ruref",
+    )
+
+    mapped_gb_df.drop(columns=["ruref"], inplace=True)
+
+    # Report unmapped ultfoc
+    # Choose entries with Null or empty string ultfoc
+    unmapped_gb_df = mapped_gb_df.loc[
+        (mapped_gb_df["ultfoc"].isna()) | (mapped_gb_df["ultfoc"] == "")
+    ]
+
+    # Keep the unique references only
+    unmapped_refs = unmapped_gb_df[["reference"]].drop_duplicates()
+
+    # Calculate the number of unmapped references
+    num_unmapped = unmapped_refs.shape[0]
+
+    # If we have some unmapped references, report them and fillna with GB
+    if num_unmapped:
+        MappingLogger.info(f"Found {num_unmapped} references with blank ultfoc.")
+        unmapped_list = unmapped_refs["reference"].tolist()
+
+        # Put all references in the single column, with no prefix
+        report = ""
+        for ref in unmapped_list:
+            report += "\n" + str(ref)
+
+        MappingLogger.info(f"The following references were unmapped:{report}")
+
+        # If there were unmapped ultfoc values, give them GB
+        MappingLogger.info("Filling in the unmapped ultfoc with GB")
+        mapped_gb_df["ultfoc"] = mapped_gb_df["ultfoc"].fillna("GB")
+        mapped_gb_df["ultfoc"] = mapped_gb_df["ultfoc"].replace("", "GB")
+    else:
+        # If there are no unmapped ultfoc, just report success
+        MappingLogger.info("All references are mapped to ultfoc.")
+
+    MappingLogger.info("Mapping and validation of ultfoc successfully completed.")
+    return mapped_gb_df, mapped_ni_df

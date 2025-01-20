@@ -8,6 +8,9 @@ from src.imputation.imputation_helpers import (
     fix_604_error,
     create_r_and_d_instance,
     check_604_fix,
+    calculate_totals,
+    create_imp_class_col,
+    imputation_marker
 )
 
 
@@ -232,3 +235,180 @@ class TestCreateRAndDInstance:
 
         result_df, qa_df = create_r_and_d_instance(input_df)
         assert_frame_equal(result_df.reset_index(drop=True), expected_df)
+
+class TestCalculateTotals:
+    """Unit tests for calculate_totals function."""
+
+    def test_calculate_totals(self):
+        """Test for function calculate_totals."""
+        # Create an input dataframe for the test
+        input_cols = [
+            "formtype",
+            "emp_researcher_imputed",
+            "emp_technician_imputed",
+            "emp_other_imputed",
+            "headcount_res_m_imputed",
+            "headcount_tec_m_imputed",
+            "headcount_oth_m_imputed",
+            "headcount_res_f_imputed",
+            "headcount_tec_f_imputed",
+            "headcount_oth_f_imputed",
+        ]
+
+        data = [
+            ["0001", 10, 5, 3, 20, 10, 5, 15, 8, 4],
+            ["0001", 8, 4, 2, 15, 7, 3, 12, 6, 2],
+            ["0006", 6, 3, 1, 10, 5, 2, 8, 4, 1],
+        ]
+
+        input_df = pd.DataFrame(data=data, columns=input_cols)
+
+        # Create an expected dataframe for the test
+        expected_cols = [
+            "formtype",
+            "emp_researcher_imputed",
+            "emp_technician_imputed",
+            "emp_other_imputed",
+            "headcount_res_m_imputed",
+            "headcount_tec_m_imputed",
+            "headcount_oth_m_imputed",
+            "headcount_res_f_imputed",
+            "headcount_tec_f_imputed",
+            "headcount_oth_f_imputed",
+            "emp_total_imputed",
+            "headcount_tot_m_imputed",
+            "headcount_tot_f_imputed",
+            "headcount_total_imputed",
+        ]
+
+        expected_data = [
+            ["0001", 10, 5, 3, 20, 10, 5, 15, 8, 4, 18, 35, 27, 62],
+            ["0001", 8, 4, 2, 15, 7, 3, 12, 6, 2, 14, 25, 20, 45],
+            ["0006", 6, 3, 1, 10, 5, 2, 8, 4, 1, np.nan, np.nan, np.nan, np.nan],
+        ]
+
+        expected_df = pd.DataFrame(data=expected_data, columns=expected_cols)
+
+        # Apply the calculate_totals function to the input dataframe
+        result_df = calculate_totals(input_df)
+
+        # display the full dataframe without truncating columns
+        pd.set_option("display.max_columns", None)
+
+        # Assert that the result dataframe is equal to the expected dataframe
+        pd.testing.assert_frame_equal(result_df, expected_df, check_dtype=False)
+
+
+class TestCreateImpClassCol:
+    """Unit tests for create_imp_class_col function."""
+    def create_input_df(self):
+        """Create an input dataframe for the test."""
+        input_columns = [
+            "reference",
+            "instance",
+            "200",
+            "201",
+            "211",
+            "pg_numeric",
+            "formtype",
+            "cellnumber",
+            "rusic",
+        ]
+
+        data = [
+            [111, 1, "C", "AA", 600.0, 23.0, "0001", 45, 4445],
+            [111, 2, "C", "AB", 700.0, 24.0, "0001", 45, 4445],
+            [222, 1, "C", "AA", 55.0, 23.0, "0006", 35, 3335],
+            [222, 2, "D", "DE", 21.0, 14.0, "0006", 35, 3335],
+            [333, 1, "C", "E", 100.0, 25.0, "0001", 66, 5554],
+            [333, 2, np.nan, np.nan, np.nan, np.nan, "0001", 66, 5554],
+            [444, 1, "C", "AA", 200.0, 23.0, "0001", 817, 7777],
+        ]
+
+        input_df = pandasDF(data=data, columns=input_columns)
+        return input_df
+
+
+    def create_exp_output_df(self):
+        """Create an exp_output dataframe for the test."""
+        exp_output_columns = [
+            "reference",
+            "instance",
+            "200",
+            "201",
+            "211",
+            "pg_numeric",
+            "formtype",
+            "cellnumber",
+            "rusic",
+            "imp_class",
+        ]
+
+        data = [
+            [111, 1, "C", "AA", 600.0, 23.0, "0001", 45, 4445, "C_AA"],
+            [111, 2, "C", "AB", 700.0, 24.0, "0001", 45, 4445, "C_AB"],
+            [222, 1, "C", "AA", 55.0, 23.0, "0006", 35, 3335, "C_AA"],
+            [222, 2, "D", "DE", 21.0, 14.0, "0006", 35, 3335, "D_DE"],
+            [333, 1, "C", "E", 100.0, 25.0, "0001", 66, 5554, "C_E"],
+            [333, 2, np.nan, np.nan, np.nan, np.nan, "0001", 66, 5554, "nan_nan"],
+            [444, 1, "C", "AA", 200.0, 23.0, "0001", 817, 7777, "C_AA_817"],
+        ]
+
+        exp_output_df = pandasDF(data=data, columns=exp_output_columns)
+        return exp_output_df
+
+    def test_create_imp_class_col(self):
+        """Test for function create_imp_class_col."""
+        input_df = self.create_input_df()
+        exp_output_df = self.create_exp_output_df()
+
+        result_df = create_imp_class_col(input_df, ["200", "201"])
+        assert_frame_equal(result_df.reset_index(drop=True), exp_output_df)
+
+
+    class TestImputationMarker:
+        """Unit tests for imputation_marker function."""
+
+        def create_input_df(self):
+            """Create an input dataframe for the test."""
+            input_cols = [
+                "reference",
+                "status"
+            ]
+
+            data = [
+                [111, "Clear"],
+                [222, "Clear - overridden"],
+                [333, "Check needed"],
+                [444, "Form sent out"],
+                [555, "Clear"]
+            ]
+            input_df = pandasDF(data=data, columns=input_cols)
+            return input_df
+
+        def create_exp_output_df(self):
+            """Create an exp_output dataframe for the test."""
+            exp_output_cols = [
+                "reference",
+                "status",
+                "imp_marker"
+            ]
+
+            data = [
+                [111, "Clear", "R"],
+                [222, "Clear - overridden", "R"],
+                [333, "Check needed", "no_imputation"],
+                [444, "Form sent out", "no_imputation"],
+                [555, "Clear", "R"]
+            ]
+
+            exp_output_df = pandasDF(data=data, columns=exp_output_cols)
+            return exp_output_df
+
+        def test_imputation_marker(self):
+            """Test for function imputation_marker."""
+            input_df = self.create_input_df()
+            exp_output_df = self.create_exp_output_df()
+
+            result_df = imputation_marker(input_df)
+            assert_frame_equal(result_df.reset_index(drop=True), exp_output_df)

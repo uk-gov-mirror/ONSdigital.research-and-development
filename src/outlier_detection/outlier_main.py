@@ -1,11 +1,12 @@
 """Main file for the Outlier Detection module."""
+
 import logging
 import pandas as pd
-from datetime import datetime
 from typing import Callable, Dict, Any
 
 from src.outlier_detection import auto_outliers as auto
 from src.outlier_detection import manual_outliers as manual
+from src.utils.helpers import filename_amender
 
 OutlierMainLogger = logging.getLogger(__name__)
 
@@ -15,7 +16,6 @@ def run_outliers(
     df_manual_supplied: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
 ) -> pd.DataFrame:
     """
     Run the outliering module.
@@ -34,8 +34,7 @@ def run_outliers(
         df_manual_supplied (pd.DataFrame): Dataframe with manual outlier flags
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
-            This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
+            This will be the s3, hdfs or network version depending on settings.
 
     Returns:
         df_outliers_applied (pd.DataFrame): The main dataset with a flag column
@@ -57,13 +56,10 @@ def run_outliers(
     filtered_df = auto.apply_short_form_filters(df_auto_flagged)
 
     # Output the file with auto outliers for manual checking
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["years"]["survey_year"]
     if config["global"]["output_auto_outliers"]:
         OutlierMainLogger.info("Starting the output of the automatic outliers file")
-        file_path = (
-            auto_outlier_path + f"/{survey_year}_manual_outlier_{tdate}_v{run_id}.csv"
-        )
+        filename = filename_amender("auto_outlier", config)
+        file_path = auto_outlier_path + filename
         write_csv(file_path, filtered_df)
         OutlierMainLogger.info("Finished writing CSV to %s", auto_outlier_path)
     else:
@@ -73,14 +69,15 @@ def run_outliers(
     # continue to run, we set the manual file to be equal to the auto output and filter
     # the relevant columns. This way we don't filter out any manual outliers.
     if not config["global"]["load_manual_outliers"]:
-        df_manual_supplied = filtered_df[["reference", "manual_outlier"]]
+        df_manual_supplied = pd.DataFrame(
+            columns=["reference", "manual_outlier", "auto_override_outlier_status"]
+        )
         OutlierMainLogger.info(
             "Skipping loading of manual outliers. manual_outlier column treated as NaN"
         )
 
     # update outlier flag column with manual outliers
     OutlierMainLogger.info("Starting Manual Outlier Application")
-    df_auto_flagged = df_auto_flagged.drop(["manual_outlier"], axis=1)
     outlier_df = df_auto_flagged.merge(df_manual_supplied, on=["reference"], how="left")
     flagged_outlier_df = manual.apply_manual_outliers(outlier_df)
     OutlierMainLogger.info("Finished Manual Outlier Application")
@@ -88,7 +85,7 @@ def run_outliers(
     # Output the outlier flags for QA
     if config["global"]["output_outlier_qa"]:
         OutlierMainLogger.info("Starting output of Outlier QA data...")
-        filename = f"{survey_year}_outliers_qa_{tdate}_v{run_id}.csv"
+        filename = filename_amender("outliers_qa", config)
         write_csv(f"{outlier_qa_path}/{filename}", flagged_outlier_df)
         OutlierMainLogger.info("Finished QA output of outliers data.")
     else:

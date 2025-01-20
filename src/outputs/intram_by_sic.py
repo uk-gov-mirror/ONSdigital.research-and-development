@@ -1,7 +1,8 @@
 """The main file for the BERD Intram by SIC output."""
+
 import logging
 import pandas as pd
-from datetime import datetime
+from src.utils.helpers import filename_amender
 from typing import Callable, Dict, Any
 
 OutputMainLogger = logging.getLogger(__name__)
@@ -10,23 +11,25 @@ OutputMainLogger = logging.getLogger(__name__)
 def output_intram_by_sic(
     df: pd.DataFrame,
     config: Dict[str, Any],
+    intram_tot_dict: Dict[str, int],
     write_csv: Callable,
-    run_id: int,
     sic_div_detailed: pd.DataFrame,
-):
+) -> Dict[str, int]:
     """Run the outputs module.
 
     Args:
         df (pd.DataFrame): The dataset main with weights not applied
         config (dict): The configuration settings.
+        intram_tot_dict (dict): Dictionary with the intramural totals.
         write_csv (Callable): Function to write to a csv file.
          This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
         sic_div_detailed (pd.DataFrame): Format of the SIC output as mapper
 
+    Returns:
+        intram_tot_dict (dict): Dictionary with the intramural totals.
     """
     output_path = config["outputs_paths"]["outputs_master"]
-    period = config["years"]["survey_year"]
+    period = config["survey"]["survey_year"]
 
     # Create sic_division column from rusic
     df["rusic_string"] = df["rusic"].astype(str).str.zfill(5)
@@ -86,8 +89,11 @@ def output_intram_by_sic(
     selected_columns = ["SIC", "Industry description", period, "Notes"]
     df_selected = df_merge[selected_columns]
 
-    # Outputting the CSV file with timestamp and run_id
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["years"]["survey_year"]
-    filename = f"{survey_year}_output_intram_by_sic_{tdate}_v{run_id}.csv"
+    # Outputting the CSV file
+    filename = filename_amender("output_intram_by_sic", config)
     write_csv(f"{output_path}/output_intram_by_sic/{filename}", df_selected)
+
+    # Update intram totals dict for comparison of aggregates across outputs
+    intram_tot_dict["intram_by_sic"] = round(value_tot, 0)
+
+    return intram_tot_dict

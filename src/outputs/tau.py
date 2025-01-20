@@ -1,11 +1,12 @@
 """The main file for the Tau output module."""
+
 import logging
 import pandas as pd
-from datetime import datetime
 from typing import Callable, Dict, Any
 import src.outputs.map_output_cols as map_o
 from src.staging.validation import load_schema
 from src.outputs.outputs_helpers import create_output_df
+from src.utils.helpers import filename_amender
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -13,20 +14,19 @@ OutputMainLogger = logging.getLogger(__name__)
 def output_tau(
     df: pd.DataFrame,
     config: Dict[str, Any],
+    intram_tot_dict: Dict[str, int],
     write_csv: Callable,
-    run_id: int,
-    postcode_itl_mapper: pd.DataFrame,
-):
+) -> Dict[str, int]:
     """Run the outputs module.
 
     Args:
         df (pd.DataFrame): The dataset main with weights not applied
         config (dict): The configuration settings.
+        intram_tot_dict (dict): Dictionary with the intramural totals.
         write_csv (Callable): Function to write to a csv file.
-         This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
-        ultfoc_mapper (pd.DataFrame): The ULTFOC mapper DataFrame.
-        postcode_itl_mapper (pd.DataFrame): maps the postcode to region code
+          This will be the hdfs or network version depending on settings.
+    Returns:
+        intram_tot_dict (dict): Dictionary with the intramural totals.
     """
     output_path = config["outputs_paths"]["outputs_master"]
     # Prepare the columns needed for outputs:
@@ -36,9 +36,6 @@ def output_tau(
 
     # Map the sizebands based on column "employment"
     df = map_o.map_sizebands(df)
-
-    # Map the itl regions using the postcodes
-    df = map_o.join_itl_regions(df, postcode_itl_mapper)
 
     # Map q713 and q714 to numeric format
     df = map_o.map_to_numeric(df)
@@ -54,13 +51,19 @@ def output_tau(
     # Create oth_sc
     df["oth_sc"] = df[["242", "248", "250"]].fillna(0).sum(axis=1)
 
+    # get Intram toatl with estimation weights applied for gb only
+    gb_tau = df.copy().loc[df["formtype"].isin(["0001", "0006"])]
+
+    intram_tot = round((gb_tau["211"] * gb_tau["a_weight"]).sum(), 0)
+    intram_tot_dict["GB_Tau_estimated"] = intram_tot
+
     # Create tau output dataframe with required columns from schema
     schema_path = config["schema_paths"]["tau_schema"]
     schema_dict = load_schema(schema_path)
     tau_output = create_output_df(df, schema_dict)
 
-    # Outputting the CSV file with timestamp and run_id
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["years"]["survey_year"]
-    filename = f"{survey_year}_output_tau_{tdate}_v{run_id}.csv"
+    # Outputting the CSV file
+    filename = filename_amender("output_tau", config)
     write_csv(f"{output_path}/output_tau/{filename}", tau_output)
+
+    return intram_tot_dict

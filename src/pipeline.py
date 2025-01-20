@@ -1,13 +1,18 @@
 """The main pipeline"""
+
 # Core Python modules
+from datetime import datetime
 import logging
+import pandas as pd
 
 # Our local modules
 from src.utils import runlog
 from src._version import __version__ as version
-from src.utils.config import config_setup
+from src.utils.config import config_setup, file_validation
 from src.utils.wrappers import logger_creator
 from src.staging.staging_main import run_staging
+from src.utils.helpers import validate_updated_postcodes
+from src.freezing.freezing_main import run_freezing
 from src.northern_ireland.ni_main import run_ni
 from src.construction.construction_main import run_construction
 from src.mapping.mapping_main import run_mapping
@@ -17,11 +22,10 @@ from src.estimation.estimation_main import run_estimation
 from src.site_apportionment.site_apportionment_main import run_site_apportionment
 from src.outputs.outputs_main import run_outputs
 
-
 MainLogger = logging.getLogger(__name__)
 
 
-def run_pipeline(user_config_path, dev_config_path):
+def run_pipeline(user_config_path, dev_config_path):  # noqa C901
     """The main pipeline.
 
     Args:
@@ -33,25 +37,39 @@ def run_pipeline(user_config_path, dev_config_path):
     # Load, validate and merge the user and developer configs
     config = config_setup(user_config_path, dev_config_path)
 
+    # Set up the logger
+    global_config = config["global"]
+    logger = logger_creator(global_config)
+
+    # validate the filenames and survey type in the config
+    config = file_validation(config)
+
     # Check the environment switch
-    network_or_hdfs = config["global"]["network_or_hdfs"]
+    platform = config["global"]["platform"]
 
-    if network_or_hdfs == "network":
+    if platform == "s3":
+        # create singletion boto3 client object & pass in bucket string
+        from src.utils.singleton_boto import SingletonBoto
+
+        boto3_client = SingletonBoto.get_client(config)  # noqa
+        from src.utils import s3_mods as mods
+
+    elif platform == "network":
+        # If the platform is "network" or "hdfs", there is no need for a client.
+        # Adding a client = None for consistency.
+        # config["client"] = None
         from src.utils import local_file_mods as mods
-
-    elif network_or_hdfs == "hdfs":
+    elif platform == "hdfs":
+        # config["client"] = None
         from src.utils import hdfs_mods as mods
-
     else:
-        MainLogger.error("The network_or_hdfs configuration is wrong")
-        raise ImportError
+        MainLogger.error(f"The selected platform {platform} is wrong")
+        raise ImportError(f"Cannot import {platform}_mods")
 
     # Set up the run logger
-    global_config = config["global"]
     runlog_obj = runlog.RunLog(
         config,
         version,
-        mods.rd_open,
         mods.rd_file_exists,
         mods.rd_mkdir,
         mods.rd_read_csv,
@@ -60,8 +78,14 @@ def run_pipeline(user_config_path, dev_config_path):
     runlog_obj.create_runlog_files()
     runlog_obj.write_config_log()
     runlog_obj.write_mainlog()
-    logger = logger_creator(global_config)
+
     run_id = runlog_obj.run_id
+
+    # update config to include run_id and tdate for when files are written
+    run_id = runlog_obj.run_id
+    tdate = datetime.now().strftime("%y-%m-%d")
+    config.update({"filename_items": {"run_id": run_id, "tdate": tdate}})
+
     MainLogger.info(f"Reading user config from {user_config_path}.")
     MainLogger.info(f"Reading developer config from {dev_config_path}.")
 
@@ -73,16 +97,12 @@ def run_pipeline(user_config_path, dev_config_path):
 
     # Staging and validatation and Data Transmutation
     MainLogger.info("Starting Staging and Validation...")
-
     (
         full_responses,
-        secondary_full_responses,  # may be needed later for freezing
         manual_outliers,
         postcode_mapper,
         backdata,
         pg_detailed,
-        itl1_detailed,
-        civil_defence_detailed,
         sic_division_detailed,
         manual_trimming_df,
     ) = run_staging(
@@ -93,33 +113,70 @@ def run_pipeline(user_config_path, dev_config_path):
         mods.rd_write_csv,
         mods.rd_read_feather,
         mods.rd_write_feather,
-        mods.rd_isfile,
-        run_id,
     )
+
+    # Freezing module
+    MainLogger.info("Starting Freezing module...")
+    full_responses = run_freezing(
+        full_responses,
+        config,
+        mods.rd_write_csv,
+        mods.rd_read_csv,
+        mods.rd_file_exists,
+    )
+    MainLogger.info("Finished Freezing module...")
+
+    if config["global"]["load_updated_snapshot_for_comparison"]:
+        MainLogger.info("Finishing Pipeline .......................")
+
+        runlog_obj.write_runlog()
+        runlog_obj.mark_mainlog_passed()
+
+        return runlog_obj.time_taken
+
     MainLogger.info("Finished Data Ingest.")
 
     # Northern Ireland staging and construction
-    MainLogger.info("Starting NI module...")
-    ni_df = run_ni(
-        config, mods.rd_file_exists, mods.rd_read_csv, mods.rd_write_csv, run_id
-    )
-    MainLogger.info("Finished NI Data Ingest.")
+    load_ni_data = config["global"]["load_ni_data"]
+    if load_ni_data:
+        MainLogger.info("Starting NI module...")
+        ni_df = run_ni(
+            config,
+            mods.rd_file_exists,
+            mods.rd_read_csv,
+            mods.rd_write_csv,
+        )
+        MainLogger.info("Finished NI Data Ingest.")
+    else:
+        # If NI data is not loaded, set ni_df to an empty dataframe
+        MainLogger.info("NI data not loaded.")
+        ni_df = pd.DataFrame()
 
     # Construction module
-    MainLogger.info("Starting Construction...")
-    full_responses = run_construction(
-        full_responses, config, mods.rd_file_exists, mods.rd_read_csv
-    )
-    MainLogger.info("Finished Construction...")
+    MainLogger.info("Starting Construction module...")
+    run_all_data_construction = config["global"]["run_all_data_construction"]
+    if run_all_data_construction:
+        full_responses = run_construction(
+            full_responses,
+            config,
+            mods.rd_file_exists,
+            mods.rd_read_csv,
+            is_run_all_data_construction=True,
+        )
+    else:
+        MainLogger.info("All data construction is not enabled")
+    MainLogger.info("Finished Construction module...")
 
     # Mapping module
     MainLogger.info("Starting Mapping...")
     (mapped_df, ni_full_responses, itl_mapper) = run_mapping(
         full_responses,
         ni_df,
+        postcode_mapper,
         config,
+        mods.rd_read_csv,
         mods.rd_write_csv,
-        run_id,
+        mods.rd_file_exists,
     )
     MainLogger.info("Finished Mapping...")
 
@@ -131,61 +188,69 @@ def run_pipeline(user_config_path, dev_config_path):
         backdata,
         config,
         mods.rd_write_csv,
-        run_id,
     )
-    MainLogger.info("Finished  Imputation...")
+    MainLogger.info("Finished Imputation...")
 
-    # Outlier detection module
-    MainLogger.info("Starting Outlier Detection...")
-    outliered_responses_df = run_outliers(
-        imputed_df, manual_outliers, config, mods.rd_write_csv, run_id
-    )
-    MainLogger.info("Finished Outlier module.")
+    # Perform postcode construction now imputation is complete
+    run_postcode_construction = config["global"]["run_postcode_construction"]
+    if run_postcode_construction:
+        imputed_df = run_construction(
+            imputed_df,
+            config,
+            mods.rd_file_exists,
+            mods.rd_read_csv,
+            is_run_postcode_construction=True,
+        )
 
-    # Estimation module
-    MainLogger.info("Starting Estimation...")
-    estimated_responses_df, weighted_responses_df = run_estimation(
-        outliered_responses_df, config, mods.rd_write_csv, run_id
+    imputed_df = validate_updated_postcodes(
+        imputed_df,
+        postcode_mapper,
+        itl_mapper,
+        config,
     )
-    MainLogger.info("Finished Estimation module.")
+
+    if config["survey"]["survey_type"] == "BERD":
+        # Outlier detection module
+        MainLogger.info("Starting Outlier Detection...")
+        outliered_responses_df = run_outliers(
+            imputed_df, manual_outliers, config, mods.rd_write_csv
+        )
+        MainLogger.info("Finished Outlier module.")
+
+        # Estimation module
+        MainLogger.info("Starting Estimation...")
+        estimated_responses_df = run_estimation(
+            outliered_responses_df, config, mods.rd_write_csv
+        )
+        MainLogger.info("Finished Estimation module.")
+
+    elif config["survey"]["survey_type"] == "PNP":
+        MainLogger.info("PNP is set so skipping modules Outliering and Estimation.")
+        estimated_responses_df = imputed_df
 
     # Data processing: Apportionment to sites
-    estimated_responses_df = run_site_apportionment(
+    apportioned_responses_df, intram_tot_dict = run_site_apportionment(
         estimated_responses_df,
         config,
         mods.rd_write_csv,
-        run_id,
-        "estimated",
     )
-    weighted_responses_df = run_site_apportionment(
-        weighted_responses_df,
-        config,
-        mods.rd_write_csv,
-        run_id,
-        "weighted",
-    )
+
     MainLogger.info("Finished Site Apportionment module.")
 
     MainLogger.info("Starting Outputs...")
 
     run_outputs(
-        estimated_responses_df,
-        weighted_responses_df,
+        apportioned_responses_df,
         ni_full_responses,
         config,
+        intram_tot_dict,
         mods.rd_write_csv,
-        run_id,
-        postcode_mapper,
-        itl_mapper,
         pg_detailed,
-        itl1_detailed,
-        civil_defence_detailed,
         sic_division_detailed,
     )
 
-    MainLogger.info("Finished All Output modules.")
-
-    MainLogger.info("Finishing Pipeline .......................")
+    run_id = runlog_obj.run_id
+    MainLogger.info(f"Finishing Pipeline run id {run_id}.........")
 
     runlog_obj.write_runlog()
     runlog_obj.mark_mainlog_passed()

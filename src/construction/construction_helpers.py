@@ -1,4 +1,5 @@
 """Useful utilities for the construction module."""
+
 import pathlib
 import logging
 from typing import Union, Callable, Tuple
@@ -7,6 +8,8 @@ import pandas as pd
 import numpy as np
 
 from src.outputs.outputs_helpers import create_period_year
+from src.staging import postcode_validation as pcval
+from src.utils.helpers import convert_formtype
 
 
 def read_construction_file(
@@ -40,28 +43,6 @@ def read_construction_file(
     return None
 
 
-def _convert_formtype(formtype_value: str) -> str:
-    """Convert the formtype to a standardised format.
-
-    Args:
-        formtype_value (str): The value to standardise.
-
-    Returns:
-        str: The standardised value for formtype.
-    """
-    if pd.notnull(formtype_value):
-        if formtype_value == "1" or formtype_value == "1.0" or formtype_value == "0001":
-            return "0001"
-        elif (
-            formtype_value == "6" or formtype_value == "6.0" or formtype_value == "0006"
-        ):
-            return "0006"
-        else:
-            return None
-    else:
-        return None
-
-
 def prepare_forms_gb(
     snapshot_df: pd.DataFrame, construction_df: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -77,31 +58,63 @@ def prepare_forms_gb(
     # Convert formtype to "0001" or "0006"
     if "formtype" in construction_df.columns:
         construction_df["formtype"] = construction_df["formtype"].apply(
-            _convert_formtype
+            convert_formtype
         )
 
+    # Create empty list for short to long construction references
+    # An empty list is required for setting the instance, if there are
+    # no short to long constructions
+    unique_references = []
     if "construction_type" in construction_df.columns:
         # Prepare the short to long form constructions, if any (N/A to NI)
         if "short_to_long" in construction_df.construction_type.unique():
-            snapshot_df = prepare_short_to_long(snapshot_df, construction_df)
+            snapshot_df, unique_references = prepare_short_to_long(
+                snapshot_df, construction_df, unique_references
+            )
+
     # Create period_year column (NI already has it)
     snapshot_df = create_period_year(snapshot_df)
     construction_df = create_period_year(construction_df)
+
+    # Set instances:
+    # Exclude short to long constructions as they have already had instances applied
+    # that we don't want to overwrite
     # Set instance=1 so longforms with status 'Form sent out' match correctly
     form_sent_condition = (snapshot_df.formtype == "0001") & (
         snapshot_df.status == "Form sent out"
     )
-    snapshot_df.loc[form_sent_condition, "instance"] = 1
+    snapshot_df.loc[
+        form_sent_condition & ~snapshot_df.reference.isin(unique_references), "instance"
+    ] = 1
     # Set instance=0 so shortforms with status 'Form sent out' match correctly
     form_sent_condition = (snapshot_df.formtype == "0006") & (
         snapshot_df.status == "Form sent out"
     )
-    snapshot_df.loc[form_sent_condition, "instance"] = 0
+    snapshot_df.loc[
+        form_sent_condition & ~snapshot_df.reference.isin(unique_references), "instance"
+    ] = 0
     return (snapshot_df, construction_df)
 
 
-def prepare_short_to_long(updated_snapshot_df, construction_df):
-    """Create addional instances for short to long construction"""
+def prepare_short_to_long(
+    updated_snapshot_df: pd.DataFrame,
+    construction_df: pd.DataFrame,
+    unique_references: list,
+) -> Tuple[pd.DataFrame, list]:
+    """Create addional instances for short to long construction.
+
+    Args:
+        updated_snapshot_df (pd.DataFrame): The updated snapshot df.
+        construction_df (pd.DataFrame): The construction df.
+        unique_references (list): Empty list to populate.
+
+    Returns:
+        Tuple[pd.DataFrame, list]: The updated snapshot df
+            and the list of unique references.
+    """
+    construction_df.loc[
+        construction_df["construction_type"] == "short_to_long", "604"
+    ] = "Yes"
 
     # Check which references are going to be converted to long forms
     # and how many instances they have
@@ -119,6 +132,7 @@ def prepare_short_to_long(updated_snapshot_df, construction_df):
     # this copies the instance 0 the relevant number of times,
     # updating to the corresponding instance number
     for index, value in ref_count.items():
+        unique_references.append(index)
         for instance in range(1, value):
             short_to_long_df_instance = short_to_long_df.loc[
                 short_to_long_df["reference"] == index
@@ -128,7 +142,13 @@ def prepare_short_to_long(updated_snapshot_df, construction_df):
                 [updated_snapshot_df, short_to_long_df_instance]
             )
 
-    return updated_snapshot_df
+    updated_snapshot_df.loc[
+        updated_snapshot_df["reference"].isin(unique_references)
+        & updated_snapshot_df["instance"].isnull(),
+        "instance",
+    ] = 0
+
+    return updated_snapshot_df, unique_references
 
 
 def clean_construction_type(value: str) -> str:
@@ -148,4 +168,185 @@ def clean_construction_type(value: str) -> str:
         return np.NaN
     # remove whitespaces
     cleaned = "_".join(cleaned.split())
-    return value
+    return cleaned
+
+
+def finalise_forms_gb(updated_snapshot_df: pd.DataFrame) -> pd.DataFrame:
+    """Tasks to prepare the GB forms for the next stage in pipeline.
+
+    Args:
+        updated_snapshot_df (pd.DataFrame): The updated snapshot df.
+
+    Returns:
+        pd.DataFrame: The updated snapshot df with postcodes_harmonised
+            and short forms reset.
+    """
+
+    constructed_df = updated_snapshot_df[
+        updated_snapshot_df.is_constructed.isin([True])
+    ]
+    not_constructed_df = updated_snapshot_df[
+        updated_snapshot_df.is_constructed.isin([False])
+    ]
+
+    # Long form records with a postcode in 601 use this as the postcode
+    long_form_cond = ~constructed_df["601"].isnull()
+    constructed_df.loc[long_form_cond, "postcodes_harmonised"] = constructed_df["601"]
+
+    # Short form records with nothing in 601 use referencepostcode instead
+    short_form_cond = (constructed_df["601"].isnull()) & (
+        ~constructed_df["referencepostcode"].isnull()
+    )
+    constructed_df.loc[short_form_cond, "postcodes_harmonised"] = constructed_df[
+        "referencepostcode"
+    ]
+
+    # Top up all new postcodes so they're all eight characters exactly
+    postcode_cols = ["601", "referencepostcode", "postcodes_harmonised"]
+    for col in postcode_cols:
+        constructed_df[col] = constructed_df[col].apply(pcval.format_postcodes)
+
+    updated_snapshot_df = pd.concat([constructed_df, not_constructed_df]).reset_index(
+        drop=True
+    )
+
+    # Reset shortforms with status 'Form sent out' to instance=None
+    form_sent_condition = (updated_snapshot_df.formtype == "0006") & (
+        updated_snapshot_df.status == "Form sent out"
+    )
+    updated_snapshot_df.loc[form_sent_condition, "instance"] = None
+
+    return updated_snapshot_df
+
+
+def add_constructed_nonresponders(
+    updated_snapshot_df: pd.DataFrame, construction_df: pd.DataFrame
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Add constructed non-responders to the snapshot dataframe.
+
+    Args:
+        updated_snapshot_df (pd.DataFrame): The updated snapshot dataframe.
+        construction_df (pd.DataFrame): The construction dataframe.
+
+    Returns:
+        Tuple[pd.DataFrame, pd.DataFrame]: The updated snapshot dataframe and the
+            modified construction dataframe.
+    """
+    new_rows = construction_df["construction_type"].str.contains("new", na=False)
+    rows_to_add = construction_df[new_rows]
+    construction_df = construction_df[~new_rows]
+    missing_columns = set(updated_snapshot_df.columns) - set(rows_to_add.columns)
+    for col in missing_columns:
+        rows_to_add[col] = np.nan
+    rows_to_add = prep_new_rows(rows_to_add, updated_snapshot_df)
+    rows_to_add = rows_to_add[updated_snapshot_df.columns]
+    updated_snapshot_df = pd.concat([updated_snapshot_df, rows_to_add])
+    return updated_snapshot_df, construction_df
+
+
+def remove_short_to_long_0(
+    updated_snapshot_df: pd.DataFrame, construction_df: pd.DataFrame
+) -> pd.DataFrame:
+    """Remove instance 0 for short to long constructions.
+
+    Args:
+        updated_snapshot_df (pd.DataFrame): The updated snapshot df.
+        construction_df (pd.DataFrame): The construction df.
+
+    Returns:
+        pd.DataFrame: The updated snapshot df with instance 0
+            removed for short to long constructions.
+    """
+    short_to_long_references = construction_df.loc[
+        construction_df["construction_type"] == "short_to_long",
+        "reference",
+    ].unique()
+
+    updated_snapshot_df = updated_snapshot_df[
+        ~(
+            updated_snapshot_df["reference"].isin(short_to_long_references)
+            & (updated_snapshot_df["instance"] == 0)
+        )
+    ]
+
+    return updated_snapshot_df
+
+
+def prep_new_rows(
+    rows_to_add: pd.DataFrame, updated_snapshot_df: pd.DataFrame
+) -> pd.DataFrame:
+    """Prepare new rows from construction to be added to the snapshot.
+
+    Args:
+        rows_to_add (pd.DataFrame): The rows that will be added to the snapshot.
+        updated_snapshot_df (pd.DataFrame): The current snapshot of data.
+
+    Raises:
+        ValueError: Raised if there are rows with missing formtype/cellnumber.
+
+    Returns:
+        pd.DataFrame: The new rows (from construction) containing formtype and
+            cellnumber.
+    """
+    # iterate through new rows and add formtype/cellnumber from snapshot
+    for index, row in rows_to_add.iterrows():
+        if pd.isna(row["formtype"]) or pd.isna(row["cellnumber"]):
+            reference = row["reference"]
+            snapshot_row = updated_snapshot_df[
+                updated_snapshot_df["reference"] == reference
+            ].iloc[0]
+            if pd.isna(row["formtype"]):
+                rows_to_add.at[index, "formtype"] = snapshot_row["formtype"]
+            if pd.isna(row["cellnumber"]):
+                rows_to_add.at[index, "cellnumber"] = snapshot_row["cellnumber"]
+    # obtain references with missing formtype/cellnumber
+    missing_references = rows_to_add[
+        rows_to_add["formtype"].isna() | rows_to_add["cellnumber"].isna()
+    ]["reference"]
+    if not missing_references.empty:
+        raise ValueError(
+            "Missing formtype and/or cellnumber for new reference in construction: "
+            f"ref {missing_references.tolist()}"
+        )
+
+    return rows_to_add
+
+
+def replace_values_in_construction(
+    updated_snapshot_df: pd.DataFrame, construction_df: pd.DataFrame
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Replace values in the snapshot with those from construction dataframe.
+
+    Args:
+        updated_snapshot_df (pd.DataFrame): The updated snapshot dataframe.
+        construction_df (pd.DataFrame): The construction dataframe.
+
+    Returns:
+        Tuple[pd.DataFrame, pd.DataFrame]: The updated snapshot dataframe and the
+            modified construction dataframe.
+    """
+    # Update the values with the constructed ones
+    construction_df.set_index(
+        [
+            "reference",
+            "instance",
+            "period_year",
+        ],
+        inplace=True,
+    )
+    updated_snapshot_df.set_index(
+        [
+            "reference",
+            "instance",
+            "period_year",
+        ],
+        inplace=True,
+    )
+    updated_snapshot_df.update(construction_df)
+    updated_snapshot_df.reset_index(inplace=True)
+
+    updated_snapshot_df = updated_snapshot_df.astype(
+        {"reference": "Int64", "instance": "Int64", "period_year": "Int64"}
+    )
+
+    return updated_snapshot_df, construction_df

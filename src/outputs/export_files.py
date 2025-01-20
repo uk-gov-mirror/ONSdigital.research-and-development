@@ -1,11 +1,10 @@
 """This is a stand alone pipeline to selectively transfer output files from
 the output folder to the outgoing folder, along with their manifest file."""
 
-
 import os
 import logging
 from datetime import datetime
-import toml
+import tomli
 from typing import List
 from pathlib import Path
 import getpass
@@ -48,9 +47,14 @@ def get_schema_headers(config: dict):
     }
 
     # Get the headers for each
-    schema_headers_dict = {
-        output_name: toml.load(path) for output_name, path in schema_paths.items()
-    }
+    schema_headers_dict = {}
+    for output_name, path in schema_paths.items():
+        with open(path, "rb") as file:
+            schema_headers_dict[output_name] = tomli.load(file)
+
+    # schema_headers_dict = {
+    #     output_name: tomli.loads(path) for output_name, path in schema_paths.items()
+    # }
 
     # Stringify the headers (keys of the dict)
     schema_headers_dict.update(
@@ -116,19 +120,22 @@ def get_file_choice(paths, config: dict):
     return selection_dict
 
 
-def check_files_exist(file_list: List, network_or_hdfs: str, isfile: callable):
+def check_files_exist(file_list: List, config: dict, isfile: callable):
     """Check that all the files in the file list exist using
     the imported isfile function."""
 
     # Check if the output dirs supplied are string, change to list if so
+
+    platform = config["global"]["platform"]
+
     if isinstance(file_list, str):
         file_list = [file_list]
 
     # Check the existence of every file using is_file
     for file in file_list:
         file_path = Path(file)  # Changes to path if str
-        OutgoingLogger.debug(f"Using {network_or_hdfs} isfile function")
-        if not isfile(file_path):
+        OutgoingLogger.debug(f"Using {platform} isfile function")
+        if not isfile(str(file_path)):
             OutgoingLogger.error(
                 f"File {file} does not exist. Check existence and spelling"
             )
@@ -137,7 +144,6 @@ def check_files_exist(file_list: List, network_or_hdfs: str, isfile: callable):
 
 
 def transfer_files(source, destination, method, logger, copy_files, move_files):
-
     """
     Transfer files from source to destination using the specified method and log
     the action.
@@ -150,7 +156,7 @@ def transfer_files(source, destination, method, logger, copy_files, move_files):
     """
     transfer_func = {"copy": copy_files, "move": move_files}[method]
     past_tense = {"copy": "copied", "move": "moved"}[method]
-    transfer_func(source, destination)
+    transfer_func(str(source), destination)
 
     logger.info(f"Files {source} successfully {past_tense} to {destination}.")
 
@@ -222,22 +228,31 @@ def run_export(user_config_path: str, dev_config_path: str):
     logging.basicConfig(level=logging_levels[logging_level.upper()])
 
     # Check the environment switch
-    network_or_hdfs = config["global"]["network_or_hdfs"]
+    platform = config["global"]["platform"]
 
-    if network_or_hdfs == "network":
+    if platform == "s3":
+        # create singletion boto3 client object & pass in bucket string
+        from src.utils.singleton_boto import SingletonBoto
+
+        boto3_client = SingletonBoto.get_client(config)  # noqa
+        from src.utils import s3_mods as mods
+
+    elif platform == "network":
+        # If the platform is "network" or "hdfs", there is no need for a client.
+        # Adding a client = None for consistency.
+        config["client"] = None
         from src.utils import local_file_mods as mods
-
-    elif network_or_hdfs == "hdfs":
+    elif platform == "hdfs":
+        config["client"] = None
         from src.utils import hdfs_mods as mods
-
     else:
-        OutgoingLogger.error("The network_or_hdfs configuration is wrong")
-        raise ImportError
+        OutgoingLogger.error(f"The selected platform {platform} is wrong")
+        raise ImportError(f"Cannot import {platform}_mods")
 
-    OutgoingLogger.info(f"Using the {network_or_hdfs} file system as data source.")
+    OutgoingLogger.info(f"Using the {platform} file system as data source.")
 
     # Define paths
-    paths = config[f"{network_or_hdfs}_paths"]  # Dynamically get paths based on config
+    paths = config[f"{platform}_paths"]  # Dynamically get paths based on config
     output_path = config["outputs_paths"]["outputs_master"]
     export_folder = config["export_paths"]["export_folder"]
 
@@ -245,7 +260,7 @@ def run_export(user_config_path: str, dev_config_path: str):
     file_select_dict = get_file_choice(paths, config)
 
     # Check that files exist
-    check_files_exist(list(file_select_dict.values()), network_or_hdfs, mods.rd_isfile)
+    check_files_exist(list(file_select_dict.values()), config, mods.rd_isfile)
 
     # Creating a manifest object using the Manifest class in manifest_output.py
     manifest = Manifest(
@@ -258,6 +273,7 @@ def run_export(user_config_path: str, dev_config_path: str):
         stat_size_func=mods.rd_stat_size,
         isdir_func=mods.rd_isdir,
         isfile_func=mods.rd_isfile,
+        config=config,
         read_header_func=mods.rd_read_header,
         string_to_file_func=mods.rd_write_string_to_file,
     )

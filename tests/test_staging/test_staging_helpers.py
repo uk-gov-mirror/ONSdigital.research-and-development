@@ -4,8 +4,10 @@ import os
 import pytest
 import pathlib
 from unittest.mock import Mock
-from typing import Tuple
+from typing import Tuple, Dict, Any
 from datetime import date
+import logging
+from unittest.mock import patch
 
 # Third Party Imports
 import pandas as pd
@@ -17,10 +19,9 @@ import pyarrow.feather as feather
 from src.staging.staging_helpers import (
     fix_anon_data,
     getmappername,
-    check_snapshot_feather_exists,
+    load_validate_mapper,
     load_snapshot_feather,
     load_val_snapshot_json,
-    load_validate_secondary_snapshot,
     df_to_feather,
     stage_validate_harmonise_postcodes,
     filter_pnp_data,
@@ -109,65 +110,57 @@ class TestGetMapperName(object):
         ), "getmappername not behaving as expected when split=False"
 
 
-# load_validate_mapper [CANT TEST: TOO MANY HARD CODED PATHS]
+class TestLoadValidateMapper:
+    """Tests for load_validate_mapper."""
 
-
-# load_historic_data
-
-
-class TestCheckSnapshotFeatherExists(object):
-    """Tests for check_snapshot_feather_exists."""
-
-    def create_feather_files(
-        self, dir: pathlib.Path, first: bool, second: bool
-    ) -> Tuple[pathlib.Path, pathlib.Path]:
-        """Create feather files in a given path for testing."""
-        empty_df = pd.DataFrame()
-        # define feather paths
-        f_path = os.path.join(dir, "first_feather.feather")
-        s_path = os.path.join(dir, "second_feather.feather")
-        # create feather files accordingly
-        if first:
-            feather.write_feather(empty_df.copy(), f_path)
-        if second:
-            feather.write_feather(empty_df.copy(), s_path)
-        return (pathlib.Path(f_path), pathlib.Path(s_path))
-
-    @pytest.mark.parametrize(
-        "first, second, check_both, result",
-        (
-            [True, False, False, True],  # create first, check first
-            [True, False, True, False],  # create first, check both
-            [False, True, False, False],  # create second, check first
-            [False, True, True, False],  # create second, check both
-            [True, True, True, True],  # create both, check both
-            [True, True, False, True],  # create both, check first
-        ),
-    )
-    def test_check_snapshot_feather_exists(
+    @patch("src.utils.local_file_mods.rd_file_exists")
+    @patch("src.utils.local_file_mods.rd_read_csv")
+    @patch("src.staging.validation.validate_data_with_schema")
+    def test_load_validate_mapper(
         self,
-        tmp_path,
-        first: bool,
-        second: bool,
-        check_both: bool,
-        result: bool,
+        mock_val_with_schema_func,
+        mock_read_csv_func,
+        mock_file_exists_func,
     ):
-        """General tests for check_snapshot_feather_exists."""
-        # create feather files
-        (a, b) = self.create_feather_files(tmp_path, first, second)
-        # define config
-        config = {"global": {"load_updated_snapshot": check_both}}
-        # get result
-        output = check_snapshot_feather_exists(
-            config=config,
-            check_file_exists=check_file_exists,
-            feather_file_to_check=a,
-            secondary_feather_file=b,
+        # Create a logger for this test
+        test_logger = logging.getLogger("test_load_validate_mapper")
+        test_logger.setLevel(logging.DEBUG)
+
+        # Mock data
+        mapper_path_key = "test_mapper_path"
+
+        config = {
+            "mapping_paths": {
+                "test_mapper_path": "/path/to/mapper.csv"
+            },
+            "global": {
+                "platform": "network",
+            },
+        }
+
+        mapper_df = pd.DataFrame(
+            {"col_one": [1, 2, 3, 4, 5, 6], "col_many": ["A", "A", "B", "C", "D", "D"]}
         )
-        # assert result
-        assert (
-            output == result
-        ), "check_snapshot_feather_exists not behaving as expected."
+        schema_path = "./config/test_schema.toml"
+
+        # Set mock return values
+        mock_file_exists_func.return_value = True
+        mock_read_csv_func.return_value = mapper_df
+
+        # Call the function
+        output = load_validate_mapper(
+            mapper_path_key,
+            config,
+            test_logger,
+            mock_file_exists_func,
+            mock_read_csv_func,
+        )
+
+        # Assertions
+        mock_file_exists_func.assert_called_once_with("/path/to/mapper.csv", raise_error=True)
+        mock_read_csv_func.assert_called_once_with("/path/to/mapper.csv")
+        mock_val_with_schema_func.assert_called_once_with(mapper_df, schema_path)
+        assert output.equals(mapper_df), "load_validate_mapper not behaving as expected."
 
 
 class TestLoadSnapshotFeather(object):
@@ -187,12 +180,6 @@ class TestLoadSnapshotFeather(object):
         assert (
             len(snapshot.columns) == 1
         ), "Snapshot df has more columnss than expected."
-
-
-# load_val_snapshot_json [CANT TEST: TOO MANY HARD CODED PATHS]
-
-
-# load_validate_secondary_snapshot [CANT TEST: TOO MANY HARD CODED PATHS]
 
 
 class TestDfToFeather(object):
@@ -276,12 +263,14 @@ class TestStageValidateHarmonisePostcodes(object):
     """Tests for stage_validate_harmonise_postcodes."""
 
     @pytest.fixture(scope="function")
-    def config(self, tmp_path) -> pd.DataFrame:
+    def config(self, tmp_path) -> Dict[str, Any]:
         """Test config."""
         config = {
             "global": {"postcode_csv_check": True},
-            "years": {"survey_year": 2022},
+            "survey": {"survey_year": 2022, "survey_type": "PNP"},
+            "filename_items": {"run_id": 1, "tdate": "21-01-01"},
             "staging_paths": {"pcode_val_path": tmp_path, "postcode_masterlist": "ml"},
+            "mapping_paths": {"postcode_mapper": "ml"},
         }
         return config
 
@@ -373,7 +362,6 @@ class TestStageValidateHarmonisePostcodes(object):
         fr, pm = stage_validate_harmonise_postcodes(
             config=config,
             full_responses=full_responses,
-            run_id=1,
             check_file_exists=self.mock_check_file_exists,
             read_csv=self.mock_read_csv,
             write_csv=write_csv,
@@ -390,7 +378,7 @@ class TestStageValidateHarmonisePostcodes(object):
         # assert that invalid postcodes have been saved out
         files = os.listdir(tmp_path)
         filename = (
-            f"2022_invalid_unrecognised_postcodes_{self.get_todays_date()}_v1.csv"
+            "PNP_2022_invalid_postcodes_21-01-01_v1.csv"
         )
         assert (
             filename in files
@@ -462,14 +450,20 @@ class TestFilterPnpData:
 
     def test_filter_pnp_data(self):
         """Test for the filter_pnp_data function."""
-        input_df = self.create_input_df()
+
+        config = {"survey": {"survey_type": "BERD"}}
         exp1_df, exp2_df = self.create_exp_output_df()
 
-        result1_df, result2_df = filter_pnp_data(input_df)
+        input_df = self.create_input_df()
+        result1_df = filter_pnp_data(input_df, config)
 
         pd.testing.assert_frame_equal(
             result1_df.reset_index(drop=True), exp1_df.reset_index(drop=True)
         )
+
+        config = {"survey": {"survey_type": "PNP"}}
+        result2_df = filter_pnp_data(input_df, config)
+
         pd.testing.assert_frame_equal(
             result2_df.reset_index(drop=True), exp2_df.reset_index(drop=True)
         )

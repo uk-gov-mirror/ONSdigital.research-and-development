@@ -1,13 +1,14 @@
 """The main file for the Outputs module."""
+
 import logging
 import pandas as pd
-from datetime import datetime
 from typing import Callable, Dict, Any
 
 import src.outputs.map_output_cols as map_o
 from src.staging.validation import load_schema
 from src.imputation.imputation_helpers import fill_sf_zeros
 from src.outputs.outputs_helpers import create_output_df
+from src.utils.helpers import filename_amender
 
 
 OutputMainLogger = logging.getLogger(__name__)
@@ -91,8 +92,6 @@ def output_short_form(
     df: pd.DataFrame,
     config: Dict[str, Any],
     write_csv: Callable,
-    run_id: int,
-    postcode_itl_mapper: pd.DataFrame,
 ):
     """Run the outputs module.
 
@@ -101,8 +100,6 @@ def output_short_form(
         config (dict): The configuration settings.
         write_csv (Callable): Function to write to a csv file.
             This will be the hdfs or network version depending on settings.
-        run_id (int): The current run id
-        ultfoc_mapper (pd.DataFrame): The ULTFOC mapper DataFrame.
 
     """
     output_path = config["outputs_paths"]["outputs_master"]
@@ -112,9 +109,6 @@ def output_short_form(
 
     # Map the sizebands based on frozen employment
     df = map_o.map_sizebands(df)
-
-    # Map the itl regions using the postcodes
-    df = map_o.join_itl_regions(df, postcode_itl_mapper)
 
     # Map q713 and q714 to numeric format
     df = map_o.map_to_numeric(df)
@@ -127,7 +121,5 @@ def output_short_form(
     schema_dict = load_schema(schema_path)
     shortform_output = create_output_df(df, schema_dict)
 
-    tdate = datetime.now().strftime("%y-%m-%d")
-    survey_year = config["years"]["survey_year"]
-    filename = f"{survey_year}_output_short_form_{tdate}_v{run_id}.csv"
+    filename = filename_amender("output_short_form", config)
     write_csv(f"{output_path}/output_short_form/{filename}", shortform_output)
