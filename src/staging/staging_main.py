@@ -279,5 +279,4 @@ def run_staging(  # noqa: C901
             pd.DataFrame(),
             pd.DataFrame(),
             pd.DataFrame(),
-            pd.DataFrame(),
         )
