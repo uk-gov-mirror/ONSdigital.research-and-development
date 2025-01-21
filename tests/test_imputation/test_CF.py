@@ -31,7 +31,7 @@ class Test_carry_forward(object):
          "status",
          "imp_marker",
          "imp_class"
-         ]
+        ]
 
         data = [
             [1031, 0, 2021, np.nan, "AA", 6000.0, np.nan, "CF14 7UB", np.nan, "Yes", "0001", "Form sent out", "R", "nan_AA"],
@@ -47,7 +47,7 @@ class Test_carry_forward(object):
             [1047, 0, 2021, np.nan, "BC", 600.0, 600.0, np.nan, np.nan, np.nan, "0001", "Form sent out", "TMI", "nan_BC"],
             [1047, 1, 2021, "C", "BC", 400.0, np.nan, "TY85 1ND", np.nan, "Yes", "0001", "Check needed", "TMI", "C_BC"],
             [1047, 2, 2021, "D", "BC", 200.0, np.nan, np.nan, np.nan, np.nan, "0001", "Check needed", "TMI", "D_BC"]
-            ]
+        ]
 
         df = pd.DataFrame(data=data, columns=columns)
         df = df.astype({"reference": "Int64", "instance": "Int64"})
@@ -74,7 +74,7 @@ class Test_carry_forward(object):
             "postcodes_harmonised",
             "imp_marker",
             "imp_class"
-            ]
+        ]
 
         data = [
             [1031, 0, 2022, np.nan, "AA", np.nan, np.nan, 286, np.nan, np.nan, "Yes", np.nan, "0001", "Form sent out", "CF14 7UB", "no_imputation", "<NA>_AA"],
@@ -131,7 +131,7 @@ class Test_carry_forward(object):
             [1047, 0, 2022, np.nan, "BC", 600.0, np.nan, 262, np.nan, np.nan, np.nan, np.nan, "0001", "Form sent out", "TY85 1ND", "no_imputation", "<NA>_BC"],
             [1047, 1, 2022, "C", "BC", 400.0, np.nan, 262, "TY85 1ND", np.nan, "Yes", np.nan, "0001", "Form sent out", "TY85 1ND", "no_imputation", "C_BC"],
             [1047, 2, 2022, "D", "BC", 200.0, np.nan, 262, np.nan, np.nan, np.nan, np.nan, "0001", "Form sent out", "TY85 1ND", "no_imputation", "D_BC"]
-            ]
+        ]
 
         df = pd.DataFrame(data=data, columns=columns)
         df = df.astype({"reference": "Int64", "instance": "Int64"})
@@ -166,7 +166,7 @@ class Test_carry_forward(object):
             "formtype_prev",
             "imp_marker_prev",
             "imp_class_prev"
-            ]
+        ]
 
         data = [
             [1032, 0, 2022, np.nan, "L", np.nan, np.nan, 41, "CV34 6UX", np.nan, np.nan, np.nan, "0001", "Form sent out", "CV34 6UX", "CF", "nan_L", 11000.0, 10.0, 11000.0, 10.0, 1.0, "R", "nan_L"],
@@ -210,12 +210,12 @@ class Test_carry_forward(object):
         return df
 
     def test_carry_forwards(
-            self,
-            dummy_CF_input,
-            dummy_CF_backdata,
-            expected_CF_output,
-            imputation_config,
-            ):
+        self,
+        dummy_CF_input,
+        dummy_CF_backdata,
+        expected_CF_output,
+        imputation_config
+    ):
         """Testing carry_forwards function on dummy data"""
 
         wanted_cols = ["212", "emp_total"]
