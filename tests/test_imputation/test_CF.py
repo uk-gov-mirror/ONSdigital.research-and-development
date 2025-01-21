@@ -213,7 +213,6 @@ class Test_carry_forward(object):
         dummy_CF_input,
         dummy_CF_backdata,
         expected_CF_output,
-        imputation_config
     ):
         """Testing carry_forwards function on dummy data"""
 
