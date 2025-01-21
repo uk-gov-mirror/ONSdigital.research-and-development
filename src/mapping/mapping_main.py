@@ -9,7 +9,7 @@ from src.mapping.pg_conversion import run_pg_conversion
 from src.mapping.ultfoc_mapping import join_fgn_ownership
 from src.mapping.cellno_mapping import validate_join_cellno_mapper
 from src.mapping.itl_mapping import join_itl_regions
-from src.mapping.pnp_mapping import identify_osmotherly_key_area
+from src.mapping.pnp_mapping import add_area_column
 from src.staging import staging_helpers as stage_hlp
 from src.staging import validation as val
 from src.utils.helpers import filename_amender
@@ -100,7 +100,7 @@ def run_mapping(
 
     # Add custom mappers if PNP is true for later imp_class column creation
     if config["survey"]["survey_type"] == "PNP":
-        full_responses = identify_osmotherly_key_area(full_responses, config)
+        full_responses = add_area_column(full_responses)
         MappingMainLogger.info("Custom mappers applied to responses.")
 
     # create a tuple for the full_responses and ni_full_responses

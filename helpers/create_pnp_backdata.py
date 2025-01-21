@@ -176,20 +176,20 @@ def get_region(df):
     Return:
         df (pd.DataFrame): The dataframe with the populated ITL121NM column.
     """
-    region_dict = {'HH': 'se',  # London
-                   'JG': 'se',  # South East
-                   'KJ': 'oth',  # South West
-                   'GG': 'se',  # East of England
-                   'GF': 'se',  # East of England
-                   'FE': 'oth',  # West Midlands
-                   'ED': 'oth',  # East Midlands
-                   'DC': 'oth',  # Yorkshire and The Humber
-                   'BA': 'oth',  # North West
-                   'BB': 'oth',  # North West
-                   'AA': 'oth',  # North East
-                   'XX': 'oth',  # Scotland
-                   'WW': 'oth',  # Wales
-                   'YY': 'oth'  # Northern Ireland
+    region_dict = {'HH': 'area_se',  # London
+                   'JG': 'area_se',  # South East
+                   'KJ': 'area_oth',  # South West
+                   'GG': 'area_se',  # East of England
+                   'GF': 'area_se',  # East of England
+                   'FE': 'area_oth',  # West Midlands
+                   'ED': 'area_oth',  # East Midlands
+                   'DC': 'area_oth',  # Yorkshire and The Humber
+                   'BA': 'area_oth',  # North West
+                   'BB': 'area_oth',  # North West
+                   'AA': 'area_oth',  # North East
+                   'XX': 'area_oth',  # Scotland
+                   'WW': 'area_oth',  # Wales
+                   'YY': 'area_oth'  # Northern Ireland
                    }
 
     df['area'] = df['Region'].map(region_dict)
@@ -300,7 +300,7 @@ def add_missing_columns(df):
     Return:
         df (pd.DataFrame): The dataframe with the added missing columns.
     """
-    missing_list = ['226', '228', '237', '203', '225', '227', '229', '251',
+    missing_list = ['203', '225', '226', '227', '228', '229', '237', '251',
                     '300', '301', '307', '308', '309', '708',
                     'survey', 'formid', 'cellnumber', 'pg_numeric']
     for col in missing_list:
@@ -356,7 +356,7 @@ def populate_instance_1_columns(df, config):
     cols = [c for c in numcols if c in df.columns]
 
     # the rows which contain the data use for the updates
-    source_df = df[df["instance"] == 0].copy()[["reference"]  + cols]
+    source_df = df[df["instance"] == 0].copy()[["reference"] + cols]
     # the dataframe to be used for the update
     update_df = source_df.copy()
     update_df["instance"] = 1
@@ -426,46 +426,24 @@ def test_populate_instance_1_columns():
     assert_frame_equal(result_df, expected_df, check_dtype=False)
 
 
-def test_populate_instance_1_columns():
-    """Test populate_instance_1_columns function."""
+def perform_manual_summations(df):
+    """ Function to perform manual summations on specific columns in PNP backdata.
 
-    # Example input DataFrame
-    data = {
-        "reference": [1, 1, 2, 2, 3, 3, 4],
-        "instance": [0, 1, 0, 1, 0, 1, 0],
-        "211": [10, 0, 20, 5, 30, 0, 40],
-        "305": [30, 0, 40, 10, 50, 0, 60],
-        "202": [100, 200, 300, 400, 500, 600, 700],
-        "301": [100, 200, 300, 400, 500, 600, 700],
-        "oth": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]
-    }
-    df = pd.DataFrame(data)
+    Columns for manual summation are 203, 204, and 305. These columns were chosen for
+    manual summation after QA of outputed PNP data.
 
-    # Example config
-    config = {
-        "breakdowns": {
-            "211": ["202"],
-            "305": ["301"]
-        }
-    }
+    Args:
+        df (pd.DataFrame): The dataframe to perform manual summations.
 
-    # Define the expected output DataFrame
-    expected_data = {
-        "reference": [1, 1, 2, 2, 3, 3, 4, 4],
-        "instance": [0, 1, 0, 1, 0, 1, 0, 1],
-        "211": [0, 10, 0, 20, 0, 30, 0, 40],
-        "305": [0, 30, 0, 40, 0, 50, 0, 60],
-        "202": [0, 100, 0, 300, 0, 500, 0, 700],
-        "301": [0, 100, 0, 300, 0, 500, 0, 700],
-        "oth": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 7.0]
-    }
-    expected_df = pd.DataFrame(expected_data)
+    Return:
+        df (pd.DataFrame): The dataframe with the manual summations performed.
+    """
 
-    # Call the function
-    result_df = populate_instance_1_columns(df, config)
+    df["203"] = df[["222", "223"]].fillna(0).sum(axis=1)
+    df["204"] = df[["202", "203"]].fillna(0).sum(axis=1)
+    df["305"] = df[["302", "303", "304"]].fillna(0).sum(axis=1)
 
-    # Assert that the result DataFrame is equal to the expected DataFrame
-    assert_frame_equal(result_df, expected_df, check_dtype=False)
+    return df
 
 
 def create_pnp_backdata(df):
@@ -682,12 +660,6 @@ def create_pnp_backdata(df):
     # Populate the imp_marker column
     df = get_imp_marker(df)
 
-    # Identify the key business
-    df = identify_key_business(df)
-
-    # Identify the osmotherly business
-    df = identify_osmotherly_businesses(df)
-
     # Region mapping
     df = get_region(df)
 
@@ -708,8 +680,7 @@ def create_pnp_backdata(df):
     # Create the imp_class column
     df = hlp.create_imp_class_col(
         df,
-        ["pnp_key", "area"],
-        use_osmotherly=True,
+        ["area"],
         use_cellno=False
     )
 
@@ -730,6 +701,9 @@ def create_pnp_backdata(df):
 
     # Populate instance 1 columns that begin with 3xx or 2xx.
     df = populate_instance_1_columns(df, config)
+
+    # Perform manual summations
+    df = perform_manual_summations(df)
 
     # Run the apportionment on the PNP backdata
     df = run_apportionment(df)
@@ -781,7 +755,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# Example usage of the test function
-# if __name__ == "__main__":
-#     test_populate_instance_1_columns()

@@ -22,7 +22,7 @@ def make_dir(dir):
         print(f"Directory {dir} already exists.")
 
 
-def run_make_dirs():
+def run_make_dirs(years, surveys, root=""):
     """Creates all directories based on the `tree` structure.
 
     tree (dict) converted to list of lists by function src.utils.helpers.tree_to_list.
@@ -31,8 +31,6 @@ def run_make_dirs():
     surveys.
 
     """
-    years = ["2022", "2023"]
-    surveys = ["BERD", "PNP"]
 
     for year in years:
         for survey in surveys:
@@ -105,10 +103,14 @@ def run_make_dirs():
                 },
             }
 
-            dir_list = tree_to_list(tree, prefix="", path_list=[])
+            dir_list = tree_to_list(tree, prefix=root, path_list=[])
             for s in dir_list:
                 make_dir(s)
 
 
 if __name__ == "__main__":
-    run_make_dirs()
+
+    years = ["2022", "2023"]
+    surveys = ["BERD", "PNP"]
+
+    run_make_dirs(years, surveys)
