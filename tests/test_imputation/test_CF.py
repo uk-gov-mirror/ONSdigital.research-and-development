@@ -5,7 +5,6 @@ import pandas as pd
 import pytest
 from pandas._testing import assert_frame_equal
 from src.imputation.MoR import carry_forwards
-from src.imputation.imputation_helpers import get_imputation_cols
 
 
 class Test_carry_forward(object):
@@ -59,11 +58,9 @@ class Test_carry_forward(object):
             backdata=dummy_CF_backdata,
             impute_vars=wanted_cols,
             config=imputation_config
-            )
+        )
 
-        result_df
-
-       # Reset index of both DataFrames to ensure they are comparable
+        # Reset index of both DataFrames to ensure they are comparable
         result_df = result_df.reset_index(drop=True)
         expected_CF_output = expected_CF_output.reset_index(drop=True)
 
