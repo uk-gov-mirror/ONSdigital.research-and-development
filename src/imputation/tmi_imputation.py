@@ -200,7 +200,7 @@ def calculate_mean(
     """
 
     # remove the "trim" tagged rows
-    trimmed_df = df.loc[df[f"{target_variable}_trim"].isin([False])]
+    trimmed_df = df.copy().loc[df[f"{target_variable}_trim"].isin([False])]
 
     # convert to floats for mean calculation
     trimmed_df[target_variable] = trimmed_df[target_variable].astype("float")

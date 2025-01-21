@@ -75,6 +75,7 @@ class TestCalcLowerNDuplicateRefs:
             [2, "C"],
             [4, "D"],
             [1, "E"],
+            [4, np.nan]
         ]
         input_df = pd.DataFrame(data=data, columns=input_cols)
         return input_df

@@ -212,14 +212,17 @@ def run_staging(  # noqa: C901
             manual_trim_df = None
             StagingMainLogger.info("Loading of Imputation Manual Trimming File skipped")
 
-        # stage the backdata for MoR
-        StagingMainLogger.info("Loading Backdata File")
-        backdata_path = staging_dict["backdata_path"]
-        rd_file_exists(backdata_path, raise_error=True)
-        backdata = rd_read_csv(backdata_path)
-        val.validate_data_with_schema(backdata, "./config/backdata_schema.toml")
+        if config["global"]["use_backdata"] is True:
+            # stage the backdata for MoR
+            StagingMainLogger.info("Loading Backdata File")
+            backdata_path = staging_dict["backdata_path"]
+            rd_file_exists(backdata_path, raise_error=True)
 
-        StagingMainLogger.info("Backdata File Loaded Successfully...")
+            backdata = rd_read_csv(backdata_path)
+            val.validate_data_with_schema(backdata, "./config/backdata_schema.toml")
+            StagingMainLogger.info("Backdata File Loaded Successfully...")
+        else:
+            backdata = None
 
         # Loading SIC division detailed mapper
         sic_division_detailed_mapper = helpers.load_validate_mapper(
