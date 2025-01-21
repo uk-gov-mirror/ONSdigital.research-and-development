@@ -137,7 +137,6 @@ class Test_carry_forward(object):
         df = df.astype({"reference": "Int64", "instance": "Int64"})
         return df
 
-
     @pytest.fixture(scope="function")
     def expected_CF_output(self):
         """Expected output from carry_forwards."""
