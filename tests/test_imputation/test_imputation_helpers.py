@@ -10,7 +10,8 @@ from src.imputation.imputation_helpers import (
     check_604_fix,
     calculate_totals,
     create_imp_class_col,
-    imputation_marker
+    imputation_marker,
+    get_imputation_cols
 )
 
 
@@ -412,3 +413,46 @@ class TestCreateImpClassCol:
 
             result_df = imputation_marker(input_df)
             assert_frame_equal(result_df.reset_index(drop=True), exp_output_df)
+
+class TestGetImputationCols:
+    """Unit tests for get_imputation_cols function."""
+
+    def create_input_dict(self):
+        """Create an input dictionary for the test."""
+        # config["breakdowns"] and config["imputation"] from dev_config.yaml
+        input_config = {
+            "breakdowns" : {"219" : {"202", "203", "204", "205", "206", "207", "209",
+                                     "210", "212", "214", "216", "218", "219", "220",
+                                     "221", "222", "223", "225", "226", "227", "228",
+                                     "229", "237", "242", "243", "244", "245", "246",
+                                     "247", "248", "249", "250", "305", "302", "399"},
+                            "emp_total" : {"emp_researcher", "emp_technician", "emp_other"},
+                            "headcount_total" : {"headcount_res_m", "headcount_res_f",
+                                                 "headcount_tec_m", "headcount_tec_f",
+                                                 "headcount_oth_x", "headcount_oth_y"}
+                            },
+            "imputation" : {"sum_cols": {"emp_total", "headcount_tot_x",
+                                         "headcount_tot_y", "headcount_total"}
+                            }
+                  }
+        return input_config
+
+    def test_get_imputation_cols(self):
+        """Test for function copy_first_to_group."""
+        input_config = self.create_input_dict()
+
+        expected_output = ["219", "305", "emp_total", "headcount_total",
+                           "202", "203", "204", "205", "206", "207", "209",
+                           "210", "212", "214", "216", "218", "219", "220",
+                           "221", "222", "223", "225", "226", "227", "228",
+                           "229", "237", "242", "243", "244", "245", "246",
+                           "247", "248", "249", "250", "302", "399",
+                           "emp_researcher", "emp_technician", "emp_other",
+                           "headcount_res_m", "headcount_res_f", "headcount_tec_m",
+                           "headcount_tec_f", "headcount_oth_x", "headcount_oth_y",
+                           "headcount_tot_x", "headcount_tot_y"]
+
+        result_list = get_imputation_cols(input_config)
+
+        difference = {*expected_output} ^ {*result_list}
+        assert not difference
