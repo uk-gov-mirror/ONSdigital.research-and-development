@@ -27,7 +27,7 @@ def clean_validate_cellno_mapper(cellno_df: pd.DataFrame) -> pd.DataFrame:
     if not cellno_df["cell_no"].between(1, 817).all():
         raise ValueError("Cellnumbers are not in the expected range of 1 to 817.")
 
-    cellno_df = cellno_df.copy()[["cell_no", "UNI_Count"]]
+    cellno_df = cellno_df.copy()[["cell_no", "UNI_Count", "uni_employment"]]
     cellno_df = cellno_df.rename(
         columns={"UNI_Count": "uni_count", "cell_no": "cellnumber"}
     )
