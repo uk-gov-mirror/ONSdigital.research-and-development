@@ -44,13 +44,14 @@ def expected_output():
         "cellnumber",
         "selectiontype",
         "uni_count",
+        "uni_employment"
     ]
     data = [
-        [49900001031, 0, "0006", 674, "C", 23],
-        [49900001530, 0, "0006", 805, "P", 14],
-        [49900001601, 0, "0001", 117, "C", 13147],
-        [49900001601, 1, "0001", 117, "C", 13147],
-        [49900003099, 0, "0006", 41, "L", 87577],
+        [49900001031, 0, "0006", 674, "C", 23, 5757],
+        [49900001530, 0, "0006", 805, "P", 14, 28154],
+        [49900001601, 0, "0001", 117, "C", 13147, 1188],
+        [49900001601, 1, "0001", 117, "C", 13147, 1188],
+        [49900003099, 0, "0006", 41, "L", 87577, 27],
     ]
     df = pd.DataFrame(columns=columns, data=data)
     return df
@@ -77,15 +78,15 @@ def test_clean_validate_cellno_mapper_success(cellno_mapper_df):
 
 
 @pytest.fixture(scope="module")
-def expected_clean_mapper(cellno_mapper_df):
+def expected_clean_mapper():
     """Expected output for clean_validate_cellno_mapper test."""
-    columns = ["cellnumber", "uni_count"]
+    columns = ["cellnumber", "uni_count", "uni_employment"]
     data = [
-        [41, 87577],
-        [117, 13147],
-        [674, 23],
-        [805, 14],
-        [817, 9],
+        [41, 87577, 27],
+        [117, 13147, 1188],
+        [674, 23, 5757],
+        [805, 14, 28154],
+        [817, 9, 185],
     ]
     df = pd.DataFrame(data=data, columns=columns)
     return df
