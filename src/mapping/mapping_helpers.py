@@ -6,26 +6,22 @@ import logging
 MappingLogger = logging.getLogger(__name__)
 
 
-def mapper_null_checks(
-    mapper_df: pd.DataFrame, mapper_name: str, col1: str, col2: str
-) -> None:
+def mapper_null_checks(mapper_df: pd.DataFrame, mapper_name: str) -> pd.DataFrame:
     """
-    Perform null checks on two columns of a mapper DataFrame.
+    Perform null checks on all columns of a mapper DataFrame.
 
     Args:
         mapper_df (pd.DataFrame): The mapper DataFrame to check.
         mapper_name (str): The name of the mapper being validated.
-        col1 (str): The name of the first column to check for nulls.
-        col2 (str): The name of the second column to check for nulls.
 
     Raises:
         ValueError: If any null values are found in the mapper DataFrame.
 
     """
-    if mapper_df[col1].isnull().any():
-        raise ValueError(f"{mapper_name} mapper contains null values in {col1}.")
-    if mapper_df[col2].isnull().any():
-        raise ValueError(f"{mapper_name} mapper contains null values in {col2}.")
+    for col in mapper_df.columns:
+        if mapper_df[col].isnull().any():
+            raise ValueError(f"{mapper_name} mapper contains null values in {col}.")
+    return mapper_df
 
 
 def join_with_null_check(
@@ -142,7 +138,9 @@ def check_mapping_unique(
     col_to_check: str,
 ) -> None:
     """
-    Checks if a column contains unique values.
+    Checks that the values of column in a mapper DataFrame are all different (unique).
+
+    This will ensure that they can be uniquely mapped to values in another column.
 
     Args:
         mapper_df (pd.DataFrame): The mapper DataFrame to check.
