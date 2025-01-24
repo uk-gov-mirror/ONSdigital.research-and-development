@@ -417,42 +417,118 @@ class TestCreateImpClassCol:
 class TestGetImputationCols:
     """Unit tests for get_imputation_cols function."""
 
-    def create_input_dict(self):
+    def create_input_dict(self) -> dict:
         """Create an input dictionary for the test."""
         # config["breakdowns"] and config["imputation"] from dev_config.yaml
         input_config = {
-            "breakdowns" : {"219" : {"202", "203", "204", "205", "206", "207", "209",
-                                     "210", "212", "214", "216", "218", "219", "220",
-                                     "221", "222", "223", "225", "226", "227", "228",
-                                     "229", "237", "242", "243", "244", "245", "246",
-                                     "247", "248", "249", "250", "305", "302", "399"},
-                            "emp_total" : {"emp_researcher", "emp_technician", "emp_other"},
-                            "headcount_total" : {"headcount_res_m", "headcount_res_f",
-                                                 "headcount_tec_m", "headcount_tec_f",
-                                                 "headcount_oth_x", "headcount_oth_y"}
-                            },
-            "imputation" : {"sum_cols": {"emp_total", "headcount_tot_x",
-                                         "headcount_tot_y", "headcount_total"}
-                            }
-                  }
+            "breakdowns" : {
+                 "219" : {
+                    "202", "203", "204", "205", "206", "207", "209",
+                    "210", "212", "214", "216", "218", "219", "220",
+                    "221", "222", "223", "225", "226", "227", "228",
+                    "229", "237", "242", "243", "244", "245", "246",
+                    "247", "248", "249", "250", "305", "302", "399"
+                    },
+                "emp_total" : {
+                    "emp_researcher", "emp_technician", "emp_other"
+                    },
+                "headcount_total" : {
+                    "headcount_res_m", "headcount_res_f",
+                    "headcount_tec_m", "headcount_tec_f",
+                    "headcount_oth_x", "headcount_oth_y"}
+                    },
+            "imputation" : {
+                "sum_cols": {
+                    "emp_total", "headcount_tot_x",
+                    "headcount_tot_y", "headcount_total"
+                    }
+                }
+            }
         return input_config
 
-    def test_get_imputation_cols(self):
-        """Test for function copy_first_to_group."""
+    def test_get_imputation_cols(self) -> None:
+        """Test for function get_imputation_cols."""
         input_config = self.create_input_dict()
 
-        expected_output = ["219", "305", "emp_total", "headcount_total",
-                           "202", "203", "204", "205", "206", "207", "209",
-                           "210", "212", "214", "216", "218", "219", "220",
-                           "221", "222", "223", "225", "226", "227", "228",
-                           "229", "237", "242", "243", "244", "245", "246",
-                           "247", "248", "249", "250", "302", "399",
-                           "emp_researcher", "emp_technician", "emp_other",
-                           "headcount_res_m", "headcount_res_f", "headcount_tec_m",
-                           "headcount_tec_f", "headcount_oth_x", "headcount_oth_y",
-                           "headcount_tot_x", "headcount_tot_y"]
+        expected_output = [
+            "219",
+            "202", "203", "204", "205", "206", "207", "209",
+            "210", "212", "214", "216", "218", "219", "220",
+            "221", "222", "223", "225", "226", "227", "228",
+            "229", "237", "242", "243", "244", "245", "246",
+            "247", "248", "249", "250", "305", "302", "399",
+            "emp_researcher", "emp_technician", "emp_other",
+            "headcount_res_m", "headcount_res_f",
+            "headcount_tec_m", "headcount_tec_f",
+            "headcount_oth_x", "headcount_oth_y",
+            "headcount_tot_x", "headcount_tot_y",
+            "emp_total", "headcount_total"
+            ]
 
         result_list = get_imputation_cols(input_config)
 
         difference = {*expected_output} ^ {*result_list}
         assert not difference
+
+class TestCreateImpClassCol:
+    """Unit tests for create_imp_class_col function."""
+
+    def create_input_df(self) -> pd.DataFrame:
+        """Create first argument: an input dataframe for the test."""
+        df_cols = [
+            "104",
+            "200",
+            "201",
+            "202",
+            "cellnumber",
+            "frozensic",
+            "rusic",
+            "frozenemployees"
+            ]
+
+        df_data = [
+            [20231231.0, None, 'AA', None, 41, 46499, 46499, 221],
+            [20231231.0, None, 'AD', None, 117, 70100, 70100, 252],
+            [20231231.0, None, 'AA', None, 45, 47910, 47910, 686],
+            [None, 'C', 'L', None, 473, 24430, 24430, 119],
+            [None, 'C', 'AD', 4038000.0, 117, 66300, 66300, 1017],
+            [20231231.0, 'C', 'AA', None, 41, 45111, 45111, 128],
+            [20231231.0, None, 'AA', None, 45, 55100, 55100, 12676],
+            [None, None, 'AA', None, 817, 46510, 46510, 1933],
+            [20231231.0, None, 'H', None, 377, 21200, 21200, 126],
+            [None, 'C', 'C', 1182000.0, 261, 10821, 10821, 543]
+            ]
+
+        df = pandasDF(data=df_data, columns=df_cols)
+
+        return df
+
+    def test_create_imp_class_col(self) -> None:
+        """Test for function create_imp_class_col."""
+        input_df = self.create_input_df()
+
+        out_data = [
+            [20231231.0, None, 'AA', None, 41, 46499, 46499, 221, 'None_AA', 'AA_46499', 'AA'],
+            [20231231.0, None, 'AD', None, 117, 70100, 70100, 252, 'None_AD', 'AD_70100', 'AD'],
+            [20231231.0, None, 'AA', None, 45, 47910, 47910, 686, 'None_AA', 'AA_47910', 'AA'],
+            [None, 'C', 'L', None, 473, 24430, 24430, 119, 'C_L', 'L_24430', 'L'],
+            [None, 'C', 'AD', 4038000.0, 117, 66300, 66300, 1017,'C_AD', 'AD_66300', 'AD'],
+            [20231231.0, 'C', 'AA', None, 41, 45111, 45111, 128, 'C_AA', 'AA_45111', 'AA'],
+            [20231231.0,None,'AA', None, 45, 55100, 55100, 12676, 'None_AA', 'AA_55100', 'AA'],
+            [None, None, 'AA', None, 817, 46510, 46510, 1933, 'None_AA_817', 'AA_46510_817', 'AA_817'],
+            [20231231.0, None, 'H', None, 377, 21200, 21200, 126, 'None_H', 'H_21200', 'H'],
+            [None, 'C', 'C', 1182000.0, 261, 10821, 10821, 543, 'C_C', 'C_10821', 'C']
+        ]
+
+        out_cols = [
+            '104', '200', '201', '202', 'cellnumber', 'frozensic', 'rusic', 'frozenemployees',
+            'imp_class', 'pg_class', 'pg_sic_class'
+            ]
+
+        exp_output_df = pandasDF(data=out_data, columns=out_cols)
+
+        run1 = create_imp_class_col(input_df, column_list = ['200', '201'], use_cellno = True)
+        run2 = create_imp_class_col(run1, column_list=['201', 'rusic'], class_name='pg_class', use_cellno=True)
+        result_df = create_imp_class_col(run2, column_list=['201'], class_name='pg_sic_class', use_cellno=True)
+
+        assert_frame_equal(result_df.reset_index(drop=True), exp_output_df)
