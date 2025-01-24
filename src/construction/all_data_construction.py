@@ -89,8 +89,8 @@ def all_data_construction(  # noqa: C901
     if "force_imputation" not in construction_df.columns:
         construction_df.loc[:, "force_imputation"] = False
     else:
-        construction_df.loc[:, "force_imputation"] = construction_df[
-            "force_imputation"
+        construction_df.loc[:, "force_imputation"] = construction_df.loc[
+            :, "force_imputation"
         ].fillna(False)
 
     # Run GB specific actions
