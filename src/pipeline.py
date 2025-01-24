@@ -162,6 +162,7 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
             mods.rd_file_exists,
             mods.rd_read_csv,
             is_run_all_data_construction=True,
+            is_northern_ireland=config["global"]["run_ni_construction"],
         )
     else:
         MainLogger.info("All data construction is not enabled")
