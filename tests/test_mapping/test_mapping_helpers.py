@@ -8,7 +8,9 @@ from src.mapping.mapping_helpers import (
     check_mapping_unique,
     update_ref_list,
     create_additional_ni_cols,
-    join_with_null_check
+    join_with_null_check,
+    check_columns_in_df,
+    mapper_null_checks
 )
 
 from src.utils.path_helpers import validate_mapping_filenames
@@ -323,3 +325,52 @@ class TestValidateMappingFilenames(object):
 
         assert (result == expected_bool,
         "Output from test_validate_mapper_config_raises_missing_file not as expected.")
+
+class TestCheckColsInDataframe(object):
+    """Tests for check_columns_in_df function."""
+
+    def test_check_columns_in_df(self):
+        # Create sample DataFrame
+        columns = ["reference", "value"]
+        data = [
+            [1, 10],
+            [2, 20],
+            [3, 30]
+        ]
+        df = pd.DataFrame(data=data, columns=columns)
+        list_of_columns = ["reference", "value", "missing_column"]
+        error_msg = "Column missing_column not found in DataFrame."
+        # Check if the function raises an error when a column is not present
+        with pytest.raises(Warning, match=error_msg):
+            check_columns_in_df(df, list_of_columns)
+
+
+class TestMapperNullChecks(object):
+    """Test to check that the mapper_null_checks function works as expected."""
+    def create_mapper_df(self):
+        """Create a sample mapper DataFrame."""
+        columns = ["uni_count", "uni_employment"]
+        data = [
+            [23, 10],
+            [14, 20],
+            [13147, 30],
+            [87577, 40],
+            [9, None],
+        ]
+        return pd.DataFrame(data=data, columns=columns)
+
+    def test_mapper_null_checks(self):
+        """Test mapper_null_checks for all columns."""
+        mapper_df = self.create_mapper_df()
+        mapper_name = "test_mapper"
+        error_msg = "test_mapper contains null values in uni_employment."
+        with pytest.raises(ValueError, match=error_msg):
+            mapper_null_checks(mapper_df, mapper_name, validate_cols= False)
+
+    def test_mapper_null_checks_validate_cols(self):
+        """Test mapper_null_checks for specific columns."""
+        mapper_df = self.create_mapper_df()
+        mapper_name = "test_mapper"
+        error_msg = "test_mapper contains null values in uni_employment."
+        with pytest.raises(ValueError, match=error_msg):
+            mapper_null_checks(mapper_df, mapper_name, validate_cols= True)

@@ -54,14 +54,14 @@ def mapper_null_checks(
         # Check for NULL values in the columns of the list
         for col in validate_cols:
             if mapper_df[col].isnull().any():
-                raise ValueError(f"{mapper_name} mapper contains null values in {col}.")
+                raise ValueError(f"{mapper_name} contains null values in {col}.")
 
     # If validate_cols is set to False, default to checking all columns in the mapper
     else:
         # Check for NULL values in all columns of the mapper
         for col in mapper_df.columns:
             if mapper_df[col].isnull().any():
-                raise ValueError(f"{mapper_name} mapper contains null values in {col}.")
+                raise ValueError(f"{mapper_name} contains null values in {col}.")
     return mapper_df
 
 
