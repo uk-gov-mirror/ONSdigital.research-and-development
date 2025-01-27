@@ -485,18 +485,20 @@ class TestConcatWithBool:
         """Define the expected output DataFrame"""
         columns = ['manual_trim', 'empty_pgsic_group', 'empty_pg_group', '305_trim', '211_trim', 'value']
         values = [
-            [True, False, np.nan, np.nan, np.nan, 1],
-            [False, True, np.nan, np.nan, np.nan, 2],
-            [np.nan, np.nan, True, False, np.nan, 3],
-            [np.nan, np.nan, False, True, np.nan, 4],
-            [np.nan, np.nan, np.nan, np.nan, True, 5],
-            [np.nan, np.nan, np.nan, np.nan, False, 6]
+            [True, False, False, False, False, 1],
+            [False, True, False, False, False, 2],
+            [False, False, True, False, False, 3],
+            [False, False, False, True, False, 4],
+            [False, False, False, False, True, 5],
+            [False, False, False, False, False, 6]
         ]
 
         df = pd.DataFrame(values, columns=columns)
         # ensure the datatype of the columns are bool where they should be
         for col in columns[:-1]:
             df[col] = df[col].astype('bool')
+
+        return df
 
     def test_concat_with_bool(self):
         """Test for function concat_with_bool."""
@@ -505,4 +507,4 @@ class TestConcatWithBool:
 
         result_df = concat_with_bool([df1, df2, df3])
         # ignore the order of the columns
-        assert_frame_equal(result_df.reset_index(drop=True), expected_df[result_df.columns])
+        assert_frame_equal(result_df.reset_index(drop=True), expected_df, check_like=True)

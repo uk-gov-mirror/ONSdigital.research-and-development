@@ -570,7 +570,7 @@ def concat_with_bool(dfs: list[pd.DataFrame]) -> pd.DataFrame:
     # Ensure the boolean columns retain their type in the concatenated DataFrame
     for col in bool_columns:
         if col in concatenated_df.columns:
-            concatenated_df[col] = concatenated_df[col].astype(bool)
+            concatenated_df[col] = concatenated_df[col].fillna(False).astype(bool)
 
     return concatenated_df
 
