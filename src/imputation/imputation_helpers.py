@@ -39,7 +39,7 @@ def create_imp_class_col(
     df: pd.DataFrame,
     column_list: List[str],
     class_name: str = "imp_class",
-    use_cellno: bool = True
+    use_cellno: bool = True,
 ) -> pd.DataFrame:
     """Creates a column for the imputation class.
 
@@ -64,6 +64,9 @@ def create_imp_class_col(
         raise ValueError("column_list is empty")
     if not all(col in df.columns for col in column_list):
         raise ValueError("column_list contains columns not in the dataframe")
+
+    # fill nulls with "nan" for the columns in column_list
+    df[column_list] = df[column_list].fillna("nan")
 
     # create a new column with the concatenation of the columns in column_list with  "_"
     df[class_name] = df[column_list].astype(str).agg("_".join, axis=1)
@@ -422,14 +425,11 @@ def breakdown_checks_after_imputation(df: pd.DataFrame) -> None:
     # the sum of the other cols should equal the total
 
 
-def tidy_imputation_dataframe(
-    df: pd.DataFrame, to_impute_cols: List, config
-) -> pd.DataFrame:
+def tidy_imputation_dataframe(df: pd.DataFrame, config) -> pd.DataFrame:
     """Update cols with imputed values and remove rows and columns no longer needed.
 
     Args:
         df (pd.DataFrame): The dataframe with imputed values.
-        to_impute_cols (List): The columns that were imputed.
         config (dict): The pipeline configuration settings.
 
     Returns:
@@ -437,6 +437,9 @@ def tidy_imputation_dataframe(
     """
     # Create mask for rows that have been imputed
     imputed_mask = df["imp_marker"].isin(["TMI", "CF", "MoR", "R"])
+
+    to_impute_cols = get_imputation_cols(config)
+
     # Update columns with imputed version
     for col in to_impute_cols:
         df.loc[imputed_mask, col] = df.loc[imputed_mask, f"{col}_imputed"]
@@ -505,3 +508,36 @@ def imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
     df.loc[~clear_responders_mask, "imp_marker"] = "no_imputation"
 
     return df
+
+
+def imputation_prep(df: pd.DataFrame, config: dict):
+    """Create extra columns for imputation and fix 604 data issue.
+
+    Args:
+        df (pd.DataFrame): the main dataset to prepare for imputation
+        config (dict): the configuration settings.
+
+    Returns:
+        pd.DataFrame: dataframe with extra columns added and data issues fixed.
+    """
+    # Add a column for imputation marker
+    df = imputation_marker(df)
+
+    # Create imp_class column
+    if config["survey"]["survey_type"] == "BERD":
+        df = create_imp_class_col(df, ["200", "201"])
+    elif config["survey"]["survey_type"] == "PNP":
+        df = create_imp_class_col(df, ["area"], use_cellno=False)
+
+    # Get a list of all the target values and breakdown columns from the config
+    to_impute_cols = get_imputation_cols(config)
+
+    # Create new columns to hold the imputed values
+    for col in to_impute_cols:
+        df[f"{col}_imputed"] = df[col]
+
+    # Create an 'instance' of value 1 for non-responders and refs with 'No R&D'
+    df = instance_fix(df)
+    df, wrong_604_qa_df = create_r_and_d_instance(df)
+
+    return df, wrong_604_qa_df

@@ -57,13 +57,6 @@ def run_imputation(  # noqa: C901
     # Convert shortform responses to longform format
     df = run_short_to_long(df)
 
-    # Add a column for imputation marker
-    df = hlp.imputation_marker(df)
-
-    # Create an 'instance' of value 1 for non-responders and refs with 'No R&D'
-    df = hlp.instance_fix(df)
-    df, wrong_604_qa_df = hlp.create_r_and_d_instance(df)
-
     # remove records that have had construction applied before imputation
     if "is_constructed" in df.columns:
         constructed_df = df.copy().loc[
@@ -75,40 +68,30 @@ def run_imputation(  # noqa: C901
             ~(df["is_constructed"].isin([True]) & df["force_imputation"].isin([False]))
         ]
 
-    # Get a list of all the target values and breakdown columns from the config
-    to_impute_cols = hlp.get_imputation_cols(config)
-
-    # Create new columns to hold the imputed values
-    for col in to_impute_cols:
-        df[f"{col}_imputed"] = df[col]
-
-    # Create qa_path variable for QA output and manual imputation file
-    qa_path = config["imputation_paths"]["qa_path"]
-
     # Load manual imputation file
     df = mimp.merge_manual_imputation(df, manual_trimming_df)
     trimmed_df, df = hlp.split_df_on_trim(df, "manual_trim")
 
+    # create extra columns for imputation and fix data issues
+    df, wrong_604_qa_df = hlp.imputation_prep(df, config)
+
     # Run MoR
     if backdata is not None:
         # MoR will be re-written with new backdata
-        imputed_df, links_df = run_mor(df, backdata, to_impute_cols, config)
+        imputed_df, links_df = run_mor(df, backdata, config)
         ImputationMainLogger.info("MoR executed: Backdata present.")
-
-    if backdata is None:
+    else:
         imputed_df = df.copy()
         ImputationMainLogger.info("MoR skipped: No backdata.")
 
     # Run TMI for long forms and short forms
-    # Skip this step for PNP survey for now
-    if config["survey"]["survey_type"] == "BERD":
-        imputed_df, qa_df, trim_counts_qa = tmi.run_tmi(imputed_df, config)
+    imputed_df, qa_df, trim_counts_qa = tmi.run_tmi(imputed_df, config)
 
-        # After TMI imputation, overwrite the "604" == "No" in any records with
-        # Status "check needed" (they are now being imputed")
-        chk_mask = imputed_df["status"].str.contains("Check needed")
-        imputation_mask = imputed_df["imp_marker"] == "TMI"
-        imputed_df.loc[(chk_mask & imputation_mask), "604"] = "Yes"
+    # After TMI imputation, overwrite the "604" == "No" in any records with
+    # Status "check needed" (they are now being imputed")
+    chk_mask = imputed_df["status"].str.contains("Check needed")
+    imputation_mask = imputed_df["imp_marker"] == "TMI"
+    imputed_df.loc[(chk_mask & imputation_mask), "604"] = "Yes"
 
     # Perform TMI step 5, which calculates employment and headcount totals
     imputed_df = hlp.calculate_totals(imputed_df)
@@ -137,6 +120,7 @@ def run_imputation(  # noqa: C901
     # Output QA files
     if config["global"]["output_imputation_qa"]:
         ImputationMainLogger.info("Outputting Imputation QA files.")
+        qa_path = config["imputation_paths"]["qa_path"]
 
         trim_qa_filename = filename_amender("trimming_qa", config)
         full_imp_filename = filename_amender("full_responses_imputed", config)
@@ -159,7 +143,7 @@ def run_imputation(  # noqa: C901
             write_csv(os.path.join(qa_path, links_filename), links_df)
 
     # remove rows and columns no longer needed from the imputed dataframe
-    imputed_df = hlp.tidy_imputation_dataframe(imputed_df, to_impute_cols, config)
+    imputed_df = hlp.tidy_imputation_dataframe(imputed_df, config)
 
     # Check the imputed values are consistent with breakdown cols summing to totals.
     run_breakdown_validation(imputed_df, config, check="imputed")
