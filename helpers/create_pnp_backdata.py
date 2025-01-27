@@ -353,6 +353,8 @@ def populate_instance_1_columns(df, config):
     """
     # a list of columns to be updated
     numcols = config["breakdowns"]["211"] + config["breakdowns"]["305"] + ["211", "305"]
+
+    numcols += ["209_ex_208", "214_ex_303", "214_ex_327", "249_ex_319", "249_ex_323"]
     cols = [c for c in numcols if c in df.columns]
 
     # the rows which contain the data use for the updates
@@ -443,6 +445,10 @@ def perform_manual_summations(df):
     df["204"] = df[["202", "203"]].fillna(0).sum(axis=1)
     df["305"] = df[["302", "303", "304"]].fillna(0).sum(axis=1)
 
+    df["214"] = df[["214_ex_303", "214_ex_327"]].fillna(0).sum(axis=1)
+    df["249"] = df[["249_ex_319", "249_ex_323"]].fillna(0).sum(axis=1)
+    df["209"] = df[["209_ex_208", "221"]].fillna(0).sum(axis=1)
+
     return df
 
 
@@ -530,7 +536,6 @@ def create_pnp_backdata(df):
                               'q0322',
                               'q0324',
                               'q0326',
-                              'q0327',
                               'q0328',
                               'q0330',
                               'q0331',
@@ -581,7 +586,7 @@ def create_pnp_backdata(df):
                               'q0202': '210',
                               'q0204': '219',
                               'q0206': '220',
-                              'q0208': '209',
+                              'q0208': '209_ex_208',
                               'q0210': '221',
                               'q0212': '204',
                               'q0214': '202',
@@ -592,7 +597,7 @@ def create_pnp_backdata(df):
                               'q0226': '206',
                               'q0228': '207',
                               'q0301': '212',
-                              'q0303': '214',
+                              'q0303': '214_ex_303',
                               'q0305': '216',
                               'q0307': '242',
                               'q0309': '243',
@@ -600,9 +605,11 @@ def create_pnp_backdata(df):
                               'q0313': '245',
                               'q0315': '246',
                               'q0317': '247',
+                              'q0319': '249_ex_319',
                               'q0321': '248',
-                              'q0323': '249',
+                              'q0323': '249_ex_323',
                               'q0325': '218',
+                              'q0327': '214_ex_327',
                               'q0329': '250',
                               'q0501': '501',
                               'q0502': '502',
@@ -629,9 +636,14 @@ def create_pnp_backdata(df):
 
     new_column_order = ['reference', 'period', 'survey', 'status', 'formid', 'instance',
                         '101', '103', '104', '200', '201', '202', '203', '204', '205',
-                        '206', '207', '209', '210', '211', '212', '214', '216', '218',
+                        '206', '207',
+                        '209_ex_208',
+                        '209', '210', '211', '212',
+                        '214_ex_303', '214_ex_327',
+                        '214', '216', '218',
                         '219', '220', '221', '222', '223', '225', '226', '227', '228',
                         '229', '237', '242', '243', '244', '245', '246', '247', '248',
+                        '249_ex_319', '249_ex_323',
                         '249', '250', '251', '300', '301', '302', '303', '304', '305',
                         '307', '308', '309', '405', '406', '407', '408', '409', '410',
                         '411', '412', '501', '502', '503', '504', '505', '506', '507',
@@ -748,7 +760,7 @@ def main():
     rd_write_csv(
         os.path.join(
             backdata_out_path,
-            "PNP_2021_backdata_clean.csv"),
+            "PNP_2021_backdata_summation_fixes.csv"),
         pnp_backdata_df
     )
 
