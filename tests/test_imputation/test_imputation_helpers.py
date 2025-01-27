@@ -10,7 +10,8 @@ from src.imputation.imputation_helpers import (
     check_604_fix,
     calculate_totals,
     create_imp_class_col,
-    imputation_marker
+    imputation_marker,
+    concat_with_bool,
 )
 
 
@@ -450,3 +451,58 @@ class TestCreateImpClassCol:
 
             result_df = imputation_marker(input_df)
             assert_frame_equal(result_df.reset_index(drop=True), exp_output_df)
+
+class TestConcatWithBool:
+    """Unit tests for concat_with_bool function."""
+    def input_dfs(self):
+        """Define columns and values for the DataFrames"""
+        columns_df1 = ['manual_trim', 'empty_pgsic_group', 'value']
+        values_df1 = [
+            [True, False, 1],
+            [False, True, 2]
+        ]
+
+        columns_df2 = ['empty_pg_group', '305_trim', 'value']
+        values_df2 = [
+            [True, False, 3],
+            [False, True, 4]
+        ]
+
+        columns_df3 = ['211_trim', 'value']
+        values_df3 = [
+            [True, 5],
+            [False, 6]
+        ]
+
+        # Create DataFrames from the lists of values
+        df1 = pd.DataFrame(values_df1, columns=columns_df1)
+        df2 = pd.DataFrame(values_df2, columns=columns_df2)
+        df3 = pd.DataFrame(values_df3, columns=columns_df3)
+
+        return df1, df2, df3
+
+    def expected_output(self):
+        """Define the expected output DataFrame"""
+        columns = ['manual_trim', 'empty_pgsic_group', 'empty_pg_group', '305_trim', '211_trim', 'value']
+        values = [
+            [True, False, np.nan, np.nan, np.nan, 1],
+            [False, True, np.nan, np.nan, np.nan, 2],
+            [np.nan, np.nan, True, False, np.nan, 3],
+            [np.nan, np.nan, False, True, np.nan, 4],
+            [np.nan, np.nan, np.nan, np.nan, True, 5],
+            [np.nan, np.nan, np.nan, np.nan, False, 6]
+        ]
+
+        df = pd.DataFrame(values, columns=columns)
+        # ensure the datatype of the columns are bool where they should be
+        for col in columns[:-1]:
+            df[col] = df[col].astype('bool')
+
+    def test_concat_with_bool(self):
+        """Test for function concat_with_bool."""
+        df1, df2, df3 = self.input_dfs()
+        expected_df = self.expected_output()
+
+        result_df = concat_with_bool([df1, df2, df3])
+        # ignore the order of the columns
+        assert_frame_equal(result_df.reset_index(drop=True), expected_df[result_df.columns])

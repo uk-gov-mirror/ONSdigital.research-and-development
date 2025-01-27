@@ -108,8 +108,7 @@ def run_imputation(  # noqa: C901
     # join manually trimmed columns back to the imputed df
     if not trimmed_df.empty:
         imputed_df = pd.concat([imputed_df, trimmed_df])
-        if config["survey"]["survey_type"] == "BERD":
-            qa_df = pd.concat([qa_df, trimmed_df]).reset_index(drop=True)
+        qa_df = pd.concat([qa_df, trimmed_df]).reset_index(drop=True)
 
     imputed_df = imputed_df.sort_values(
         ["reference", "instance"], ascending=[True, True]

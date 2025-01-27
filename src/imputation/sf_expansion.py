@@ -4,7 +4,7 @@ from typing import List, Union
 import pandas as pd
 import logging
 
-from src.imputation.imputation_helpers import split_df_on_imp_class
+from src.imputation.imputation_helpers import split_df_on_imp_class, concat_with_bool
 from src.utils.wrappers import df_change_func_wrap
 
 SFExpansionLogger = logging.getLogger(__name__)
@@ -212,19 +212,8 @@ def run_sf_expansion(df: pd.DataFrame, config: dict) -> pd.DataFrame:
         threshold_num,
     )
 
-    # Set dtype of manual_trim column to bool before concatination
-    convert_dict = {
-        "manual_trim": bool,
-        "empty_pgsic_group": bool,
-        "empty_pg_group": bool,
-        "305_trim": bool,
-        "211_trim": bool,
-    }
-    expanded_df = expanded_df.astype(convert_dict)
-    excluded_df = excluded_df.astype(convert_dict)
-
-    # Re-include those records from the reference list before returning df
-    result_df = pd.concat([expanded_df, excluded_df], axis=0)
+    # concatenate the dataframes bearing in mind boolean columns
+    result_df = concat_with_bool([expanded_df, excluded_df])
 
     result_df = result_df.sort_values(
         ["reference", "instance"], ascending=[True, True]
