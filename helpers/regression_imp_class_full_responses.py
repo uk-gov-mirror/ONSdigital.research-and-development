@@ -12,16 +12,16 @@ Saves the outputs
 import pandas as pd
 # %% set filenames and paths
 # Input folder and file names
-survey = "BERD"
+survey = "PNP"
 pref = ""
 if survey == "PNP":
     pref = "PNP_"
 root_path = f"R:/BERD Results System Development 2023/DAP_emulation/2023_surveys/{survey}/06_imputation/imputation_qa/"
-in_file_old = f"{pref}2023_full_responses_imputed_25-01-28_v1028_develop.csv"
-in_file_new = f"{pref}2023_full_responses_imputed_25-01-28_v1034_branch_1055.csv"
+# in_file_old = f"{pref}2023_full_responses_imputed_25-01-28_v1028_develop.csv"
+# in_file_new = f"{pref}2023_full_responses_imputed_25-01-28_v1034_branch_1055.csv"
 
-# in_file_old = f"{pref}2023_full_responses_imputed_25-01-28_v1030_develop.csv"
-# in_file_new = f"{pref}2023_full_responses_imputed_25-01-28_v1029_branch_1055.csv"
+in_file_old = f"{pref}2023_full_responses_imputed_25-01-28_v1030_develop.csv"
+in_file_new = f"{pref}2023_full_responses_imputed_25-01-28_v1035_branch_1055.csv"
 
 
 # Output folder and file
