@@ -6,63 +6,39 @@ import logging
 MappingLogger = logging.getLogger(__name__)
 
 
-def check_columns_in_df(df: pd.DataFrame, columns: list) -> None:
-    """
-    Check if columns in list are in the DataFrame.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to check.
-        columns (list): The list of columns to check.
-
-    Raises:
-        ValueError: If any of the columns are not in the DataFrame.
-
-    """
-    for col in columns:
-        if col not in df.columns:
-            raise Warning(f"Column {col} not found in DataFrame.")
-
-
 def mapper_null_checks(
-    mapper_df: pd.DataFrame, mapper_name: str, validate_cols=False
-) -> pd.DataFrame:
+    mapper_df: pd.DataFrame, mapper_name: str, validate_cols: list = None
+) -> None:
     """
-    Perform null checks on all columns of a mapper DataFrame.
+    Perform null checks on selected columns of a mapper DataFrame.
 
     Args:
         mapper_df (pd.DataFrame): The mapper DataFrame to check.
         mapper_name (str): The name of the mapper being validated.
-        validate_cols (bool, optional): Whether to validate all columns in the mapper.
-
+        validate_cols (list, optional): List of columns to validate.
+            If None, all columns are validated.
     Raises:
-        ValueError: If any null values are found in the mapper DataFrame.
+        ValueError: If any unexpected null values are found in the mapper DataFrame.
+        Warning: If any null values are found in the mapper DataFrame.
 
     """
-    # Create list to add columns to validate
-    validate_cols = ["uni_count", "uni_employment"]
+    # Columns with expected null values
+    exp_null_values = ["ITL321NM", "ITL321CD"]
 
-    # Mappers to ignore (expected NULL values)
-    mappers_to_ignore = ["itl mapper"]
-
-    if mapper_name in mappers_to_ignore:
-        return mapper_df
-
-    # If validate_cols is set to True, check only the columns in the list for NULLs.
-    elif validate_cols is True:
-        # Check that the columns in list appear in the mapper.df
-        check_columns_in_df(mapper_df, validate_cols)
-        # Check for NULL values in the columns of the list
-        for col in validate_cols:
-            if mapper_df[col].isnull().any():
-                raise ValueError(f"{mapper_name} contains null values in {col}.")
-
-    # If validate_cols is set to False, default to checking all columns in the mapper
-    else:
-        # Check for NULL values in all columns of the mapper
-        for col in mapper_df.columns:
-            if mapper_df[col].isnull().any():
-                raise ValueError(f"{mapper_name} contains null values in {col}.")
-    return mapper_df
+    if validate_cols is None:
+        validate_cols = mapper_df.columns.tolist()
+    # Check for NULL values of all columns in the list
+    for col in validate_cols:
+        if mapper_df[col].isnull().any():
+            # If the column is in the expected null values list
+            if col in exp_null_values:
+                # Print a warning message
+                print(f"{mapper_name} contains expected null values in {col}.")
+            else:
+                # Raise an error
+                raise ValueError(
+                    f"{mapper_name} contains unexpected null values in {col}."
+                )
 
 
 def join_with_null_check(

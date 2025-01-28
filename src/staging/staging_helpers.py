@@ -134,7 +134,7 @@ def load_validate_mapper(
     val.validate_data_with_schema(mapper_df, schema_path)
 
     # Perform null checks on the mapper DataFrame
-    mapper_df = mapper_null_checks(mapper_df, mapper_name)
+    mapper_null_checks(mapper_df, mapper_name)
 
     # Log the successful loading of the mapper
     logger.info(f"{mapper_name} loaded successfully")
