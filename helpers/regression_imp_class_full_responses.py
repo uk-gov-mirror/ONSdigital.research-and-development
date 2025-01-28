@@ -18,11 +18,15 @@ if survey == "PNP":
     pref = "PNP_"
 root_path = f"R:/BERD Results System Development 2023/DAP_emulation/2023_surveys/{survey}/06_imputation/imputation_qa/"
 in_file_old = f"{pref}2023_full_responses_imputed_25-01-28_v1028_develop.csv"
-in_file_new = f"{pref}2023_full_responses_imputed_25-01-27_v1026_branch_1055.csv"
+in_file_new = f"{pref}2023_full_responses_imputed_25-01-28_v1034_branch_1055.csv"
+
+# in_file_old = f"{pref}2023_full_responses_imputed_25-01-28_v1030_develop.csv"
+# in_file_new = f"{pref}2023_full_responses_imputed_25-01-28_v1029_branch_1055.csv"
+
 
 # Output folder and file
 out_fol = root_path
-out_file = "imputation_qa_check_branch_1055.csv"
+out_file = f"{survey}_imputation_qa_check_branch_1055.csv"
 
 # %% columns to select
 key_cols = ["reference", "instance"]
@@ -42,8 +46,10 @@ value_cols = ["202",
 
 catagoricol_cols = ["imp_marker",
                     "imp_class",
-                    "imp_class_prev",
-                    "imp_marker_prev"]
+                    "601",
+                    "604",
+]
+
 
 tolerance = 0.01
 # %% Read files
@@ -102,5 +108,3 @@ print(f"New 211 imputed sum: {new_211_imputed_sum}")
 
 # %% Save output
 df.to_csv(out_fol + out_file, index=False)
-
-# %%

@@ -585,6 +585,10 @@ def imputation_prep(df: pd.DataFrame, config: dict):
     Returns:
         pd.DataFrame: dataframe with extra columns added and data issues fixed.
     """
+    # Create an 'instance' of value 1 for non-responders and refs with 'No R&D'
+    df = instance_fix(df)
+    df, wrong_604_qa_df = create_r_and_d_instance(df)
+
     # Add a column for imputation marker
     df = imputation_marker(df)
 
@@ -603,9 +607,5 @@ def imputation_prep(df: pd.DataFrame, config: dict):
     # Create new columns to hold the imputed values
     for col in to_impute_cols:
         df[f"{col}_imputed"] = df[col]
-
-    # Create an 'instance' of value 1 for non-responders and refs with 'No R&D'
-    df = instance_fix(df)
-    df, wrong_604_qa_df = create_r_and_d_instance(df)
 
     return df, wrong_604_qa_df
