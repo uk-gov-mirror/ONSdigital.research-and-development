@@ -40,6 +40,35 @@ def calc_lower_n(df: pd.DataFrame, exp_col: str = "709") -> dict:
     return n
 
 
+def calc_lower_e(df: pd.DataFrame, emp_col: str = "711") -> dict:
+    """Calculates 'e' which is a sum of
+    IDBR employment data in the filtered dataset.
+
+    Args:
+        df (pd.DatatFrame): The input dataframe which contains survey data,
+            including IDBR employment data.
+        emp_col (str): An appropriate column to store sum employment data.
+    Returns:
+        int: The sum of IDBR employment of sampled data within each cell.
+    """
+
+    # Check if any of the key cols are missing
+    # cols = set(df.columns)
+    # TO DO: Check columns are present and valid responses
+    # 711 = Total Full Time Equivalent
+
+    # Get unique references
+    unique_refs = df["reference"].unique()
+
+    # Group by cellnumber
+    unique_refs = unique_refs.groupby("cellnumber")
+
+    # Sum employment for each cell
+    e = unique_refs["cellnumber"]["employment"].sum()
+
+    return e
+
+
 def calculate_weighting_factor(
     df: pd.DataFrame, exp_col: str = "709"
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
