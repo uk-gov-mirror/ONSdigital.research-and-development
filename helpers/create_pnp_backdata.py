@@ -42,6 +42,21 @@ config = config_setup(
 )
 
 
+def get_numcols(config):
+    """ Function to get the columns that start with 2xx or 3xx.
+
+    Args:
+        config (dict): The configuration dictionary.
+
+    Return:
+        numcols (list): The list of columns that start with 2xx or 3xx.
+    """
+    numcols = config["breakdowns"]["211"] + config["breakdowns"]["305"] + ["211", "305"]
+    numcols += ["209_ex_208", "214_ex_303", "214_ex_327", '249_ex_319', '249_ex_323']
+
+    return numcols
+
+
 def convert_column_datatypes(df):
     """ Function to convert the column datatypes of a dataframe if they appear
     within backdata_schema.toml.
@@ -328,7 +343,7 @@ def clean_postcodes(df):
 def multiply_by_1000(df, config):
     """Values in columns starting 2xx or 3xx are multiplied by 1000."""
     # a list of columns to be updated
-    numcols = config["breakdowns"]["211"] + config["breakdowns"]["305"] + ["211", "305"]
+    numcols = get_numcols(config)
     cols = [c for c in numcols if c in df.columns]
 
     for col in cols:
@@ -352,9 +367,7 @@ def populate_instance_1_columns(df, config):
         df (pd.DataFrame): The dataframe with the populated instance 1 columns.
     """
     # a list of columns to be updated
-    numcols = config["breakdowns"]["211"] + config["breakdowns"]["305"] + ["211", "305"]
-
-    numcols += ["209_ex_208", "214_ex_303", "214_ex_327", "249_ex_319", "249_ex_323"]
+    numcols = get_numcols(config)
     cols = [c for c in numcols if c in df.columns]
 
     # the rows which contain the data use for the updates
@@ -760,7 +773,7 @@ def main():
     rd_write_csv(
         os.path.join(
             backdata_out_path,
-            "PNP_2021_backdata_summation_fixes.csv"),
+            "PNP_2021_backdata_final.csv"),
         pnp_backdata_df
     )
 
