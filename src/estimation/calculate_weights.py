@@ -21,7 +21,7 @@ def calc_lower_n(df: pd.DataFrame, exp_col: str = "709") -> dict:
     unique RU references in the filtered dataset.
 
     Args:
-        df (pd.DatatFrame): The input dataframe which contains survey data,
+        df (pd.DataFrame): The input dataframe which contains survey data,
             including expenditure data
         exp_col (str): An appropriate column to count n
 
@@ -51,20 +51,14 @@ def calc_lower_e(df: pd.DataFrame, emp_col: str = "711") -> dict:
     Returns:
         int: The sum of IDBR employment of sampled data within each cell.
     """
-
     # Check if any of the key cols are missing
-    # cols = set(df.columns)
-    # TO DO: Check columns are present and valid responses
-    # 711 = Total Full Time Equivalent
+    cols = set(df.columns)
+    required_cols = ["reference", "cellnumber", emp_col]
+    if not all(col in cols for col in required_cols):
+        raise ValueError(" One or more of the required columns are missing.")
 
-    # Get unique references
-    unique_refs = df["reference"].unique()
-
-    # Group by cellnumber
-    unique_refs = unique_refs.groupby("cellnumber")
-
-    # Sum employment for each cell
-    e = unique_refs["cellnumber"]["employment"].sum()
+    # Sum employment for each cellnumber
+    e = df.groupby("cellnumber")[emp_col].sum()
 
     return e
 
