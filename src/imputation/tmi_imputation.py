@@ -450,6 +450,8 @@ def run_tmi(
         )
         full_df = hlp.concat_with_bool([longform_tmi_df, excluded_df])
         full_qa_df = qa_df_long
+        # add extra cols to compenste for the missing short form columns in PNP
+        full_qa_df[[["emp_total_trim", "headcount_total_trim"]]] = False
 
     full_df = full_df.sort_values(
         ["reference", "instance"], ascending=[True, True]
