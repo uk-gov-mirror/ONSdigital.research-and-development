@@ -9,6 +9,7 @@ def get_amendments(
     frozen_csv: pd.DataFrame,
     updated_snapshot: pd.DataFrame,
     FreezingLogger: logging.Logger,
+    config: dict,
 ) -> pd.DataFrame:
     """Get amended records from updated snapshot.
 
@@ -28,69 +29,9 @@ def get_amendments(
         "Looking for records that have changed in the updated snapshot."
     )
     key_cols = ["reference", "period", "instance"]
-    numeric_cols = [
-        "202",
-        "203",
-        "204",
-        "205",
-        "206",
-        "207",
-        "209",
-        "210",
-        "211",
-        "212",
-        "214",
-        "216",
-        "218",
-        "219",
-        "220",
-        "221",
-        "222",
-        "223",
-        "225",
-        "226",
-        "227",
-        "228",
-        "229",
-        "237",
-        "242",
-        "243",
-        "244",
-        "245",
-        "246",
-        "247",
-        "248",
-        "249",
-        "250",
-        "405",
-        "406",
-        "407",
-        "408",
-        "409",
-        "410",
-        "411",
-        "412",
-        "501",
-        "502",
-        "503",
-        "504",
-        "505",
-        "506",
-        "507",
-        "508",
-        "602",
-        "701",
-        "702",
-        "703",
-        "704",
-        "705",
-        "706",
-        "707",
-        "709",
-        "711",
-    ]
+    numeric_cols = config["freezing_columns_to_check"]["numeric_columns"]
 
-    non_numeric_cols = ["200", "201", "601", "604"]
+    non_numeric_cols = config["freezing_columns_to_check"]["non_numeric_columns"]
     # numeric_cols_new = [f"{i}_updated" for i in numeric_cols]
     numeric_cols_diff = [f"{i}_diff" for i in numeric_cols]
     # non_numeric_cols_new = [f"{i}_updated" for i in non_numeric_cols]
