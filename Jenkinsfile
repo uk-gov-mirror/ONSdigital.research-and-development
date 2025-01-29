@@ -1,16 +1,16 @@
 #!groovy
 
 // Global scope required for multi-stage persistence
-def artifactoryStr = 'art-p-01'
+def artifactoryStr = 'onsart-01'
 artServer = Artifactory.server "${artifactoryStr}"
 buildInfo = Artifactory.newBuildInfo()
 def agentPython3Version = 'python_3.10'
 def artifactVersion
 
 // Define a function to push packaged code to Artifactory
-def pushToPyPiArtifactoryRepo_temp(String projectName, String version, String sourceDistLocation = 'python/dist/*', String artifactoryHost = 'art-p-01') {
+def pushToPyPiArtifactoryRepo_temp(String projectName, String version, String sourceDistLocation = 'python/dist/*', String artifactoryHost = 'onsart-01.ons.statistics.gov.uk') {
     withCredentials([usernamePassword(credentialsId: env.ARTIFACTORY_CREDS, usernameVariable: 'ARTIFACTORY_USER', passwordVariable: 'ARTIFACTORY_PASSWORD')]){
-        sh "curl -u ${ARTIFACTORY_USER}:\${ARTIFACTORY_PASSWORD} -T ${sourceDistLocation} 'http://${artifactoryHost}/artifactory/${env.ARTIFACTORY_PYPI_REPO}/${projectName}/'"
+        sh "curl -u ${ARTIFACTORY_USER}:\${ARTIFACTORY_PASSWORD} -T ${sourceDistLocation} 'https://${artifactoryHost}/artifactory/${env.ARTIFACTORY_PYPI_REPO}/${projectName}/'"
     }
 }
 

@@ -83,14 +83,14 @@ def all_data_construction(  # noqa: C901
     updated_snapshot_df = snapshot_df.copy()
 
     # Add flags to indicate whether a row was constructed or should be imputed
-    updated_snapshot_df["is_constructed"] = False
-    updated_snapshot_df["force_imputation"] = False
-    construction_df["is_constructed"] = True
+    updated_snapshot_df.loc[:, "is_constructed"] = False
+    updated_snapshot_df.loc[:, "force_imputation"] = False
+    construction_df.loc[:, "is_constructed"] = True
     if "force_imputation" not in construction_df.columns:
-        construction_df["force_imputation"] = False
+        construction_df.loc[:, "force_imputation"] = False
     else:
-        construction_df["force_imputation"] = construction_df[
-            "force_imputation"
+        construction_df.loc[:, "force_imputation"] = construction_df.loc[
+            :, "force_imputation"
         ].fillna(False)
 
     # Run GB specific actions

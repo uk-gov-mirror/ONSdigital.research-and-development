@@ -7,8 +7,8 @@ survey:
 global:
   # Staging and validation settings
   postcode_csv_check: True
-  load_ni_data: False
   use_backdata: True
+  load_ni_data: False
   # Pipeline run type
   run_with_snapshot: True                         # Run until point of freezing
   run_with_snapshot_and_freeze: False             # Last run with frozen snapshot - produces frozen csv
@@ -29,7 +29,7 @@ global:
   output_ni_full_responses: False
   output_mapping_qa: False
   output_mapping_ni_qa: False
-  output_imputation_qa: False
+  output_imputation_qa: True
   output_auto_outliers: False
   output_outlier_qa : False
   output_estimation_qa: False

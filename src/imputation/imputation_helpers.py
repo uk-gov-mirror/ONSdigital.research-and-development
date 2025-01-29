@@ -39,7 +39,7 @@ def create_imp_class_col(
     df: pd.DataFrame,
     column_list: List[str],
     class_name: str = "imp_class",
-    use_cellno: bool = True
+    use_cellno: bool = True,
 ) -> pd.DataFrame:
     """Creates a column for the imputation class.
 
@@ -65,8 +65,11 @@ def create_imp_class_col(
     if not all(col in df.columns for col in column_list):
         raise ValueError("column_list contains columns not in the dataframe")
 
+    # Ensure cols are treated as objects to handle mixed data types and missing values
+    df_copy = df[column_list].copy().astype(object).fillna("nan").astype(str)
+
     # create a new column with the concatenation of the columns in column_list with  "_"
-    df[class_name] = df[column_list].astype(str).agg("_".join, axis=1)
+    df[class_name] = df_copy.agg("_".join, axis=1)
 
     if use_cellno:
         df.loc[df.cellnumber == 817, class_name] = df[class_name] + "_817"
@@ -351,6 +354,37 @@ def split_df_on_imp_class(df: pd.DataFrame, exclusion_list: List = ["817", "nan"
     return filtered_df, excluded_df
 
 
+def apply_fill_zeros(df: pd.DataFrame, target_variables: list) -> pd.DataFrame:
+    """Applies the fill zeros function to clear longform responders.
+
+    A mask is created to identify clear responders, excluding instance zero rows,
+    but exclude "postcode only" rows.
+
+    Zeros are then filled for the target values based on this mask.
+
+    Args:
+        df (pd.DataFrame): The dataframe imputation is carried out on.
+        target_variables (List): A list of the target variables.
+
+    Returns:
+        pd.DataFrame: The same dataframe with required nulls filled with zeros.
+    """
+    # Condition to exclude rows conaining no data and only postcodes
+    excl_postcode_only_mask = ~(df["211"].isnull() & create_notnull_mask(df, "601"))
+
+    zerofill_mask = (
+        (df["formtype"] == "0001")
+        & (df["instance"] != 0)
+        & (df["status"].isin(["Clear", "Clear - overridden"]))
+        & excl_postcode_only_mask
+    )
+
+    for var in target_variables:
+        df.loc[zerofill_mask, var] = df.loc[zerofill_mask, var].fillna(0)
+
+    return df
+
+
 def fill_sf_zeros(df: pd.DataFrame) -> pd.DataFrame:
     """Fill nulls with zeros in short from numeric questions."""
     sf_questions = [str(q) for q in range(701, 712) if q != 708]
@@ -422,14 +456,11 @@ def breakdown_checks_after_imputation(df: pd.DataFrame) -> None:
     # the sum of the other cols should equal the total
 
 
-def tidy_imputation_dataframe(
-    df: pd.DataFrame, to_impute_cols: List, config
-) -> pd.DataFrame:
+def tidy_imputation_dataframe(df: pd.DataFrame, config) -> pd.DataFrame:
     """Update cols with imputed values and remove rows and columns no longer needed.
 
     Args:
         df (pd.DataFrame): The dataframe with imputed values.
-        to_impute_cols (List): The columns that were imputed.
         config (dict): The pipeline configuration settings.
 
     Returns:
@@ -437,6 +468,9 @@ def tidy_imputation_dataframe(
     """
     # Create mask for rows that have been imputed
     imputed_mask = df["imp_marker"].isin(["TMI", "CF", "MoR", "R"])
+
+    to_impute_cols = get_imputation_cols(config)
+
     # Update columns with imputed version
     for col in to_impute_cols:
         df.loc[imputed_mask, col] = df.loc[imputed_mask, f"{col}_imputed"]
@@ -505,3 +539,73 @@ def imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
     df.loc[~clear_responders_mask, "imp_marker"] = "no_imputation"
 
     return df
+
+
+def concat_with_bool(dfs: list[pd.DataFrame]) -> pd.DataFrame:
+    """Concatenate a list of dataframes and update boolean columns.
+
+    Args:
+        dfs (list[pd.DataFrame]): List of dataframes to concatenate.
+
+    Returns:
+        pd.DataFrame: The concatenated dataframe with updated boolean columns.
+    """
+    bool_columns = [
+        "manual_trim",
+        "empty_pgsic_group",
+        "empty_pg_group",
+        "305_trim",
+        "211_trim",
+    ]
+
+    # Convert columns to boolean type in all dataframes if they exist
+    for df in dfs:
+        for col in bool_columns:
+            if col in df.columns:
+                df[col] = df[col].fillna(False).astype(bool)
+
+    # Concatenate the DataFrames
+    concatenated_df = pd.concat(dfs, ignore_index=True)
+
+    # Ensure the boolean columns retain their type in the concatenated DataFrame
+    for col in bool_columns:
+        if col in concatenated_df.columns:
+            concatenated_df[col] = concatenated_df[col].fillna(False).astype(bool)
+
+    return concatenated_df
+
+
+def imputation_prep(df: pd.DataFrame, config: dict):
+    """Create extra columns for imputation and fix 604 data issue.
+
+    Args:
+        df (pd.DataFrame): the main dataset to prepare for imputation
+        config (dict): the configuration settings.
+
+    Returns:
+        pd.DataFrame: dataframe with extra columns added and data issues fixed.
+    """
+    # Create an 'instance' of value 1 for non-responders and refs with 'No R&D'
+    df = instance_fix(df)
+    df, wrong_604_qa_df = create_r_and_d_instance(df)
+
+    # Add a column for imputation marker
+    df = imputation_marker(df)
+
+    # Create imp_class column
+    if config["survey"]["survey_type"] == "BERD":
+        df = create_imp_class_col(df, ["200", "201"])
+    elif config["survey"]["survey_type"] == "PNP":
+        df = create_imp_class_col(df, ["area"], use_cellno=False)
+
+    # Get a list of all the target values and breakdown columns from the config
+    to_impute_cols = get_imputation_cols(config)
+
+    # fill zeros
+    df = apply_fill_zeros(df, to_impute_cols)
+
+    # Create new columns to hold the imputed values
+    for col in to_impute_cols:
+        df[f"{col}_imputed"] = df[col]
+
+    return df, wrong_604_qa_df
