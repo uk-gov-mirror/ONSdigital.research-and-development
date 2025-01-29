@@ -53,6 +53,16 @@ def run_mapping(
         MappingMainLogger,
         rd_file_exists,
         rd_read_csv,
+        validate_cols=[
+            "LAD20CD",
+            "LAD20NM",
+            "LAU121CD",
+            "LAU121NM",
+            "ITL221CD",
+            "ITL221NM",
+            "ITL121CD",
+            "ITL121NM",
+        ],
     )
 
     # Loading cell number coverage

@@ -19,26 +19,15 @@ def mapper_null_checks(
             If None, all columns are validated.
     Raises:
         ValueError: If any unexpected null values are found in the mapper DataFrame.
-        Warning: If any expected null values are found in the mapper DataFrame.
 
     """
-    # Columns with expected null values
-    exp_null_values = ["ITL321NM", "ITL321CD"]
-
     if validate_cols is None:
         validate_cols = mapper_df.columns.tolist()
     # Check for NULL values of all columns in the list
     for col in validate_cols:
         if mapper_df[col].isnull().any():
-            # If the column is in the expected null values list
-            if col in exp_null_values:
-                # Print a warning message
-                print(f"{mapper_name} contains expected null values in {col}.")
-            else:
-                # Raise an error
-                raise ValueError(
-                    f"{mapper_name} contains unexpected null values in {col}."
-                )
+            # Raise an error
+            raise ValueError(f"{mapper_name} contains unexpected null values in {col}.")
 
 
 def join_with_null_check(
