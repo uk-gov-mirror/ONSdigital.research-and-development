@@ -19,7 +19,7 @@ def mapper_null_checks(
             If None, all columns are validated.
     Raises:
         ValueError: If any unexpected null values are found in the mapper DataFrame.
-        Warning: If any null values are found in the mapper DataFrame.
+        Warning: If any expected null values are found in the mapper DataFrame.
 
     """
     # Columns with expected null values
