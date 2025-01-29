@@ -3,6 +3,7 @@ import os
 import pandas as pd
 from typing import Callable, Tuple
 from src.utils.helpers import filename_amender
+from src.utils.breakdown_validation import get_equality_dicts
 
 
 def get_amendments(
@@ -29,9 +30,16 @@ def get_amendments(
         "Looking for records that have changed in the updated snapshot."
     )
     key_cols = ["reference", "period", "instance"]
-    numeric_cols = config["freezing_columns_to_check"]["numeric_columns"]
 
-    non_numeric_cols = config["freezing_columns_to_check"]["non_numeric_columns"]
+    columns_to_check = sum(list(get_equality_dicts(config, sublist=None).values()), [])
+
+    numeric_cols = list(set(columns_to_check) - set(["200", "201", "601", "604"]))
+
+    non_numeric_cols = []
+    for col_name in ["200", "201", "601", "604"]:
+        if col_name in columns_to_check:
+            non_numeric_cols.append(col_name)
+
     # numeric_cols_new = [f"{i}_updated" for i in numeric_cols]
     numeric_cols_diff = [f"{i}_diff" for i in numeric_cols]
     # non_numeric_cols_new = [f"{i}_updated" for i in non_numeric_cols]
@@ -251,7 +259,7 @@ def run_comparison(
         frozen_data_for_comparison, updated_snapshot, FreezingLogger
     )
     amendments_df = get_amendments(
-        frozen_data_for_comparison, updated_snapshot, FreezingLogger
+        frozen_data_for_comparison, updated_snapshot, FreezingLogger, config
     )
     additions_df, amendments_df = bring_together_split_cases(
         additions_df, amendments_df, FreezingLogger
