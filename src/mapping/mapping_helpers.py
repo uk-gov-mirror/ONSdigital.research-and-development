@@ -7,18 +7,22 @@ MappingLogger = logging.getLogger(__name__)
 
 
 def mapper_null_checks(
-    mapper_df: pd.DataFrame, mapper_name: str, validate_cols: list = None
+    mapper_df: pd.DataFrame,
+    mapper_name: str,
+    validate_cols: list = None,
+    warn: bool = False,
 ) -> None:
-    """
-    Perform null checks on selected columns of a mapper DataFrame.
+    """Perform null checks on selected columns of a mapper DataFrame.
 
     Args:
         mapper_df (pd.DataFrame): The mapper DataFrame to check.
         mapper_name (str): The name of the mapper being validated.
         validate_cols (list, optional): List of columns to validate.
             If None, all columns are validated.
+        warn (bool, optional): Whether to warn instead of raising an error.
     Raises:
-        ValueError: If any unexpected null values are found in the mapper DataFrame.
+        ValueError: If any unexpected null values are found in the mapper DataFrame and
+        warn bool is false.
 
     """
     if validate_cols is None:
@@ -26,8 +30,16 @@ def mapper_null_checks(
     # Check for NULL values of all columns in the list
     for col in validate_cols:
         if mapper_df[col].isnull().any():
-            # Raise an error
-            raise ValueError(f"{mapper_name} contains unexpected null values in {col}.")
+            if not mapper_df.empty:
+                msg = (
+                    f"{mapper_name} contains unexpected null values in {col}."
+                    f"The following {col} values are not in the {mapper_name} mapper: "
+                    f"{mapper_df[col].unique()}"
+                )
+                if warn:
+                    MappingLogger.warning(msg)
+                else:
+                    raise ValueError(msg)
 
 
 def join_with_null_check(
