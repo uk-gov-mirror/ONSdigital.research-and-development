@@ -1,6 +1,7 @@
 import pandas as pd
+import numpy as np
 import logging
-from typing import Tuple
+from typing import Tuple, Dict
 
 
 CalcWeights_Logger = logging.getLogger(__name__)
@@ -38,6 +39,36 @@ def calc_lower_n(df: pd.DataFrame, exp_col: str = "709") -> dict:
     n = df["reference"].nunique()
 
     return n
+
+
+def calc_lower_s(df: pd.DataFrame, config: Dict[str, float]) -> pd.DataFrame:
+    """Calculates 's' which identifies the number of outliers for a cell group
+
+    Args: df (pd.DataFrame): The input dataframe which contains survey data.
+         config (Dict[str, float]): The configuration settings.
+
+    Returns: pd.DataFrame: The dataframe with the outliers identified.
+
+    """
+    df = df.copy()
+
+    # Retrieve percent from config upper_clip outlier threshold.
+
+    outlier_thresh = config.get("global", {}).get("upper_clip")
+    # Check if there is a value in the config.
+    if outlier_thresh is None:
+        raise KeyError("The config must include 'upper_clip' threshold.")
+
+    # Multiply valid entries by upper_clip config setting.
+
+    df["outlier"] = df["employment"] * outlier_thresh
+
+    # Round up anything equal to or greater than 0.5, anything else round down.
+    df["outlier"] = np.where(
+        df["outlier"] >= 0.5, np.ceil(df["outlier"]), np.floor(df["outlier"])
+    )
+
+    return df
 
 
 def calculate_weighting_factor(
