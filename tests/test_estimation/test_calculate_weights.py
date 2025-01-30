@@ -221,7 +221,7 @@ class TestCalcLowerE:
            calw.calc_lower_e(input_df, emp_col)
 
 class TestCalcLowerEEmpNan:
-    """Test for calc_lower_n with nan in reference."""
+    """Test for calc_lower_e with nan in reference."""
 
     def create_input_df(self):
         """Creates input df for test"""
