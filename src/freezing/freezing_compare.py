@@ -34,7 +34,7 @@ def get_amendments(
 
     mixed_cols = sum(list(get_equality_dicts(config, sublist="freezing").values()), [])
     # List of items to remove
-    items_to_remove = ["708", "710"]
+    items_to_remove = ["708"]
     # Remove the specified items from mixed_cols
     numeric_cols = [item for item in mixed_cols if item not in items_to_remove]
 
