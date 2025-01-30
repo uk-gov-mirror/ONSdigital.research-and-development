@@ -39,13 +39,13 @@ class TestGetAmendments:
     # Create test frozen df
     def create_test_frozen_df(self) -> pd.DataFrame:
         """Create a test frozen df."""
-        input_cols = ["reference", "period", "instance", "203", "202", "200", "601"]
+        input_cols = ["reference", "period", "instance", "203", "202", "200", "601", "604"]
         data = [
-            ["A", 202412, 2.0, 1.0, 2.0, "A", None],
-            ["B", 202412, None, None, 1.0, "B", "C"],
-            ["C", 202412, 0.0, 1.0, 2.0, "A", "B"],
-            ["D", 202412, 1.0, 2.0, 3.0, "C", "D"],
-            ["E", 202412, None, 4.0, 5.0, "E", "F"],
+            ["A", 202412, 2.0, 1.0, 2.0, "A", None, "Yes"],
+            ["B", 202412, None, None, 1.0, "B", "C", "Yes"],
+            ["C", 202412, 0.0, 1.0, 2.0, "A", "B", "Yes"],
+            ["D", 202412, 1.0, 2.0, 3.0, "C", "D", "Yes"],
+            ["E", 202412, None, 4.0, 5.0, "E", "F", "No"],
         ]
         input_frozen_df = pd.DataFrame(data=data, columns=input_cols)
         input_frozen_df = self.add_numeric_cols(input_frozen_df)
@@ -54,13 +54,13 @@ class TestGetAmendments:
     # Create test amendments df
     def create_test_amendments_df(self) -> pd.DataFrame:
         """Create a test amendments df."""
-        input_cols = ["reference", "period", "instance", "203", "202", "200", "601"]
+        input_cols = ["reference", "period", "instance", "203", "202", "200", "601", "604"]
         data = [
-            ["A", 202412, 2.0, 1.0, 2.0, "A", None], # No diffs
-            ["B", 202412, None, None, 1.0, "A", "B"], # 200 diff "A"
-            ["C", 202412, 0.0, 2.0, 2.0, "A", "B"], # 201 diff by 1
-            ["D", 202412, 1.0, 2.0, 3.0, "E", "D"],  # 200 & 601 diff "E", "D"
-            ["E", 202412, None, 10.0, 1.0, "E", "F"], # 201 & 202 by 6, -4
+            ["A", 202412, 2.0, 1.0, 2.0, "A", None, "Yes"], # No diffs
+            ["B", 202412, None, None, 1.0, "A", "B", "Yes"], # 200 diff "A"
+            ["C", 202412, 0.0, 2.0, 2.0, "A", "B", "No"], # 201 diff by 1
+            ["D", 202412, 1.0, 2.0, 3.0, "E", "D", "Yes"],  # 200 & 601 diff "E", "D"
+            ["E", 202412, None, 10.0, 1.0, "E", "F", "Yes"], # 201 & 202 by 6, -4
         ]
         input_amendments_df = pd.DataFrame(data=data, columns=input_cols)
         input_amendments_df = self.add_numeric_cols(input_amendments_df)
@@ -69,13 +69,13 @@ class TestGetAmendments:
     # Create expected outcome df
     def create_test_expected_outcome_df(self) -> pd.DataFrame:
         """Create a test expected_outcome df."""
-        input_cols = ["reference", "period", "instance", "203", "202", "200", "601", "203_diff", "202_diff", "200_diff", "601_diff", "accept_changes"]
+        input_cols = ["reference", "period", "instance", "203", "202", "200", "601", "604", "203_diff", "202_diff", "200_diff", "601_diff", "604_diff", "accept_changes"]
         data = [
-            ["A", 202412, 2.0, 1.0, 2.0, "A", None, 0.0, 0.0, None, None, False],
-            ["B", 202412, None, None, 1.0, "A", "B", None, 0.0, "A", "B", False],
-            ["C", 202412, 0.0, 2.0, 2.0, "A", "B", 1.0, 0.0, None, None, False],
-            ["D", 202412, 1.0, 2.0, 3.0, "E", "D", 0.0, 0.0, "E", None, False],
-            ["E", 202412, None, 10.0, 1.0, "E", "F", 6.0, -4.0, None, None, False],
+            ["A", 202412, 2.0, 1.0, 2.0, "A", None, "Yes", 0.0, 0.0, None, None, None, False],
+            ["B", 202412, None, None, 1.0, "A", "B", "Yes", None, 0.0, "A", "B", None, False],
+            ["C", 202412, 0.0, 2.0, 2.0, "A", "B", "No", 1.0, 0.0, None, None, "No", False],
+            ["D", 202412, 1.0, 2.0, 3.0, "E", "D", "Yes", 0.0, 0.0, "E", None, None, False],
+            ["E", 202412, None, 10.0, 1.0, "E", "F", "Yes", 6.0, -4.0, None, None, "Yes", False],
         ]
         input_expected_outcome_df = pd.DataFrame(data=data, columns=input_cols)
         input_expected_outcome_df = self.add_numeric_cols(
@@ -87,9 +87,42 @@ class TestGetAmendments:
     # Create config for test
     def create_config(self) -> dict:
         """Create a test config."""
-        config = {"freezing_comparison": {
-            "non_numeric_columns": ["200", "601"],
-            "numeric_columns": ["202", "203"]}}
+        config = {
+            "consistency_checks": {
+                "2xx_totals": {
+                    "purchases_split": [],
+                    "sal_oth_expend": ["203"],
+                    "research_expend": [],
+                    "capex": [],
+                    "intram": [],
+                    "funding": [],
+                    "ownership": [],
+                    "equality": [],
+                    "expenditure": []
+                },
+                "3xx_totals": {
+                    "purchases": []
+                },
+                "4xx_totals": {
+                    "emp_civil": [],
+                    "emp_defence": []
+                },
+                "5xx_totals": {
+                    "hc_res_m": [],
+                    "hc_res_f": []
+                },
+                "6xx_totals": {
+                    "business_tot_in_workplace": []
+                },
+                "7xx_totals": {
+                    "sf_expend": [],
+                    "sf_purchases": [],
+                    "sf_fte": [],
+                    "sf_headcount": []
+                }
+            }
+        }
+
         return config
 
     def test_get_amendments(self):
