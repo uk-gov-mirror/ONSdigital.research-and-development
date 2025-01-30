@@ -10,7 +10,7 @@ from pandas.testing import assert_frame_equal
 
 # Local Imports
 from src.imputation.MoR import run_mor, is_lf_only
-from src.imputation.imputation_helpers import get_imputation_cols
+from src.imputation.imputation_helpers import get_imputation_cols, create_imp_class_col
 
 # pytestmark = pytest.mark.runwip
 
@@ -53,6 +53,7 @@ class TestRunMoRLongForm(object):
         df = pd.read_csv(fpath)
         df = df.astype({"reference": "Int64", "instance": "Int64"})
         df["referencepostcode"] = pd.NA
+        df = create_imp_class_col(df, ["200", "201"])
         return df
 
     @pytest.fixture(scope="function")
@@ -85,7 +86,6 @@ class TestRunMoRLongForm(object):
         result_df, qa = run_mor(
             df=input_lf_mor_df,
             backdata=dummy_lf_mor_backdata,
-            impute_vars=impute_vars,
             config=imputation_config
         )
         # select only the required columns for the result and the expected output
@@ -117,6 +117,7 @@ class TestRunMoRShortForm(object):
         df = pd.read_csv(fpath)
         df = df.astype({"reference": "Int64", "instance": "Int64"})
         df["referencepostcode"] = pd.NA
+        df = create_imp_class_col(df, ["200", "201"])
         return df
 
     @pytest.fixture(scope="function")
@@ -149,7 +150,6 @@ class TestRunMoRShortForm(object):
         result_df, qa = run_mor(
             df=input_sf_mor_df,
             backdata=sf_mor_backdata,
-            impute_vars=impute_vars,
             config=imputation_config
         )
         # select only the required columns for the result and the expected output

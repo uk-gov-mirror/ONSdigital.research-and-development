@@ -4,7 +4,7 @@ import itertools
 import re
 import pandas as pd
 
-from src.imputation.imputation_helpers import create_imp_class_col
+from src.imputation.imputation_helpers import get_imputation_cols, create_imp_class_col
 from src.imputation.tmi_imputation import trim_bounds
 from src.staging.postcode_validation import format_postcodes
 from src.construction.construction_helpers import convert_formtype
@@ -51,13 +51,6 @@ def mor_preprocessing(df, backdata, config):
         pd.DataFrame: DataFrame of remaining records not to be imputed
         pd.DataFrame: DataFrame of backdata records to use for impuation
     """
-    # Create imp_class column
-    if config["survey"]["survey_type"] == "BERD":
-        df = create_imp_class_col(df, ["200", "201"])
-    elif config["survey"]["survey_type"] == "PNP":
-        df = create_imp_class_col(
-            df, ["area"], use_cellno=False
-        )
 
     # ensure the "formtype" column is in the correct format
     df["formtype"] = df["formtype"].apply(convert_formtype)
@@ -457,7 +450,7 @@ def calculate_mor(cf_df, remainder_df, backdata, config, formtype):
     return imputed_df, links_df
 
 
-def run_mor(df, backdata, impute_vars, config):
+def run_mor(df, backdata, config):
     """Function to implement Mean of Ratios method.
 
     This is implemented by first carrying forward data from last year
@@ -467,14 +460,16 @@ def run_mor(df, backdata, impute_vars, config):
     Args:
         df (pd.DataFrame): Processed full responses DataFrame
         backdata (pd.DataFrame): One period of backdata.
-        impute_vars ([string]): List of variables to impute.
+        config: pipeline config settings.
 
     Returns:
         pd.DataFrame: df with MoR applied.
         pd.DataFrame: QA DataFrame showing how imputation links are calculated.
     """
-
     to_impute_df, remainder_df, backdata = mor_preprocessing(df, backdata, config)
+
+    # get list of columns to be imputed
+    impute_vars = get_imputation_cols(config)
 
     # Carry forwards method
     carried_forwards_df = carry_forwards(to_impute_df, backdata, impute_vars, config)
