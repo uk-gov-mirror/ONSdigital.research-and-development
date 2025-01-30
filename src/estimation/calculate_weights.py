@@ -54,7 +54,7 @@ def calc_lower_e(df: pd.DataFrame, emp_col: str = "711") -> dict:
     # Check if any of the key cols are missing
     cols = set(df.columns)
     if not ("employment" in cols) & (emp_col in cols):
-        raise ValueError(f"'reference' or {emp_col} missing.")
+        raise ValueError(f"employment' or {emp_col} missing.")
 
     # Sum employment for each cellnumber
     e = df["employment"].sum()

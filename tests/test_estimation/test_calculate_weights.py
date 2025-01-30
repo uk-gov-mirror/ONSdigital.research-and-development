@@ -156,6 +156,105 @@ class TestCalcLowerNRefNan:
 
         assert actual_result == expected_result, "calc_lower_n not behaving as expected"
 
+class TestCalcLowerE:
+ def create_input_df(self):
+        """Creates input df for test"""
+        input_cols = [
+            "employment",
+            "711",
+        ]
+        data = [
+            [1, 14],
+            [2, 14],
+            [2, 14],
+            [4, 14],
+            [1, 14],
+            [4, np.nan]
+        ]
+        input_df = pd.DataFrame(data=data, columns=input_cols)
+        return input_df
+
+ def test_calc_lower_e(self):
+    """Test for calc_lower_e with nan."""
+    input_df = self.create_input_df()
+    # Call calc_lower_e function
+    actual_result = calw.calc_lower_e(input_df)
+    # Defined expected result
+    expected_result = 14
+    assert actual_result == expected_result, "calc_lower_e is behaving as expected"
+
+ class TestCalcLowerEMissingCol:
+    """Test for calc_lower_e with missing col"""
+
+    def create_input_df(self, cols, msg, emp_col):
+        """Creates input df for test"""
+        cols = [
+            "employment",
+            "711",
+        ]
+        data = [
+            [1, 14],
+            [2, 14],
+            [2, 14],
+            [4, 14],
+            [1, 14],
+            [4, 14]
+        ]
+        input_df = pd.DataFrame(data=data, columns=cols)
+        return input_df, cols, msg, emp_col
+
+    @pytest.mark.parametrize(
+        "cols, msg, emp_col",
+        [
+            (["employment", "711"], f"employment' or 711 missing.", "711"),
+        ],
+    )
+    def test_calc_lower_e_missing_col(self, cols, msg, emp_col):
+        """Test for calc_lower_e with missing col"""
+        input_df, cols, msg, emp_col = self.create_input_df(cols, msg, emp_col)
+
+        # Remove a required column to trigger an error
+        input_df = input_df.drop(columns=[emp_col])
+
+        # Apply function to see if error is raised
+        with pytest.raises(ValueError, match = msg):
+           calw.calc_lower_e(input_df, emp_col)
+
+class TestCalcLowerEEmpNan:
+    """Test for calc_lower_n with nan in reference."""
+
+    def create_input_df(self):
+        """Creates input df for test"""
+        input_cols = [
+            "employment",
+            "711",
+        ]
+
+        data = [
+            [1, 14],
+            [2, 14],
+            [2, 14],
+            [np.nan, 14],
+            [1, 14],
+            [4, 14]
+        ]
+
+        input_df = pd.DataFrame(data=data, columns=input_cols)
+        return input_df
+
+    def test_calc_lower_e_nan_ref(self):
+        """Test for calc_lower_e with nan in employment."""
+
+        input_df = self.create_input_df()
+
+        # Call calc_lower_e function
+        actual_result = calw.calc_lower_e(input_df)
+
+        # Defined expected result
+        expected_result = 10
+
+        assert actual_result == expected_result, "calc_lower_e not behaving as expected"
+
 
 # Five tests for calculate_weighting_factor:
 # testing calculate_weighting_factor where missing outlier col
