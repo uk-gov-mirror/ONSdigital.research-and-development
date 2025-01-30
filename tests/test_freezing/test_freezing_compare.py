@@ -56,11 +56,11 @@ class TestGetAmendments:
         """Create a test amendments df."""
         input_cols = ["reference", "period", "instance", "203", "202", "200", "601", "604"]
         data = [
-            ["A", 202412, 2.0, 1.0, 2.0, "A", None, "Yes"], # No diffs
+            ["A", 202412, 2.0, 1.0, 2.0, "A", None, "Yes"], # No diffs, ==
             ["B", 202412, None, None, 1.0, "A", "B", "Yes"], # 200 diff "A"
-            ["C", 202412, 0.0, 2.0, 2.0, "A", "B", "No"], # 201 diff by 1
+            ["C", 202412, 0.0, 2.0, 2.0, "A", "B", "No"], # 201 diff by 1, 604 to "No"
             ["D", 202412, 1.0, 2.0, 3.0, "E", "D", "Yes"],  # 200 & 601 diff "E", "D"
-            ["E", 202412, None, 10.0, 1.0, "E", "F", "Yes"], # 201 & 202 by 6, -4
+            ["E", 202412, None, 10.0, 1.0, "E", "F", "Yes"], # 201 & 202 by 6, -4, , 604 to "Yes"
         ]
         input_amendments_df = pd.DataFrame(data=data, columns=input_cols)
         input_amendments_df = self.add_numeric_cols(input_amendments_df)
