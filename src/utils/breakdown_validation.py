@@ -188,6 +188,9 @@ def get_breakdown_errors(df: pd.DataFrame, to_check: dict) -> pd.DataFrame:
     wanted_refs = []  # a list of references that have errors
     cols = []  # a list of columns that have errors
 
+    # Filter out items from to_check that only have a single value
+    to_check = {key: value for key, value in to_check.items() if len(value) > 1}
+
     check_results_dict = {}
     for key, columns in to_check.items():
         total_column = columns[-1]
