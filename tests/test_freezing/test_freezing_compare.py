@@ -10,13 +10,14 @@ from src.freezing.freezing_compare import bring_together_split_cases
 # create a test logger to pass to functions
 test_logger = logging.getLogger(__name__)
 
+
 class TestGetAmendments:
     """Tests for get_amendments()."""
 
     def add_numeric_cols(
         self,
         df,
-        expected = False
+        expected=False
     ) -> pd.DataFrame:
         """Numerical columns for test dataframes."""
         numeric_cols = [
@@ -35,7 +36,6 @@ class TestGetAmendments:
                 df[f"{col}_diff"] = None
         return df
 
-
     # Create test frozen df
     def create_test_frozen_df(self) -> pd.DataFrame:
         """Create a test frozen df."""
@@ -50,7 +50,6 @@ class TestGetAmendments:
         input_frozen_df = pd.DataFrame(data=data, columns=input_cols)
         input_frozen_df = self.add_numeric_cols(input_frozen_df)
         return input_frozen_df
-
 
     # Create test amendments df
     def create_test_amendments_df(self) -> pd.DataFrame:
@@ -67,7 +66,6 @@ class TestGetAmendments:
         input_amendments_df = self.add_numeric_cols(input_amendments_df)
         return input_amendments_df
 
-
     # Create expected outcome df
     def create_test_expected_outcome_df(self) -> pd.DataFrame:
         """Create a test expected_outcome df."""
@@ -83,6 +81,35 @@ class TestGetAmendments:
         input_expected_outcome_df = self.add_numeric_cols(input_expected_outcome_df, expected = True)
         return input_expected_outcome_df
 
+    # Create config for test
+    def create_config(self) -> dict:
+        """Create a test config."""
+        config = {
+            "purchases_split": {"222", "223", "203"},
+            "sal_oth_expend": {"202", "203", "204"},
+            "research_expend": {"205", "206", "207", "204"},
+            "capex": {"219", "220", "209", "210"},
+            "intram": {"204", "210", "211"},
+            "funding": {'212', '214', '216', '242', '250', '243', '244', '245', '246', '247', '248', '249', '218'},
+            "ownership": {'225', '226', '227', '228', '229', '237', '218'},
+            "equality": {'211', '218'},
+            "expenditure": {"221"},
+            "type_r&d": {"200"},
+            "r&d_prod_code": {"201"},
+            "purchases": {'302', '303', '304', '305'},
+            "emp_civil": {'405', '407', '409', '411'},
+            "emp_defence": {'406', '408', '410', '412'},
+            "hc_res_m": {'501', '503', '505', '507'},
+            "hc_res_f": {'502', '504', '506', '508'},
+            "postcode": {'601'},
+            "business_tot_in_workplace": {"602"},
+            "r&d": {"604"},
+            "sf_expend": {"701", "702", "709"},
+            "sf_purchases": {"703", "704", "710"},
+            "sf_fte": {"706", "707", "711"},
+            "sf_headcount": {"705"}
+        }
+        return config
 
     def test_get_amendments(self):
         """Test for get_amendments()."""
@@ -90,10 +117,11 @@ class TestGetAmendments:
         input_frozen_df = self.create_test_frozen_df()
         input_amendments_df = self.create_test_amendments_df()
         expected_outcome_df = self.create_test_expected_outcome_df()
+        config = self.create_config()
 
         # Run the function
         result = get_amendments(
-            input_frozen_df, input_amendments_df, test_logger
+            input_frozen_df, input_amendments_df, test_logger, config
         )
 
         expected_outcome_df = expected_outcome_df[result.columns]
@@ -120,7 +148,6 @@ class TestGetAdditions:
         input_frozen_df = pd.DataFrame(data=data, columns=input_cols)
         return input_frozen_df
 
-
     # Create test additions df
     def create_test_additions_df(self) -> pd.DataFrame:
         """Create a test additions df."""
@@ -138,7 +165,6 @@ class TestGetAdditions:
         input_additions_df = pd.DataFrame(data=data, columns=input_cols)
         return input_additions_df
 
-
     # Create expected outcome df
     def create_test_expected_outcome_df(self) -> pd.DataFrame:
         """Create a test expected_outcome df."""
@@ -150,7 +176,6 @@ class TestGetAdditions:
         ]
         input_expected_outcome_df = pd.DataFrame(data=data, columns=input_cols)
         return input_expected_outcome_df
-
 
     def test_get_additions(self):
         """Test for get_additions()."""
