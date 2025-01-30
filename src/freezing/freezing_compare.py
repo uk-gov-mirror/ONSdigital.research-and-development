@@ -22,6 +22,7 @@ def get_amendments(
         updated_snapshot (pd.DataFrame): The staged and validated updated
             snapshot data.
         FreezingLogger (logging.Logger): The logger to log to.
+        config (dict): The pipeline configuration.
 
     Returns:
         amendments_df (pd.DataFrame): The records that have changed.
@@ -31,14 +32,13 @@ def get_amendments(
     )
     key_cols = ["reference", "period", "instance"]
 
-    columns_to_check = sum(list(get_equality_dicts(config, sublist=None).values()), [])
+    mixed_cols = sum(list(get_equality_dicts(config, sublist="freezing").values()), [])
+    # List of items to remove
+    items_to_remove = ["708", "710"]
+    # Remove the specified items from mixed_cols
+    numeric_cols = [item for item in mixed_cols if item not in items_to_remove]
 
-    numeric_cols = list(set(columns_to_check) - set(["200", "201", "601", "604"]))
-
-    non_numeric_cols = []
-    for col_name in ["200", "201", "601", "604"]:
-        if col_name in columns_to_check:
-            non_numeric_cols.append(col_name)
+    non_numeric_cols = ["200", "201", "601", "604"]
 
     # numeric_cols_new = [f"{i}_updated" for i in numeric_cols]
     numeric_cols_diff = [f"{i}_diff" for i in numeric_cols]

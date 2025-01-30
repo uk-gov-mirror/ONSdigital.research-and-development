@@ -210,8 +210,6 @@ consistency_checks:
     ownership: ['225', '226', '227', '228', '229', '237', '218']
     equality: ['211', '218']
     expenditure: ["221"]
-    type_r&d: ["200"]
-    r&d_prod_code: ["201"]
   3xx_totals:
     purchases: ['302', '303', '304', '305']
   4xx_totals:
@@ -221,9 +219,7 @@ consistency_checks:
     hc_res_m: ['501', '503', '505', '507']
     hc_res_f: ['502', '504', '506', '508']
   6xx_totals:
-    postcode: ['601']
     business_tot_in_workplace: ["602"]
-    r&d: ["604"]
   7xx_totals:
     sf_expend: ["701", "702", "709"]
     sf_purchases: ["703", "704", "710"]

@@ -26,6 +26,15 @@ def get_equality_dicts(config: dict, sublist: str = "default") -> dict:
         wanted_dicts = [key for key in all_checks_dict.keys() if "xx_totals" in key]
     elif sublist == "imputation":
         wanted_dicts = ["2xx_totals", "3xx_totals"]
+    elif sublist == "freezing":
+        wanted_dicts = [
+            "2xx_totals",
+            "4xx_totals",
+            "5xx_totals",
+            "6xx_totals",
+            "7xx_totals",
+        ]
+
     else:
         wanted_dicts = list(all_checks_dict.keys())
 
