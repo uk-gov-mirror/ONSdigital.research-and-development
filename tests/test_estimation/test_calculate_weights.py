@@ -156,6 +156,71 @@ class TestCalcLowerNRefNan:
 
         assert actual_result == expected_result, "calc_lower_n not behaving as expected"
 
+class TestCalcLowerS:
+    """Test for calc_lower_s"""
+
+    def create_input_df(self):
+        """Creates input df for test"""
+        input_cols = [
+            "711",
+        ]
+
+        data = [
+            [10],
+            [25],
+            [30],
+            [5],
+            [15],
+        ]
+
+        input_df = pd.DataFrame(data=data, columns=input_cols)
+        return input_df
+
+    def create_config(self):
+        """Creates config for test"""
+        config = {"global": {"upper_clip": 0.05}}
+        return config
+
+    def test_calc_lower_s(self):
+        """Test for calc_lower_s"""
+
+        input_df = self.create_input_df()
+
+        config = self.create_config()
+
+        # Define expected result
+        expected_result = pd.Series([1, 1, 2, 0, 1], name = "711")
+
+        # Call calc_lower_s function
+        actual_result = calw.calc_lower_s(input_df, config)
+
+        assert_series_equal(actual_result, expected_result, check_dtype = False)
+
+class TestOutlierRound:
+    """Test for outlier_round"""
+
+    def create_input(self):
+        """Creates input for test"""
+        input_data = [0.5, 1.3, 2.8, 2.9, 4.5, 5.1]
+        return input_data
+
+    def test_outlier_round(self):
+        """Test for outlier_round"""
+
+        input_data = self.create_input()
+
+        # Define expected result
+        expected_result = [1, 1, 3, 3, 5, 5]
+
+        # Create empty list for actual results
+        actual_result = []
+
+        # Call outlier_round function
+        for x in input_data:
+            actual_result.append(calw.outlier_round(x))
+
+        assert actual_result == expected_result, "outlier_round is behaving as expected"
+
 
 # Five tests for calculate_weighting_factor:
 # testing calculate_weighting_factor where missing outlier col

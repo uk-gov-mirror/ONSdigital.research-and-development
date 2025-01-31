@@ -41,6 +41,22 @@ def calc_lower_n(df: pd.DataFrame, exp_col: str = "709") -> dict:
     return n
 
 
+def outlier_round(x):
+    """Calculates the rounding threshold for outliers.
+    Outliers are rounded up if the decimal is 0.5 or greater.
+
+    The use of 'x % 1' is to get the decimal part of the number.
+    Therefore anywhere the value has a decimal of 0.5 or greater the function
+    will round up and anything else it will round down.
+    """
+    if x % 1 == 0.5:
+        return np.ceil(x)
+    elif x % 1 < 0.5:
+        return np.floor(x)
+    else:
+        return np.ceil(x)
+
+
 def calc_lower_s(df: pd.DataFrame, config: Dict[str, float]) -> dict:
     """Calculates 's' which identifies the number of outliers for a cell group
 
@@ -48,7 +64,7 @@ def calc_lower_s(df: pd.DataFrame, config: Dict[str, float]) -> dict:
         df (pd.DataFrame): The input dataframe which contains survey data.
         config (Dict[str, float]): The configuration settings.
     Returns:
-        float: Calculated value of 's'.
+        int: Calculated value of s.
     """
 
     # Retrieve percent from config upper_clip outlier threshold.
@@ -58,16 +74,16 @@ def calc_lower_s(df: pd.DataFrame, config: Dict[str, float]) -> dict:
     if outlier_thresh is None:
         raise KeyError("The config must include 'upper_clip' threshold.")
 
-    # Check if any of the key cols are missing
+    # Check if any key cols are missing
     cols = set(df.columns)
-    if "employment" not in cols:
+    if "711" not in cols:
         raise ValueError("employment column is missing.")
 
-    # Multiply valid entries by upper_clip config setting.
-    s = df["employment"] * outlier_thresh
+    # Multiply total employment by upper_clip to calculate number of outliers per cell.
+    num_of_outliers = df["711"] * outlier_thresh
 
-    # Round up anything equal to or greater than 0.5, anything else round down.
-    s = np.where(s >= 0.5, np.ceil(s), np.floor(s))
+    # Apply outlier rounding
+    s = num_of_outliers.apply(outlier_round)
 
     return s
 
