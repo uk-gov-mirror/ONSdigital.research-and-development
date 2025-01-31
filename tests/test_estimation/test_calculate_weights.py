@@ -181,6 +181,7 @@ class TestCalcLowerE:
     # Call calc_lower_e function
     actual_result = calw.calc_lower_e(input_df)
     assert actual_result == expected_result, "calc_lower_e is behaving as expected"
+
  class TestCalcLowerEMissingCol:
     """Test for calc_lower_e with missing col"""
 
