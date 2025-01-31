@@ -161,15 +161,14 @@ class TestCalcLowerE:
         """Creates input df for test"""
         input_cols = [
             "employment",
-            "711",
-        ]
+            "711"]
         data = [
-            [1, 14],
-            [2, 14],
-            [2, 14],
-            [4, 14],
-            [1, 14],
-            [4, np.nan]
+            [1, 10],
+            [2, 5],
+            [2, np.nan],
+            [4, np.nan],
+            [1, 10],
+            [4, np.nan],
         ]
         input_df = pd.DataFrame(data=data, columns=input_cols)
         return input_df
@@ -177,12 +176,11 @@ class TestCalcLowerE:
  def test_calc_lower_e(self):
     """Test for calc_lower_e with nan."""
     input_df = self.create_input_df()
+    expected_result = 14
+
     # Call calc_lower_e function
     actual_result = calw.calc_lower_e(input_df)
-    # Defined expected result
-    expected_result = 14
     assert actual_result == expected_result, "calc_lower_e is behaving as expected"
-
  class TestCalcLowerEMissingCol:
     """Test for calc_lower_e with missing col"""
 

@@ -40,7 +40,7 @@ def calc_lower_n(df: pd.DataFrame, exp_col: str = "709") -> dict:
     return n
 
 
-def calc_lower_e(df: pd.DataFrame, emp_col: str = "711") -> dict:
+def calc_lower_e(df: pd.DataFrame, emp_col: str = "711") -> int:
     """Calculates 'e' which is a sum of
     IDBR employment data in the filtered dataset.
 
@@ -53,7 +53,7 @@ def calc_lower_e(df: pd.DataFrame, emp_col: str = "711") -> dict:
     """
     # Check if any of the key cols are missing
     cols = set(df.columns)
-    if not ("employment" in cols) & (emp_col in cols):
+    if not (("employment" in cols) & (emp_col in cols)):
         raise ValueError(f"employment' or {emp_col} missing.")
 
     # Sum employment for each cellnumber
