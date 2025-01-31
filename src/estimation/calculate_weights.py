@@ -41,34 +41,35 @@ def calc_lower_n(df: pd.DataFrame, exp_col: str = "709") -> dict:
     return n
 
 
-def calc_lower_s(df: pd.DataFrame, config: Dict[str, float]) -> pd.DataFrame:
+def calc_lower_s(df: pd.DataFrame, config: Dict[str, float]) -> dict:
     """Calculates 's' which identifies the number of outliers for a cell group
 
-    Args: df (pd.DataFrame): The input dataframe which contains survey data.
-         config (Dict[str, float]): The configuration settings.
-
-    Returns: pd.DataFrame: The dataframe with the outliers identified.
-
+    Args:
+        df (pd.DataFrame): The input dataframe which contains survey data.
+        config (Dict[str, float]): The configuration settings.
+    Returns:
+        float: Calculated value of 's'.
     """
-    df = df.copy()
 
     # Retrieve percent from config upper_clip outlier threshold.
-
     outlier_thresh = config.get("global", {}).get("upper_clip")
+
     # Check if there is a value in the config.
     if outlier_thresh is None:
         raise KeyError("The config must include 'upper_clip' threshold.")
 
-    # Multiply valid entries by upper_clip config setting.
+    # Check if any of the key cols are missing
+    cols = set(df.columns)
+    if "employment" not in cols:
+        raise ValueError("employment column is missing.")
 
-    df["outlier"] = df["employment"] * outlier_thresh
+    # Multiply valid entries by upper_clip config setting.
+    s = df["employment"] * outlier_thresh
 
     # Round up anything equal to or greater than 0.5, anything else round down.
-    df["outlier"] = np.where(
-        df["outlier"] >= 0.5, np.ceil(df["outlier"]), np.floor(df["outlier"])
-    )
+    s = np.where(s >= 0.5, np.ceil(s), np.floor(s))
 
-    return df
+    return s
 
 
 def calculate_weighting_factor(
