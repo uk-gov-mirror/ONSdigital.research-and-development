@@ -192,12 +192,12 @@ class TestCalcLowerE:
             "711",
         ]
         data = [
-            [1, 14],
-            [2, 14],
-            [2, 14],
-            [4, 14],
-            [1, 14],
-            [4, 14]
+            [1, 10],
+            [2, 5],
+            [2, np.nan],
+            [4, np.nan],
+            [1, 10],
+            [4, np.nan],
         ]
         input_df = pd.DataFrame(data=data, columns=cols)
         return input_df, cols, msg, emp_col
