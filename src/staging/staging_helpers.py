@@ -112,7 +112,7 @@ def load_validate_mapper(
     Raises:
         FileNotFoundError: If no file exists at the mapper path.
         ValidationError: If the DataFrame fails schema validation or the validation func
-        ValueError: If the DataFrame contains unexpected NULL values.
+        Warning: If the DataFrame contains unexpected NULL values.
     """
     # Get the path of the mapper from the config dictionary
     mapper_path = config["mapping_paths"][mapper_path_key]
