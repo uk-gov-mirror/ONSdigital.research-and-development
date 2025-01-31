@@ -2,13 +2,15 @@ import pytest
 import pandas as pd
 import numpy as np
 
+
 # Local Imports
 from src.mapping.mapping_helpers import (
     col_validation_checks,
     check_mapping_unique,
     update_ref_list,
     create_additional_ni_cols,
-    join_with_null_check
+    join_with_null_check,
+    mapper_null_checks
 )
 
 from src.utils.path_helpers import validate_mapping_filenames
@@ -323,3 +325,26 @@ class TestValidateMappingFilenames(object):
 
         assert (result == expected_bool,
         "Output from test_validate_mapper_config_raises_missing_file not as expected.")
+
+class TestMapperNullChecks:
+    """Test to check that the mapper_null_checks function works as expected."""
+
+    def create_mapper_df(self):
+        """Create a sample mapper DataFrame."""
+        columns = ["uni_count", "uni_employment"]
+        data = [
+            [23, 10],
+            [14, 20],
+            [13147, 30],
+            [87577, 40],
+            [9, None],
+        ]
+        return pd.DataFrame(data=data, columns=columns)
+
+    def test_mapper_null_checks(self):
+        """Test mapper_null_checks for all columns."""
+        mapper_df = self.create_mapper_df()
+        mapper_name = "test_mapper"
+        warning_msg = "WARNING: test_mapper contains null values in ['uni_employment']."
+
+        mapper_null_checks(mapper_df, mapper_name) == warning_msg

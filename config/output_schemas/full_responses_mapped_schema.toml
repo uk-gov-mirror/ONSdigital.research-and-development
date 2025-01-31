@@ -582,6 +582,10 @@ Deduced_Data_Type = "object"
 old_name = "uni_count"
 Deduced_Data_Type = "int64"
 
+[uni_employment]
+old_name = "uni_employment"
+Deduced_Data_Type = "int64"
+
 [itl]
 old_name = "itl"
 Deduced_Data_Type = "object"
