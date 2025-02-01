@@ -11,7 +11,7 @@ from src.imputation.imputation_helpers import (
     calculate_totals,
     create_imp_class_col,
     imputation_marker,
-    get_imputation_cols
+    concat_with_bool,
 )
 
 
@@ -314,16 +314,17 @@ class TestCreateImpClassCol:
             "formtype",
             "cellnumber",
             "rusic",
+            "area",
         ]
 
         data = [
-            [111, 1, "C", "AA", 600.0, 23.0, "0001", 45, 4445],
-            [111, 2, "C", "AB", 700.0, 24.0, "0001", 45, 4445],
-            [222, 1, "C", "AA", 55.0, 23.0, "0006", 35, 3335],
-            [222, 2, "D", "DE", 21.0, 14.0, "0006", 35, 3335],
-            [333, 1, "C", "E", 100.0, 25.0, "0001", 66, 5554],
-            [333, 2, np.nan, np.nan, np.nan, np.nan, "0001", 66, 5554],
-            [444, 1, "C", "AA", 200.0, 23.0, "0001", 817, 7777],
+            [111, 1, "C", "AA", 600.0, 23.0, "0001", 45, 4445, "area_oth"],
+            [111, 2, "C", "AB", 700.0, 24.0, "0001", 45, 4445, "area_oth"],
+            [222, 1, "C", "AA", 55.0, 23.0, "0006", 35, 3335, "area_se"],
+            [222, 2, "D", "DE", 21.0, 14.0, "0006", 35, 3335, "area_oth"],
+            [333, 1, "C", "E", 100.0, 25.0, "0001", 66, 5554, "area_se"],
+            [333, 2, np.nan, np.nan, np.nan, np.nan, "0001", 66, 5554, "area_se"],
+            [444, 1, "C", "AA", 200.0, 23.0, "0001", 817, 7777, "area_oth"],
         ]
 
         input_df = pandasDF(data=data, columns=input_columns)
@@ -342,17 +343,47 @@ class TestCreateImpClassCol:
             "formtype",
             "cellnumber",
             "rusic",
+            "area",
             "imp_class",
         ]
 
         data = [
-            [111, 1, "C", "AA", 600.0, 23.0, "0001", 45, 4445, "C_AA"],
-            [111, 2, "C", "AB", 700.0, 24.0, "0001", 45, 4445, "C_AB"],
-            [222, 1, "C", "AA", 55.0, 23.0, "0006", 35, 3335, "C_AA"],
-            [222, 2, "D", "DE", 21.0, 14.0, "0006", 35, 3335, "D_DE"],
-            [333, 1, "C", "E", 100.0, 25.0, "0001", 66, 5554, "C_E"],
-            [333, 2, np.nan, np.nan, np.nan, np.nan, "0001", 66, 5554, "nan_nan"],
-            [444, 1, "C", "AA", 200.0, 23.0, "0001", 817, 7777, "C_AA_817"],
+            [111, 1, "C", "AA", 600.0, 23.0, "0001", 45, 4445, "area_oth", "C_AA"],
+            [111, 2, "C", "AB", 700.0, 24.0, "0001", 45, 4445, "area_oth", "C_AB"],
+            [222, 1, "C", "AA", 55.0, 23.0, "0006", 35, 3335, "area_se", "C_AA"],
+            [222, 2, "D", "DE", 21.0, 14.0, "0006", 35, 3335, "area_oth", "D_DE"],
+            [333, 1, "C", "E", 100.0, 25.0, "0001", 66, 5554, "area_se", "C_E"],
+            [333, 2, np.nan, np.nan, np.nan, np.nan, "0001", 66, 5554, "area_se", "nan_nan"],
+            [444, 1, "C", "AA", 200.0, 23.0, "0001", 817, 7777, "area_oth", "C_AA_817"],
+        ]
+
+        exp_output_df = pandasDF(data=data, columns=exp_output_columns)
+        return exp_output_df
+
+    def create_exp_output_pnp_df(self):
+        """Create an exp_output dataframe for the test."""
+        exp_output_columns = [
+            "reference",
+            "instance",
+            "200",
+            "201",
+            "211",
+            "pg_numeric",
+            "formtype",
+            "cellnumber",
+            "rusic",
+            "area",
+            "imp_class",
+        ]
+
+        data = [
+            [111, 1, "C", "AA", 600.0, 23.0, "0001", 45, 4445, "area_oth", "area_oth"],
+            [111, 2, "C", "AB", 700.0, 24.0, "0001", 45, 4445, "area_oth", "area_oth"],
+            [222, 1, "C", "AA", 55.0, 23.0, "0006", 35, 3335, "area_se", "area_se"],
+            [222, 2, "D", "DE", 21.0, 14.0, "0006", 35, 3335, "area_oth", "area_oth"],
+            [333, 1, "C", "E", 100.0, 25.0, "0001", 66, 5554, "area_se", "area_se"],
+            [333, 2, np.nan, np.nan, np.nan, np.nan, "0001", 66, 5554, "area_se", "area_se"],
+            [444, 1, "C", "AA", 200.0, 23.0, "0001", 817, 7777, "area_oth", "area_oth"],
         ]
 
         exp_output_df = pandasDF(data=data, columns=exp_output_columns)
@@ -366,6 +397,13 @@ class TestCreateImpClassCol:
         result_df = create_imp_class_col(input_df, ["200", "201"])
         assert_frame_equal(result_df.reset_index(drop=True), exp_output_df)
 
+    def test_create_imp_class_col_pnp(self):
+        """Test for function create_imp_class_col."""
+        input_df = self.create_input_df()
+        exp_output_df = self.create_exp_output_pnp_df()
+
+        result_df = create_imp_class_col(input_df, ["area"], use_cellno=False)
+        assert_frame_equal(result_df.reset_index(drop=True), exp_output_df)
 
     class TestImputationMarker:
         """Unit tests for imputation_marker function."""
@@ -414,121 +452,59 @@ class TestCreateImpClassCol:
             result_df = imputation_marker(input_df)
             assert_frame_equal(result_df.reset_index(drop=True), exp_output_df)
 
-class TestGetImputationCols:
-    """Unit tests for get_imputation_cols function."""
+class TestConcatWithBool:
+    """Unit tests for concat_with_bool function."""
+    def input_dfs(self):
+        """Define columns and values for the DataFrames"""
+        columns_df1 = ['manual_trim', 'empty_pgsic_group', 'value']
+        values_df1 = [
+            [True, False, 1],
+            [False, True, 2]
+        ]
 
-    def create_input_dict(self) -> dict:
-        """Create an input dictionary for the test."""
-        # config["breakdowns"] and config["imputation"] from dev_config.yaml
-        input_config = {
-            "breakdowns" : {
-                 "219" : {
-                    "202", "203", "204", "205", "206", "207", "209",
-                    "210", "212", "214", "216", "218", "219", "220",
-                    "221", "222", "223", "225", "226", "227", "228",
-                    "229", "237", "242", "243", "244", "245", "246",
-                    "247", "248", "249", "250", "305", "302", "399"
-                    },
-                "emp_total" : {
-                    "emp_researcher", "emp_technician", "emp_other"
-                    },
-                "headcount_total" : {
-                    "headcount_res_m", "headcount_res_f",
-                    "headcount_tec_m", "headcount_tec_f",
-                    "headcount_oth_x", "headcount_oth_y"}
-                    },
-            "imputation" : {
-                "sum_cols": {
-                    "emp_total", "headcount_tot_x",
-                    "headcount_tot_y", "headcount_total"
-                    }
-                }
-            }
-        return input_config
+        columns_df2 = ['empty_pg_group', '305_trim', 'value']
+        values_df2 = [
+            [True, False, 3],
+            [False, True, 4]
+        ]
 
-    def test_get_imputation_cols(self) -> None:
-        """Test for function get_imputation_cols."""
-        input_config = self.create_input_dict()
+        columns_df3 = ['211_trim', 'value']
+        values_df3 = [
+            [True, 5],
+            [False, 6]
+        ]
 
-        expected_output = [
-            "219",
-            "202", "203", "204", "205", "206", "207", "209",
-            "210", "212", "214", "216", "218", "219", "220",
-            "221", "222", "223", "225", "226", "227", "228",
-            "229", "237", "242", "243", "244", "245", "246",
-            "247", "248", "249", "250", "305", "302", "399",
-            "emp_researcher", "emp_technician", "emp_other",
-            "headcount_res_m", "headcount_res_f",
-            "headcount_tec_m", "headcount_tec_f",
-            "headcount_oth_x", "headcount_oth_y",
-            "headcount_tot_x", "headcount_tot_y",
-            "emp_total", "headcount_total"
-            ]
+        # Create DataFrames from the lists of values
+        df1 = pd.DataFrame(values_df1, columns=columns_df1)
+        df2 = pd.DataFrame(values_df2, columns=columns_df2)
+        df3 = pd.DataFrame(values_df3, columns=columns_df3)
 
-        result_list = get_imputation_cols(input_config)
+        return df1, df2, df3
 
-        difference = {*expected_output} ^ {*result_list}
-        assert not difference
+    def expected_output(self):
+        """Define the expected output DataFrame"""
+        columns = ['manual_trim', 'empty_pgsic_group', 'empty_pg_group', '305_trim', '211_trim', 'value']
+        values = [
+            [True, False, False, False, False, 1],
+            [False, True, False, False, False, 2],
+            [False, False, True, False, False, 3],
+            [False, False, False, True, False, 4],
+            [False, False, False, False, True, 5],
+            [False, False, False, False, False, 6]
+        ]
 
-class TestCreateImpClassCol:
-    """Unit tests for create_imp_class_col function."""
-
-    def create_input_df(self) -> pd.DataFrame:
-        """Create first argument: an input dataframe for the test."""
-        df_cols = [
-            "104",
-            "200",
-            "201",
-            "202",
-            "cellnumber",
-            "frozensic",
-            "rusic",
-            "frozenemployees"
-            ]
-
-        df_data = [
-            [20231231.0, None, 'AA', None, 41, 46499, 46499, 221],
-            [20231231.0, None, 'AD', None, 117, 70100, 70100, 252],
-            [20231231.0, None, 'AA', None, 45, 47910, 47910, 686],
-            [None, 'C', 'L', None, 473, 24430, 24430, 119],
-            [None, 'C', 'AD', 4038000.0, 117, 66300, 66300, 1017],
-            [20231231.0, 'C', 'AA', None, 41, 45111, 45111, 128],
-            [20231231.0, None, 'AA', None, 45, 55100, 55100, 12676],
-            [None, None, 'AA', None, 817, 46510, 46510, 1933],
-            [20231231.0, None, 'H', None, 377, 21200, 21200, 126],
-            [None, 'C', 'C', 1182000.0, 261, 10821, 10821, 543]
-            ]
-
-        df = pandasDF(data=df_data, columns=df_cols)
+        df = pd.DataFrame(values, columns=columns)
+        # ensure the datatype of the columns are bool where they should be
+        for col in columns[:-1]:
+            df[col] = df[col].astype('bool')
 
         return df
 
-    def test_create_imp_class_col(self) -> None:
-        """Test for function create_imp_class_col."""
-        input_df = self.create_input_df()
+    def test_concat_with_bool(self):
+        """Test for function concat_with_bool."""
+        df1, df2, df3 = self.input_dfs()
+        expected_df = self.expected_output()
 
-        out_data = [
-            [20231231.0, None, 'AA', None, 41, 46499, 46499, 221, 'None_AA', 'AA_46499', 'AA'],
-            [20231231.0, None, 'AD', None, 117, 70100, 70100, 252, 'None_AD', 'AD_70100', 'AD'],
-            [20231231.0, None, 'AA', None, 45, 47910, 47910, 686, 'None_AA', 'AA_47910', 'AA'],
-            [None, 'C', 'L', None, 473, 24430, 24430, 119, 'C_L', 'L_24430', 'L'],
-            [None, 'C', 'AD', 4038000.0, 117, 66300, 66300, 1017,'C_AD', 'AD_66300', 'AD'],
-            [20231231.0, 'C', 'AA', None, 41, 45111, 45111, 128, 'C_AA', 'AA_45111', 'AA'],
-            [20231231.0,None,'AA', None, 45, 55100, 55100, 12676, 'None_AA', 'AA_55100', 'AA'],
-            [None, None, 'AA', None, 817, 46510, 46510, 1933, 'None_AA_817', 'AA_46510_817', 'AA_817'],
-            [20231231.0, None, 'H', None, 377, 21200, 21200, 126, 'None_H', 'H_21200', 'H'],
-            [None, 'C', 'C', 1182000.0, 261, 10821, 10821, 543, 'C_C', 'C_10821', 'C']
-        ]
-
-        out_cols = [
-            '104', '200', '201', '202', 'cellnumber', 'frozensic', 'rusic', 'frozenemployees',
-            'imp_class', 'pg_class', 'pg_sic_class'
-            ]
-
-        exp_output_df = pandasDF(data=out_data, columns=out_cols)
-
-        run1 = create_imp_class_col(input_df, column_list = ['200', '201'], use_cellno = True)
-        run2 = create_imp_class_col(run1, column_list=['201', 'rusic'], class_name='pg_class', use_cellno=True)
-        result_df = create_imp_class_col(run2, column_list=['201'], class_name='pg_sic_class', use_cellno=True)
-
-        assert_frame_equal(result_df.reset_index(drop=True), exp_output_df)
+        result_df = concat_with_bool([df1, df2, df3])
+        # ignore the order of the columns
+        assert_frame_equal(result_df.reset_index(drop=True), expected_df, check_like=True)
