@@ -199,7 +199,12 @@ def create_mean_dict(
     # Create an empty dict to store means
     mean_dict = dict.fromkeys(target_variable_list)
 
-    filter_conditions_list = ["clear_status", "instance_nonzero", "exclude_nan_classes"]
+    filter_conditions_list = [
+        "clear_status",
+        "instance_nonzero",
+        "exclude_nan_classes",
+        "excl_postcode_only",
+    ]
     filtered_df = hlp.special_filter(df, filter_conditions_list)
 
     # Group by imp_class
@@ -401,11 +406,9 @@ def run_tmi(
     # create dataframe for all the rows excluded from TMI
     excluded_df = full_df.copy().loc[mor_mask]
 
-    # create logic to select rows for longform and shortform TMI
-    long_tmi_mask = (full_df["formtype"] == formtype_long) & ~mor_mask
-
     # create dataframes to be used for longform TMI
-    longform_df = full_df.copy().loc[long_tmi_mask]
+    longform_mask = hlp.create_mask(full_df, "longform_only")
+    longform_df = full_df.copy().loc[longform_mask & ~mor_mask]
 
     # apply TMI imputation to short forms for the BERD survey (but not PNP)
     if config["survey"]["survey_type"] == "BERD":
