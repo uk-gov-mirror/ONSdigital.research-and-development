@@ -199,13 +199,8 @@ def create_mean_dict(
     # Create an empty dict to store means
     mean_dict = dict.fromkeys(target_variable_list)
 
-    # Filter for clear statuses
-    clear_statuses = ["Clear", "Clear - overridden"]
-
-    filtered_df = df.loc[df["status"].isin(clear_statuses)]
-
-    # Filter out imputation classes that are missing either "200" or "201"
-    filtered_df = filtered_df[~(filtered_df["imp_class"].str.contains("nan"))]
+    filter_conditions_list = ["clear_status", "instance_nonzero", "exclude_nan_classes"]
+    filtered_df = hlp.special_filter(df, filter_conditions_list)
 
     # Group by imp_class
     grp = filtered_df.groupby("imp_class")
@@ -264,14 +259,8 @@ def apply_tmi(
     Returns:
         pd.DataFrame: The passed dataframe with TMI imputation applied.
     """
-    df = df.copy()
-
-    filtered_df = df.loc[df["status"].isin(["Form sent out", "Check needed"])]
-
-    # Filter out any cases where 200 or 201 are missing from the imputation class
-    # This ensures that means are calculated using only valid imputation classes
-    # Since imp_class is string type, any entry containing "nan" is excluded.
-    filtered_df = filtered_df[~(filtered_df["imp_class"].str.contains("nan"))]
+    conditions_mask_list = ["bad_status", "instance_nonzero", "exclude_nan_classes"]
+    filtered_df = hlp.special_filter(df, conditions_mask_list)
 
     grp = filtered_df.groupby("imp_class")
     class_keys = list(grp.groups.keys())
