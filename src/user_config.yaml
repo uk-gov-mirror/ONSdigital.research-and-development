@@ -2,7 +2,7 @@ config_validation:
   validate: True
   path: src/user_config_schema.yaml
 survey:
-  survey_type: "PNP"
+  survey_type: "BERD"
   survey_year: 2023
 global:
   # Staging and validation settings
@@ -37,7 +37,7 @@ global:
   # Final output settings
   output_long_form: False
   output_short_form: False
-  output_gb_sas: False
+  output_gb_sas: True
   output_ni_sas: False
   output_tau: False
   output_intram_by_pg_gb: False
@@ -48,8 +48,8 @@ global:
   output_intram_by_sic: False
   output_fte_total_qa: False
   output_status_filtered: False
-  output_frozen_group: False
-  output_intram_totals: False
+  output_frozen_group: True
+  output_intram_totals: True
 s3_paths:
   root: "/bat/res_dev/project_data/"
   # staging input paths

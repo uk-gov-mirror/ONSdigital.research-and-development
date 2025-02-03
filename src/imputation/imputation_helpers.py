@@ -98,6 +98,8 @@ def create_mask(df: pd.DataFrame, options: List[str]) -> pd.Series:
         - 'longform_only': Longform rows, ie, rows with formtype = '0001'
         - 'shortform_only': Shortform rows, ie, rows with formtype = '0006'
         - 'bad_status': rows with a status that is not in the clear statuses
+        - 'mor_imputed' : rows with an imp_marker of 'MoR' or 'CF'
+        - 'not_mor_imputed' : rows without an imp_marker of 'MoR' or 'CF'
 
     Args:
         df (pd.DataFrame): The input dataframe.
@@ -122,6 +124,8 @@ def create_mask(df: pd.DataFrame, options: List[str]) -> pd.Series:
         "longform_only": df["formtype"] == "0001",
         "shortform_only": df["formtype"] == "0006",
         "bad_status": df["status"].isin(["Check needed", "Form sent out"]),
+        "mor_imputed": df["imp_marker"].isin(["MoR", "CF"]),
+        "not_mor_imputed": ~df["imp_marker"].isin(["MoR", "CF"]),
     }
 
     # Initialize the mask to True
