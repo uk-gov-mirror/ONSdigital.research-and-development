@@ -251,13 +251,13 @@ def apply_deletions_604(main_df, accepted_amendments_df):
         pd.DataFrame: The main DataFrame with deletions applied
     """
 
-    # Check if any row meets the condition of instane = 0 and 604 = No
+    # Check if any row meets the condition of instance = 0 and 604 = No
     condition_met = (
         (accepted_amendments_df["instance"] == 0)
         & (accepted_amendments_df["604"] == "No")
     ).any()
 
-    if condition_met is True:
+    if condition_met:
 
         # Filter the DataFrame based on the conditions
         flagged_df = accepted_amendments_df[

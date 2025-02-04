@@ -235,55 +235,53 @@ class TestApplyAdditions(object):
 
 
 class TestApplyDeletions604(object):
-    """ Tests for apply_deletions_604 """
+    """ Test for apply_deletions_604 """
 
-    @pytest.fixture(scope="function")
-
-    def amendments_df(self) -> pd.DataFrame:
+    def amendments(self) -> pd.DataFrame:
         """A dummy amendments dataframe."""
         columns = ["reference", "instance", "period", "510", "604"]
         data = [
-            [4444, 0, 201812, 0.5, "No"],  # ref 4444 period 201812 to be flagged
+            [4444, 0, 201812, 0.5, "No"],  # ref 4444 period 201812 to be flagged not removed
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
 
-    def main_df(self) -> pd.DataFrame:
-        """A dummy amendments dataframe."""
+    def primary(self) -> pd.DataFrame:
+        """A dummy main dataframe."""
         columns = ["reference", "instance", "period", "510", "604"]
         data = [
-            [2222, 0, 201812, 0.5, "Yes"],  # ref 2222 nothing to be flagged
-            [2222, 1, 201812, 0.5, "Yes"],  # ref 2222 nothing to be flagged
-            [2222, 2, 201812, 0.5, "Yes"],  # ref 2222 nothing to be flagged
+            [2222, 0, 201812, 0.5, "Yes"],  # ref 2222 nothing to be removed
+            [2222, 1, 201812, 0.5, "Yes"],  # ref 2222 nothing to be removed
+            [2222, 2, 201812, 0.5, "Yes"],  # ref 2222 nothing to be removed
             [4444, 0, 201812, 0.5, "No"],  # ref 4444 to be flagged not removed
-            [4444, 1, 201812, 0.5, "Yes"],  # ref 4444 to be flagged & removed
-            [4444, 2, 201812, 0.5, "Yes"],  # ref 4444 to be flagged its & removed
-            [4444, 1, 202202, 0.5, "Yes"],  # ref 4444 diff period not to be flagged
-            [4444, 2, 202202, 0.5, "Yes"]  # ref 4444 diff period not to be flagged
+            [4444, 1, 201812, 0.5, "Yes"],  # ref 4444 to be removed
+            [4444, 2, 201812, 0.5, "Yes"],  # ref 4444 to be removed
+            [4444, 1, 202202, 0.5, "Yes"],  # ref 4444 diff period not to be removed
+            [4444, 2, 202202, 0.5, "Yes"]  # ref 4444 diff period not to be removed
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
 
-    def expected_df(self) -> pd.DataFrame:
+    def expected(self) -> pd.DataFrame:
         columns = ["reference", "instance", "period", "510", "604"]
         data = [
-            [2222, 0, 201812, 0.5, "Yes"],  # ref 2222 nothing to be flagged
-            [2222, 1, 201812, 0.5, "Yes"],  # ref 2222 nothing to be flagged
-            [2222, 2, 201812, 0.5, "Yes"],  # ref 2222 nothing to be flagged
-            [4444, 0, 201812, 0.5, "No"],  # ref 4444 to be flagged
-            [4444, 1, 202202, 0.5, "Yes"],  # ref 4444 diff period not to be flagged
-            [4444, 2, 202202, 0.5, "Yes"]  # ref 4444 diff period not to be flagged
+            [2222, 0, 201812, 0.5, "Yes"],  # ref 2222 nothing to be removed
+            [2222, 1, 201812, 0.5, "Yes"],  # ref 2222 nothing to be removed
+            [2222, 2, 201812, 0.5, "Yes"],  # ref 2222 nothing to be removed
+            [4444, 0, 201812, 0.5, "No"],  # ref 4444 to be flagged not removed
+            [4444, 1, 202202, 0.5, "Yes"],  # ref 4444 diff period not to be removed
+            [4444, 2, 202202, 0.5, "Yes"]  # ref 4444 diff period not to be removed
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
 
-    def test_apply_deletions_604(self, main_df, amendments_df):
+    def test_apply_deletions_604(self):
         """General tests for apply_deletions_604"""
 
-        result_df = apply_deletions_604(main_df, amendments_df)
+        primary_df = self.primary()
+        amendments_df = self.amendments()
+        expected_df = self.expected()
 
-        expected_df = self.expected_df()
+        result_df = apply_deletions_604(primary_df, amendments_df)
 
-        #amended.sort_values(by=["reference", "instance"], ascending=True, inplace=True)
-
-        assert_frame_equal(result_df, expected_df)
+        assert_frame_equal(result_df.reset_index(drop=True), expected_df)
