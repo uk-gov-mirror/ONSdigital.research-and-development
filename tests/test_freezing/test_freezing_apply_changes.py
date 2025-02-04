@@ -1,8 +1,8 @@
 """Tests for freezing_apply_changes.py."""
 
-### DEV NOTE: Excluding tests for validate_additions_df and validate_amendment_df
-###           due to them carrying out functionality from other functions, with
-###           only additional logs being added.
+# DEV NOTE: Excluding tests for validate_additions_df and validate_amendment_df
+#           due to them carrying out functionality from other functions, with
+#           only additional logs being added.
 
 import logging
 
@@ -77,14 +77,14 @@ class TestValidateAnyRefinstInFrozen(object):
 @pytest.fixture(scope="function")
 def frozen_df() -> pd.DataFrame:
     """A dummy frozen_df for testing."""
-    columns = ["reference", "instance", "num", "non_num", "last_frozen", "status"]
+    columns = ["reference", "instance", "num", "non_num", "last_frozen", "status", "604"]
     data = [
-        [0, 1.0, 4, True, "previous_run", "clear"],
-        [0, 2.0, 5, False, "previous_run", "clear"],
-        [1, 1.0, 8, True, "previous_run", "clear"],
-        [1, 2.0, 9, True, "previous_run", "clear"],
-        [2, 1.0, 10, False, "previous_run", "clear"],
-        [6, None, 10, False, "previous_run", "Form sent out"]
+        [0, 1.0, 4, True, "previous_run", "clear", "Yes"],
+        [0, 2.0, 5, False, "previous_run", "clear", "Yes"],
+        [1, 1.0, 8, True, "previous_run", "clear", "Yes"],
+        [1, 2.0, 9, True, "previous_run", "clear", "Yes"],
+        [2, 1.0, 10, False, "previous_run", "clear", "Yes"],
+        [6, None, 10, False, "previous_run", "Form sent out", None]
     ]
     df = pd.DataFrame(columns=columns, data=data)
     return df
@@ -100,10 +100,10 @@ class TestApplyAmendments(object):
     @pytest.fixture(scope="function")
     def dummy_amendments(self) -> pd.DataFrame:
         """A dummy amendments dataframe."""
-        columns = ["reference", "instance", "num_updated", "non_num_updated", "accept_changes", "status"]
+        columns = ["reference", "instance", "num_updated", "non_num_updated", "accept_changes", "status", "604"]
         data = [
-            [0, 1.0, 3, True, True, "clear"],
-            [0, 2.0, 4, True, False, "clear"],
+            [0, 1.0, 3, True, True, "clear", "Yes"],
+            [0, 2.0, 4, True, False, "clear", "Yes"],
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
@@ -112,14 +112,14 @@ class TestApplyAmendments(object):
         """The expected dataframe after amendments are applied."""
         # get date
         today = datetime.datetime.now().strftime("%y-%m-%d")
-        columns = ["reference", "instance", "num", "non_num", "last_frozen", "status"]
+        columns = ["reference", "instance", "num", "non_num", "last_frozen", "status", "604"]
         data = [
-            [0, 1.0, 3, True, f"{today}_v1", "clear"],
-            [0, 2.0, 4, True, f"{today}_v1", "clear"],
-            [1, 1.0, 8, True, "previous_run", "clear"],
-            [1, 2.0, 9, True, "previous_run", "clear"],
-            [2, 1.0, 10, False, "previous_run", "clear"],
-            [6, None, 10, False, "previous_run", "Form sent out"]
+            [0, 1.0, 3, True, f"{today}_v1", "clear", "Yes"],
+            [0, 2.0, 4, True, f"{today}_v1", "clear", "Yes"],
+            [1, 1.0, 8, True, "previous_run", "clear", "Yes"],
+            [1, 2.0, 9, True, "previous_run", "clear", "Yes"],
+            [2, 1.0, 10, False, "previous_run", "clear", "Yes"],
+            [6, None, 10, False, "previous_run", "Form sent out", None]
         ]
         df = pd.DataFrame(data=data, columns=columns)
         return df
@@ -162,31 +162,30 @@ class TestApplyAdditions(object):
     @pytest.fixture(scope="function")
     def dummy_additions(self) -> pd.DataFrame:
         """A dummy amendments dataframe."""
-        columns = ["reference", "instance", "num", "non_num", "accept_changes", "status"]
+        columns = ["reference", "instance", "num", "non_num", "accept_changes", "status", "604"]
         data = [
-            [3, 0.0, 10, True, True, "clear"],
-            [3, 1.0, 11, False, False, "clear"],
-            [6, 0.0, 10, False, True, "clear"]
+            [3, 0.0, 10, True, True, "clear", "Yes"],
+            [3, 1.0, 11, False, False, "clear", "Yes"],
+            [6, 0.0, 10, False, True, "clear", "Yes"]
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
 
     def expected_additions(self) -> pd.DataFrame:
         """The expected dataframe after amendments are applied."""
-        columns = ["reference", "instance", "num", "non_num", "status"]
+        columns = ["reference", "instance", "num", "non_num", "status", "604"]
         data = [
-            [0, 1.0, 4, True, "clear"],
-            [0, 2.0, 5, False, "clear"],
-            [1, 1.0, 8, True, "clear"],
-            [1, 2.0, 9, True, "clear"],
-            [2, 1.0, 10, False, "clear"],
-            [3, 0.0, 10, True, "clear"],
-            [3, 1.0, 11, False, "clear"],
-            [6, 0.0, 10, False, "clear"],
+            [0, 1.0, 4, True, "clear", "Yes"],
+            [0, 2.0, 5, False, "clear", "Yes"],
+            [1, 1.0, 8, True, "clear", "Yes"],
+            [1, 2.0, 9, True, "clear", "Yes"],
+            [2, 1.0, 10, False, "clear", "Yes"],
+            [3, 0.0, 10, True, "clear", "Yes"],
+            [3, 1.0, 11, False, "clear", "Yes"],
+            [6, 0.0, 10, False, "clear", "Yes"],
         ]
         df = pd.DataFrame(data=data, columns=columns)
         return df
-
 
     def test_apply_additions(self, frozen_df, dummy_additions):
         """General tests for apply_additions"""
@@ -240,7 +239,7 @@ class TestApplyDeletions604(object):
 
     @pytest.fixture(scope="function")
 
-    def dummy_amendments_df(self) -> pd.DataFrame:
+    def amendments_df(self) -> pd.DataFrame:
         """A dummy amendments dataframe."""
         columns = ["reference", "instance", "period", "510", "604"]
         data = [
@@ -249,7 +248,7 @@ class TestApplyDeletions604(object):
         df = pd.DataFrame(columns=columns, data=data)
         return df
 
-    def dummy_main_df(self) -> pd.DataFrame:
+    def main_df(self) -> pd.DataFrame:
         """A dummy amendments dataframe."""
         columns = ["reference", "instance", "period", "510", "604"]
         data = [
@@ -265,7 +264,7 @@ class TestApplyDeletions604(object):
         df = pd.DataFrame(columns=columns, data=data)
         return df
 
-    def expected_additions(self) -> pd.DataFrame:
+    def expected_df(self) -> pd.DataFrame:
         columns = ["reference", "instance", "period", "510", "604"]
         data = [
             [2222, 0, 201812, 0.5, "Yes"],  # ref 2222 nothing to be flagged
@@ -278,12 +277,12 @@ class TestApplyDeletions604(object):
         df = pd.DataFrame(columns=columns, data=data)
         return df
 
-    def test_apply_deletions_604(self, dummy_main_df, dummy_amendments_df):
+    def test_apply_deletions_604(self, main_df, amendments_df):
         """General tests for apply_deletions_604"""
 
-        result_df = apply_deletions_604(dummy_main_df, dummy_amendments_df)
+        result_df = apply_deletions_604(main_df, amendments_df)
 
-        expected_df = self.expected_additions()
+        expected_df = self.expected_df()
 
         #amended.sort_values(by=["reference", "instance"], ascending=True, inplace=True)
 
