@@ -180,12 +180,12 @@ class TestCalcLowerE:
 
     # Call calc_lower_e function
     actual_result = calw.calc_lower_e(input_df)
-    assert actual_result == expected_result, "calc_lower_e is behaving as expected"
+    assert actual_result == expected_result, "calc_lower_e not behaving as expected"
 
  class TestCalcLowerEMissingCol:
     """Test for calc_lower_e with missing col"""
 
-    def create_input_df(self, cols, msg, emp_col):
+    def create_input_df(self):
         """Creates input df for test"""
         cols = [
             "employment",
@@ -200,24 +200,18 @@ class TestCalcLowerE:
             [4, np.nan],
         ]
         input_df = pd.DataFrame(data=data, columns=cols)
-        return input_df, cols, msg, emp_col
+        return input_df
 
-    @pytest.mark.parametrize(
-        "cols, msg, emp_col",
-        [
-            (["employment", "711"], f"employment' or 711 missing.", "711"),
-        ],
-    )
-    def test_calc_lower_e_missing_col(self, cols, msg, emp_col):
+    def test_calc_lower_e_missing_col(self):
         """Test for calc_lower_e with missing col"""
-        input_df, cols, msg, emp_col = self.create_input_df(cols, msg, emp_col)
+        input_df = self.create_input_df()
 
         # Remove a required column to trigger an error
-        input_df = input_df.drop(columns=[emp_col])
+        input_df = input_df.drop(columns=["711"])
 
         # Apply function to see if error is raised
-        with pytest.raises(ValueError, match = msg):
-           calw.calc_lower_e(input_df, emp_col)
+        with pytest.raises(ValueError, match="employment' or 711 missing."):
+            calw.calc_lower_e(input_df)
 
 
 # Five tests for calculate_weighting_factor:
