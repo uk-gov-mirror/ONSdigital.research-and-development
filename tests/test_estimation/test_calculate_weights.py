@@ -210,7 +210,7 @@ class TestCalcLowerE:
         input_df = input_df.drop(columns=["711"])
 
         # Apply function to see if error is raised
-        with pytest.raises(ValueError, match="employment' or 711 missing."):
+        with pytest.raises(ValueError, match="employment or 711 missing."):
             calw.calc_lower_e(input_df)
 
 
