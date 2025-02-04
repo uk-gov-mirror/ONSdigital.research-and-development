@@ -15,6 +15,7 @@ from src.staging import postcode_validation as pcval
 from src.staging import spp_snapshot_processing as processing
 from src.staging import spp_parser
 from src.utils.helpers import filename_amender
+from src.mapping.mapping_helpers import mapper_null_checks
 
 # Create logger for this module
 StagingHelperLogger = logging.getLogger(__name__)
@@ -82,6 +83,7 @@ def load_validate_mapper(
     logger: logging.Logger,
     rd_file_exists: callable,
     rd_read_csv: callable,
+    validate_cols: list = None,
 ) -> pd.DataFrame:
     """
     Loads a specified mapper, validates it using a schema and an optional
@@ -102,6 +104,7 @@ def load_validate_mapper(
             file exists in a certain path.
         rd_read_csv(callable): A platform-specific function that reads a csv
             file into a Pandas dataframe from a given path.
+        validate_cols (list, optional): Checking for unexpected NULL values.
 
     Returns:
         pd.DataFrame: The loaded and validated mapper DataFrame.
@@ -109,6 +112,7 @@ def load_validate_mapper(
     Raises:
         FileNotFoundError: If no file exists at the mapper path.
         ValidationError: If the DataFrame fails schema validation or the validation func
+        Warning: If the DataFrame contains unexpected NULL values.
     """
     # Get the path of the mapper from the config dictionary
     mapper_path = config["mapping_paths"][mapper_path_key]
@@ -131,6 +135,9 @@ def load_validate_mapper(
 
     # Validate the DataFrame against the schema
     val.validate_data_with_schema(mapper_df, schema_path)
+
+    # Perform null checks on the mapper DataFrame
+    mapper_null_checks(mapper_df, mapper_name, validate_cols)
 
     # Log the successful loading of the mapper
     logger.info(f"{mapper_name} loaded successfully")
