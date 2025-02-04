@@ -14,7 +14,8 @@ import datetime
 from src.freezing.freezing_apply_changes import (
     validate_any_refinst_in_frozen,
     apply_amendments,
-    apply_additions
+    apply_additions,
+    apply_deletions_604
 )
 
 def create_refinst_df(data: list) -> pd.DataFrame:
@@ -232,3 +233,58 @@ class TestApplyAdditions(object):
             records = [rec.msg for rec in caplog.records]
             for log in expected_logs:
                 assert (log in records), ("error")
+
+
+class TestApplyDeletions604(object):
+    """ Tests for apply_deletions_604 """
+
+    @pytest.fixture(scope="function")
+
+    def dummy_amendments_df(self) -> pd.DataFrame:
+        """A dummy amendments dataframe."""
+        columns = ["reference", "instance", "period", "510", "604"]
+        data = [
+            [4444, 0, 201812, 0.5, "No"],  # ref 4444 period 201812 to be flagged
+        ]
+        df = pd.DataFrame(columns=columns, data=data)
+        return df
+
+    def dummy_main_df(self) -> pd.DataFrame:
+        """A dummy amendments dataframe."""
+        columns = ["reference", "instance", "period", "510", "604"]
+        data = [
+            [2222, 0, 201812, 0.5, "Yes"],  # ref 2222 nothing to be flagged
+            [2222, 1, 201812, 0.5, "Yes"],  # ref 2222 nothing to be flagged
+            [2222, 2, 201812, 0.5, "Yes"],  # ref 2222 nothing to be flagged
+            [4444, 0, 201812, 0.5, "No"],  # ref 4444 to be flagged not removed
+            [4444, 1, 201812, 0.5, "Yes"],  # ref 4444 to be flagged & removed
+            [4444, 2, 201812, 0.5, "Yes"],  # ref 4444 to be flagged its & removed
+            [4444, 1, 202202, 0.5, "Yes"],  # ref 4444 diff period not to be flagged
+            [4444, 2, 202202, 0.5, "Yes"]  # ref 4444 diff period not to be flagged
+        ]
+        df = pd.DataFrame(columns=columns, data=data)
+        return df
+
+    def expected_additions(self) -> pd.DataFrame:
+        columns = ["reference", "instance", "period", "510", "604"]
+        data = [
+            [2222, 0, 201812, 0.5, "Yes"],  # ref 2222 nothing to be flagged
+            [2222, 1, 201812, 0.5, "Yes"],  # ref 2222 nothing to be flagged
+            [2222, 2, 201812, 0.5, "Yes"],  # ref 2222 nothing to be flagged
+            [4444, 0, 201812, 0.5, "No"],  # ref 4444 to be flagged
+            [4444, 1, 202202, 0.5, "Yes"],  # ref 4444 diff period not to be flagged
+            [4444, 2, 202202, 0.5, "Yes"]  # ref 4444 diff period not to be flagged
+        ]
+        df = pd.DataFrame(columns=columns, data=data)
+        return df
+
+    def test_apply_deletions_604(self, dummy_main_df, dummy_amendments_df):
+        """General tests for apply_deletions_604"""
+
+        result_df = apply_deletions_604(dummy_main_df, dummy_amendments_df)
+
+        expected_df = self.expected_additions()
+
+        #amended.sort_values(by=["reference", "instance"], ascending=True, inplace=True)
+
+        assert_frame_equal(result_df, expected_df)

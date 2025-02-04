@@ -173,6 +173,10 @@ def apply_amendments(
     FreezingLogger.info(
         f"{accepted_amendments_df.shape[0]} record(s) amended during freezing"
     )
+
+    # Apply deletions for 604
+    main_df = apply_deletions_604(main_df, accepted_amendments_df)
+
     return amended_df
 
 
@@ -228,3 +232,57 @@ def apply_additions(
         FreezingLogger.info("Additions file contained no records marked for inclusion")
         return main_df
     return added_df
+
+
+def apply_deletions_604(main_df, accepted_amendments_df):
+    """Apply deletions for 604.
+
+    Checks if accepted_amendments_df contains any rows where
+    instance = 0 and 604 = No. If one or more rows meet this condition,
+    accepted_amendments_df is filtered for conditions where instance = 0,
+    and 604 = No creating flagged_df. The flagged references and periods
+    are then used to filter main_df for rows where instance is greater than 0.
+
+    Args:
+        main_df (pd.DataFrame): The main DataFrame.
+        accepted_amendments_df (pd.DataFrame): The accepted amendments DataFrame.
+
+    Returns:
+        pd.DataFrame: The main DataFrame with deletions applied
+    """
+
+    # Check if any row meets the condition of instane = 0 and 604 = No
+    condition_met = (
+        (accepted_amendments_df["instance"] == 0)
+        & (accepted_amendments_df["604"] == "No")
+    ).any()
+
+    if condition_met is True:
+
+        # Filter the DataFrame based on the conditions
+        flagged_df = accepted_amendments_df[
+            (accepted_amendments_df["instance"] == 0)
+            & (accepted_amendments_df["604"] == "No")
+        ]
+
+        # Get pairs of values for columns "reference" and "period"
+        # where instance = 0 and 604 = No.
+        reference_period_pairs = list(
+            zip(flagged_df["reference"], flagged_df["period"])
+        )
+
+        # Iterate over the pairs and delete rows in main_df where
+        # instance is greater than 0
+        for reference, period in reference_period_pairs:
+            main_df = main_df[
+                ~(
+                    (main_df["reference"] == reference)
+                    & (main_df["period"] == period)
+                    & (main_df["instance"] > 0)
+                )
+            ]
+
+    else:
+        pass
+
+    return main_df
