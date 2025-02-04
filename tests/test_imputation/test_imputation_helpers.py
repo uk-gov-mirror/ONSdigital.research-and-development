@@ -521,6 +521,7 @@ class TestCreateMask:
             "reference",
             "instance",
             "imp_class",
+            "imp_marker",
             "211",
             "601",
             "604",
@@ -530,12 +531,12 @@ class TestCreateMask:
         ]
 
         data = [
-            [111, 0, "nan_A", np.nan, None, "Yes", "Clear", "0001", "C"],
-            [111, 1, "C_A", 1, None, None, "Clear - overridden", "0001", "C"],
-            [222, 0, "nan_A", np.nan, None, None, "Clear", "0001", "C"],
-            [222, 1, "C_A", 1, "CB1 2NF", "No", "Clear", "0001", "C"],
-            [222, 2, "C_A", np.nan, "BA1 5DA", "No", "Clear", "0001", "C"],
-            [333, np.nan, "nan_A", np.nan, None, "No", "Form sent out", "0006", "P"],
+            [111, 0, "nan_A", "CF", np.nan, None, "Yes", "Check needed", "0001", "C"],
+            [111, 1, "C_A", "MoR", 1, None, None, "Check needed", "0001", "C"],
+            [222, 0, "nan_A", "R", np.nan, None, "No", "Clear", "0001", "C"],
+            [222, 1, "C_A", "R", 1, "CB1 2NF", "No", "Clear", "0001", "C"],
+            [222, 2, "C_A", "R", np.nan, "BA1 5DA", "No", "Clear", "0001", "C"],
+            [333, np.nan, None, "R", np.nan, None, "No", "Form sent out", "0006", "P"],
         ]
 
         input_df = pd.DataFrame(data=data, columns=input_cols)
@@ -544,14 +545,14 @@ class TestCreateMask:
     def test_clear_status(self):
         df = self.create_input_df()
         options = ["clear_status"]
-        expected_mask = pd.Series([True, True, True, True, True, False])
+        expected_mask = pd.Series([False, False, True, True, True, False])
         result_mask = create_mask(df, options)
         assert_series_equal(result_mask, expected_mask)
 
     def test_bad_status(self):
         df = self.create_input_df()
         options = ["bad_status"]
-        expected_mask = pd.Series([False, False, False, False, False, True])
+        expected_mask = pd.Series([True, True, False, False, False, True])
         result_mask = create_mask(df, options)
         assert_series_equal(result_mask, expected_mask)
 
@@ -572,7 +573,7 @@ class TestCreateMask:
     def test_no_r_and_d(self):
         df = self.create_input_df()
         options = ["no_r_and_d"]
-        expected_mask = pd.Series([False, False, False, True, True, True])
+        expected_mask = pd.Series([False, False, True, True, True, True])
         result_mask = create_mask(df, options)
         assert_series_equal(result_mask, expected_mask)
 
@@ -593,7 +594,7 @@ class TestCreateMask:
     def test_clear_instance_zero(self):
         df = self.create_input_df()
         options = ["clear_status", "instance_zero"]
-        expected_mask = pd.Series([True, False, True, False, False, False])
+        expected_mask = pd.Series([False, False, True, False, False, False])
         result_mask = create_mask(df, options)
         assert_series_equal(result_mask, expected_mask)
 
@@ -607,24 +608,30 @@ class TestCreateMask:
     def test_clear_instance_nonzero(self):
         df = self.create_input_df()
         options = ["clear_status", "instance_nonzero"]
-        expected_mask = pd.Series([False, True, False, True, True, False])
+        expected_mask = pd.Series([False, False, False, True, True, False])
         result_mask = create_mask(df, options)
         assert_series_equal(result_mask, expected_mask)
 
     def test_clear_instance_nonzero_exclude_nan_classes(self):
         df = self.create_input_df()
         options = ["clear_status", "instance_nonzero", "exclude_nan_classes"]
-        expected_mask = pd.Series([False, True, False, True, True, False])
+        expected_mask = pd.Series([False, False, False, True, True, False])
         result_mask = create_mask(df, options)
         assert_series_equal(result_mask, expected_mask)
 
     def test_clear_longfom_instance_nonzero(self):
         df = self.create_input_df()
         options = ["clear_status", "instance_nonzero", "longform"]
-        expected_mask = pd.Series([False, True, False, True, True, False])
+        expected_mask = pd.Series([False, False, False, True, True, False])
         result_mask = create_mask(df, options)
         assert_series_equal(result_mask, expected_mask)
 
+    def test_not_mor_imputed_longform(self):
+        df = self.create_input_df()
+        options = ["not_mor_imputed", "longform_only"]
+        expected_mask = pd.Series([False, False, True, True, True, False])
+        result_mask = create_mask(df, options)
+        assert_series_equal(result_mask, expected_mask)
 
 class TestSpecialFilter:
     """Tests for the SpecialFilter function."""

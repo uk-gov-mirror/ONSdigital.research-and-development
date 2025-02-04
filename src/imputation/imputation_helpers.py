@@ -118,7 +118,7 @@ def create_mask(df: pd.DataFrame, options: List[str]) -> pd.Series:
         "no_r_and_d": df["604"] == "No",
         "postcode_only": df["211"].isnull() & df["601"].notnull(),
         "excl_postcode_only": ~(df["211"].isnull() & df["601"].notnull()),
-        "exclude_nan_classes": ~df["imp_class"].str.contains("nan", na=False),
+        "exclude_nan_classes": ~df["imp_class"].str.contains("nan", na=True),
         "prn_only": df["selectiontype"] == "P",
         "census_only": df["selectiontype"] == "C",
         "longform_only": df["formtype"] == "0001",
