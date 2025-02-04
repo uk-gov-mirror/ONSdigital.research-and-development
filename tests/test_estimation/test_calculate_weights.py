@@ -219,7 +219,7 @@ class TestOutlierRound:
         for x in input_data:
             actual_result.append(calw.outlier_round(x))
 
-        assert actual_result == expected_result, "outlier_round is behaving as expected"
+        assert actual_result == expected_result
 
 
 # Five tests for calculate_weighting_factor:
