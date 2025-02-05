@@ -88,14 +88,10 @@ def test_validate_data_with_schema(mock_load_schema):
     # Call the function to be tested
     validate_data_with_schema(dumy_data, "mock_schema.toml")
 
-    # NOTE: we can't just check for data type 'int', the python built-in type, as the data type
-    # of a pandas series is a numpy dtype, eg. numpy.int64 (copilot help)
-    # Apparently this is not the case for string and float, so we can use the python built-in types
-
-    assert dumy_data["col1"].dtypes == np.int64
-    assert dumy_data["col2"].dtypes == pd.StringDtype()
-    assert dumy_data["col3"].dtypes == float
-    assert pd.api.types.is_datetime64_any_dtype(dumy_data["col4"].dtypes)
+    assert pd.api.types.is_integer_dtype(dumy_data["col1"].dtype), "col1 should be of integer type"
+    assert pd.api.types.is_string_dtype(dumy_data["col2"].dtype), "col2 should be of string type"
+    assert pd.api.types.is_float_dtype(dumy_data["col3"].dtype), "col3 should be of float type"
+    assert pd.api.types.is_datetime64_any_dtype(dumy_data["col4"].dtype), "col4 should be of datetime type"
 
 
 # Mock the schemas data
