@@ -124,6 +124,7 @@ class TestCalcLowerNRefNan:
 
         assert actual_result == expected_result, "calc_lower_n not behaving as expected"
 
+
 class TestCalcLowerE:
     """Test for calc_lower_e with nan."""
     def create_input_df(self):
@@ -152,6 +153,56 @@ class TestCalcLowerE:
         # Call calc_lower_e function
         actual_result = calw.calc_lower_e(input_df)
         assert actual_result == expected_result, "calc_lower_e not behaving as expected"
+
+
+class TestCalcLowerS:
+    """Test for calc_lower_s"""
+    def create_input_df(self):
+        """Creates input dataframe"""
+        cols =['reference', 'cellnumber', 'employment', 'outlier']
+        data =[[1, 22, 100, False],
+               [2, 22, 10, False],
+               [3, 22, 5, False],
+               [4, 8, 60, False],
+               [5, 8, 45, True],
+               [6, 8, 100, True]]
+        input_df = pd.DataFrame(data=data, columns=cols)
+        return input_df
+
+    def test_calc_lower_s(self):
+        """Test for lower_s calculation"""
+
+        input_df = self.create_input_df()
+        # Call calc_lower_s function
+        actual_result = calw.calc_lower_s(input_df)
+        # Define expected result
+        expected_result = 145
+        assert actual_result == expected_result, "calc_lower_s not behaving as expected"
+
+
+class TestCalcLowerSNoOutliers:
+    """Test to check if calc_lower_s returns 0 when there are no outliers"""
+    def create_input_df(self):
+        """Creates input dataframe"""
+        cols = ['reference', 'cellnumber', 'employment', 'outlier']
+        data = [[1, 22, 100, False],
+                [2, 22, 10, False],
+                [3, 22, 5, False],
+                [4, 8, 60, False],
+                [5, 8, 45, False],
+                [6, 8, 100, False]]
+        input_df = pd.DataFrame(data=data, columns=cols)
+        return input_df
+
+    def test_calc_lower_s_emptydf_(self):
+        """Test for lower_s calculation"""
+
+        input_df = self.create_input_df()
+        # Call calc_lower_s function
+        actual_result = calw.calc_lower_s(input_df)
+        # Define expected result
+        expected_result = 0
+        assert actual_result == expected_result, "calc_lower_s not behaving as expected"
 
 # Five tests for calculate_weighting_factor:
 # testing calculate_weighting_factor where missing outlier col

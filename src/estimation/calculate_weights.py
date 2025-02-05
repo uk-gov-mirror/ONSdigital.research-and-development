@@ -2,7 +2,6 @@ import pandas as pd
 import logging
 from typing import Tuple
 
-
 CalcWeights_Logger = logging.getLogger(__name__)
 
 
@@ -46,6 +45,28 @@ def calc_lower_e(df: pd.DataFrame) -> int:
     e = df["employment"].sum()
 
     return e
+
+
+def calc_lower_s(df: pd.DataFrame) -> int:
+    """Calculates 's' which identifies the sum of outliers for a cell group.
+
+    Args:
+        df (pd.DataFrame): The input dataframe which contains survey data.
+
+    Returns:
+        int: Calculated value of s.
+    """
+    # Filter where outliers bool = true
+    df = df.loc[df.outlier]
+
+    # If there are no outliers, return 0
+    if df.empty:
+        s = 0
+    else:
+        # Sum the employment column
+        s = df["employment"].sum()
+
+    return s
 
 
 def calculate_weighting_factor(
