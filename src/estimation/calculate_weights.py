@@ -40,7 +40,7 @@ def calc_lower_n(df: pd.DataFrame, exp_col: str = "709") -> dict:
     return n
 
 
-def calculate_weighting_factor(
+def calculate_weighting_factors(
     df: pd.DataFrame, exp_col: str = "709"
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Calculate the weighting factor 'a' for each cell in the survery data
@@ -66,8 +66,9 @@ def calculate_weighting_factor(
     # Convert 709 column to numeric
     df["709"] = pd.to_numeric(df["709"], errors="coerce")
 
-    # Default a_weight = 1 for all entries
+    # Default a and g-weights to 1 for all entries
     df["a_weight"] = 1.0
+    df["g_weight"] = 1.0
 
     grouped_by_cell = df.groupby("cellnumber", group_keys=False).apply(calc_a_weight)
 
@@ -91,6 +92,50 @@ def calc_a_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
 
     'o' is calculated in this function by summing all the `True` values
         because `True` == 1
+
+    Args:
+        cell_group (pd.DataFrame): The dataframe grouped by cellnumber.
+
+    Returns:
+        pd.DataFrame: The dataframe with the 'a' weighting factor calculated.
+    """
+    N = cell_group["uni_count"].iloc[0]
+
+    estimation_filter = create_estimation_filter(cell_group)
+    a_weight_filter = (cell_group["instance"] == 0) & cell_group["709"].notnull()
+    filtered_group = cell_group.loc[estimation_filter & a_weight_filter]
+
+    n = calc_lower_n(filtered_group)
+
+    # Count the outliers for this group (will count all the `True` values)
+    outlier_count = filtered_group["outlier"].sum()
+
+    # Calculate 'a' for this group
+    if n > 0:
+        a_weight = (N - outlier_count) / (n - outlier_count)
+    else:
+        a_weight = 1.0
+
+    cell_group["N"] = N
+    cell_group["n"] = n
+    cell_group["o"] = outlier_count
+    cell_group.loc[estimation_filter, "a_weight"] = a_weight
+
+    return cell_group
+
+
+def calc_g_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
+    """Calculate the 'g' weighting factor for a cell group.
+
+    The calculation here is:
+
+    g = (E - s) / a * (e - s)
+
+    Where:
+        - E is the sum of IDBR employment for all businesses in a cell
+        - e is the sum of IDBR employment for all sampled, valid responses in the cell
+        - s is the sum of IDBR employment for all outliered sampled, valid responses
+        - a is the 'a' weighting factor for the cell
 
     Args:
         cell_group (pd.DataFrame): The dataframe grouped by cellnumber.
