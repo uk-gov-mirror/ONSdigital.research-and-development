@@ -157,8 +157,10 @@ class TestCalcLowerNRefNan:
         assert actual_result == expected_result, "calc_lower_n not behaving as expected"
 
 class TestCalcLowerE:
- def create_input_df(self):
+    """Test for calc_lower_e with nan."""
+    def create_input_df(self):
         """Creates input df for test"""
+
         input_cols = [
             "employment",
             "711"]
@@ -173,46 +175,27 @@ class TestCalcLowerE:
         input_df = pd.DataFrame(data=data, columns=input_cols)
         return input_df
 
- def test_calc_lower_e(self):
-    """Test for calc_lower_e with nan."""
-    input_df = self.create_input_df()
-    expected_result = 14
+    def test_calc_lower_e(self):
+        """Test for calc_lower_e with nan."""
 
-    # Call calc_lower_e function
-    actual_result = calw.calc_lower_e(input_df)
-    assert actual_result == expected_result, "calc_lower_e not behaving as expected"
+        input_df = self.create_input_df()
+        expected_result = 14
 
- class TestCalcLowerEMissingCol:
-    """Test for calc_lower_e with missing col"""
+        # Call calc_lower_e function
+        actual_result = calw.calc_lower_e(input_df)
+        assert actual_result == expected_result, "calc_lower_e not behaving as expected"
 
-    def create_input_df(self):
-        """Creates input df for test"""
-        cols = [
-            "employment",
-            "711",
-        ]
-        data = [
-            [1, 10],
-            [2, 5],
-            [2, np.nan],
-            [4, np.nan],
-            [1, 10],
-            [4, np.nan],
-        ]
-        input_df = pd.DataFrame(data=data, columns=cols)
-        return input_df
+    def test_lower_e_missing_col(self):
+        """Test for lower_e with missing col"""
 
-    def test_calc_lower_e_missing_col(self):
-        """Test for calc_lower_e with missing col"""
         input_df = self.create_input_df()
 
         # Remove a required column to trigger an error
         input_df = input_df.drop(columns=["711"])
 
         # Apply function to see if error is raised
-        with pytest.raises(ValueError, match="employment or 711 missing."):
+        with pytest.raises(ValueError, match="employment' or 711 missing."):
             calw.calc_lower_e(input_df)
-
 
 # Five tests for calculate_weighting_factor:
 # testing calculate_weighting_factor where missing outlier col
