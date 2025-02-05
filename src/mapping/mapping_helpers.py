@@ -7,25 +7,40 @@ MappingLogger = logging.getLogger(__name__)
 
 
 def mapper_null_checks(
-    mapper_df: pd.DataFrame, mapper_name: str, col1: str, col2: str
+    mapper_df: pd.DataFrame,
+    mapper_name: str,
+    validate_cols: list = None,
+    warn: bool = False,
 ) -> None:
-    """
-    Perform null checks on two columns of a mapper DataFrame.
+    """Perform null checks on selected columns of a mapper DataFrame.
 
     Args:
         mapper_df (pd.DataFrame): The mapper DataFrame to check.
         mapper_name (str): The name of the mapper being validated.
-        col1 (str): The name of the first column to check for nulls.
-        col2 (str): The name of the second column to check for nulls.
-
+        validate_cols (list, optional): List of columns to validate.
+            If None, all columns are validated.
+        warn (bool,optional): Whether to warn instead of raising an error.
     Raises:
-        ValueError: If any null values are found in the mapper DataFrame.
+        Warning: unexpected null values are found in the mapper DataFrame and
+        warn bool is false.
 
     """
-    if mapper_df[col1].isnull().any():
-        raise ValueError(f"{mapper_name} mapper contains null values in {col1}.")
-    if mapper_df[col2].isnull().any():
-        raise ValueError(f"{mapper_name} mapper contains null values in {col2}.")
+    # Check for null values in selected columns
+    # List is defaulted to None unless specified
+    if validate_cols is None:
+        validate_cols = mapper_df.columns.tolist()
+
+    # List to store columns with null values
+    null_cols = []
+
+    # Check for NULL values of all columns in the list
+    for col in validate_cols:
+        if mapper_df[col].isnull().any():
+            # Append col to list
+            null_cols.append(col)
+    # If null cols is not empty, raise a warning that prints list of columns
+    if null_cols:
+        print(f" WARNING: {mapper_name} contains null values in {null_cols}.")
 
 
 def join_with_null_check(
@@ -142,7 +157,9 @@ def check_mapping_unique(
     col_to_check: str,
 ) -> None:
     """
-    Checks if a column contains unique values.
+    Checks that the values of column in a mapper DataFrame are all different (unique).
+
+    This will ensure that they can be uniquely mapped to values in another column.
 
     Args:
         mapper_df (pd.DataFrame): The mapper DataFrame to check.
