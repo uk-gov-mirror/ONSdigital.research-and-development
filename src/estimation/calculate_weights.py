@@ -1,6 +1,6 @@
-from typing import Tuple
 import pandas as pd
 import logging
+from typing import Tuple
 
 CalcWeights_Logger = logging.getLogger(__name__)
 
