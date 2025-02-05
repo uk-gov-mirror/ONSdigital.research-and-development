@@ -176,11 +176,15 @@ def filter_for_links(df: pd.DataFrame, is_current: bool) -> pd.DataFrame:
     # Filter out imputation classes that are missing either "200" or "201"
     nan_mask = df["imp_class"].str.contains("nan").apply(lambda x: not x)
     # Select only clear, or equivalently, imp_marker R.
-    # Exclude PRN cells in the current period.
+    clear_mask = df["imp_marker"] == "R"
+    # Exclude instance 0
+    ins_mask = df["instance"] > 0
     if is_current:
-        mask = (df["imp_marker"] == "R") & (df["selectiontype"] != "P") & nan_mask
+        # Exclude PRN cells in the current period.
+        prn_mask = df["selectiontype"] != "P"
+        mask = clear_mask & nan_mask & prn_mask & ins_mask
     else:
-        mask = (df["imp_marker"] == "R") & nan_mask
+        mask = clear_mask & nan_mask & ins_mask
 
     return df.loc[mask, :]
 

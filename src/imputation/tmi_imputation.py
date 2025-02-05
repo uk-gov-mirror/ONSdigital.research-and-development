@@ -199,13 +199,13 @@ def create_mean_dict(
     # Create an empty dict to store means
     mean_dict = dict.fromkeys(target_variable_list)
 
-    # Filter for clear statuses
-    clear_statuses = ["Clear", "Clear - overridden"]
-
-    filtered_df = df.loc[df["status"].isin(clear_statuses)]
-
-    # Filter out imputation classes that are missing either "200" or "201"
-    filtered_df = filtered_df[~(filtered_df["imp_class"].str.contains("nan"))]
+    filter_conditions_list = [
+        "clear_status",
+        "instance_nonzero",
+        "exclude_nan_classes",
+        "excl_postcode_only",
+    ]
+    filtered_df = hlp.special_filter(df, filter_conditions_list)
 
     # Group by imp_class
     grp = filtered_df.groupby("imp_class")
@@ -264,14 +264,8 @@ def apply_tmi(
     Returns:
         pd.DataFrame: The passed dataframe with TMI imputation applied.
     """
-    df = df.copy()
-
-    filtered_df = df.loc[df["status"].isin(["Form sent out", "Check needed"])]
-
-    # Filter out any cases where 200 or 201 are missing from the imputation class
-    # This ensures that means are calculated using only valid imputation classes
-    # Since imp_class is string type, any entry containing "nan" is excluded.
-    filtered_df = filtered_df[~(filtered_df["imp_class"].str.contains("nan"))]
+    conditions_mask_list = ["bad_status", "instance_nonzero", "exclude_nan_classes"]
+    filtered_df = hlp.special_filter(df, conditions_mask_list)
 
     grp = filtered_df.groupby("imp_class")
     class_keys = list(grp.groups.keys())
@@ -343,7 +337,7 @@ def run_longform_tmi(
 
 
 def run_shortform_tmi(
-    shortform_df: pd.DataFrame,
+    to_impute_df: pd.DataFrame,
     config: Dict[str, Any],
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Function to run shortform TMI imputation.
@@ -361,11 +355,6 @@ def run_shortform_tmi(
 
     sf_target_variables = list(config["breakdowns"])
 
-    # logic to identify Census rows, only these will be used for shortform TMI
-    census_mask = shortform_df["selectiontype"] == "C"
-    to_impute_df = shortform_df.copy().loc[census_mask]
-    not_imputed_df = shortform_df.copy().loc[~census_mask]
-
     mean_dict, qa_df, trim_counts_qa = create_mean_dict(
         to_impute_df, sf_target_variables, config
     )
@@ -381,13 +370,43 @@ def run_shortform_tmi(
     tmi_df.loc[qa_df.index, "211_trim"] = qa_df["211_trim"]
     tmi_df.loc[qa_df.index, "305_trim"] = qa_df["305_trim"]
 
-    # create imputation classes for shortform entries not imputed (selectiontype 'P')
-    not_imputed_df = hlp.create_imp_class_col(not_imputed_df, ["200", "201"])
-    # concatinate qa dataframes from short forms and long forms
-    shortforms_updated_df = hlp.concat_with_bool([tmi_df, not_imputed_df])
-
     TMILogger.info("TMI imputation completed.")
-    return shortforms_updated_df, qa_df, trim_counts_qa
+    return tmi_df, qa_df, trim_counts_qa
+
+
+def tmi_prep(
+    full_df: pd.DataFrame,
+    config: Dict[str, Any],
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Return dataframes for longform and shortform imputation and for excluded rows.
+
+    Args:
+        full_df (pd.DataFrame): The full responses dataframe.
+        config (Dict): the configuration settings.
+
+    Returns:
+        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+            longform_df: A dataframe with longform rows to be imputed.
+            shortform_df: A dataframe with shortform rows to be imputed.
+            excluded_df: A dataframe with rows that do not need to be imputed.
+    """
+    # logic to identify rows that do not need to be imputed
+    mor_mask = hlp.create_mask(full_df, ["mor_imputed"])
+    prn_mask = hlp.create_mask(full_df, ["prn_only"])
+    excluded_df = full_df.copy().loc[mor_mask | prn_mask]
+
+    # create a dataframe for longform rows to be imputed
+    longform_df = hlp.special_filter(full_df, ["longform_only", "not_mor_imputed"])
+
+    # create a dataframe for shortform rows to be imputed if the survey is BERD
+    if config["survey"]["survey_type"] == "BERD":
+        shortform_df = hlp.special_filter(
+            full_df, ["shortform_only", "not_mor_imputed", "census_only"]
+        )
+    else:
+        shortform_df = pd.DataFrame()
+
+    return longform_df, shortform_df, excluded_df
 
 
 def run_tmi(
@@ -406,17 +425,8 @@ def run_tmi(
         qa_df: QA dataframe.
         trim_counts (pd.DataFrame): The qa dataframe for trim counts.
     """
-    # logic to identify rows that have had MoR or CF applied,
-    # these should be excluded from TMI
-    mor_mask = full_df["imp_marker"].isin(["CF", "MoR"])
-    # create dataframe for all the rows excluded from TMI
-    excluded_df = full_df.copy().loc[mor_mask]
-
-    # create logic to select rows for longform and shortform TMI
-    long_tmi_mask = (full_df["formtype"] == formtype_long) & ~mor_mask
-
-    # create dataframes to be used for longform TMI
-    longform_df = full_df.copy().loc[long_tmi_mask]
+    TMILogger.info("Starting TMI imputation.")
+    longform_df, shortform_df, excluded_df = tmi_prep(full_df, config)
 
     # apply TMI imputation to short forms for the BERD survey (but not PNP)
     if config["survey"]["survey_type"] == "BERD":
@@ -431,9 +441,6 @@ def run_tmi(
             longform_df, config
         )
 
-        short_tmi_mask = (full_df["formtype"] == formtype_short) & ~mor_mask
-        shortform_df = full_df.copy().loc[short_tmi_mask]
-
         shortform_tmi_df, qa_df_short, s_trim_counts = run_shortform_tmi(
             shortform_df, config
         )
@@ -443,13 +450,14 @@ def run_tmi(
         # concatinate qa dataframes from short forms and long forms
         full_qa_df = hlp.concat_with_bool([qa_df_long, qa_df_short])
 
-    else:
+        trim_counts = hlp.concat_with_bool([l_trim_counts, s_trim_counts])
+
+    elif config["survey"]["survey_type"] == "PNP":
         # apply TMI imputation to PNP long forms
-        longform_tmi_df, qa_df_long, l_trim_counts = run_longform_tmi(
-            longform_df, config
-        )
+        longform_tmi_df, full_qa_df, trim_counts = run_longform_tmi(longform_df, config)
         full_df = hlp.concat_with_bool([longform_tmi_df, excluded_df])
-        full_qa_df = qa_df_long
+        # add extra cols to compenste for the missing short form columns in PNP
+        full_qa_df[[["emp_total_trim", "headcount_total_trim"]]] = False
 
     full_df = full_df.sort_values(
         ["reference", "instance"], ascending=[True, True]
@@ -479,10 +487,6 @@ def run_tmi(
     ]
     full_qa_df = full_qa_df[qa_cols]
 
-    if config["survey"]["survey_type"] == "BERD":
-        trim_counts = hlp.concat_with_bool([l_trim_counts, s_trim_counts])
-    else:
-        trim_counts = l_trim_counts
     # group by imputation class and format data
     trim_counts = (
         trim_counts.groupby(["imp_class", "formtype", "clear_class_size"])
