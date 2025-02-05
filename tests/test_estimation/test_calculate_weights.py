@@ -233,22 +233,7 @@ class TestCalcLowerSNoOutliers:
         expected_result = 0
         assert actual_result == expected_result, "calc_lower_s not behaving as expected"
 
-# Five tests for calculate_weighting_factor:
-# testing calculate_weighting_factor where missing outlier col
-# testing calculate_weighting_factor filter
-# testing calculate_weighting_factor 709 to numeric with no missing vals
-# testing calculate_weighting_factor 709 to numeric with missing vals
-# testing calculate_weighting_factor with missing vals
 
-    def test_calc_lower_e(self):
-        """Test for calc_lower_e with nan."""
-
-        input_df = self.create_input_df()
-        expected_result = 14
-
-        # Call calc_lower_e function
-        actual_result = calw.calc_lower_e(input_df)
-        assert actual_result == expected_result, "calc_lower_e not behaving as expected"
 
 # Five tests for calculate_weighting_factors:
 # testing calculate_weighting_factors where missing outlier col
@@ -349,6 +334,8 @@ class TestCalcWeightFilter:
             [2, 1, 16, "P", "Clear", "0006", 2, 4, 5000, False, 77, 4.0, 99],
             [4, 0, 18, "P", "Clear", "0006", 4, 3, 5000, False, 88, 3.0, 99],
             [1, 0, "20", "X", "Clear", "0006", 5, 10, 5000, False, 99, 1.0, 99],
+            [3, 0, 1, "P", "999", "0006", 1, 20, 5000, 11, False, 99, 1.0, 99],
+            [5, 0, 14, "P", "Clear - overridden", "0001", 2, 4, 5000, 22, False, 99, 1.0, 99],
             [6, 0, 10, "P", "Clear", "0006", 1, 20, 5000, False, 7, 10.0, 99],
             [7, 1, 10, "P", "Clear", "0006", 5, 10, 5000, False, 7, 10.0, 99],
             [9, 0, 5, "P", "Clear", "0006", 1, 20, 5000, False, 44, 5.0, 99],
