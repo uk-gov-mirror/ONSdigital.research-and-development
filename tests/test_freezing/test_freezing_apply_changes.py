@@ -265,12 +265,12 @@ class TestApplyDeletions604(object):
     def expected(self) -> pd.DataFrame:
         columns = ["reference", "instance", "period", "510", "604"]
         data = [
-            [2222, 0, 201812, 0.5, "Yes"],  # ref 2222 nothing to be removed
-            [2222, 1, 201812, 0.5, "Yes"],  # ref 2222 nothing to be removed
-            [2222, 2, 201812, 0.5, "Yes"],  # ref 2222 nothing to be removed
-            [4444, 0, 201812, 0.5, "No"],  # ref 4444 to be flagged not removed
-            [4444, 1, 202202, 0.5, "Yes"],  # ref 4444 diff period not to be removed
-            [4444, 2, 202202, 0.5, "Yes"]  # ref 4444 diff period not to be removed
+            [2222, 0, 201812, 0.5, "Yes"],  # ref 2222 nothing removed
+            [2222, 1, 201812, 0.5, "Yes"],  # ref 2222 nothing removed
+            [2222, 2, 201812, 0.5, "Yes"],  # ref 2222 nothing removed
+            [4444, 0, 201812, 0.5, "No"],  # ref 4444 flagged not removed
+            [4444, 1, 202202, 0.5, "Yes"],  # ref 4444 diff period removed
+            [4444, 2, 202202, 0.5, "Yes"]  # ref 4444 diff period removed
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
