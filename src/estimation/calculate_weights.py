@@ -8,36 +8,46 @@ CalcWeights_Logger = logging.getLogger(__name__)
 
 def create_estimation_filter(df: pd.DataFrame) -> pd.Series:
     """Return a boolean mask for the conditions needed to apply estimation."""
-    sample_cond = df["selectiontype"] == "P"
+    prn_cond = df["selectiontype"] == "P"
     status_cond = df.status.isin(["Clear", "Clear - overridden"])
     formtype_cond = df["formtype"] == "0006"
+    ins_cond = df["instance"] == 0
+    valid_cond = df["709"].notnull()
 
-    estimation_filter = formtype_cond & sample_cond & status_cond
+    estimation_filter = formtype_cond & prn_cond & status_cond & ins_cond & valid_cond
     return estimation_filter
 
 
-def calc_lower_n(df: pd.DataFrame, exp_col: str = "709") -> dict:
+def calc_lower_n(df: pd.DataFrame) -> int:
     """Calculates 'n' which is a number of
     unique RU references in the filtered dataset.
 
     Args:
-        df (pd.DatatFrame): The input dataframe which contains survey data,
+        df (pd.DataFrame): The input dataframe which contains survey data,
             including expenditure data
-        exp_col (str): An appropriate column to count n
-
     Returns:
         int: The number of unique references.
     """
-
-    # Check if any of the key cols are missing
-    cols = set(df.columns)
-    if not ("reference" in cols) & (exp_col in cols):
-        raise ValueError(f"'reference' or {exp_col} missing.")
-
     # Count the records
     n = df["reference"].nunique()
 
     return n
+
+
+def calc_lower_e(df: pd.DataFrame) -> int:
+    """Calculates 'e' which is a sum of
+    IDBR employment data in the filtered dataset.
+
+    Args:
+        df (pd.DatatFrame): The input dataframe which contains survey data,
+            including IDBR employment data.
+    Returns:
+        int: The sum of IDBR employment of sampled.
+    """
+    # Sum employment for each cellnumber
+    e = df["employment"].sum()
+
+    return e
 
 
 def calculate_weighting_factors(
@@ -99,11 +109,13 @@ def calc_a_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The dataframe with the 'a' weighting factor calculated.
     """
+    if cell_group.empty:
+        return cell_group
+
     N = cell_group["uni_count"].iloc[0]
 
     estimation_filter = create_estimation_filter(cell_group)
-    a_weight_filter = (cell_group["instance"] == 0) & cell_group["709"].notnull()
-    filtered_group = cell_group.loc[estimation_filter & a_weight_filter]
+    filtered_group = cell_group.loc[estimation_filter]
 
     n = calc_lower_n(filtered_group)
 
@@ -127,7 +139,7 @@ def calc_a_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
 def calc_g_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
     """Calculate the 'g' weighting factor for a cell group.
 
-    The calculation here is:
+    The calculation for the g-weight is:
 
     g = (E - s) / a * (e - s)
 
@@ -143,27 +155,28 @@ def calc_g_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The dataframe with the 'a' weighting factor calculated.
     """
-    N = cell_group["uni_count"].iloc[0]
+    if cell_group.empty:
+        return cell_group
+
+    E = cell_group["uni_employment"].iloc[0]
+    a = cell_group["a_weight"].iloc[0]
 
     estimation_filter = create_estimation_filter(cell_group)
-    a_weight_filter = (cell_group["instance"] == 0) & cell_group["709"].notnull()
-    filtered_group = cell_group.loc[estimation_filter & a_weight_filter]
+    filtered_group = cell_group.loc[estimation_filter]
 
-    n = calc_lower_n(filtered_group)
-
-    # Count the outliers for this group (will count all the `True` values)
-    outlier_count = filtered_group["outlier"].sum()
+    e = calc_lower_e(filtered_group)
+    s = 0
 
     # Calculate 'a' for this group
-    if n > 0:
-        a_weight = (N - outlier_count) / (n - outlier_count)
+    if (e - s) > 0:
+        g_weight = (E - s) / (a * (e - s))
     else:
-        a_weight = 1.0
+        g_weight = 1.0
 
-    cell_group["N"] = N
-    cell_group["n"] = n
-    cell_group["o"] = outlier_count
-    cell_group.loc[estimation_filter, "a_weight"] = a_weight
+    cell_group["E"] = E
+    cell_group["e"] = e
+    cell_group["s"] = s
+    cell_group.loc[estimation_filter, "g_weight"] = g_weight
 
     return cell_group
 
