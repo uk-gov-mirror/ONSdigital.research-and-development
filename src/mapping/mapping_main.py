@@ -46,6 +46,9 @@ def run_mapping(
         "ultfoc_mapper_path", config, MappingMainLogger, rd_file_exists, rd_read_csv
     )
 
+    # Retrieve relevant columns to validate from the ITL mapper config.
+    itl_cols = config["mappers"]["geo_cols"] + [config["mappers"]["gb_itl"]]
+
     # Load ITL mapper
     itl_mapper = stage_hlp.load_validate_mapper(
         "itl_mapper_path",
@@ -53,6 +56,7 @@ def run_mapping(
         MappingMainLogger,
         rd_file_exists,
         rd_read_csv,
+        validate_cols=itl_cols,
     )
 
     # Loading cell number coverage

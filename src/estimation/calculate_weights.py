@@ -1,8 +1,6 @@
+from typing import Tuple
 import pandas as pd
-import numpy as np
 import logging
-from typing import Tuple, Dict
-
 
 CalcWeights_Logger = logging.getLogger(__name__)
 
@@ -17,73 +15,59 @@ def create_estimation_filter(df: pd.DataFrame) -> pd.Series:
     return estimation_filter
 
 
-def calc_lower_n(df: pd.DataFrame, exp_col: str = "709") -> dict:
+def calc_lower_n(df: pd.DataFrame) -> int:
     """Calculates 'n' which is a number of
     unique RU references in the filtered dataset.
 
     Args:
-        df (pd.DatatFrame): The input dataframe which contains survey data,
+        df (pd.DataFrame): The input dataframe which contains survey data,
             including expenditure data
-        exp_col (str): An appropriate column to count n
-
     Returns:
         int: The number of unique references.
     """
-
-    # Check if any of the key cols are missing
-    cols = set(df.columns)
-    if not ("reference" in cols) & (exp_col in cols):
-        raise ValueError(f"'reference' or {exp_col} missing.")
-
     # Count the records
     n = df["reference"].nunique()
 
     return n
 
 
-def outlier_round(x):
-    """Calculates the rounding threshold for outliers.
-    Outliers are rounded up if the decimal is 0.5 or greater.
+def calc_lower_e(df: pd.DataFrame) -> int:
+    """Calculates 'e' which is a sum of
+    IDBR employment data in the filtered dataset.
 
-    The use of 'x % 1' is to get the decimal part of the number.
-    Therefore anywhere the value has a decimal of 0.5 or greater the function
-    will round up and anything else it will round down.
+    Args:
+        df (pd.DatatFrame): The input dataframe which contains survey data,
+            including IDBR employment data.
+    Returns:
+        int: The sum of IDBR employment of sampled.
     """
-    if x % 1 == 0.5:
-        return np.ceil(x)
-    elif x % 1 < 0.5:
-        return np.floor(x)
-    else:
-        return np.ceil(x)
+    # Sum employment for each cellnumber
+    e = df["employment"].sum()
+
+    return e
 
 
-def calc_lower_s(df: pd.DataFrame, config: Dict[str, float]) -> dict:
-    """Calculates 's' which identifies the number of outliers for a cell group
+def calc_lower_s(
+    df: pd.DataFrame,
+) -> int:
+    """Calculates 's' which identifies the sum of outliers for a cell group.
 
     Args:
         df (pd.DataFrame): The input dataframe which contains survey data.
-        config (Dict[str, float]): The configuration settings.
+
     Returns:
         int: Calculated value of s.
     """
 
-    # Retrieve percent from config upper_clip outlier threshold.
-    outlier_thresh = config.get("global", {}).get("upper_clip")
+    # Filter where outliers bool = true
+    df = df.loc[df.outlier]
 
-    # Check if there is a value in the config.
-    if outlier_thresh is None:
-        raise KeyError("The config must include 'upper_clip' threshold.")
-
-    # Check if any key cols are missing
-    cols = set(df.columns)
-    if "711" not in cols:
-        raise ValueError("employment column is missing.")
-
-    # Multiply total employment by upper_clip to calculate number of outliers per cell.
-    num_of_outliers = df["711"] * outlier_thresh
-
-    # Apply outlier rounding
-    s = num_of_outliers.apply(outlier_round)
+    # If there are no outliers, return 0
+    if df.empty:
+        s = 0
+    else:
+        # Sum the employment column
+        s = df["employment"].sum()
 
     return s
 

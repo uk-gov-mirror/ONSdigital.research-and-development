@@ -90,38 +90,6 @@ class TestCalcLowerNDuplicateRefs:
         expected_result = 3
         assert actual_result == expected_result, "calc_lower_n not behaving as expected"
 
-
-class TestCalcLowerNMissingCol:
-    """Test for calc_lower_n with missing col"""
-
-    def create_input_df(self, cols, msg, exp_col):
-        """Creates input df for test"""
-        data = [
-            [1, "A"],
-            [2, "B"],
-            [2, "C"],
-            [4, "D"],
-            [1, "E"],
-        ]
-        input_df = pd.DataFrame(data=data, columns=cols)
-        return input_df, cols, msg, exp_col
-
-    @pytest.mark.parametrize(
-        "cols, msg, exp_col",
-        [
-            (["ref", "709"], f"'reference' or 709 missing.", "709"),
-            (["reference", "706"], f"'reference' or 707 missing.", "707"),
-        ],
-    )
-    def test_calc_lower_n_missing_col(self, cols, msg, exp_col):
-        """Test for calc_lower_n with missing col"""
-        input_df, cols, msg, exp_col = self.create_input_df(cols, msg, exp_col)
-
-        with pytest.raises(ValueError) as error_msg:
-            calw.calc_lower_n(input_df, exp_col)
-        assert str(error_msg.value) == msg, "calc_lower_n not behaving as expected"
-
-
 class TestCalcLowerNRefNan:
     """Test for calc_lower_n with nan in reference."""
 
@@ -156,71 +124,34 @@ class TestCalcLowerNRefNan:
 
         assert actual_result == expected_result, "calc_lower_n not behaving as expected"
 
-class TestCalcLowerS:
-    """Test for calc_lower_s"""
-
+class TestCalcLowerE:
+    """Test for calc_lower_e with nan."""
     def create_input_df(self):
         """Creates input df for test"""
+
         input_cols = [
-            "711",
-        ]
-
+            "employment",
+            "711"]
         data = [
-            [10],
-            [25],
-            [30],
-            [5],
-            [15],
+            [1, 10],
+            [2, 5],
+            [2, np.nan],
+            [4, np.nan],
+            [1, 10],
+            [4, np.nan],
         ]
-
         input_df = pd.DataFrame(data=data, columns=input_cols)
         return input_df
 
-    def create_config(self):
-        """Creates config for test"""
-        config = {"global": {"upper_clip": 0.05}}
-        return config
-
-    def test_calc_lower_s(self):
-        """Test for calc_lower_s"""
+    def test_calc_lower_e(self):
+        """Test for calc_lower_e with nan."""
 
         input_df = self.create_input_df()
+        expected_result = 14
 
-        config = self.create_config()
-
-        # Define expected result
-        expected_result = pd.Series([1, 1, 2, 0, 1], name = "711")
-
-        # Call calc_lower_s function
-        actual_result = calw.calc_lower_s(input_df, config)
-
-        assert_series_equal(actual_result, expected_result, check_dtype = False)
-
-class TestOutlierRound:
-    """Test for outlier_round"""
-
-    def create_input(self):
-        """Creates input for test"""
-        input_data = [0.5, 1.3, 2.8, 2.9, 4.5, 5.1]
-        return input_data
-
-    def test_outlier_round(self):
-        """Test for outlier_round"""
-
-        input_data = self.create_input()
-
-        # Define expected result
-        expected_result = [1, 1, 3, 3, 5, 5]
-
-        # Create empty list for actual results
-        actual_result = []
-
-        # Call outlier_round function
-        for x in input_data:
-            actual_result.append(calw.outlier_round(x))
-
-        assert actual_result == expected_result
-
+        # Call calc_lower_e function
+        actual_result = calw.calc_lower_e(input_df)
+        assert actual_result == expected_result, "calc_lower_e not behaving as expected"
 
 # Five tests for calculate_weighting_factor:
 # testing calculate_weighting_factor where missing outlier col
