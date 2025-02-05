@@ -33,16 +33,16 @@ def get_amendments(
     key_cols = ["reference", "period", "instance"]
 
     # Get the dictionary of equality lists
-	equality_dict = get_equality_dicts(config, sublist="freezing")
-	
-	# Extract the values (lists) from the dictionary
-	equality_lists = list(equality_dict.values())
-	
-	# Concatenate all lists into a single list
-	concatenated_list = sum(equality_lists, [])
-	
-	# Remove duplicates and sort the list to create numeric_cols
-	numeric_cols = sorted(set(concatenated_list))
+    equality_dict = get_equality_dicts(config, sublist="freezing")
+
+    # Extract the values (lists) from the dictionary
+    equality_lists = list(equality_dict.values())
+
+    # Concatenate all lists into a single list
+    concatenated_list = sum(equality_lists, [])
+
+    # Remove duplicates and sort the list to create numeric_cols
+    numeric_cols = sorted(set(concatenated_list))
 
     non_numeric_cols = ["200", "201", "601", "604"]
 
