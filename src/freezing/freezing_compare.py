@@ -57,7 +57,9 @@ def get_amendments(
     if amendments_df.shape[0] > 0:
         for each in numeric_cols:
             amendments_df[f"{each}_diff"] = (
-                abs(amendments_df[f"{each}_updated"] - amendments_df[f"{each}_original"])
+                abs(
+                    amendments_df[f"{each}_updated"] - amendments_df[f"{each}_original"]
+                )
             )
             amendments_df.loc[
                 amendments_df[f"{each}_diff"] > 0.00001,
