@@ -32,11 +32,17 @@ def get_amendments(
     )
     key_cols = ["reference", "period", "instance"]
 
-    mixed_cols = sum(list(get_equality_dicts(config, sublist="freezing").values()), [])
-    # List of items to remove
-    items_to_remove = ["708"]
-    # Remove the specified items from mixed_cols
-    numeric_cols = [item for item in mixed_cols if item not in items_to_remove]
+    # Get the dictionary of equality lists
+	equality_dict = get_equality_dicts(config, sublist="freezing")
+	
+	# Extract the values (lists) from the dictionary
+	equality_lists = list(equality_dict.values())
+	
+	# Concatenate all lists into a single list
+	concatenated_list = sum(equality_lists, [])
+	
+	# Remove duplicates and sort the list to create numeric_cols
+	numeric_cols = sorted(set(concatenated_list))
 
     non_numeric_cols = ["200", "201", "601", "604"]
 
