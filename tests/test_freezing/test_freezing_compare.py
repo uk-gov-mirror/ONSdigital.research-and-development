@@ -77,7 +77,7 @@ class TestGetAmendments:
             ["B", 202412, None, None, 1.0, "A", "B", None, 0.0, "A", "B", False],
             ["C", 202412, 0.0, 2.0, 2.0, "A", "B", 1.0, 0.0, None, None, False],
             ["D", 202412, 1.0, 2.0, 3.0, "E", "D", 0.0, 0.0, "E", None, False],
-            ["E", 202412, None, 10.0, 1.0, "E", "F", 6.0, -4.0, None, None, False],
+            ["E", 202412, None, 10.0, 1.0, "E", "F", 6.0, 4.0, None, None, False],
         ]
         input_expected_outcome_df = pd.DataFrame(data=data, columns=input_cols)
         input_expected_outcome_df = self.add_numeric_cols(input_expected_outcome_df, expected = True)
