@@ -80,12 +80,13 @@ def calculate_weighting_factors(
     df["a_weight"] = 1.0
     df["g_weight"] = 1.0
 
-    grouped_by_cell = df.groupby("cellnumber", group_keys=False).apply(calc_a_weight)
+    df = df.groupby("cellnumber", group_keys=False).apply(calc_a_weight)
+    df = df.groupby("cellnumber", group_keys=False).apply(calc_g_weight)
 
     # Create a QA dataframe
-    qa_frame = create_a_weight_qa_df(grouped_by_cell)
-    grouped_by_cell = grouped_by_cell.drop(columns=["N", "n", "o"])
-    return grouped_by_cell, qa_frame
+    qa_frame = create_a_weight_qa_df(df)
+    df = df.drop(columns=["N", "n", "o", "E", "e", "s"])
+    return df, qa_frame
 
 
 def calc_a_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
