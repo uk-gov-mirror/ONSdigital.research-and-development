@@ -107,7 +107,6 @@ def read_frozen_csv(config: dict, read_csv: Callable) -> pd.DataFrame:
         pd.DataFrame: The frozen data csv.
     """
     frozen_data_staged_path = config["freezing_paths"]["frozen_data_staged_path"]
-
     FreezingLogger.info("Loading frozen data...")
     frozen_csv = read_csv(frozen_data_staged_path)
     validate_data_with_schema(frozen_csv, "./config/frozen_data_staged_schema.toml")

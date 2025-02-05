@@ -1,5 +1,6 @@
 """This module contains helper functions for creating paths."""
 
+import re
 import os
 import logging
 
@@ -216,6 +217,16 @@ def create_freezing_config(config: dict) -> dict:
     # now update add freezing paths
     paths = get_paths(config)
     survey_path = paths["survey_path"]
+
+    if (
+        config["survey"]["survey_type"] == "PNP"
+        and "PNP_" not in paths["frozen_data_staged_path"]
+    ):
+        pattern = "frozen_data_staged/"
+        insert_string = "frozen_data_staged/PNP_"
+        paths["frozen_data_staged_path"] = re.sub(
+            pattern, insert_string, paths["frozen_data_staged_path"]
+        )
     freezing_dict["frozen_data_staged_path"] = os.path.join(
         survey_path, paths["frozen_data_staged_path"]
     )
