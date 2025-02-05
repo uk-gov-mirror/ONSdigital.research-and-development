@@ -12,6 +12,8 @@ from src.imputation.imputation_helpers import (
     create_imp_class_col,
     imputation_marker,
     concat_with_bool,
+    create_notnull_mask,
+    create_r_and_d_instance,
 )
 
 
@@ -508,3 +510,111 @@ class TestConcatWithBool:
         result_df = concat_with_bool([df1, df2, df3])
         # ignore the order of the columns
         assert_frame_equal(result_df.reset_index(drop=True), expected_df, check_like=True)
+
+class TestCheckRAndDInstance:
+    """ Unit test for check_r_and_d_instance function """
+    def cre_input_df(self) -> pd.DataFrame:
+        """Define columns and values for the DataFrame"""
+        columns_df = ["reference", "instance", "604", "formtype"]
+        values_df = [
+            [49900999999, 1, "Yes", "0006"],
+            [49900999999, 2, "Yes", "0006"],
+            [49900000404, 0, "Yes", "0001"],
+            [49900999999, 0, "Yes", "0006"],
+            [49900000404, 2, "Yes", "0001"],
+            [49900000404, 1, "Yes", "0001"],
+            [49900001209, np.nan, np.nan, "0001"],
+            [50000000108, 0, np.nan, "0006"],
+            [50000000108, 1, np.nan, "0006"],
+            [50000000108, 2, np.nan, "0006"],
+            [50000999999, 0, "Yes", "0001"],
+            [50000999999, 1, "Yes", "0001"],
+            [50000999999, 2, "Yes", "0001"],
+            [49900888888, 0, "No", "0001"],
+            [49900888888, 1, "No", "0001"],
+        ]
+
+        # Create DataFrame from the lists of values
+        df = pd.DataFrame(values_df, columns=columns_df)
+        return df
+
+    def cre_expected_output(self) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """ define expected output dataframes.
+        """
+        columns_df1 = ["reference", "instance", "604", "formtype"]
+        dtype_dict = {"reference" : "int64", "instance" : "float64", "604" : "str", "formtype" : "str"}
+        values_df1 = [
+            [49900000404, 0, "Yes", "0001"],
+            [49900000404, 1, "Yes", "0001"],
+            [49900000404, 2, "Yes", "0001"],
+            [49900001209, np.nan, np.nan, "0001"],
+            [49900888888, 0, "No", "0001"],
+            [49900888888, 1, "No", "0001"],
+            [49900999999, 0, "Yes", "0006"],
+            [49900999999, 1, "Yes", "0006"],
+            [49900999999, 2, "Yes", "0006"],
+            [50000000108, 0, np.nan, "0006"],
+            [50000000108, 1, np.nan, "0006"],
+            [50000000108, 2, np.nan, "0006"],
+            [50000999999, 0, "Yes", "0001"],
+            [50000999999, 1, "Yes", "0001"],
+            [50000999999, 2, "Yes", "0001"],
+        ]
+
+        # Create DataFrame from the lists of values
+        final_df = pd.DataFrame(values_df1, columns=columns_df1)
+
+        columns_df2 = ["reference", "instance", "604", "formtype"]
+        values_df2 = [
+            [49900888888, 0, "No", "0001"],
+            [49900888888, 1, "No", "0001"],
+        ]
+        # Create DataFrame from the lists of values
+        mult_604_qa_df = pd.DataFrame(values_df2, columns=columns_df2)
+
+        return final_df, mult_604_qa_df
+
+    def test_check_r_and_d_instance(self):
+        """Test for function check_r_and_d_instance"""
+        input_df = self.cre_input_df()
+        expected_final_df, expected_mult_604_qa_df  = self.cre_expected_output()
+
+        check_final_df, check_mult_604_qa_df = create_r_and_d_instance(input_df)
+
+        assert_frame_equal(check_final_df.reset_index(drop=True), expected_final_df, check_dtype=False)
+        assert_frame_equal(check_mult_604_qa_df.reset_index(drop=True), expected_mult_604_qa_df, check_dtype=False)
+
+class TestCreateNotnullMask:
+    """ Unit test for create_notnull_mask function """
+    def cre_input_df(self) -> pd.DataFrame:
+        """Define columns and values for the DataFrame"""
+        columns_df = ['600', '601', '602']
+        values_df = [
+            ["AA", "AA01 1AA", np.nan],
+            [np.nan, np.nan, "XX"],
+            ["BB", "", "YY"],
+            ["CC", "BB1 1BB", "ZZ"]
+        ]
+
+        # Create DataFrame from the lists of values
+        df = pd.DataFrame(values_df, columns=columns_df)
+        return df
+
+    def cre_expected_output(self) -> pd.Series:
+        """ define expecetd output series """
+        ser = pd.Series(
+            [
+                True,
+                False,
+                False,
+                True,
+            ],
+            name="601",)
+        return ser
+
+    def test_create_notnull_mask(self):
+        input_df = self.cre_input_df()
+        expected_output = self.cre_expected_output()
+
+        output = create_notnull_mask(input_df, "601")
+        #assert_series_equal(output, expected_output)
