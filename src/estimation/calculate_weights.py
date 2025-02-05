@@ -47,9 +47,7 @@ def calc_lower_e(df: pd.DataFrame) -> int:
     return e
 
 
-def calc_lower_s(
-    df: pd.DataFrame,
-) -> int:
+def calc_lower_s(df: pd.DataFrame) -> int:
     """Calculates 's' which identifies the sum of outliers for a cell group.
 
     Args:
@@ -58,7 +56,6 @@ def calc_lower_s(
     Returns:
         int: Calculated value of s.
     """
-
     # Filter where outliers bool = true
     df = df.loc[df.outlier]
 
