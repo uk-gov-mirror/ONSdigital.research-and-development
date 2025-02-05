@@ -175,7 +175,7 @@ class TestCalcLowerS:
         actual_result = calw.calc_lower_s(input_df)
         #Define expected result
         expected_result = 145
-        assert actual_result == expected_result "calc_lower_s not behaving as expected"
+        assert actual_result == expected_result, "calc_lower_s not behaving as expected"
 
 class TestCalcLowerSNoOutliers:
     """Test to check if calc_lower_s returns 0 when there are no outliers"""
@@ -200,7 +200,7 @@ class TestCalcLowerSNoOutliers:
         actual_result = calw.calc_lower_s(input_df)
         #Define expected result
         expected_result = 0
-        assert actual_result == expected_result "calc_lower_s not behaving as expected"
+        assert actual_result == expected_result, "calc_lower_s not behaving as expected"
 
 # Five tests for calculate_weighting_factor:
 # testing calculate_weighting_factor where missing outlier col
