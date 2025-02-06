@@ -47,8 +47,6 @@ def get_paths(config: dict) -> dict:
     platform = config["global"]["platform"]
     survey = config["survey"]["survey_type"]
 
-    print(platform)
-
     # select either network_paths or s3_paths from the config, depending on platform,
     paths = config[f"{platform}_paths"]
     paths["year"] = config["survey"]["survey_year"]
