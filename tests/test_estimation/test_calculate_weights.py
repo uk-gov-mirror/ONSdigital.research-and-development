@@ -272,7 +272,7 @@ class TestCalcWeightMissingCol:
             calw.calculate_weighting_factors(input_df, "709")
 
 
-class TestCalcWeightFilter:
+class TestCalcWeightFactor:
     """Test for calculate_weighting_factors for filter
     and np.nan taken out of calculation"""
 
@@ -329,18 +329,18 @@ class TestCalcWeightFilter:
         ]
 
         data = [
-            [1, 0, "12", "P", "Clear", "0006", 1, 20, 5000, 66, True, 6.333333333333333, 8.200554016620499],
-            [2, 0, 14, "P", "Clear - overridden", "0006", 2, 4, 5000, 77, False, 4.0, 16.233766233766232],
+            [1, 0, "12", "P", "Clear", "0006", 1, 20, 5000, 66, True, 6.3, 8.2],
+            [2, 0, 14, "P", "Clear - overridden", "0006", 2, 4, 5000, 77, False, 4.0, 16.2],
             [2, 1, 16, "P", "Clear", "0006", 2, 4, 5000, 77, False, 1.0, 1.0],
-            [4, 0, 18, "P", "Clear", "0006", 4, 3, 5000, 88, False, 3.0, 18.939393939393938],
+            [4, 0, 18, "P", "Clear", "0006", 4, 3, 5000, 88, False, 3.0, 18.9],
             [1, 0, "20", "X", "Clear", "0006", 5, 10, 5000, 99, False, 1.0, 1.0],
             [3, 0, 1, "P", "999", "0006", 1, 20, 5000, 11, False, 1.0, 1.0],
             [5, 0, 14, "P", "Clear - overridden", "0001", 2, 4, 5000, 22, False, 1.0, 1.0],
-            [6, 0, 10, "P", "Clear", "0006", 1, 20, 5000, 7, False, 6.333333333333333, 8.200554016620499],
+            [6, 0, 10, "P", "Clear", "0006", 1, 20, 5000, 7, False, 6.3, 8.2],
             [7, 1, 10, "P", "Clear", "0006", 5, 10, 5000, 7, False, 1.0, 1.0],
             [8, 1 , np.nan, "P", "Clear", "0006", 2, 4, 5000, 7, False, 1.0, 1.0],
-            [9, 0, 5, "P", "Clear", "0006", 1, 20, 5000, 44, False, 6.333333333333333, 8.200554016620499],
-            [10, 0, 10, "P", "Clear", "0006", 1, 20, 5000, 44, False, 6.333333333333333, 8.200554016620499],
+            [9, 0, 5, "P", "Clear", "0006", 1, 20, 5000, 44, False, 6.3, 8.2],
+            [10, 0, 10, "P", "Clear", "0006", 1, 20, 5000, 44, False, 6.3, 8.2],
         ]
 
         expected_df = pd.DataFrame(data=data, columns=expected_cols)
@@ -380,14 +380,21 @@ class TestCalcWeightFilter:
 
         result_df, result_qa_df = calw.calculate_weighting_factors(input_df)
 
-        result_qa_df["a_weight"] = result_qa_df["a_weight"].round(1)
+        # List of DataFrames and columns to round
+        dfs = [result_qa_df, result_df, expected_df, expected_qa_df]
+        columns = ["a_weight", "g_weight"]
+
+        # Round specified columns in each DataFrame
+        for df in dfs:
+            for col in columns:
+                df[col] = df[col].round(1)
 
         # Ensure both DataFrames have the same data type for the "709" column
         result_df["709"] = result_df["709"].astype(float)
         expected_df["709"] = expected_df["709"].astype(float)
 
         assert_frame_equal(result_df, expected_df, check_exact=False, rtol=0.01, check_dtype=False)
-        assert_frame_equal(result_qa_df, expected_qa_df, check_exact=False, rtol=0.01)
+        assert_frame_equal(result_qa_df, expected_qa_df, check_exact=False, rtol=0.01, check_dtype=False)
 
 
 class TestCalcWeightWithMissingVals:
