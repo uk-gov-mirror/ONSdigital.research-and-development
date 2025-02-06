@@ -332,10 +332,19 @@ def validate_freezing_config_settings(config: dict):
     ) = validate_freezing_run_config(config)
 
     snapshot_path = config["staging_paths"]["snapshot_path"]
-    frozen_data_staged_path = config["freezing_paths"]["frozen_data_staged_path"]
     updated_snapshot_path = config["staging_paths"]["updated_snapshot_path"]
     freezing_additions_path = config["freezing_paths"]["freezing_additions_path"]
     freezing_amendments_path = config["freezing_paths"]["freezing_amendments_path"]
+
+    # Frozen data path is dependent on the survey type
+    if config["survey"]["survey_type"] == "BERD":
+        frozen_data_staged_path = config["freezing_paths"][
+            "berd_frozen_data_staged_path"
+        ]
+    elif config["survey"]["survey_type"] == "PNP":
+        frozen_data_staged_path = config["freezing_paths"][
+            "pnp_frozen_data_staged_path"
+        ]
 
     if run_with_snapshot:
         if snapshot_path is None:

@@ -1,6 +1,5 @@
 """This module contains helper functions for creating paths."""
 
-import re
 import os
 import logging
 
@@ -47,6 +46,8 @@ def get_paths(config: dict) -> dict:
     """Return either network_paths or hdfs_paths despending on the environment."""
     platform = config["global"]["platform"]
     survey = config["survey"]["survey_type"]
+
+    print(platform)
 
     # select either network_paths or s3_paths from the config, depending on platform,
     paths = config[f"{platform}_paths"]
@@ -218,18 +219,14 @@ def create_freezing_config(config: dict) -> dict:
     paths = get_paths(config)
     survey_path = paths["survey_path"]
 
-    if (
-        config["survey"]["survey_type"] == "PNP"
-        and "PNP_" not in paths["frozen_data_staged_path"]
-    ):
-        pattern = "frozen_data_staged/"
-        insert_string = "frozen_data_staged/PNP_"
-        paths["frozen_data_staged_path"] = re.sub(
-            pattern, insert_string, paths["frozen_data_staged_path"]
+    if config["survey"]["survey_type"] == "BERD":
+        freezing_dict["frozen_data_staged_path"] = os.path.join(
+            survey_path, paths["berd_frozen_data_staged_path"]
         )
-    freezing_dict["frozen_data_staged_path"] = os.path.join(
-        survey_path, paths["frozen_data_staged_path"]
-    )
+    elif config["survey"]["survey_type"] == "PNP":
+        freezing_dict["frozen_data_staged_path"] = os.path.join(
+            survey_path, paths["pnp_frozen_data_staged_path"]
+        )
     freezing_dict["freezing_changes_to_review_path"] = os.path.join(
         survey_path, paths["freezing_changes_to_review_path"]
     )
