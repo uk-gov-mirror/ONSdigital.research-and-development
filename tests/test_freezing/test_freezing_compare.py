@@ -46,6 +46,7 @@ class TestGetAmendments:
             ["C", 202412, 0.0, 1.0, 2.0, "A", "B"],
             ["D", 202412, 1.0, 2.0, 3.0, "C", "D"],
             ["E", 202412, None, 4.0, 5.0, "E", "F"],
+            ["R", 202412, 1.0, 8.0, 8.0, "C", "D"],
         ]
         input_frozen_df = pd.DataFrame(data=data, columns=input_cols)
         input_frozen_df = self.add_numeric_cols(input_frozen_df)
@@ -62,6 +63,7 @@ class TestGetAmendments:
             ["C", 202412, 0.0, 2.0, 2.0, "A", "B"], # 201 diff by 1
             ["D", 202412, 1.0, 2.0, 3.0, "E", "D"],  # 200 & 601 diff "E", "D"
             ["E", 202412, None, 10.0, 1.0, "E", "F"], # 201 & 202 by 6, -4
+            ["R", 202412, 1.0, 4.0, 4.0, "C", "D"]
         ]
         input_amendments_df = pd.DataFrame(data=data, columns=input_cols)
         input_amendments_df = self.add_numeric_cols(input_amendments_df)
@@ -78,6 +80,7 @@ class TestGetAmendments:
             ["C", 202412, 0.0, 2.0, 2.0, "A", "B", 1.0, 0.0, None, None, False],
             ["D", 202412, 1.0, 2.0, 3.0, "E", "D", 0.0, 0.0, "E", None, False],
             ["E", 202412, None, 10.0, 1.0, "E", "F", 6.0, -4.0, None, None, False],
+            ["R", 202412, 1.0, 4.0, 4.0, "C", "D", -4.0, -4.0, None, None, False]
         ]
         input_expected_outcome_df = pd.DataFrame(data=data, columns=input_cols)
         input_expected_outcome_df = self.add_numeric_cols(input_expected_outcome_df, expected = True)
