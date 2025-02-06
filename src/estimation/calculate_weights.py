@@ -189,7 +189,7 @@ def calc_g_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
     e = calc_lower_e(filtered_group)
     s = calc_lower_s(filtered_group)
 
-    # Calculate 'a' for this group
+    # Calculate 'g' for this group
     if (e - s) > 0:
         g_weight = (E - s) / (a * (e - s))
     else:

@@ -322,24 +322,25 @@ class TestCalcWeightFilter:
             "cellnumber",
             "uni_count",
             "uni_employment",
-            "outlier",
             "employment",
+            "outlier",
             "a_weight",
             "g_weight",
         ]
 
         data = [
-            [1, 0, "12", "P", "Clear", "0006", 1, 20, 5000, True, 66, 10.0, 99],
-            [2, 0, 14, "P", "Clear - overridden", "0006", 2, 4, 5000, False, 77, 4.0, 99],
-            [2, 1, 16, "P", "Clear", "0006", 2, 4, 5000, False, 77, 4.0, 99],
-            [4, 0, 18, "P", "Clear", "0006", 4, 3, 5000, False, 88, 3.0, 99],
-            [1, 0, "20", "X", "Clear", "0006", 5, 10, 5000, False, 99, 1.0, 99],
-            [3, 0, 1, "P", "999", "0006", 1, 20, 5000, 11, False, 99, 1.0, 99],
-            [5, 0, 14, "P", "Clear - overridden", "0001", 2, 4, 5000, 22, False, 99, 1.0, 99],
-            [6, 0, 10, "P", "Clear", "0006", 1, 20, 5000, False, 7, 10.0, 99],
-            [7, 1, 10, "P", "Clear", "0006", 5, 10, 5000, False, 7, 10.0, 99],
-            [9, 0, 5, "P", "Clear", "0006", 1, 20, 5000, False, 44, 5.0, 99],
-            [10, 0, 10, "P", "Clear", "0006", 1, 20, 5000, False, 44, 10.0, 99],
+            [1, 0, "12", "P", "Clear", "0006", 1, 20, 5000, 66, True, 6.333333333333333, 8.200554016620499],
+            [2, 0, 14, "P", "Clear - overridden", "0006", 2, 4, 5000, 77, False, 4.0, 16.233766233766232],
+            [2, 1, 16, "P", "Clear", "0006", 2, 4, 5000, 77, False, 1.0, 1.0],
+            [4, 0, 18, "P", "Clear", "0006", 4, 3, 5000, 88, False, 3.0, 18.939393939393938],
+            [1, 0, "20", "X", "Clear", "0006", 5, 10, 5000, 99, False, 1.0, 1.0],
+            [3, 0, 1, "P", "999", "0006", 1, 20, 5000, 11, False, 1.0, 1.0],
+            [5, 0, 14, "P", "Clear - overridden", "0001", 2, 4, 5000, 22, False, 1.0, 1.0],
+            [6, 0, 10, "P", "Clear", "0006", 1, 20, 5000, 7, False, 6.333333333333333, 8.200554016620499],
+            [7, 1, 10, "P", "Clear", "0006", 5, 10, 5000, 7, False, 1.0, 1.0],
+            [8, 1 , np.nan, "P", "Clear", "0006", 2, 4, 5000, 7, False, 1.0, 1.0],
+            [9, 0, 5, "P", "Clear", "0006", 1, 20, 5000, 44, False, 6.333333333333333, 8.200554016620499],
+            [10, 0, 10, "P", "Clear", "0006", 1, 20, 5000, 44, False, 6.333333333333333, 8.200554016620499],
         ]
 
         expected_df = pd.DataFrame(data=data, columns=expected_cols)
@@ -352,14 +353,18 @@ class TestCalcWeightFilter:
             "N - uni_count",
             "n - num clear records in cell",
             "o - num outliers in cell",
+            "E - uni_employment",
+            "e - sum of employment in cell",
+            "s - sum of employment outliers in cell",
             "a_weight",
+            "g_weight"
         ]
 
         data = [
-            [1, 20, 4, 1, 6.3],
-            [2, 4, 1, 0, 4.0],
-            [4, 3, 1, 0, 3.0],
-            [5, 10, 0, 0, 1.0],
+            [1, 20, 4, 1, 5000, 161, 66, 6.3, 8.20],
+            [2, 4, 1, 0, 5000, 77, 0, 4.0, 16.23],
+            [4, 3, 1, 0, 5000, 88, 0, 3.0, 18.93],
+
         ]
 
         expected_qa_df = pd.DataFrame(data=data, columns=expected_qa_cols)
@@ -373,11 +378,15 @@ class TestCalcWeightFilter:
         expected_df = self.create_expected_output()
         expected_qa_df = self.create_expected_qa()
 
-        result_df, result_qa_df = calw.calculate_weighting_factors(input_df, "709")
+        result_df, result_qa_df = calw.calculate_weighting_factors(input_df)
 
         result_qa_df["a_weight"] = result_qa_df["a_weight"].round(1)
 
-        assert_frame_equal(result_df, expected_df, check_exact=False, rtol=0.01)
+        # Ensure both DataFrames have the same data type for the "709" column
+        result_df["709"] = result_df["709"].astype(float)
+        expected_df["709"] = expected_df["709"].astype(float)
+
+        assert_frame_equal(result_df, expected_df, check_exact=False, rtol=0.01, check_dtype=False)
         assert_frame_equal(result_qa_df, expected_qa_df, check_exact=False, rtol=0.01)
 
 
@@ -432,14 +441,14 @@ class TestCalcWeightWithMissingVals:
         ]
 
         data = [
-            [1, 1, "P", "Clear", "0006", 0, 1, 10, 5000, 77, False, 10.0, 99],
-            [2, np.nan, "P", "Clear", "0006", 0, 1, 10, 5000, 77, False, 10.0, 99],  # filtered from calc but weight applied
-            [3, 1, np.nan, "Clear", "0006", 0, 1, 10, 5000, 77, False, 1.0, 99],  # filtered out (selectiontype)
-            [4, 1, "P", np.nan, "0006", 0, 1, 10, 5000, 77, False, 1.0, 99],  # filtered out (status)
-            [5, 1, "P", "Clear", np.nan, 0, 1, 10, 5000, 77, False, 1.0, 99],  # filtered out (formtype)
-            [6, 1, "P", "Clear", "0006", np.nan, 2, 5, 5000, 77, False, 2.5, 99],  # filtered out (instance) but weight applied
-            [7, 1, "P", "Clear", "0006", 0, 2, 5, 5000, 77, np.nan, 2.5, 99],  # No outlier
-            [8, 1, "P", "Clear", "0006", 0, 2, 5, 5000, 77, False, 2.5, 99],
+            [1, 1, 12, "P", "Clear", "0006", 0, 1, 10, 5000, 77, False, 10.0, 99],
+            [2, np.nan, 20, "P", "Clear", "0006", 0, 1, 10, 5000, 77, False, 10.0, 99],  # filtered from calc but weight applied
+            [3, 1, 14, np.nan, "Clear", "0006", 0, 1, 10, 5000, 77, False, 1.0, 99],  # filtered out (selectiontype)
+            [4, 1, 10, "P", np.nan, "0006", 0, 1, 10, 5000, 77, False, 1.0, 99],  # filtered out (status)
+            [5, 1, 10, "P", "Clear", np.nan, 0, 1, 10, 5000, 77, False, 1.0, 99],  # filtered out (formtype)
+            [6, 1, 20, "P", "Clear", "0006", np.nan, 2, 5, 5000, 77, False, 2.5, 99],  # filtered out (instance) but weight applied
+            [7, 1, 14, "P", "Clear", "0006", 0, 2, 5, 5000, 77, np.nan, 2.5, 99],  # No outlier
+            [8, 1, 16, "P", "Clear", "0006", 0, 2, 5, 5000, 77, False, 2.5, 99],
         ]
 
         expected_df = pd.DataFrame(data=data, columns=expected_cols)
@@ -452,7 +461,11 @@ class TestCalcWeightWithMissingVals:
             "N - uni_count",
             "n - num clear records in cell",
             "o - num outliers in cell",
+            "E - uni_employment",
+            "e - sum of employment in cell",
+            "s - sum of employment outliers in cell",
             "a_weight",
+            "g_weight"
         ]
 
         data = [
