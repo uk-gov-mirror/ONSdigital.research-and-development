@@ -105,7 +105,7 @@ def calculate_weighting_factors(
     df = df.groupby("cellnumber", group_keys=False).apply(calc_g_weight)
 
     # Create a QA dataframe
-    qa_frame = create_a_weight_qa_df(df)
+    qa_frame = create_weights_qa_df(df)
     df = df.drop(columns=["N", "n", "o", "E", "e", "s"])
     return df, qa_frame
 
@@ -203,18 +203,18 @@ def calc_g_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
     return cell_group
 
 
-def create_a_weight_qa_df(df: pd.DataFrame) -> pd.DataFrame:
-    """Create a QA dataframe for the a_weight calculation.
+def create_weights_qa_df(df: pd.DataFrame) -> pd.DataFrame:
+    """Create a QA dataframe for the weight calculation.
 
     Args:
-        df (pd.DataFrame): The dataframe containing the a_weight column.
+        df (pd.DataFrame): The dataframe containing the weights columns.
 
     Returns:
         pd.DataFrame: The QA dataframe.
     """
     est_filter = create_estimation_filter(df)
 
-    qa_cols_list = ["cellnumber", "N", "n", "o", "a_weight"]
+    qa_cols_list = ["cellnumber", "N", "n", "o", "E", "e", "s", "a_weight", "g_weight"]
     qa_frame = df[qa_cols_list].loc[est_filter].groupby("cellnumber").first()
     qa_frame = qa_frame.reset_index()
     qa_frame = qa_frame.rename(
@@ -223,6 +223,9 @@ def create_a_weight_qa_df(df: pd.DataFrame) -> pd.DataFrame:
             "N": "N - uni_count",
             "n": "n - num clear records in cell",
             "o": "o - num outliers in cell",
+            "E": "E - uni_employment",
+            "e": "e - sum of employment in cell",
+            "s": "s - sum of employment outliers in cell",
         }
     )
 
