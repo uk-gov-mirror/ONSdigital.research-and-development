@@ -269,7 +269,7 @@ class TestCalcWeightMissingCol:
         with pytest.raises(
             ValueError, match=r"The column essential 'outlier' is missing"
         ):
-            calw.calculate_weighting_factors(input_df, "709")
+            calw.calculate_weighting_factors(input_df)
 
 
 class TestCalcWeightFactor:
@@ -541,14 +541,15 @@ class TestOutlierWeight:
             "reference",
             "outlier",
             "a_weight",
+            "g_weight"
         ]
 
         data = [
-            [1, True, 1.0],
-            [2, False, None],
-            [2, True, 1.0],
-            [4, True, 1.0],
-            [1, False, None],
+            [1, True, 1.0, 1.0],
+            [2, False, None, None],
+            [2, True, 1.0, 1.0],
+            [4, True, 1.0, 1.0],
+            [1, False, None, None],
         ]
 
         expected_df = pd.DataFrame(data=data, columns=expected_cols)
