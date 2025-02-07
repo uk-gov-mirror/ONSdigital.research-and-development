@@ -14,30 +14,6 @@ test_logger = logging.getLogger(__name__)
 class TestGetAmendments:
     """Tests for get_amendments()."""
 
-    """
-    def add_numeric_cols(
-        self,
-        df,
-        expected=False
-    ) -> pd.DataFrame:
-        Numerical columns for test dataframes.
-        numeric_cols = [
-            "201", "204", "205", "206", "207", "209", "210",
-            "211", "212", "214", "216", "218", "219", "220", "221", "222",
-            "223", "225", "226", "227", "228", "229", "237", "242", "243",
-            "244", "245", "246", "247", "248", "249", "250", "405", "406",
-            "407", "408", "409", "410", "411", "412", "501", "502", "503",
-            "504", "505", "506", "507", "508", "602", "701", "702", "703",
-            "704", "705", "706", "707", "709", "711",
-        ]
-        for col in numeric_cols:
-            df[col] = None
-        if expected:
-            for col in numeric_cols:
-                df[f"{col}_diff"] = None
-        return df
-    """
-
     # Create test frozen df
     def create_test_frozen_df(self) -> pd.DataFrame:
         """Create a test frozen df."""
@@ -50,7 +26,6 @@ class TestGetAmendments:
             ["E", 202412, None, 4.0, 5.0, "E", "Yes", "F", "No"],
         ]
         input_frozen_df = pd.DataFrame(data=data, columns=input_cols)
-        #input_frozen_df = self.add_numeric_cols(input_frozen_df)
         return input_frozen_df
 
     # Create test amendments df
@@ -65,7 +40,6 @@ class TestGetAmendments:
             ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes"], # 201 & 202 by 6, -4, , 604 to "Yes"
         ]
         input_amendments_df = pd.DataFrame(data=data, columns=input_cols)
-        #input_amendments_df = self.add_numeric_cols(input_amendments_df)
         return input_amendments_df
 
     # Create expected outcome df
@@ -80,10 +54,6 @@ class TestGetAmendments:
             ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes", 6.0, -4.0, None, None, None, "Yes", False],
         ]
         input_expected_outcome_df = pd.DataFrame(data=data, columns=input_cols)
-        #input_expected_outcome_df = self.add_numeric_cols(
-        #    input_expected_outcome_df,
-        #    expected=True
-        #)
         return input_expected_outcome_df
 
     # Create config for test
