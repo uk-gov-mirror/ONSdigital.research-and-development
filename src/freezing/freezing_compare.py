@@ -91,10 +91,9 @@ def get_amendments(
     ]
 
     non_numeric_cols = ["200", "201", "601"]
-    # numeric_cols_new = [f"{i}_updated" for i in numeric_cols]
-    # numeric_cols_diff = [f"{i}_diff" for i in numeric_cols]
-    # non_numeric_cols_new = [f"{i}_updated" for i in non_numeric_cols]
-    # non_numeric_cols_diff = [f"{i}_diff" for i in non_numeric_cols]
+
+    numeric_cols_diff = [f"{i}_diff" for i in numeric_cols]
+    non_numeric_cols_diff = [f"{i}_diff" for i in non_numeric_cols]
 
     # Inner join on keys to select only records present in both snapshots
     amendments_df = pd.merge(
@@ -143,6 +142,10 @@ def get_amendments(
             frozen_df[numeric_cols] - updated_snapshot_df[numeric_cols]
         )
         numeric_differences_masked_df = numeric_differences_df[numeric_differences_mask]
+        # Add suffix "_diff" to all columns
+        numeric_differences_masked_df = numeric_differences_masked_df.add_suffix(
+            "_diff"
+        )
 
         # Non-numeric differences
         non_numeric_differences_mask = (
@@ -151,8 +154,12 @@ def get_amendments(
         non_numeric_differences_masked_df = updated_snapshot_df[non_numeric_cols][
             non_numeric_differences_mask
         ]
+        # Add suffix "_diff" to all columns
+        non_numeric_differences_masked_df = (
+            non_numeric_differences_masked_df.add_suffix("_diff")
+        )
 
-        # Concatenate the froxen metadata, numeric and non-numeric differences
+        # Concatenate the frozen metadata, numeric and non-numeric differences
         amendments_df = pd.concat(
             [
                 updated_snapshot[metadata_cols],
@@ -168,7 +175,7 @@ def get_amendments(
 
         # Apply the function to the specified columns and create a boolean mask
         mask = (
-            amendments_df[numeric_cols + non_numeric_cols]
+            amendments_df[numeric_cols_diff + non_numeric_cols_diff]
             .applymap(is_string_or_float)
             .all(axis=1)
         )
