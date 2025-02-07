@@ -34,6 +34,16 @@ def get_equality_dicts(config: dict, sublist: str = "default") -> dict:
             "6xx_totals",
             "7xx_totals",
         ]
+    elif sublist == "employment":
+        wanted_dicts = ["emp_xx_totals", "hc_xx_totals"]
+    elif sublist == "estimation":
+        wanted_dicts = [
+            "2xx_totals",
+            "3xx_totals",
+            "emp_xx_totals",
+            "hc_xx_totals",
+            "7xx_totals",
+        ]
 
     else:
         wanted_dicts = list(all_checks_dict.keys())
@@ -46,17 +56,18 @@ def get_equality_dicts(config: dict, sublist: str = "default") -> dict:
     return equality_checks
 
 
-def get_all_wanted_columns(config: dict) -> list:
+def get_all_wanted_columns(config: dict, list_type="default") -> list:
     """
     Get all the columns that we want to check.
 
     Args:
         config (dict): The config dictionary.
+        list_type (str): The type of list to get.
 
     Returns:
         list: A list of all the columns to check.
     """
-    equals_checks = get_equality_dicts(config, "default")
+    equals_checks = get_equality_dicts(config, list_type)
     all_columns = []
     for list_item in equals_checks.values():
         all_columns += list_item
@@ -96,7 +107,7 @@ def remove_all_nulls_rows(df: pd.DataFrame, config: dict) -> pd.DataFrame:
         pd.DataFrame
     """
     BreakdownValidationLogger.info("Removing rows with all null values from validation")
-    wanted_cols = get_all_wanted_columns(config)
+    wanted_cols = get_all_wanted_columns(config, "default")
     rows_to_validate = df.dropna(
         subset=wanted_cols,
         how="all",

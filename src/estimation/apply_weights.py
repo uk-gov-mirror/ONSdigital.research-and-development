@@ -2,9 +2,12 @@
 
 import logging
 from typing import Dict, Any
-from itertools import chain
+
+# from itertools import chain
 
 import pandas as pd
+
+from src.utils.breakdown_validation import get_all_wanted_columns
 
 AppWeights_Logger = logging.getLogger(__name__)
 
@@ -24,27 +27,27 @@ def apply_weights(
         pd.DataFrame: The dataframe with the estimated values.
     """
     # generate a list of all the columns the weights should be applied to.
-    num_cols = config["estimation"]["numeric_cols"]  # the 7xx cols
-    master_cols = ["211", "305", "emp_total", "headcount_total"]
-    hc_tot_cols = ["headcount_tot_m", "headcount_tot_f"]
-    bd_qs_lists = list(config["breakdowns"].values())
-    bd_cols = list(chain(*bd_qs_lists))  # breakdown cols 2xx, 3xx, emp_xx hc_xx
-    cols_list = num_cols + master_cols + hc_tot_cols + bd_cols
+    # num_cols = config["estimation"]["numeric_cols"]  # the 7xx cols
+    # master_cols = ["211", "305", "emp_total", "headcount_total"]
+    # hc_tot_cols = ["headcount_tot_m", "headcount_tot_f"]
+    # bd_qs_lists = list(config["breakdowns"].values())
+    # bd_cols = list(chain(*bd_qs_lists))  # breakdown cols 2xx, 3xx, emp_xx hc_xx
+    # cols_list = num_cols + master_cols + hc_tot_cols + bd_cols
+
+    employment_cols = get_all_wanted_columns(config, "employment")
+    all_numeric_cols = get_all_wanted_columns(config, "estimation")
 
     # if the dataframe is for QA output, create new columns with the weights applied.
     if for_qa:
-        estimated_cols = pd.concat(
-            [
-                round(df[col] * df["a_weight"], round_val).rename(f"{col}_estimated")
-                for col in cols_list
-            ],
-            axis=1,
-        )
-        df = pd.concat([df, estimated_cols], axis=1)
+        for col in all_numeric_cols:
+            df[f"{col}_estimated"] = round(df[col] * df["a_weight"], round_val)
+        for col in employment_cols:
+            df[f"{col}_estimated"] = round(df[col] * df["g_weight"], round_val)
 
     # if the dataframe is for the final output, apply the weights to the original cols.
     else:
-        for col in cols_list:
+        for col in all_numeric_cols:
             df[col] = round(df[col] * df["a_weight"], round_val)
-
+        for col in employment_cols:
+            df[col] = round(df[col] * df["g_weight"], round_val)
     return df
