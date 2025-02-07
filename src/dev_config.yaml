@@ -73,7 +73,7 @@ network_paths:
   # updated_snapshot_path: "R:/BERD Results System Development 2023/DAP_emulation/spp_snapshots/2022_snapshots/snapshot-202212-002-83b5bacd-7c99-45cf-b989-d43d762dd054.json"
   # Freezing data paths
   frozen_data_staged_output_path: "02_freezing/frozen_data_staged/"
-  frozen_data_staged_path: "02_freezing/frozen_data_staged/2023_FROZEN_staged_full_responses_latest_snapshot.csv"
+  frozen_data_staged_path: "02_freezing/frozen_data_staged/2023_FROZEN_staged_full_responses_25-01-21_v397.csv"
   freezing_changes_to_review_path: "02_freezing/changes_to_review/"
   freezing_additions_path: "R:/BERD Results System Development 2023/DAP_emulation/2023_surveys/BERD/02_freezing/freezing_updates/2023_freezing_additions_to_review_24-09-12_v1324.csv"
   freezing_amendments_path: "R:/BERD Results System Development 2023/DAP_emulation/2023_surveys/BERD/02_freezing/freezing_updates/2023_freezing_amendments_to_review_24-09-12_v1324.csv"
