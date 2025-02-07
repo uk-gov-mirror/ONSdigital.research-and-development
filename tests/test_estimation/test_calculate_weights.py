@@ -281,11 +281,11 @@ class TestCalcWeightFactor:
         input_cols = [
             "reference",
             "instance",
-            "709",
+            "cellnumber",
             "selectiontype",
             "status",
             "formtype",
-            "cellnumber",
+            "709",
             "uni_count",
             "uni_employment",
             "employment",
@@ -293,18 +293,18 @@ class TestCalcWeightFactor:
         ]
 
         data = [
-            [1, 0, "12", "P", "Clear", "0006", 1, 20, 5000, 66, True],
-            [2, 0, 14, "P", "Clear - overridden", "0006", 2, 4, 5000, 77, False],
-            [2, 1, 16, "P", "Clear", "0006", 2, 4, 5000, 77, False],
-            [4, 0, 18, "P", "Clear", "0006", 4, 3, 5000, 88, False],
-            [1, 0, "20", "X", "Clear", "0006", 5, 10, 5000, 99, False],
+            [1, 0, 1, "P", "Clear", "0006", "12", 20, 5000, 66, True],
+            [2, 0, 2, "P", "Clear - overridden", "0006", 14, 4, 5000, 77, False],
+            [2, 1, 2, "P", "Clear", "0006", 16, 4, 5000, 77, False],
+            [4, 0, 4, "P", "Clear", "0006", 18, 3, 5000, 88, False],
+            [1, 0, 5, "X", "Clear", "0006", "20", 10, 5000, 99, False],
             [3, 0, 1, "P", "999", "0006", 1, 20, 5000, 11, False],
-            [5, 0, 14, "P", "Clear - overridden", "0001", 2, 4, 5000, 22, False],
-            [6, 0, 10, "P", "Clear", "0006", 1, 20, 5000, 7, False],
-            [7, 1, 10, "P", "Clear", "0006", 5, 10, 5000, 7, False],
-            [8, 1, np.nan, "P", "Clear", "0006", 2, 4, 5000, 7, False],
-            [9, 0, 5, "P", "Clear", "0006", 1, 20, 5000, 44, False],
-            [10, 0, 10, "P", "Clear", "0006", 1, 20, 5000, 44, False],
+            [5, 0, 2, "P", "Clear - overridden", "0001", 14, 4, 5000, 22, False],
+            [6, 0, 1, "P", "Clear", "0006", 10, 20, 5000, 7, False],
+            [7, 1, 5, "P", "Clear", "0006", 10, 10, 5000, 7, False],
+            [8, 1, 2, "P", "Clear", "0006", np.nan, 4, 5000, 7, False],
+            [9, 0, 1, "P", "Clear", "0006", 5, 20, 5000, 44, False],
+            [10, 0, 1, "P", "Clear", "0006", 10, 20, 5000, 44, False],
         ]
 
         input_df = pd.DataFrame(data=data, columns=input_cols)
@@ -315,11 +315,11 @@ class TestCalcWeightFactor:
         expected_cols = [
             "reference",
             "instance",
-            "709",
+            "cellnumber",
             "selectiontype",
             "status",
             "formtype",
-            "cellnumber",
+            "709",
             "uni_count",
             "uni_employment",
             "employment",
@@ -329,18 +329,18 @@ class TestCalcWeightFactor:
         ]
 
         data = [
-            [1, 0, "12", "P", "Clear", "0006", 1, 20, 5000, 66, True, 6.3, 8.2],
-            [2, 0, 14, "P", "Clear - overridden", "0006", 2, 4, 5000, 77, False, 4.0, 16.2],
-            [2, 1, 16, "P", "Clear", "0006", 2, 4, 5000, 77, False, 1.0, 1.0],
-            [4, 0, 18, "P", "Clear", "0006", 4, 3, 5000, 88, False, 3.0, 18.9],
-            [1, 0, "20", "X", "Clear", "0006", 5, 10, 5000, 99, False, 1.0, 1.0],
+            [1, 0, 1, "P", "Clear", "0006", "12", 20, 5000, 66, True, 6.3, 8.2],
+            [2, 0, 2, "P", "Clear - overridden", "0006", 14, 4, 5000, 77, False, 4.0, 16.2],
+            [2, 1, 2, "P", "Clear", "0006", 16, 4, 5000, 77, False, 1.0, 1.0],
+            [4, 0, 4, "P", "Clear", "0006", 18, 3, 5000, 88, False, 3.0, 18.9],
+            [1, 0, 5, "X", "Clear", "0006", "20", 10, 5000, 99, False, 1.0, 1.0],
             [3, 0, 1, "P", "999", "0006", 1, 20, 5000, 11, False, 1.0, 1.0],
-            [5, 0, 14, "P", "Clear - overridden", "0001", 2, 4, 5000, 22, False, 1.0, 1.0],
-            [6, 0, 10, "P", "Clear", "0006", 1, 20, 5000, 7, False, 6.3, 8.2],
-            [7, 1, 10, "P", "Clear", "0006", 5, 10, 5000, 7, False, 1.0, 1.0],
-            [8, 1 , np.nan, "P", "Clear", "0006", 2, 4, 5000, 7, False, 1.0, 1.0],
-            [9, 0, 5, "P", "Clear", "0006", 1, 20, 5000, 44, False, 6.3, 8.2],
-            [10, 0, 10, "P", "Clear", "0006", 1, 20, 5000, 44, False, 6.3, 8.2],
+            [5, 0, 2, "P", "Clear - overridden", "0001", 14, 4, 5000, 22, False, 1.0, 1.0],
+            [6, 0, 1, "P", "Clear", "0006", 10, 20, 5000, 7, False, 6.3, 8.2],
+            [7, 1, 5, "P", "Clear", "0006", 10, 10, 5000, 7, False, 1.0, 1.0],
+            [8, 1, 2, "P", "Clear", "0006", np.nan, 4, 5000, 7, False, 1.0, 1.0],
+            [9, 0, 1, "P", "Clear", "0006", 5, 20, 5000, 44, False, 6.3, 8.2],
+            [10, 0, 1, "P", "Clear", "0006", 10, 20, 5000, 44, False, 6.3, 8.2],
         ]
 
         expected_df = pd.DataFrame(data=data, columns=expected_cols)
@@ -353,22 +353,35 @@ class TestCalcWeightFactor:
             "N - uni_count",
             "n - num clear records in cell",
             "o - num outliers in cell",
-            "E - uni_employment",
-            "e - sum of employment in cell",
-            "s - sum of employment outliers in cell",
             "a_weight",
-            "g_weight"
+            "g_weight",
         ]
 
         data = [
-            [1, 20, 4, 1, 5000, 161, 66, 6.3, 8.20],
-            [2, 4, 1, 0, 5000, 77, 0, 4.0, 16.23],
-            [4, 3, 1, 0, 5000, 88, 0, 3.0, 18.93],
-
+            [1.0, 20.0, 4.0, 1.0, 6.3, 8.2],
+            [2.0, 4.0, 1.0, 0.0, 4.0, 16.2],
+            [4.0, 3.0, 1.0, 0.0, 3.0, 18.9],
+            [5.0, 10.0, 0.0, 0.0, 1.0, 1.0],
         ]
 
         expected_qa_df = pd.DataFrame(data=data, columns=expected_qa_cols)
         return expected_qa_df
+
+    def test_calculate_weighting_factors_filter(self):
+        """Test for calculate_weighting_factors for filter
+        and np.nan taken out of calculation"""
+
+        input_df = self.create_input_df()
+        expected_df = self.create_expected_output()
+        expected_qa_df = self.create_expected_qa()
+
+        result_df, result_qa_df = calw.calculate_weighting_factors(input_df, "709")
+
+        result_qa_df["a_weight"] = result_qa_df["a_weight"].round(1)
+        result_qa_df["g_weight"] = result_qa_df["g_weight"].round(1)
+
+        assert_frame_equal(result_df, expected_df, check_exact=False, rtol=0.01)
+        assert_frame_equal(result_qa_df, expected_qa_df, check_exact=False, rtol=0.01)
 
     def test_calculate_weighting_factors_filter(self):
         """Test for calculate_weighting_factors for filter
@@ -405,12 +418,12 @@ class TestCalcWeightWithMissingVals:
         """Creates input df for test"""
         input_cols = [
             "reference",
-            "709",
+            "instance",
+            "cellnumber",
             "selectiontype",
             "status",
             "formtype",
-            "instance",
-            "cellnumber",
+            "709",
             "uni_count",
             "uni_employment",
             "employment",
@@ -418,14 +431,14 @@ class TestCalcWeightWithMissingVals:
         ]
 
         data = [
-            [1, 1, "P", "Clear", "0006", 0, 1, 10, 500, 77, False],
-            [2, np.nan, "P", "Clear", "0006", 0, 1, 10, 500, 77, False],
-            [3, 1, np.nan, "Clear", "0006", 0, 1, 10, 500, 77, False],
-            [4, 1, "P", np.nan, "0006", 0, 1, 10, 500, 77, False],
-            [5, 1, "P", "Clear", np.nan, 0, 1, 10, 500, 77, False],
-            [6, 1, "P", "Clear", "0006", np.nan, 2, 5, 500, 77, False],
-            [7, 1, "P", "Clear", "0006", 0, 2, 5, 500, 77, np.nan],
-            [8, 1, "P", "Clear", "0006", 0, 2, 5, 500, 77, False],
+            [1, 1, 1, "P", "Clear", "0006", 1, 10, 500, 77, False],
+            [2, np.nan, 1, "P", "Clear", "0006", np.nan, 10, 500, 77, False],
+            [3, 1, 1, np.nan, "Clear", "0006", 1, 10, 500, 77, False],
+            [4, 1, 1, "P", np.nan, "0006", 1, 10, 500, 77, False],
+            [5, 1, 1, "P", "Clear", np.nan, 1, 10, 500, 77, False],
+            [6, 1, 2, "P", "Clear", "0006", 1, 5, 500, 77, False],
+            [7, 1, 2, "P", "Clear", "0006", 1, 5, 500, 77, np.nan],
+            [8, 1, 2, "P", "Clear", "0006", 1, 5, 500, 77, False],
         ]
 
         input_df = pd.DataFrame(data=data, columns=input_cols)
@@ -435,12 +448,12 @@ class TestCalcWeightWithMissingVals:
         """Creates expected df for test"""
         expected_cols = [
             "reference",
-            "709",
+            "instance",
+            "cellnumber",
             "selectiontype",
             "status",
             "formtype",
-            "instance",
-            "cellnumber",
+            "709",
             "uni_count",
             "uni_employment",
             "employment",
@@ -450,14 +463,14 @@ class TestCalcWeightWithMissingVals:
         ]
 
         data = [
-            [1, 1, "P", "Clear", "0006", 0, 1, 10, 500, 77, False, 10.0, 0.65],
-            [2, np.nan, "P", "Clear", "0006", 0, 1, 10, 500, 77, False, 1.0, 1.0],  # filtered from calc but weight applied
-            [3, 1, np.nan, "Clear", "0006", 0, 1, 10, 500, 77, False, 1.0, 1.0],  # filtered out (selectiontype)
-            [4, 1, "P", np.nan, "0006", 0, 1, 10, 500, 77, False, 1.0, 1.0],  # filtered out (status)
-            [5, 1, "P", "Clear", np.nan, 0, 1, 10, 500, 77, False, 1.0, 1.0],  # filtered out (formtype)
-            [6, 1, "P", "Clear", "0006", np.nan, 2, 5, 500, 77, False, 1.0, 1.0],  # filtered out (instance) but weight applied
-            [7, 1, "P", "Clear", "0006", 0, 2, 5, 500, 77, False, 2.5, 1.3],  # No outlier
-            [8, 1, "P", "Clear", "0006", 0, 2, 5, 500, 77, False, 2.5, 1.3],
+            [1, 1, 1, "P", "Clear", "0006", 1, 10, 500, 77, False, 10.0, 1.0],
+            [2, np.nan, 1, "P", "Clear", "0006", np.nan, 10, 500, 77, False, 10.0, 1.0],  # filtered from calc but weight applied
+            [3, 1, 1, np.nan, "Clear", "0006", 1, 10, 500, 77, False, 1.0, 1.0],  # filtered out (selectiontype)
+            [4, 1, 1, "P", np.nan, "0006", 1, 10, 500, 77, False, 1.0, 1.0],  # filtered out (status)
+            [5, 1, 1, "P", "Clear", np.nan, 1, 10, 500, 77, False, 1.0, 1.0],  # filtered out (formtype)
+            [6, 1, 2, "P", "Clear", "0006", 1, 5, 500, 77, False, 2.5, 1.0],  # filtered out (instance) but weight applied
+            [7, 1, 2, "P", "Clear", "0006", 1, 5, 500, 77, np.nan, 2.5, 1.0],  # No outlier
+            [8, 1, 2, "P", "Clear", "0006", 1, 5, 500, 77, False, 2.5, 1.0],
         ]
 
         expected_df = pd.DataFrame(data=data, columns=expected_cols)
