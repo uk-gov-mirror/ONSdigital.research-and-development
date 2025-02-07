@@ -106,15 +106,7 @@ def read_frozen_csv(config: dict, read_csv: Callable) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The frozen data csv.
     """
-    if config["survey"]["survey_type"] == "BERD":
-        frozen_data_staged_path = config["freezing_paths"][
-            "berd_frozen_data_staged_path"
-        ]
-    elif config["survey"]["survey_type"] == "PNP":
-        frozen_data_staged_path = config["freezing_paths"][
-            "pnp_frozen_data_staged_path"
-        ]
-
+    frozen_data_staged_path = config["freezing_paths"]["frozen_data_staged_path"]
     FreezingLogger.info("Loading frozen data...")
     frozen_csv = read_csv(frozen_data_staged_path)
     validate_data_with_schema(frozen_csv, "./config/frozen_data_staged_schema.toml")
