@@ -124,6 +124,8 @@ def equal_validation(
     count = 0
     for index, row in rows_to_validate.iterrows():
         for key, columns in equals_checks.items():
+            if len(columns) == 1:
+                continue
             total_column = columns[-1]
             breakdown_columns = columns[:-1]
             if (

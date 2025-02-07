@@ -80,8 +80,8 @@ class TestGetAmendments:
                     "emp_defence": []
                 },
                 "5xx_totals": {
-                    "hc_res_m": [],
-                    "hc_res_f": []
+                    "headcount_tot_m": [],
+                    "headcount_tot_f": []
                 },
                 "6xx_totals": {
                     "business_tot_in_workplace": []
