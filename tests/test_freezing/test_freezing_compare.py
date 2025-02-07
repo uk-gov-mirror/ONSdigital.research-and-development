@@ -58,7 +58,7 @@ class TestGetAmendments:
         """Create a test amendments df."""
         input_cols = ["reference", "period", "instance", "202", "203", "200", "201", "601", "604"]
         data = [
-            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes"], # No diffs, ==
+            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes"], # No diffs
             ["B", 202412, None, None, 1.0, "A", "Yes", "B", "Yes"], # 200 diff "A"
             ["C", 202412, 0.0, 2.0, 2.0, "A", "Yes", "B", "No"], # 201 diff by 1, 604 to "No"
             ["D", 202412, 1.0, 2.0, 3.0, "E", "Yes", "D", "Yes"],  # 200 & 601 diff "E", "D"
