@@ -248,7 +248,7 @@ class TestCalcWeightMissingCol:
         """Creates input df for test"""
         input_cols = [
             "reference",
-            "709",
+            "709"
         ]
 
         data = [
@@ -289,7 +289,7 @@ class TestCalcWeightFactor:
             "uni_count",
             "uni_employment",
             "employment",
-            "outlier",
+            "outlier"
         ]
 
         data = [
@@ -325,8 +325,9 @@ class TestCalcWeightFactor:
             "employment",
             "outlier",
             "a_weight",
-            "g_weight",
-            ]
+            "g_weight"
+        ]
+
         data = [
             [1, 0, 1, "P", "Clear", "0006", "12", 20, 5000, 66, True, 6.3, 8.2],
             [2, 0, 2, "P", "Clear - overridden", "0006", 14, 4, 5000, 77, False, 4.0, 16.2],
@@ -350,16 +351,18 @@ class TestCalcWeightFactor:
             "Cell Number",
             "N - uni_count",
             "n - num clear records in cell",
-            "o - num outliers in cell",
+            "o - num outliers in cell"
+            "E- uni_employment",
+            "e - sum of employment in cell",
+            "s - sum of employment outliers in cell",
             "a_weight",
-            "g_weight",
+            "g_weight"
         ]
 
         data = [
-            [1.0, 20.0, 4.0, 1.0, 6.3, 8.2],
-            [2.0, 4.0, 1.0, 0.0, 4.0, 16.2],
-            [4.0, 3.0, 1.0, 0.0, 3.0, 18.9],
-            [5.0, 10.0, 0.0, 0.0, 1.0, 1.0],
+            [1.0, 20.0, 4.0, 1.0, 5000, 161, 63, 6.3, 8.2],
+            [2.0, 4.0, 1.0, 0.0, 5000, 77, 0, 4.0, 16.23],
+            [4.0, 3.0, 1.0, 0.0, 5000, 88, 0, 3.0, 18.93],
         ]
 
         expected_qa_df = pd.DataFrame(data=data, columns=expected_qa_cols)
@@ -372,8 +375,8 @@ class TestCalcWeightFactor:
         input_df = self.create_input_df()
         expected_df = self.create_expected_output()
         expected_qa_df = self.create_expected_qa()
-
-        result_df, result_qa_df = calw.calculate_weighting_factors(input_df, "709")
+        print(expected_qa_df.columns)
+        result_df, result_qa_df = calw.calculate_weighting_factors(input_df)
 
         result_qa_df["a_weight"] = result_qa_df["a_weight"].round(1)
         result_qa_df["g_weight"] = result_qa_df["g_weight"].round(1)
@@ -408,7 +411,7 @@ class TestCalcWeightFactor:
         assert_frame_equal(result_qa_df, expected_qa_df, check_exact=False, rtol=0.01, check_dtype=False)
 
 
-class TestCalcWeightWithMissingVals:
+class TestCalcWeightsSecondCheck:
     """Test for calculate_weighting_factors for filter
     and np.nan taken out of calculation"""
 
