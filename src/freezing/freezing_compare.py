@@ -162,6 +162,20 @@ def get_amendments(
             axis=1,
         )
 
+        # drop rows that have no amendments performed
+        def is_string_or_float(value):
+            return isinstance(value, (str, float))
+
+        # Apply the function to the specified columns and create a boolean mask
+        mask = (
+            amendments_df[numeric_cols + non_numeric_cols]
+            .applymap(is_string_or_float)
+            .all(axis=1)
+        )
+
+        # Filter the DataFrame to keep only rows where the mask is True
+        amendments_df = amendments_df[mask]
+
         # Add markers
         amendments_df["accept_changes"] = False
 
