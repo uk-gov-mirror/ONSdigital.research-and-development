@@ -413,18 +413,19 @@ class TestCalcWeightWithMissingVals:
             "cellnumber",
             "uni_count",
             "uni_employment",
+            "employment",
             "outlier",
         ]
 
         data = [
-            [1, 1, "P", "Clear", "0006", 0, 1, 10, 5000, 77, False],
-            [2, np.nan, "P", "Clear", "0006", 0, 1, 10, 5000, 77, False],
-            [3, 1, np.nan, "Clear", "0006", 0, 1, 10, 5000, 77, False],
-            [4, 1, "P", np.nan, "0006", 0, 1, 10, 5000, 77, False],
-            [5, 1, "P", "Clear", np.nan, 0, 1, 10, 5000, 77, False],
-            [6, 1, "P", "Clear", "0006", np.nan, 2, 5, 5000, 77, False],
-            [7, 1, "P", "Clear", "0006", 0, 2, 5, 5000, 77, np.nan],
-            [8, 1, "P", "Clear", "0006", 0, 2, 5, 5000, 77, False],
+            [1, 1, "P", "Clear", "0006", 0, 1, 10, 500, 77, False],
+            [2, np.nan, "P", "Clear", "0006", 0, 1, 10, 500, 77, False],
+            [3, 1, np.nan, "Clear", "0006", 0, 1, 10, 500, 77, False],
+            [4, 1, "P", np.nan, "0006", 0, 1, 10, 500, 77, False],
+            [5, 1, "P", "Clear", np.nan, 0, 1, 10, 500, 77, False],
+            [6, 1, "P", "Clear", "0006", np.nan, 2, 5, 500, 77, False],
+            [7, 1, "P", "Clear", "0006", 0, 2, 5, 500, 77, np.nan],
+            [8, 1, "P", "Clear", "0006", 0, 2, 5, 500, 77, False],
         ]
 
         input_df = pd.DataFrame(data=data, columns=input_cols)
@@ -442,20 +443,21 @@ class TestCalcWeightWithMissingVals:
             "cellnumber",
             "uni_count",
             "uni_employment",
+            "employment",
             "outlier",
             "a_weight",
             "g_weight",
         ]
 
         data = [
-            [1, 1, 12, "P", "Clear", "0006", 0, 1, 10, 5000, 77, False, 10.0, 99],
-            [2, np.nan, 20, "P", "Clear", "0006", 0, 1, 10, 5000, 77, False, 10.0, 99],  # filtered from calc but weight applied
-            [3, 1, 14, np.nan, "Clear", "0006", 0, 1, 10, 5000, 77, False, 1.0, 99],  # filtered out (selectiontype)
-            [4, 1, 10, "P", np.nan, "0006", 0, 1, 10, 5000, 77, False, 1.0, 99],  # filtered out (status)
-            [5, 1, 10, "P", "Clear", np.nan, 0, 1, 10, 5000, 77, False, 1.0, 99],  # filtered out (formtype)
-            [6, 1, 20, "P", "Clear", "0006", np.nan, 2, 5, 5000, 77, False, 2.5, 99],  # filtered out (instance) but weight applied
-            [7, 1, 14, "P", "Clear", "0006", 0, 2, 5, 5000, 77, np.nan, 2.5, 99],  # No outlier
-            [8, 1, 16, "P", "Clear", "0006", 0, 2, 5, 5000, 77, False, 2.5, 99],
+            [1, 1, "P", "Clear", "0006", 0, 1, 10, 500, 77, False, 10.0, 0.65],
+            [2, np.nan, "P", "Clear", "0006", 0, 1, 10, 500, 77, False, 1.0, 1.0],  # filtered from calc but weight applied
+            [3, 1, np.nan, "Clear", "0006", 0, 1, 10, 500, 77, False, 1.0, 1.0],  # filtered out (selectiontype)
+            [4, 1, "P", np.nan, "0006", 0, 1, 10, 500, 77, False, 1.0, 1.0],  # filtered out (status)
+            [5, 1, "P", "Clear", np.nan, 0, 1, 10, 500, 77, False, 1.0, 1.0],  # filtered out (formtype)
+            [6, 1, "P", "Clear", "0006", np.nan, 2, 5, 500, 77, False, 1.0, .10],  # filtered out (instance) but weight applied
+            [7, 1, "P", "Clear", "0006", 0, 2, 5, 500, 77, False, 2.5, 1.3],  # No outlier
+            [8, 1, "P", "Clear", "0006", 0, 2, 5, 500, 77, False, 2.5, 1.3],
         ]
 
         expected_df = pd.DataFrame(data=data, columns=expected_cols)
@@ -476,8 +478,8 @@ class TestCalcWeightWithMissingVals:
         ]
 
         data = [
-            [1.0, 10.0, 1.0, 0.0, 10.0],
-            [2.0, 5.0, 2.0, 0.0, 2.5],
+            [1.0, 10, 1.0, 0.0, 500, 77, 0, 10, 0.65],
+            [2.0, 5, 2.0, 0.0, 500, 154, 0, 2.5, 1.3],
         ]
 
         expected_qa_df = pd.DataFrame(data=data, columns=expected_qa_cols)

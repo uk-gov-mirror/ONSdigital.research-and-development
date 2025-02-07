@@ -71,9 +71,7 @@ def calc_lower_s(df: pd.DataFrame) -> int:
     return s
 
 
-def calculate_weighting_factors(
-    df: pd.DataFrame, exp_col: str = "709"
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def calculate_weighting_factors(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Calculate the weighting factor 'a' for each cell in the survery data
 
     Note: A 'cell' is a group of businesses.
@@ -245,4 +243,5 @@ def outlier_weights(df: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: The dataframe with the a_weights set to 1.0 for outliers.
     """
     df.loc[df["outlier"], "a_weight"] = 1.0
+    df.loc[df["outlier"], "g_weight"] = 1.0
     return df
