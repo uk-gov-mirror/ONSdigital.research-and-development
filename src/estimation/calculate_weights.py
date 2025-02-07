@@ -2,7 +2,6 @@ import pandas as pd
 import logging
 from typing import Tuple
 
-
 CalcWeights_Logger = logging.getLogger(__name__)
 
 
@@ -16,28 +15,58 @@ def create_estimation_filter(df: pd.DataFrame) -> pd.Series:
     return estimation_filter
 
 
-def calc_lower_n(df: pd.DataFrame, exp_col: str = "709") -> dict:
+def calc_lower_n(df: pd.DataFrame) -> int:
     """Calculates 'n' which is a number of
     unique RU references in the filtered dataset.
 
     Args:
-        df (pd.DatatFrame): The input dataframe which contains survey data,
+        df (pd.DataFrame): The input dataframe which contains survey data,
             including expenditure data
-        exp_col (str): An appropriate column to count n
-
     Returns:
         int: The number of unique references.
     """
-
-    # Check if any of the key cols are missing
-    cols = set(df.columns)
-    if not ("reference" in cols) & (exp_col in cols):
-        raise ValueError(f"'reference' or {exp_col} missing.")
-
     # Count the records
     n = df["reference"].nunique()
 
     return n
+
+
+def calc_lower_e(df: pd.DataFrame) -> int:
+    """Calculates 'e' which is a sum of
+    IDBR employment data in the filtered dataset.
+
+    Args:
+        df (pd.DatatFrame): The input dataframe which contains survey data,
+            including IDBR employment data.
+    Returns:
+        int: The sum of IDBR employment of sampled.
+    """
+    # Sum employment for each cellnumber
+    e = df["employment"].sum()
+
+    return e
+
+
+def calc_lower_s(df: pd.DataFrame) -> int:
+    """Calculates 's' which identifies the sum of outliers for a cell group.
+
+    Args:
+        df (pd.DataFrame): The input dataframe which contains survey data.
+
+    Returns:
+        int: Calculated value of s.
+    """
+    # Filter where outliers bool = true
+    df = df.loc[df.outlier]
+
+    # If there are no outliers, return 0
+    if df.empty:
+        s = 0
+    else:
+        # Sum the employment column
+        s = df["employment"].sum()
+
+    return s
 
 
 def calculate_weighting_factor(

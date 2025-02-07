@@ -19,7 +19,7 @@ def output_frozen_group(
     config: Dict[str, Any],
     intram_tot_dict: Dict[str, int],
     write_csv: Callable,
-    deduplicate: bool = True,
+    deduplicate: bool = False,
 ) -> Dict[str, int]:
     """Creates a "frozen group" output  for the entire UK. In BERD (GB) data,
     creates foreign ownership and cora status. Selects the columns we need for
@@ -175,6 +175,9 @@ def output_frozen_group(
     df = pd.concat([df_gb_need, df_ni_need], ignore_index=True, axis=0)
 
     # Deduplicate by aggregation
+    # TODO: this code fails in DAP for PNP. Think whether it's necessary and
+    # TODO then refactor this, using a list of columns from the config
+    # TODO and considering whether there are extra cols in the PNP case.
     if deduplicate:
         df_agg = df.groupby(category_columns).agg("sum").reset_index()
     else:
@@ -206,6 +209,6 @@ def output_frozen_group(
 
     # Outputting the CSV file
     filename = filename_amender("output_frozen_group", config)
-    write_csv(f"{output_path}output_frozen_group/{filename}", output)
+    write_csv(f"{output_path}/output_frozen_group/{filename}", output)
 
     return intram_tot_dict

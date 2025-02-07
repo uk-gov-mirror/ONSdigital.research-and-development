@@ -210,6 +210,7 @@ consistency_checks:
     funding: ['212', '214', '216', '242', '250', '243', '244', '245', '246', '247', '248', '249', '218']
     ownership: ['225', '226', '227', '228', '229', '237', '218']
     equality: ['211', '218']
+    inequality: ["221"]
   3xx_totals:
     purchases: ['302', '303', '304', '305']
   4xx_totals:
@@ -218,6 +219,13 @@ consistency_checks:
   5xx_totals:
     hc_res_m: ['501', '503', '505', '507']
     hc_res_f: ['502', '504', '506', '508']
+  6xx_totals:
+    site_percentage: ["602"]
+  7xx_totals:
+    sf_expend: ["701", "702", "709"]
+    sf_purchases: ["703", "704", "710"]
+    sf_fte: ["706", "707", "711"]
+    sf_headcount: ["705"]
 
 s3:
   ssl_file: "/etc/pki/tls/certs/ca-bundle.crt"
