@@ -192,7 +192,7 @@ Deduced_Data_Type = "float64"
 
 [307]
 old_name = "307"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "object"
 
 [308]
 old_name = "308"
@@ -200,7 +200,7 @@ Deduced_Data_Type = "float64"
 
 [309]
 old_name = "309"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "object"
 
 [405]
 old_name = "405"
