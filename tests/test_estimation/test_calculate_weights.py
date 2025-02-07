@@ -351,8 +351,8 @@ class TestCalcWeightFactor:
             "Cell Number",
             "N - uni_count",
             "n - num clear records in cell",
-            "o - num outliers in cell"
-            "E- uni_employment",
+            "o - num outliers in cell",
+            "E - uni_employment",
             "e - sum of employment in cell",
             "s - sum of employment outliers in cell",
             "a_weight",
@@ -360,7 +360,7 @@ class TestCalcWeightFactor:
         ]
 
         data = [
-            [1.0, 20.0, 4.0, 1.0, 5000, 161, 63, 6.3, 8.2],
+            [1.0, 20.0, 4.0, 1.0, 5000, 161, 66, 6.3, 8.2],
             [2.0, 4.0, 1.0, 0.0, 5000, 77, 0, 4.0, 16.23],
             [4.0, 3.0, 1.0, 0.0, 5000, 88, 0, 3.0, 18.93],
         ]
