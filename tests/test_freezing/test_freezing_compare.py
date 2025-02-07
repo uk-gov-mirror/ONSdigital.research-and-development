@@ -95,8 +95,8 @@ class TestGetAmendments:
                     "purchases_split": [],
                     "sal_oth_expend": [],
                     "research_expend": [],
-                    "capex": [],
-                    "intram": [],
+                    "capex": [203],
+                    "intram": [202],
                     "funding": [],
                     "ownership": [],
                     "equality": [],
@@ -139,8 +139,6 @@ class TestGetAmendments:
         result = get_amendments(
             input_frozen_df, input_amendments_df, test_logger, config
         )
-
-        expected_outcome_df = expected_outcome_df[result.columns]
 
         # Check the output
         assert_frame_equal(
