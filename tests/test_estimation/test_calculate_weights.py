@@ -455,7 +455,7 @@ class TestCalcWeightWithMissingVals:
             [3, 1, np.nan, "Clear", "0006", 0, 1, 10, 500, 77, False, 1.0, 1.0],  # filtered out (selectiontype)
             [4, 1, "P", np.nan, "0006", 0, 1, 10, 500, 77, False, 1.0, 1.0],  # filtered out (status)
             [5, 1, "P", "Clear", np.nan, 0, 1, 10, 500, 77, False, 1.0, 1.0],  # filtered out (formtype)
-            [6, 1, "P", "Clear", "0006", np.nan, 2, 5, 500, 77, False, 1.0, .10],  # filtered out (instance) but weight applied
+            [6, 1, "P", "Clear", "0006", np.nan, 2, 5, 500, 77, False, 1.0, 1.0],  # filtered out (instance) but weight applied
             [7, 1, "P", "Clear", "0006", 0, 2, 5, 500, 77, False, 2.5, 1.3],  # No outlier
             [8, 1, "P", "Clear", "0006", 0, 2, 5, 500, 77, False, 2.5, 1.3],
         ]
