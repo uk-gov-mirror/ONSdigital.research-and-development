@@ -418,10 +418,10 @@ class TestCalcWeightWithMissingVals:
             "reference",
             "instance",
             "cellnumber",
-            "selectiontype",
-            "status",
             "formtype",
             "709",
+            "selectiontype",
+            "status",
             "uni_count",
             "uni_employment",
             "employment",
@@ -429,15 +429,15 @@ class TestCalcWeightWithMissingVals:
         ]
 
         data = [
-            [1, 1, 1, "P", "Clear", "0006", 1, 10, 500, 77, False],
-            [2, np.nan, 1, "P", "Clear", "0006", np.nan, 10, 500, 77, False],
-            [3, 1, 1, np.nan, "Clear", "0006", 1, 10, 500, 77, False],
-            [4, 1, 1, "P", np.nan, "0006", 1, 10, 500, 77, False],
-            [5, 1, 1, "P", "Clear", np.nan, 1, 10, 500, 77, False],
-            [6, 1, 2, "P", "Clear", "0006", 1, 5, 500, 77, False],
-            [7, 1, 2, "P", "Clear", "0006", 1, 5, 500, 77, np.nan],
-            [8, 1, 2, "P", "Clear", "0006", 1, 5, 500, 77, False],
-        ]
+            [1, 0, 1, "0006", 12, "P", "Clear", 20, 2000, 50, True],
+            [2, 0, 2, "0006", 16, "P", "Clear - overridden", 4, 2000, 77, False],
+            [2, 0, 2, "0006", 16, "P", "Clear", 4, 2000, 77, False],
+            [4, 0, 4, "0006", 18, "P", "Clear", 3, 2000, 88, False],
+            [1, np.nan, 5, "0006", 20, "P", "Clear", 10, 1000, 99, True],
+            [3, 0, 1, "0006", np.nan, "P", "Clear - overridden", 20, 1000, 11, True],
+            [5, 1, 2, "0006", 14, "P", "Clear - overridden", 4, 2000, 22, False],
+            [6, 0, 1, "0006", 10, "P", "Clear", 20, 5000, 7, False],
+            ]
         input_df = pd.DataFrame(data=data, columns=input_cols)
         return input_df
 
@@ -447,10 +447,10 @@ class TestCalcWeightWithMissingVals:
             "reference",
             "instance",
             "cellnumber",
-            "selectiontype",
-            "status",
             "formtype",
             "709",
+            "selectiontype",
+            "status",
             "uni_count",
             "uni_employment",
             "employment",
@@ -458,16 +458,17 @@ class TestCalcWeightWithMissingVals:
             "a_weight",
             "g_weight",
         ]
+
         data = [
-            [1, 1, 1, "P", "Clear", "0006", 1, 10, 500, 77, False, 10.0, 1.0],
-            [2, np.nan, 1, "P", "Clear", "0006", np.nan, 10, 500, 77, False, 10.0, 1.0],  # filtered from calc but weight applied
-            [3, 1, 1, np.nan, "Clear", "0006", 1, 10, 500, 77, False, 1.0, 1.0],  # filtered out (selectiontype)
-            [4, 1, 1, "P", np.nan, "0006", 1, 10, 500, 77, False, 1.0, 1.0],  # filtered out (status)
-            [5, 1, 1, "P", "Clear", np.nan, 1, 10, 500, 77, False, 1.0, 1.0],  # filtered out (formtype)
-            [6, 1, 2, "P", "Clear", "0006", 1, 5, 500, 77, False, 2.5, 1.0],  # filtered out (instance) but weight applied
-            [7, 1, 2, "P", "Clear", "0006", 1, 5, 500, 77, np.nan, 2.5, 1.0],  # No outlier
-            [8, 1, 2, "P", "Clear", "0006", 1, 5, 500, 77, False, 2.5, 1.0],
-        ]
+            [1, 0, 1, "0006", 12, "P", "Clear", 20, 2000, 50, True, 19.0, 14.66],
+            [2, 0, 2, "0006", 16, "P", "Clear - overridden", 4, 2000, 77, False, 4.0, 3.25],
+            [2, 0, 2, "0006", 16, "P", "Clear", 4, 2000, 77, False, 4.0, 3.25],
+            [4, 0, 4, "0006", 18, "P", "Clear", 3, 2000, 88, False, 3.0, 7.57],
+            [1, np.nan, 5, "0006", 20, "P", "Clear", 10, 1000, 99, True, 1.0, 1.0],
+            [3, 0, 1, "0006", np.nan, "P", "Clear - overridden", 20, 1000, 11, True, 1.0, 1.0],
+            [5, 1, 2, "0006", 14, "P", "Clear - overridden", 4, 2000, 22, False, 1.0, 1.0],
+            [6, 0, 1, "0006", 10, "P", "Clear", 20, 5000, 7, False, 19.0, 14.66],
+            ]
 
         expected_df = pd.DataFrame(data=data, columns=expected_cols)
         return expected_df
