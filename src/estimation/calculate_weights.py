@@ -178,11 +178,14 @@ def calc_g_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
     if cell_group.empty:
         return cell_group
 
-    E = cell_group["uni_employment"].iloc[0]
-    a = cell_group["a_weight"].iloc[0]
-
     estimation_filter = create_estimation_filter(cell_group)
     filtered_group = cell_group.loc[estimation_filter]
+
+    if filtered_group.empty:
+        return cell_group
+
+    E = filtered_group["uni_employment"].iloc[0]
+    a = filtered_group["a_weight"].iloc[0]
 
     e = calc_lower_e(filtered_group)
     s = calc_lower_s(filtered_group)
