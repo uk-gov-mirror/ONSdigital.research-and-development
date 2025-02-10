@@ -86,9 +86,11 @@ class TestGetAmendments:
                 "6xx_totals": {
                     "business_tot_in_workplace": []
                 },
-                "7xx_totals": {
+                "7xx_a_totals": {
                     "sf_expend": [],
                     "sf_purchases": [],
+                },
+                "7xx_b_totals": {
                     "sf_fte": [],
                     "sf_headcount": []
                 }
