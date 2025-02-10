@@ -426,14 +426,22 @@ class TestCalcTotals:
         return expected_df
 
     def test_calc_totals(self):
-        # Sample DataFrame
-
-        # Configuration dictionary
+        """Test for calc_totals function."""
         config = {
             "consistency_checks" : {
-                "emp_xx_totals" : {"employment": ["emp_researcher", "emp_technician", "emp_total"]},
-                "hc_xx_totals" : {"headcount": ["headcount_res", "headcount_tec",  "headcount_tot"]},
-                "7xx_b_totals" : {"sf_fte": ["706", "707", "711"], "sf_headcount": ["705"]},
+                "2xx_totals": {
+                    "purchases_split": ["222", "223", "203"],
+                    "sal_oth_expend": ["202", "203", "204"],
+                },
+                "emp_xx_totals" : {
+                    "employment": ["emp_researcher", "emp_technician", "emp_total"]
+                },
+                "hc_xx_totals" : {
+                    "headcount": ["headcount_res", "headcount_tec",  "headcount_tot"]
+                },
+                "7xx_b_totals" : {
+                    "sf_fte": ["706", "707", "711"], "sf_headcount": ["705"]
+                    },
             }
         }
 

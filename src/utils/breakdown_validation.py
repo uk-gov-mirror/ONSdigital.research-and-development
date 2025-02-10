@@ -55,7 +55,8 @@ def get_equality_dicts(config: dict, sublist: str = "default") -> dict:
     # create a dictionary of the relationships to check
     equality_checks = {}
     for item in wanted_dicts:
-        equality_checks.update(all_checks_dict[item])
+        if item in config["consistency_checks"].keys():
+            equality_checks.update(all_checks_dict[item])
 
     return equality_checks
 
