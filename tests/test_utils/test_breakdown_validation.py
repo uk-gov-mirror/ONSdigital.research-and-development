@@ -9,6 +9,7 @@ from src.utils.breakdown_validation import (
     replace_nulls_with_zero,
     remove_all_nulls_rows,
     equal_validation,
+    calc_totals,
     greater_than_validation,
 )
 
@@ -371,6 +372,80 @@ class TestEqualValidation:
             assert "Doing breakdown total checks..." in caplog.text
             assert result_msg == msg
             assert result_count == count
+
+
+class TestCalcTotals:
+    """Unit tests for calc_totals function."""
+
+    def create_input_df(self):
+        columns = [
+            "reference",
+            "emp_researcher",
+            "emp_technician",
+            "emp_total",
+            "headcount_res",
+            "headcount_tec",
+            "headcount_tot",
+            "705",
+            "706",
+            "707",
+            "711",
+        ]
+        data = [
+            [111, 10, 5, 0, 8, 4, 0, 1, 2, 3, 0],
+            [222, 20, 10, 0, 16, 8, 0, 2, 4, 6, 0],
+            [333, 30, 15, 0, 24, 12, 0, 3, 6, 9, 0],
+            [444, 40, 20, 0, 32, 16, 0, 4, 8, 12, 0],
+        ]
+
+        input_df = pd.DataFrame(data, columns=columns)
+        return input_df
+
+    def create_expected_df(self):
+        columns = [
+            "reference",
+            "emp_researcher",
+            "emp_technician",
+            "emp_total",
+            "headcount_res",
+            "headcount_tec",
+            "headcount_tot",
+            "705",
+            "706",
+            "707",
+            "711",
+        ]
+        data = [
+            [111, 10, 5, 15, 8, 4, 12, 1, 2, 3, 5],
+            [222, 20, 10, 30, 16, 8, 24, 2, 4, 6, 10],
+            [333, 30, 15, 45, 24, 12, 36, 3, 6, 9, 15],
+            [444, 40, 20, 60, 32, 16, 48, 4, 8, 12, 20],
+        ]
+
+        expected_df = pd.DataFrame(data, columns=columns)
+        return expected_df
+
+    def test_calc_totals(self):
+        # Sample DataFrame
+
+        # Configuration dictionary
+        config = {
+            "consistency_checks" : {
+                "emp_xx_totals" : {"employment": ["emp_researcher", "emp_technician", "emp_total"]},
+                "hc_xx_totals" : {"headcount": ["headcount_res", "headcount_tec",  "headcount_tot"]},
+                "7xx_b_totals" : {"sf_fte": ["706", "707", "711"], "sf_headcount": ["705"]},
+            }
+        }
+
+        input_df = self.create_input_df()
+        expected_df = self.create_expected_df()
+
+        # Call the function
+        result_df = calc_totals(input_df, config, list_type="employment", round_value=0)
+
+        # Assert the result
+        pd.testing.assert_frame_equal(result_df, expected_df, check_dtype=False)
+
 
 class TestGreaterThanValidation:
     """Unit tests for greater_than_validation function."""

@@ -310,6 +310,14 @@ Deduced_Data_Type = "float64"
 old_name = "headcount_oth_f"
 Deduced_Data_Type = "float64"
 
+[hc_tot_m]
+old_name = "headcount_tot_m"
+Deduced_Data_Type = "float64"
+
+[hc_tot_f]
+old_name = "headcount_tot_f"
+Deduced_Data_Type = "float64"
+
 [headcount_total]
 old_name = "headcount_total"
 Deduced_Data_Type = "float64"

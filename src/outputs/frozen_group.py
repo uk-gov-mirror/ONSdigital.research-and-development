@@ -9,6 +9,7 @@ from src.outputs.outputs_helpers import create_output_df
 import src.outputs.map_output_cols as map_o
 from src.staging.validation import load_schema
 from src.utils.helpers import filename_amender
+from src.utils.breakdown_validation import get_all_wanted_columns
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -67,57 +68,8 @@ def output_frozen_group(
         "309",
     ]
 
-    # Numerical value columns that we have in BERD and NI data
-    value_columns = [
-        "emp_researcher",
-        "emp_technician",
-        "emp_other",
-        "emp_total",
-        "202",
-        "203",
-        "204",
-        "205",
-        "206",
-        "207",
-        "209",
-        "210",
-        "211",
-        "212",
-        "214",
-        "216",
-        "218",
-        "219",
-        "220",
-        "221",
-        "222",
-        "223",
-        "225",
-        "226",
-        "227",
-        "228",
-        "229",
-        "237",
-        "242",
-        "243",
-        "244",
-        "245",
-        "246",
-        "247",
-        "248",
-        "249",
-        "250",
-        "302",
-        "303",
-        "304",
-        "305",
-        "headcount_res_m",
-        "headcount_res_f",
-        "headcount_tec_m",
-        "headcount_tec_f",
-        "headcount_oth_m",
-        "headcount_oth_f",
-        "headcount_total",
-    ]
+    # Numerical value columns that we have in BERD and NI longform data
+    value_columns = get_all_wanted_columns(config, "longform")
 
     # Columns that we don't have that should have pd.NA values
     blank_columns = [
@@ -185,11 +137,6 @@ def output_frozen_group(
 
     # Add size bands
     df_agg = map_o.map_sizebands(df_agg)
-
-    # Create blank and zero columns
-    df_agg = df_agg.reindex(
-        columns=df_agg.columns.tolist() + blank_columns + zero_columns
-    )
 
     # Create blank columns and assign blank values
     for bcol in blank_columns:

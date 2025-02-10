@@ -682,6 +682,10 @@ Deduced_Data_Type = "bool"
 old_name = "a_weight"
 Deduced_Data_Type = "float64"
 
+[g_weight]
+old_name = "g_weight"
+Deduced_Data_Type = "float64"
+
 [701_estimated]
 old_name = "701_estimated"
 Deduced_Data_Type = "float64"
