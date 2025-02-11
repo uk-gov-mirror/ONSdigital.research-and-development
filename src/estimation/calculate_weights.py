@@ -2,18 +2,39 @@ import pandas as pd
 import logging
 from typing import Tuple
 
+from src.imputation.imputation_helpers import create_mask
+
 CalcWeights_Logger = logging.getLogger(__name__)
 
 
+def create_weights_filter(df: pd.DataFrame) -> pd.Series:
+    """Return a boolean mask for the rows that the weights should be applied to.
+
+    Args:
+        df (pd.DataFrame): The input dataframe which contains survey data.
+
+    Returns:
+        pd.Series: A boolean mask for the conditions needed to calculate weights.
+    """
+    weights_filter = create_mask(df, ["clear_status", "prn_only", "shortform_only"])
+    return weights_filter
+
+
 def create_estimation_filter(df: pd.DataFrame) -> pd.Series:
-    """Return a boolean mask for the conditions needed to apply estimation."""
-    prn_cond = df["selectiontype"] == "P"
-    status_cond = df.status.isin(["Clear", "Clear - overridden"])
-    formtype_cond = df["formtype"] == "0006"
-    ins_cond = df["instance"] == 0
+    """Return a boolean mask for the conditions needed to calculate estimation weights.
+
+    Args:
+        df (pd.DataFrame): The input dataframe which contains survey data.
+
+    Returns:
+        pd.Series: A boolean mask for the conditions needed to calculate weights.
+    """
+    estimation_filter = create_mask(
+        df, ["prn_only", "clear_status", "shortform_only", "instance_zero"]
+    )
     valid_cond = df["709"].notnull()
 
-    estimation_filter = formtype_cond & prn_cond & status_cond & ins_cond & valid_cond
+    estimation_filter = estimation_filter & valid_cond
     return estimation_filter
 
 
@@ -151,7 +172,9 @@ def calc_a_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
     cell_group["N"] = N
     cell_group["n"] = n
     cell_group["o"] = outlier_count
-    cell_group.loc[estimation_filter, "a_weight"] = a_weight
+
+    weights_filter = create_weights_filter(cell_group)
+    cell_group.loc[weights_filter, "a_weight"] = a_weight
 
     return cell_group
 
@@ -199,7 +222,9 @@ def calc_g_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
     cell_group["E"] = E
     cell_group["e"] = e
     cell_group["s"] = s
-    cell_group.loc[estimation_filter, "g_weight"] = g_weight
+
+    weights_filter = create_weights_filter(cell_group)
+    cell_group.loc[weights_filter, "a_weight"] = g_weight
 
     return cell_group
 
