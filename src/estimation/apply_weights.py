@@ -35,7 +35,7 @@ def apply_weights(
         for col in all_numeric_cols:
             df[f"{col}_estimated"] = round(df[col] * df["a_weight"], round_val)
         for col in employment_cols:
-            df[f"{col}_estimated"] = round(df[col] * df["g_weight"], 0)
+            df[f"{col}_estimated"] = round(df[f"{col}_estimated"] * df["g_weight"], 0)
 
     # otherwise, apply the weights directly to the existing columns
     else:
