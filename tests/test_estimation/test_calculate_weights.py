@@ -2,7 +2,6 @@
 
 import pandas as pd
 import numpy as np
-import logging
 import pytest
 import src.estimation.calculate_weights as calw
 from pandas._testing import assert_frame_equal, assert_series_equal
@@ -26,11 +25,11 @@ class TestCreateEstimationFilter:
         ]
 
         data = [
-            [1, 0, "12", "P", "Clear", "0006", 1, 20, True],
+            [1, 0, 12, "P", "Clear", "0006", 1, 20, True],
             [2, 0, 14, "P", "Clear - overridden", "0006", 2, 4, False],
             [2, 1, 16, "P", "Clear", "0006", 2, 4, False],
             [4, 0, 18, "P", "Clear", "0006", 4, 3, False],
-            [1, 0, "20", "X", "Clear", "0006", 5, 10, False],
+            [1, 0, 20, "X", "Clear", "0006", 5, 10, False],
             [3, 0, 1, "P", "999", "0006", 1, 20, False],
             [5, 0, 14, "P", "Clear - overridden", "0001", 2, 4, False],
             [6, 0, 10, "P", "Clear", "0006", 1, 20, False],
@@ -43,19 +42,26 @@ class TestCreateEstimationFilter:
         input_df = pd.DataFrame(data=data, columns=input_cols)
         return input_df
 
-    def create_expected_output(self):
-        """Create expected output boolean series for test"""
-        expected_output = pd.Series(
-            [True, True, False, True, False, False, False, True, False, False, True, True]
-        )
-        return expected_output
 
     def test_create_estimation_filter(self):
         """Test for create_estimation_filter."""
         input_df = self.create_input_df()
-        expected_output = self.create_expected_output()
+        expected_output = pd.Series(
+            [True, True, False, True, False, False, False, True, False, False, True, True]
+        )
 
         actual_output = calw.create_estimation_filter(input_df)
+
+        assert_series_equal(actual_output, expected_output)
+
+    def test_create_weights_filter(self):
+        """Test for create_weights_filter."""
+        input_df = self.create_input_df()
+        expected_output = pd.Series(
+            [True, True, True, True, False, False, False, True, True, True, True, True]
+        )
+
+        actual_output = calw.create_weights_filter(input_df)
 
         assert_series_equal(actual_output, expected_output)
 
@@ -331,13 +337,13 @@ class TestCalcWeightFactor:
         data = [
             [1, 0, 1, "P", "Clear", "0006", "12", 20, 5000, 66, True, 6.3, 8.2],
             [2, 0, 2, "P", "Clear - overridden", "0006", 14, 4, 5000, 77, False, 4.0, 16.2],
-            [2, 1, 2, "P", "Clear", "0006", 16, 4, 5000, 77, False, 1.0, 1.0],
+            [2, 1, 2, "P", "Clear", "0006", 16, 4, 5000, 77, False, 4.0, 16.2],
             [4, 0, 4, "P", "Clear", "0006", 18, 3, 5000, 88, False, 3.0, 18.9],
             [1, 0, 5, "X", "Clear", "0006", "20", 10, 5000, 99, False, 1.0, 1.0],
             [3, 0, 1, "P", "999", "0006", 1, 20, 5000, 11, False, 1.0, 1.0],
             [5, 0, 2, "P", "Clear - overridden", "0001", 14, 4, 5000, 22, False, 1.0, 1.0],
             [6, 0, 1, "P", "Clear", "0006", 10, 20, 5000, 7, False, 6.3, 8.2],
-            [7, 1, 5, "P", "Clear", "0006", 10, 10, 5000, 7, False, 1.0, 1.0],
+            [7, 1, 5, "P", "Clear", "0006", 10, 10, 5000, 7, False, 6.3, 8.2],
             [8, 1, 2, "P", "Clear", "0006", np.nan, 4, 5000, 7, False, 1.0, 1.0],
             [9, 0, 1, "P", "Clear", "0006", 5, 20, 5000, 44, False, 6.3, 8.2],
             [10, 0, 1, "P", "Clear", "0006", 10, 20, 5000, 44, False, 6.3, 8.2],

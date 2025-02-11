@@ -2,8 +2,6 @@ import pandas as pd
 import logging
 from typing import Tuple
 
-from src.imputation.imputation_helpers import create_mask
-
 CalcWeights_Logger = logging.getLogger(__name__)
 
 
@@ -16,7 +14,10 @@ def create_weights_filter(df: pd.DataFrame) -> pd.Series:
     Returns:
         pd.Series: A boolean mask for the conditions needed to calculate weights.
     """
-    weights_filter = create_mask(df, ["clear_status", "prn_only", "shortform_only"])
+    status_mask = df.status.isin(["Clear", "Clear - overridden"])
+    prn_only_mask = df.selectiontype == "P"
+    shortform_only_mask = df.formtype == "0006"
+    weights_filter = status_mask & prn_only_mask & shortform_only_mask
     return weights_filter
 
 
@@ -29,12 +30,11 @@ def create_estimation_filter(df: pd.DataFrame) -> pd.Series:
     Returns:
         pd.Series: A boolean mask for the conditions needed to calculate weights.
     """
-    estimation_filter = create_mask(
-        df, ["prn_only", "clear_status", "shortform_only", "instance_zero"]
-    )
+    estimation_filter = create_weights_filter(df)
+    instance_cond = df["instance"] == 0
     valid_cond = df["709"].notnull()
 
-    estimation_filter = estimation_filter & valid_cond
+    estimation_filter = estimation_filter & valid_cond & instance_cond
     return estimation_filter
 
 
