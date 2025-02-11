@@ -112,7 +112,7 @@ def get_amendments(
                 amendments_df[f"{each}_updated"] - amendments_df[f"{each}_original"]
             )
             amendments_df[f"{each}_abs_diff"] = (
-                amendments_df[f"{each}_updated"] - amendments_df[f"{each}_original"]
+                amendments_df[f"{each}_abs_updated"] - amendments_df[f"{each}_original"]
             ).abs()
             amendments_df.loc[
                 amendments_df[f"{each}_abs_diff"] > 0.00001,
@@ -133,7 +133,7 @@ def get_amendments(
         # value is True if any of the *_diff_nonzero_or_true cols in that row were True
         # Add that series as a column to the original df
         # Remove any rows from the df where is_any_diff_nonzero_or_true is False
-        amendments_df["is_any_abs_diff_nonzero_or_true"] = amendments_df[
+        amendments_df["is_any_diff_nonzero_or_true"] = amendments_df[
             amendments_df.columns[
                 amendments_df.columns.str.endswith("_abs_diff_nonzero_or_true")
             ]
