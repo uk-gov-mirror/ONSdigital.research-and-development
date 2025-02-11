@@ -216,13 +216,20 @@ consistency_checks:
     emp_civil: ['405', '407', '409', '411']
     emp_defence: ['406', '408', '410', '412']
   5xx_totals:
-    hc_res_m: ['501', '503', '505', '507']
-    hc_res_f: ['502', '504', '506', '508']
+    headcount_tot_m: ['501', '503', '505', '507']
+    headcount_tot_f: ['502', '504', '506', '508']
+  emp_xx_totals:
+    employment: ["emp_researcher", "emp_technician", "emp_other", "emp_total"]
+  hc_xx_totals:
+    headcount_tot_m: ["headcount_res_m", "headcount_tec_m", "headcount_oth_m", "headcount_tot_m"]
+    headcount_tot_f: ["headcount_res_f", "headcount_tec_f", "headcount_oth_f", "headcount_tot_f"]
+    headcount_total: ["headcount_tot_m", "headcount_tot_f", "headcount_total"]
   6xx_totals:
     site_percentage: ["602"]
-  7xx_totals:
+  7xx_a_totals:
     sf_expend: ["701", "702", "709"]
     sf_purchases: ["703", "704", "710"]
+  7xx_b_totals:
     sf_fte: ["706", "707", "711"]
     sf_headcount: ["705"]
 

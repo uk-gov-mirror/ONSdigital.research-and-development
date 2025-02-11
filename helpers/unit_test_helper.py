@@ -3,11 +3,11 @@ import pandas as pd
 import os
 
 # configuration settings
-csv_path = "D:/coding_projects/"
-input_file = "carry_forward_input_data.csv"
+csv_path = "D:/coding_projects/randd_test_data/"
+input_file = "weights2_input.csv"
 
 # whether the unit test data is input or expected output (set "input" or "exp_output")
-in_or_output = "input_"
+in_or_output = "input"
 
 output_filename = f"{in_or_output}_function"
 
@@ -16,10 +16,12 @@ path1 = os.path.join(csv_path, input_file)
 df1 = pd.read_csv(path1)
 
 # specify string columns- these will have quotes applied
-string_cols = ["formtype", "200", "201", "601", "604", "status", "postcodes_harmonised", "imp_class", "imp_marker"]
+string_cols = ["formtype", "status", "selectiontype"]
 
 # specify float columns
-float_cols = ["211"]
+float_cols = []
+
+int_cols = [c for c in df1.columns if c not in string_cols + float_cols]
 
 # set all datatypes to string - we are outputting all the data as a string
 df1 = df1.astype(str)

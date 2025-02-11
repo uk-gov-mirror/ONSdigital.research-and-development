@@ -24,6 +24,8 @@ def get_equality_dicts(config: dict, sublist: str = "default") -> dict:
     # isolate the relationships suitlable for checking in the construction module
     if sublist == "default":
         wanted_dicts = [key for key in all_checks_dict.keys() if "xx_totals" in key]
+    elif sublist == "longform":
+        wanted_dicts = ["2xx_totals", "3xx_totals", "emp_xx_totals", "hc_xx_totals"]
     elif sublist == "imputation":
         wanted_dicts = ["2xx_totals", "3xx_totals"]
     elif sublist == "freezing":
@@ -32,7 +34,19 @@ def get_equality_dicts(config: dict, sublist: str = "default") -> dict:
             "4xx_totals",
             "5xx_totals",
             "6xx_totals",
-            "7xx_totals",
+            "7xx_a_totals",
+            "7xx_b_totals",
+        ]
+    elif sublist == "employment":
+        wanted_dicts = ["emp_xx_totals", "hc_xx_totals", "7xx_b_totals"]
+    elif sublist == "estimation":
+        wanted_dicts = [
+            "2xx_totals",
+            "3xx_totals",
+            "emp_xx_totals",
+            "hc_xx_totals",
+            "7xx_a_totals",
+            "7xx_b_totals",
         ]
 
     else:
@@ -41,26 +55,28 @@ def get_equality_dicts(config: dict, sublist: str = "default") -> dict:
     # create a dictionary of the relationships to check
     equality_checks = {}
     for item in wanted_dicts:
-        equality_checks.update(all_checks_dict[item])
+        if item in config["consistency_checks"].keys():
+            equality_checks.update(all_checks_dict[item])
 
     return equality_checks
 
 
-def get_all_wanted_columns(config: dict) -> list:
+def get_all_wanted_columns(config: dict, list_type="default") -> list:
     """
     Get all the columns that we want to check.
 
     Args:
         config (dict): The config dictionary.
+        list_type (str): The type of list to get.
 
     Returns:
-        list: A list of all the columns to check.
+        list: A sorted list of all the columns to check without duplicates.
     """
-    equals_checks = get_equality_dicts(config, "default")
-    all_columns = []
+    equals_checks = get_equality_dicts(config, list_type)
+    all_columns = set()
     for list_item in equals_checks.values():
-        all_columns += list_item
-    return all_columns
+        all_columns.update(list_item)
+    return sorted(all_columns)
 
 
 def replace_nulls_with_zero(df: pd.DataFrame, equals_checks) -> pd.DataFrame:
@@ -96,7 +112,7 @@ def remove_all_nulls_rows(df: pd.DataFrame, config: dict) -> pd.DataFrame:
         pd.DataFrame
     """
     BreakdownValidationLogger.info("Removing rows with all null values from validation")
-    wanted_cols = get_all_wanted_columns(config)
+    wanted_cols = get_all_wanted_columns(config, "default")
     rows_to_validate = df.dropna(
         subset=wanted_cols,
         how="all",
@@ -124,6 +140,8 @@ def equal_validation(
     count = 0
     for index, row in rows_to_validate.iterrows():
         for key, columns in equals_checks.items():
+            if len(columns) == 1:
+                continue
             total_column = columns[-1]
             breakdown_columns = columns[:-1]
             if (
@@ -142,6 +160,29 @@ def equal_validation(
                 )
                 count += 1
     return msg, count
+
+
+def calc_totals(
+    df: pd.DataFrame, config: dict, list_type="default", round_value=1
+) -> pd.DataFrame:
+    """
+    Calculate the totals for the breakdown columns.
+
+    Args:
+        df (pd.DataFrame): The dataframe to check.
+        config (dict): The config dictionary.
+
+    Returns:
+        pd.DataFrame
+    """
+    df = df.copy()
+
+    equals_checks = get_equality_dicts(config, list_type)
+    for key, columns in equals_checks.items():
+        if len(columns) == 1:
+            continue
+        df[columns[-1]] = round(df[columns[:-1]].sum(axis=1), round_value)
+    return df
 
 
 def greater_than_validation(

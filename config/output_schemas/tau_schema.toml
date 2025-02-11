@@ -74,6 +74,42 @@ Deduced_Data_Type = "float64"
 old_name = "emp_other"
 Deduced_Data_Type = "float64"
 
+[emp_tot]
+old_name = "emp_total"
+Deduced_Data_Type = "float64"
+
+[hc_res_m]
+old_name = "headcount_res_m"
+Deduced_Data_Type = "float64"
+
+[hc_res_f]
+old_name = "headcount_res_f"
+Deduced_Data_Type = "float64"
+
+[hc_tec_m]
+old_name = "headcount_tec_m"
+Deduced_Data_Type = "float64"
+
+[hc_tec_f]
+old_name = "headcount_tec_f"
+Deduced_Data_Type = "float64"
+
+[hc_oth_m]
+old_name = "headcount_oth_m"
+Deduced_Data_Type = "float64"
+
+[hc_oth_f]
+old_name = "headcount_oth_f"
+Deduced_Data_Type = "float64"
+
+[hc_tot_m]
+old_name = "headcount_tot_m"
+Deduced_Data_Type = "float64"
+
+[hc_tot_f]
+old_name = "headcount_tot_f"
+Deduced_Data_Type = "float64"
+
 [slries]
 old_name = "202"
 Deduced_Data_Type ="Int64"

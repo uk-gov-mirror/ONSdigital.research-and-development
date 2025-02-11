@@ -5,15 +5,36 @@ from typing import Tuple
 CalcWeights_Logger = logging.getLogger(__name__)
 
 
+def create_weights_filter(df: pd.DataFrame) -> pd.Series:
+    """Return a boolean mask for the rows that the weights should be applied to.
+
+    Args:
+        df (pd.DataFrame): The input dataframe which contains survey data.
+
+    Returns:
+        pd.Series: A boolean mask for the conditions needed to calculate weights.
+    """
+    prn_only_mask = df.selectiontype == "P"
+    shortform_only_mask = df.formtype == "0006"
+    weights_filter = prn_only_mask & shortform_only_mask
+    return weights_filter
+
+
 def create_estimation_filter(df: pd.DataFrame) -> pd.Series:
-    """Return a boolean mask for the conditions needed to apply estimation."""
-    prn_cond = df["selectiontype"] == "P"
-    status_cond = df.status.isin(["Clear", "Clear - overridden"])
-    formtype_cond = df["formtype"] == "0006"
-    ins_cond = df["instance"] == 0
+    """Return a boolean mask for the conditions needed to calculate estimation weights.
+
+    Args:
+        df (pd.DataFrame): The input dataframe which contains survey data.
+
+    Returns:
+        pd.Series: A boolean mask for the conditions needed to calculate weights.
+    """
+    estimation_filter = create_weights_filter(df)
+    status_cond = df["status"].isin(["Clear", "Clear - overridden"])
+    instance_cond = df["instance"] == 0
     valid_cond = df["709"].notnull()
 
-    estimation_filter = formtype_cond & prn_cond & status_cond & ins_cond & valid_cond
+    estimation_filter = estimation_filter & status_cond & valid_cond & instance_cond
     return estimation_filter
 
 
@@ -105,6 +126,10 @@ def calculate_weighting_factors(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Data
     # Create a QA dataframe
     qa_frame = create_weights_qa_df(df)
     df = df.drop(columns=["N", "n", "o", "E", "e", "s"])
+
+    # Apply the outlier weights
+    df = outlier_weights(df)
+
     return df, qa_frame
 
 
@@ -135,7 +160,7 @@ def calc_a_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
     N = cell_group["uni_count"].iloc[0]
 
     estimation_filter = create_estimation_filter(cell_group)
-    filtered_group = cell_group.loc[estimation_filter]
+    filtered_group = cell_group.copy().loc[estimation_filter]
 
     n = calc_lower_n(filtered_group)
 
@@ -151,7 +176,9 @@ def calc_a_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
     cell_group["N"] = N
     cell_group["n"] = n
     cell_group["o"] = outlier_count
-    cell_group.loc[estimation_filter, "a_weight"] = a_weight
+
+    weights_filter = create_weights_filter(cell_group)
+    cell_group.loc[weights_filter, "a_weight"] = a_weight
 
     return cell_group
 
@@ -178,11 +205,14 @@ def calc_g_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
     if cell_group.empty:
         return cell_group
 
-    E = cell_group["uni_employment"].iloc[0]
-    a = cell_group["a_weight"].iloc[0]
-
     estimation_filter = create_estimation_filter(cell_group)
-    filtered_group = cell_group.loc[estimation_filter]
+    filtered_group = cell_group.copy().loc[estimation_filter]
+
+    if filtered_group.empty:
+        return cell_group
+
+    E = filtered_group["uni_employment"].iloc[0]
+    a = filtered_group["a_weight"].iloc[0]
 
     e = calc_lower_e(filtered_group)
     s = calc_lower_s(filtered_group)
@@ -196,7 +226,9 @@ def calc_g_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
     cell_group["E"] = E
     cell_group["e"] = e
     cell_group["s"] = s
-    cell_group.loc[estimation_filter, "g_weight"] = g_weight
+
+    weights_filter = create_weights_filter(cell_group)
+    cell_group.loc[weights_filter, "g_weight"] = g_weight
 
     return cell_group
 

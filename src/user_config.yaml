@@ -39,7 +39,7 @@ global:
   output_short_form: False
   output_gb_sas: True
   output_ni_sas: False
-  output_tau: False
+  output_tau: True
   output_intram_by_pg_gb: False
   output_intram_by_pg_uk: False
   output_intram_gb_itl: False
