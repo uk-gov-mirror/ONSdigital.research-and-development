@@ -33,7 +33,7 @@ def run_estimation(
     # cell_unit_dict = cmap.cellno_unit_dict(cellno_df)
 
     # calculate the weights
-    df, qa_df = weights.calculate_weighting_factor(df)
+    df, qa_df = weights.calculate_weighting_factors(df)
 
     # calculate the weights for outliers
     weighted_df = weights.outlier_weights(df)

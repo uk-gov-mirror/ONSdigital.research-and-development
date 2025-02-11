@@ -26,6 +26,15 @@ def get_equality_dicts(config: dict, sublist: str = "default") -> dict:
         wanted_dicts = [key for key in all_checks_dict.keys() if "xx_totals" in key]
     elif sublist == "imputation":
         wanted_dicts = ["2xx_totals", "3xx_totals"]
+    elif sublist == "freezing":
+        wanted_dicts = [
+            "2xx_totals",
+            "4xx_totals",
+            "5xx_totals",
+            "6xx_totals",
+            "7xx_totals",
+        ]
+
     else:
         wanted_dicts = list(all_checks_dict.keys())
 
@@ -187,6 +196,9 @@ def get_breakdown_errors(df: pd.DataFrame, to_check: dict) -> pd.DataFrame:
     qa_df = df.copy()
     wanted_refs = []  # a list of references that have errors
     cols = []  # a list of columns that have errors
+
+    # Filter out items from to_check that only have a single value
+    to_check = {key: value for key, value in to_check.items() if len(value) > 1}
 
     check_results_dict = {}
     for key, columns in to_check.items():
