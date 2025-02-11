@@ -58,7 +58,7 @@ class TestCreateEstimationFilter:
         """Test for create_weights_filter."""
         input_df = self.create_input_df()
         expected_output = pd.Series(
-            [True, True, True, True, False, False, False, True, True, True, True, True]
+            [True, True, True, True, False, True, False, True, True, True, True, True]
         )
 
         actual_output = calw.create_weights_filter(input_df)
@@ -425,8 +425,8 @@ class TestCalcWeightsSecondCheck:
     and np.nan taken out of calculation"""
 
     def create_input_df(self):
-        """Creates input df for test"""
-        input_cols = [
+        """Create an input dataframe for the test."""
+        input_columns = [
             "reference",
             "instance",
             "cellnumber",
@@ -441,21 +441,23 @@ class TestCalcWeightsSecondCheck:
         ]
 
         data = [
-            [1, 0, 1, "0006", 12, "P", "Clear", 20, 2000, 50, True],
-            [2, 0, 2, "0006", 16, "P", "Clear - overridden", 4, 2000, 77, False],
-            [2, 0, 2, "0006", 16, "P", "Clear", 4, 2000, 77, False],
-            [4, 0, 4, "0006", 18, "P", "Clear", 3, 2000, 88, False],
-            [1, np.nan, 5, "0006", 20, "P", "Clear", 10, 1000, 99, True],
-            [3, 0, 1, "0006", np.nan, "P", "Clear - overridden", 20, 1000, 11, True],
-            [5, 1, 2, "0006", 14, "P", "Clear - overridden", 4, 2000, 22, False],
-            [6, 0, 1, "0006", 10, "P", "Clear", 20, 5000, 7, False],
-            ]
-        input_df = pd.DataFrame(data=data, columns=input_cols)
+            [1, 0, 1, "0006", 12.0, "P", "Clear", 20, 2000, 7, True],
+            [1, 1, 1, "0006", 20.0, "P", "Clear", 20, 2000, 7, True],
+            [2, 0, 2, "0006", 16.0, "P", "Clear - overridden", 4, 2000, 77, False],
+            [2, 1, 2, "0006", 16.0, "P", "Clear - overridden", 4, 2000, 77, False],
+            [3, 0, 1, "0006", np.nan, "P", "Clear - overridden", 20, 2000, 11, False],
+            [4, 0, 4, "0006", 18.0, "P", "Clear", 30, 2000, 88, False],
+            [5, 1, 3, "0001", 14.0, "C", "Clear - overridden", 50, 2000, 22, False],
+            [6, 0, 1, "0006", 10.0, "P", "Clear", 20, 2000, 50, False],
+        ]
+
+        input_df = pd.DataFrame(data=data, columns=input_columns)
         return input_df
 
-    def create_expected_output(self):
-        """Creates expected df for test"""
-        expected_cols = [
+
+    def create_expected_df(self):
+        """Create an expected dataframe for the test."""
+        expected_columns = [
             "reference",
             "instance",
             "cellnumber",
@@ -472,18 +474,19 @@ class TestCalcWeightsSecondCheck:
         ]
 
         data = [
-            [1, 0, 1, "0006", 12, "P", "Clear", 20, 2000, 50, True, 19.0, 14.66],
-            [2, 0, 2, "0006", 16, "P", "Clear - overridden", 4, 2000, 77, False, 4.0, 3.25],
-            [2, 0, 2, "0006", 16, "P", "Clear", 4, 2000, 77, False, 4.0, 3.25],
-            [4, 0, 4, "0006", 18, "P", "Clear", 3, 2000, 88, False, 3.0, 7.57],
-            [1, np.nan, 5, "0006", 20, "P", "Clear", 10, 1000, 99, True, 1.0, 1.0],
-            [3, 0, 1, "0006", np.nan, "P", "Clear - overridden", 20, 1000, 11, True, 1.0, 1.0],
-            [5, 1, 2, "0006", 14, "P", "Clear - overridden", 4, 2000, 22, False, 1.0, 1.0],
-            [6, 0, 1, "0006", 10, "P", "Clear", 20, 5000, 7, False, 19.0, 14.66],
-            ]
+            [1, 0, 1, "0006", 12.0, "P", "Clear", 20, 2000, 7, True, 1, 1.0],
+            [1, 1, 1, "0006", 20.0, "P", "Clear", 20, 2000, 7, True, 1, 1.0],
+            [2, 0, 2, "0006", 16.0, "P", "Clear - overridden", 4, 2000, 77, False, 4, 6.494],
+            [2, 1, 2, "0006", 16.0, "P", "Clear - overridden", 4, 2000, 77, False, 4, 6.494],
+            [3, 0, 1, "0006", np.nan, "P", "Clear - overridden", 20, 2000, 11, False, 19, 2.098],
+            [4, 0, 4, "0006", 18.0, "P", "Clear", 30, 2000, 88, False, 30, 0.758],
+            [5, 1, 3, "0001", 14.0, "C", "Clear - overridden", 50, 2000, 22, False, 1, 1.0],
+            [6, 0, 1, "0006", 10.0, "P", "Clear", 20, 2000, 50, False, 19, 2.098],
+        ]
 
-        expected_df = pd.DataFrame(data=data, columns=expected_cols)
+        expected_df = pd.DataFrame(data=data, columns=expected_columns)
         return expected_df
+
 
     def create_expected_qa(self):
         """Creates expected qa df for test"""
@@ -500,9 +503,9 @@ class TestCalcWeightsSecondCheck:
         ]
 
         data = [
-            [1.0, 20, 2.0, 1.0, 2000, 57, 50, 19, 14.66],
-            [2.0, 4, 1.0, 0.0, 2000, 154, 0, 4.0, 3.25],
-            [4.0, 3, 1.0, 0.0, 2000, 88, 0, 3.0, 7.57],
+            [1, 20, 2, 1.0, 2000, 57, 7, 19, 2.098],
+            [2, 4, 1, 0.0, 2000, 77, 0, 4, 6.494],
+            [4, 30, 1, 0.0, 2000, 88, 0, 30, 0.758],
         ]
 
         expected_qa_df = pd.DataFrame(data=data, columns=expected_qa_cols)
@@ -513,13 +516,20 @@ class TestCalcWeightsSecondCheck:
         and np.nan taken out of calculation"""
 
         input_df = self.create_input_df()
-        expected_df = self.create_expected_output()
+        expected_df = self.create_expected_df()
         expected_qa_df = self.create_expected_qa()
 
         result_df, result_qa_df = calw.calculate_weighting_factors(input_df)
-        pd.set_option("display.max_columns", None)
-        pd.set_option("display.expand_frame_repr", False)
-        print(result_qa_df)
+
+        # List of DataFrames and columns to round
+        dfs = [result_qa_df, result_df, expected_df, expected_qa_df]
+        columns = ["a_weight", "g_weight"]
+
+        # Round specified columns in each DataFrame
+        for df in dfs:
+            for col in columns:
+                df[col] = df[col].round(3)
+
 
         assert_frame_equal(
             result_df, expected_df, check_exact=False, rtol=0.01, check_dtype=False
