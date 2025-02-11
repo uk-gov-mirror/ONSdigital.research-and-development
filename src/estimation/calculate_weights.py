@@ -14,10 +14,9 @@ def create_weights_filter(df: pd.DataFrame) -> pd.Series:
     Returns:
         pd.Series: A boolean mask for the conditions needed to calculate weights.
     """
-    status_mask = df.status.isin(["Clear", "Clear - overridden"])
     prn_only_mask = df.selectiontype == "P"
     shortform_only_mask = df.formtype == "0006"
-    weights_filter = status_mask & prn_only_mask & shortform_only_mask
+    weights_filter = prn_only_mask & shortform_only_mask
     return weights_filter
 
 
@@ -31,10 +30,11 @@ def create_estimation_filter(df: pd.DataFrame) -> pd.Series:
         pd.Series: A boolean mask for the conditions needed to calculate weights.
     """
     estimation_filter = create_weights_filter(df)
+    status_cond = df["status"].isin(["Clear", "Clear - overridden"])
     instance_cond = df["instance"] == 0
     valid_cond = df["709"].notnull()
 
-    estimation_filter = estimation_filter & valid_cond & instance_cond
+    estimation_filter = estimation_filter & status_cond & valid_cond & instance_cond
     return estimation_filter
 
 
@@ -126,6 +126,10 @@ def calculate_weighting_factors(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Data
     # Create a QA dataframe
     qa_frame = create_weights_qa_df(df)
     df = df.drop(columns=["N", "n", "o", "E", "e", "s"])
+
+    # Apply the outlier weights
+    df = outlier_weights(df)
+
     return df, qa_frame
 
 
@@ -156,7 +160,7 @@ def calc_a_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
     N = cell_group["uni_count"].iloc[0]
 
     estimation_filter = create_estimation_filter(cell_group)
-    filtered_group = cell_group.loc[estimation_filter]
+    filtered_group = cell_group.copy().loc[estimation_filter]
 
     n = calc_lower_n(filtered_group)
 
@@ -202,7 +206,7 @@ def calc_g_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
         return cell_group
 
     estimation_filter = create_estimation_filter(cell_group)
-    filtered_group = cell_group.loc[estimation_filter]
+    filtered_group = cell_group.copy().loc[estimation_filter]
 
     if filtered_group.empty:
         return cell_group
@@ -224,7 +228,7 @@ def calc_g_weight(cell_group: pd.DataFrame) -> pd.DataFrame:
     cell_group["s"] = s
 
     weights_filter = create_weights_filter(cell_group)
-    cell_group.loc[weights_filter, "a_weight"] = g_weight
+    cell_group.loc[weights_filter, "g_weight"] = g_weight
 
     return cell_group
 
