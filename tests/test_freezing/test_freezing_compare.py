@@ -3,6 +3,7 @@
 import pandas as pd
 from pandas.testing import assert_frame_equal
 import logging
+import numpy as np
 
 from src.freezing.freezing_compare import get_amendments, get_additions
 from src.freezing.freezing_compare import bring_together_split_cases
@@ -24,6 +25,7 @@ class TestGetAmendments:
             ["C", 202412, 0.0, 1.0, 2.0, "A", "Yes", "B", "Yes"],
             ["D", 202412, 1.0, 2.0, 3.0, "C", "Yes", "D", "Yes"],
             ["E", 202412, None, 4.0, 5.0, "E", "Yes", "F", "No"],
+            ["R", 202412, None, 14.0, 14.0, "E", "Yes", "F", "No"],
         ]
         input_frozen_df = pd.DataFrame(data=data, columns=input_cols)
         return input_frozen_df
@@ -35,9 +37,10 @@ class TestGetAmendments:
         data = [
             ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes"], # No diffs
             ["B", 202412, None, None, 1.0, "A", "Yes", "B", "Yes"], # 200 diff "A"
-            ["C", 202412, 0.0, 2.0, 2.0, "A", "Yes", "B", "No"], # 201 diff by 1, 604 to "No"
+            ["C", 202412, 0.0, 2.0, 2.0, "A", "Yes", "B", "No"], # 202 diff by 1, 604 to "No"
             ["D", 202412, 1.0, 2.0, 3.0, "E", "Yes", "D", "Yes"],  # 200 & 601 diff "E", "D"
-            ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes"], # 201 & 202 by 6, -4, , 604 to "Yes"
+            ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes"], # 202 & 203 by 6, -4, , 604 to "Yes"
+            ["R", 202412, None, 6.0, 6.0, "E", "Yes", "F", "No"], # 202 & 203 by -8, -8
         ]
         input_amendments_df = pd.DataFrame(data=data, columns=input_cols)
         return input_amendments_df
@@ -52,6 +55,7 @@ class TestGetAmendments:
             ["C", 202412, 0.0, 2.0, 2.0, "A", "Yes", "B", "No", 1.0, 0.0, None, None, None, "No", False],
             ["D", 202412, 1.0, 2.0, 3.0, "E", "Yes", "D", "Yes", 0.0, 0.0, "E", None, None, None, False],
             ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes", 6.0, -4.0, None, None, None, "Yes", False],
+            ["R", 202412, None, 6.0, 6.0, "E", "Yes", "F", "No", -8.0, -8.0, None, None, None, None, False],
         ]
         input_expected_outcome_df = pd.DataFrame(data=data, columns=input_cols)
         return input_expected_outcome_df

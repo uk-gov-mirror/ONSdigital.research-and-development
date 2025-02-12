@@ -66,17 +66,20 @@ def get_amendments(
             amendments_df[f"{each}_diff"] = (
                 amendments_df[f"{each}_updated"] - amendments_df[f"{each}_original"]
             )
+            amendments_df[f"{each}_abs_diff"] = (
+                amendments_df[f"{each}_updated"] - amendments_df[f"{each}_original"]
+            ).abs()
             amendments_df.loc[
-                amendments_df[f"{each}_diff"] > 0.00001,
-                f"is_{each}_diff_nonzero_or_true",
+                amendments_df[f"{each}_abs_diff"] > 0.00001,
+                f"is_{each}_abs_diff_nonzero_or_true",
             ] = True
 
         for each in non_numeric_cols:
-            amendments_df[f"is_{each}_diff_nonzero_or_true"] = (
+            amendments_df[f"is_{each}_abs_diff_nonzero_or_true"] = (
                 amendments_df[f"{each}_updated"] != amendments_df[f"{each}_original"]
             )
             amendments_df.loc[
-                amendments_df[f"is_{each}_diff_nonzero_or_true"], f"{each}_diff"
+                amendments_df[f"is_{each}_abs_diff_nonzero_or_true"], f"{each}_diff"
             ] = amendments_df[f"{each}_updated"]
 
         # Take a slice of the df which is just the cols ending with
@@ -87,7 +90,7 @@ def get_amendments(
         # Remove any rows from the df where is_any_diff_nonzero_or_true is False
         amendments_df["is_any_diff_nonzero_or_true"] = amendments_df[
             amendments_df.columns[
-                amendments_df.columns.str.endswith("_diff_nonzero_or_true")
+                amendments_df.columns.str.endswith("_abs_diff_nonzero_or_true")
             ]
         ].any(axis="columns")
         amendments_df = amendments_df.loc[amendments_df["is_any_diff_nonzero_or_true"]]
