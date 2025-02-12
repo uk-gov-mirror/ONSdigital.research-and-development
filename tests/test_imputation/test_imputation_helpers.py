@@ -14,6 +14,7 @@ from src.imputation.imputation_helpers import (
     concat_with_bool,
     create_notnull_mask,
     get_imputation_cols,
+    instance_fix,
 )
 
 
@@ -600,3 +601,75 @@ class TestGetImputationCols:
 
         output = get_imputation_cols(input_dict)
         assert output == expected_output
+
+class TestInstanceFix:
+    """ Unit test for instance_fix function """
+    def cre_input_df(self) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """Define columns and values for the DataFrame"""
+        columns1 = ["status", "formtype", "instance"]
+        values1 = [
+            ["Clear", "0006", 0],
+            ["Form sent out", "0006", 0],
+            ["Clear", "0001", 0],
+            ["Form sent out", "0001", 0],
+            ["Other", "0001", 0],
+            [np.nan, "0001", 0],
+        ]
+        df1 = pd.DataFrame(values1, columns=columns1)
+
+        columns2 = ["status", "formtype", "instance", "is_constructed"]
+        values2 = [
+            ["Clear", "0006", 0, False],
+            ["Form sent out", "0006", 0, False],
+            ["Clear", "0001", 0, True],
+            ["Form sent out", "0001", 0, True],
+            ["Other", "0001", 0, True],
+            ["Form sent out", "0001", 0, False],
+            [np.nan, "0001", 0, False],
+        ]
+
+        # Create DataFrame from the lists of values
+        df2 = pd.DataFrame(values2, columns=columns2)
+        return df1, df2
+
+    def cre_expected_output(self) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """ define expected output dataframes.
+        """
+        columns1 = ["status", "formtype", "instance"]
+        values1 = [
+            ["Clear", "0006", 0],
+            ["Form sent out", "0006", 0],
+            ["Clear", "0001", 0],
+            ["Form sent out", "0001", 1],
+            ["Other", "0001", 0],
+            [np.nan, "0001", 0],
+        ]
+
+        # Create DataFrame from the lists of values
+        expected_df1 = pd.DataFrame(values1, columns=columns1)
+
+        columns2 = ["status", "formtype", "instance", "is_constructed"]
+        values2 = [
+            ["Clear", "0006", 0, False],
+            ["Form sent out", "0006", 0, False],
+            ["Clear", "0001", 0, True],
+            ["Form sent out", "0001", 0, True],
+            ["Other", "0001", 0, True],
+            ["Form sent out", "0001", 1, False],
+            [np.nan, "0001", 0, False],
+        ]
+        # Create DataFrame from the lists of values
+        expected_df2 = pd.DataFrame(values2, columns=columns2)
+
+        return expected_df1, expected_df2
+
+    def test_instance_fix(self):
+        """Test for function instance_fix"""
+        input_df1, input_df2 = self.cre_input_df()
+        expected_df1, expected_df2  = self.cre_expected_output()
+
+        check_df1 = instance_fix(input_df1)
+        check_df2 = instance_fix(input_df2)
+
+        assert_frame_equal(check_df1.reset_index(drop=True), expected_df1, check_dtype=False)
+        assert_frame_equal(check_df2.reset_index(drop=True), expected_df2, check_dtype=False)
