@@ -23,7 +23,15 @@ def get_equality_dicts(config: dict, sublist: str = "default") -> dict:
 
     # isolate the relationships suitlable for checking in the construction module
     if sublist == "default":
-        wanted_dicts = [key for key in all_checks_dict.keys() if "xx_totals" in key]
+        wanted_dicts = [
+            "2xx_totals",
+            "3xx_totals",
+            "4xx_totals",
+            "5xx_totals",
+            "6xx_totals",
+            "7xx_a_totals",
+            "7xx_b_totals",
+        ]
     elif sublist == "longform":
         wanted_dicts = ["2xx_totals", "3xx_totals", "emp_xx_totals", "hc_xx_totals"]
     elif sublist == "imputation":
