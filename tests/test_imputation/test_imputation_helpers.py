@@ -13,7 +13,7 @@ from src.imputation.imputation_helpers import (
     imputation_marker,
     concat_with_bool,
     create_notnull_mask,
-    create_r_and_d_instance,
+    get_imputation_cols,
 )
 
 
@@ -180,64 +180,6 @@ class TestFix604Error:
         assert_frame_equal(result_df.reset_index(drop=True), expected_df)
         assert_frame_equal(check_df.reset_index(drop=True), exp_check_df)
 
-
-class TestCreateRAndDInstance:
-    """Unit tests for create_r_and_d_instance function."""
-
-    def create_input_df(self):
-        """Create an input dataframe for the test."""
-        input_cols = [
-            "reference",
-            "instance",
-            "200",
-            "604",
-            "formtype",
-        ]
-
-        data = [
-            [1001, 0, None, "No", "0001"],
-            [1001, 1, "C", np.nan, "0001"],
-            [1001, 2, "C", np.nan, "0001"],
-            [1001, 3, "D", np.nan, "0001"],
-            [2002, 0, None, "Yes", "0001"],
-            [2002, 1, "C", "Yes", "0001"],
-            [3003, 0, None, "No", "0001"],
-            [4004, 0, None, None, "0001"],
-        ]
-
-        input_df = pandasDF(data=data, columns=input_cols)
-        return input_df
-
-    def create_expected_df(self):
-        """Create an input dataframe for the test."""
-        input_cols = [
-            "reference",
-            "instance",
-            "200",
-            "604",
-            "formtype",
-        ]
-
-        data = [
-            [1001, 0, None, "No", "0001"],
-            [1001, 1, None, "No", "0001"],
-            [2002, 0, None, "Yes", "0001"],
-            [2002, 1, "C", "Yes", "0001"],
-            [3003, 0, None, "No", "0001"],
-            [3003, 1, None, "No", "0001"],
-            [4004, 0, None, None, "0001"],
-        ]
-
-        expected_df = pandasDF(data=data, columns=input_cols)
-        return expected_df
-
-    def test_create_r_and_d_instance(self):
-        """Test for function fix_604_error."""
-        input_df = self.create_input_df()
-        expected_df = self.create_expected_df()
-
-        result_df, qa_df = create_r_and_d_instance(input_df)
-        assert_frame_equal(result_df.reset_index(drop=True), expected_df)
 
 class TestCalculateTotals:
     """Unit tests for calculate_totals function."""
@@ -511,12 +453,12 @@ class TestConcatWithBool:
         # ignore the order of the columns
         assert_frame_equal(result_df.reset_index(drop=True), expected_df, check_like=True)
 
-class TestCheckRAndDInstance:
+class TestCreateRAndDInstance:
     """ Unit test for check_r_and_d_instance function """
     def cre_input_df(self) -> pd.DataFrame:
         """Define columns and values for the DataFrame"""
-        columns_df = ["reference", "instance", "604", "formtype"]
-        values_df = [
+        columns = ["reference", "instance", "604", "formtype"]
+        values = [
             [1004, 1, "Yes", "0006"],
             [1004, 2, "Yes", "0006"],
             [1001, 0, "Yes", "0001"],
@@ -535,15 +477,14 @@ class TestCheckRAndDInstance:
         ]
 
         # Create DataFrame from the lists of values
-        df = pd.DataFrame(values_df, columns=columns_df)
+        df = pd.DataFrame(values, columns=columns)
         return df
 
     def cre_expected_output(self) -> tuple[pd.DataFrame, pd.DataFrame]:
         """ define expected output dataframes.
         """
-        columns_df1 = ["reference", "instance", "604", "formtype"]
-        dtype_dict = {"reference" : "int64", "instance" : "float64", "604" : "str", "formtype" : "str"}
-        values_df1 = [
+        columns1 = ["reference", "instance", "604", "formtype"]
+        values1 = [
             [1001, 0, "Yes", "0001"],
             [1001, 1, "Yes", "0001"],
             [1001, 2, "Yes", "0001"],
@@ -562,19 +503,19 @@ class TestCheckRAndDInstance:
         ]
 
         # Create DataFrame from the lists of values
-        final_df = pd.DataFrame(values_df1, columns=columns_df1)
+        final_df = pd.DataFrame(values1, columns=columns1)
 
-        columns_df2 = ["reference", "instance", "604", "formtype"]
-        values_df2 = [
+        columns2 = ["reference", "instance", "604", "formtype"]
+        values2 = [
             [1003, 0, "No", "0001"],
             [1003, 1, "No", "0001"],
         ]
         # Create DataFrame from the lists of values
-        mult_604_qa_df = pd.DataFrame(values_df2, columns=columns_df2)
+        mult_604_qa_df = pd.DataFrame(values2, columns=columns2)
 
         return final_df, mult_604_qa_df
 
-    def test_check_r_and_d_instance(self):
+    def test_create_r_and_d_instance(self):
         """Test for function check_r_and_d_instance"""
         input_df = self.cre_input_df()
         expected_final_df, expected_mult_604_qa_df  = self.cre_expected_output()
@@ -617,4 +558,45 @@ class TestCreateNotnullMask:
         expected_output = self.cre_expected_output()
 
         output = create_notnull_mask(input_df, "601")
-        #assert_series_equal(output, expected_output)
+        assert_series_equal(output, expected_output)
+
+class TestGetImputationCols:
+    """ Unit test for get_imputation_cols function """
+    def cre_input_dict(self) -> dict:
+        """Define config dict"""
+
+        config_dict = {
+            "breakdowns" :
+            {
+                "299" : ["200", "201", "202", "298"],
+                "399" : ["300", "301", "302", "398"],
+                "emp_stat" : ["emp_type1", "emp_type2", "emp_type3"],
+                "headcount_stat" : ["headcount_type1", "headcount_type2", "headcount_type3"]
+            },
+            "imputation" :
+            {
+                "sum_cols" : ["emp_stat", "headcount_1_tot", "headcount_2_tot", "headcount_tot"]
+            }
+
+        }
+
+        return config_dict
+
+    def cre_expected_output(self) -> list:
+        """ define expected output list """
+        exp_list = [
+            "299", "399", "emp_stat", "headcount_stat",
+            "200", "201", "202", "298",
+            "300", "301", "302", "398",
+            "emp_type1", "emp_type2", "emp_type3",
+            "headcount_type1", "headcount_type2", "headcount_type3",
+            "headcount_1_tot", "headcount_2_tot", "headcount_tot"
+            ]
+        return exp_list
+
+    def test_get_imputation_cols(self):
+        input_dict = self.cre_input_dict()
+        expected_output = self.cre_expected_output()
+
+        output = get_imputation_cols(input_dict)
+        assert output == expected_output
