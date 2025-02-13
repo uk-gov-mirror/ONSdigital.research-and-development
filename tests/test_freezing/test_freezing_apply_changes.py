@@ -83,6 +83,8 @@ def frozen_df() -> pd.DataFrame:
         [1, 1.0, 8, True, "previous_run", "clear"],
         [1, 2.0, 9, True, "previous_run", "clear"],
         [2, 1.0, 10, False, "previous_run", "clear"],
+        [3, 0.0, 10, True, "previous_run", "clear"],
+        [3, 1.0, 11, True, "previous_run", "clear"],
         [6, None, 10, False, "previous_run", "Form sent out"],
         [8, 0, 10, True, "previous_run", "clear"],
         [8, 1, 10, True, "previous_run", "clear"],
@@ -129,6 +131,8 @@ class TestApplyAmendments(object):
             [1, 1.0, 8, True, "previous_run", "clear"],
             [1, 2.0, 9, True, "previous_run", "clear"],
             [2, 1.0, 10, False, "previous_run", "clear"],
+            [3, 0.0, 10, True, "previous_run", "clear"],
+            [3, 1.0, 11, True, "previous_run", "clear"],
             [6, None, 10, False, "previous_run", "Form sent out"],
             [8, 0, 10, True, "previous_run", "clear"],
             [8, 1, 10, True, "previous_run", "clear"],
@@ -184,8 +188,8 @@ class TestApplyAdditions(object):
         """A dummy amendments dataframe."""
         columns = ["reference", "instance", "num", "non_num", "accept_changes", "status"]
         data = [
-            [3, 0.0, 10, True, True, "clear"],
-            [3, 1.0, 11, False, False, "clear"],
+            [3, 2.0, 10, True, True, "clear"],
+            [3, 3.0, 11, True, False, "clear"],
             [6, 0.0, 10, False, True, "clear"]
         ]
         df = pd.DataFrame(columns=columns, data=data)
@@ -201,7 +205,9 @@ class TestApplyAdditions(object):
             [1, 2.0, 9, True, "clear"],
             [2, 1.0, 10, False, "clear"],
             [3, 0.0, 10, True, "clear"],
-            [3, 1.0, 11, False, "clear"],
+            [3, 1.0, 11, True, "clear"],
+            [3, 2.0, 10, True, "clear"],
+            [3, 3.0, 11, True, "clear"],
             [6, 0.0, 10, False, "clear"],
             [8, 0, 10, True, "clear"],
             [8, 1, 10, True, "clear"],
