@@ -89,7 +89,9 @@ def frozen_df() -> pd.DataFrame:
         [8, 2, 10, True, "previous_run", "clear"],
         [8, 3, 10, True, "previous_run", "clear"],
         [8, 4, 10, True, "previous_run", "clear"],
-        [8, 5, 10, True, "previous_run", "clear"]
+        [8, 5, 10, True, "previous_run", "clear"],
+        [12, 1.0, 9, True, "previous_run", "clear"],
+        [14, 4.0, 26, True, "previous_run", "clear"]
     ]
     df = pd.DataFrame(columns=columns, data=data)
     return df
@@ -110,6 +112,8 @@ class TestApplyAmendments(object):
             [0, 1.0, 3, True, True, "clear"],
             [0, 2.0, 4, True, False, "clear"],
             [8, 4, 8, True, True, "clear"],
+            [12, 1.0, 9, True, False, "clear"],
+            [14, 4.0, 26, True, False, "clear"]
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
@@ -131,7 +135,9 @@ class TestApplyAmendments(object):
             [8, 2, 10, True, "previous_run", "clear"],
             [8, 3, 10, True, "previous_run", "clear"],
             [8, 4, 8, True, f"{today}_v1", "clear"],
-            [8, 5, 10, True, "previous_run", "clear"]
+            [8, 5, 10, True, "previous_run", "clear"],
+            [12, 1.0, 9, True, "previous_run", "clear"],
+            [14, 4.0, 26, True, "previous_run", "clear"]
         ]
         df = pd.DataFrame(data=data, columns=columns)
         return df
@@ -202,7 +208,9 @@ class TestApplyAdditions(object):
             [8, 2, 10, True, "clear"],
             [8, 3, 10, True, "clear"],
             [8, 4, 10, True, "clear"],
-            [8, 5, 10, True, "clear"]
+            [8, 5, 10, True, "clear"],
+            [12, 1.0, 9, True, "clear"],
+            [14, 4.0, 26, True, "clear"]
         ]
         df = pd.DataFrame(data=data, columns=columns)
         return df
