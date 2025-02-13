@@ -121,12 +121,17 @@ class TestApplyAmendments(object):
         columns = ["reference", "instance", "num", "non_num", "last_frozen", "status"]
         data = [
             [0, 1.0, 3, True, f"{today}_v1", "clear"],
-            [0, 2.0, 4, True, f"{today}_v1", "clear"],
+            [0, 2.0, 5, False, "previous_run", "clear"],
             [1, 1.0, 8, True, "previous_run", "clear"],
             [1, 2.0, 9, True, "previous_run", "clear"],
             [2, 1.0, 10, False, "previous_run", "clear"],
             [6, None, 10, False, "previous_run", "Form sent out"],
-            [8, 4, 8, True, f"{today}_v1", "clear"]
+            [8, 0, 10, True, "previous_run", "clear"],
+            [8, 1, 10, True, "previous_run", "clear"],
+            [8, 2, 10, True, "previous_run", "clear"],
+            [8, 3, 10, True, "previous_run", "clear"],
+            [8, 4, 8, True, f"{today}_v1", "clear"],
+            [8, 5, 10, True, "previous_run", "clear"]
         ]
         df = pd.DataFrame(data=data, columns=columns)
         return df
@@ -138,6 +143,10 @@ class TestApplyAmendments(object):
         amended = apply_amendments(frozen_df, dummy_amendments, {"filename_items": {"run_id": "1"}}, test_logger)
         amended.sort_values(by=["reference", "instance"], ascending=True, inplace=True)
         expected = self.expected_amended()
+
+        expected.sort_values(['reference', 'instance'], inplace=True)
+        amended.sort_values(['reference', 'instance'], inplace=True)
+
         assert_frame_equal(amended.reset_index(drop=True), expected.reset_index(drop=True)), (
             "Amendments not applied as expected."
         )
@@ -188,6 +197,12 @@ class TestApplyAdditions(object):
             [3, 0.0, 10, True, "clear"],
             [3, 1.0, 11, False, "clear"],
             [6, 0.0, 10, False, "clear"],
+            [8, 0, 10, True, "clear"],
+            [8, 1, 10, True, "clear"],
+            [8, 2, 10, True, "clear"],
+            [8, 3, 10, True, "clear"],
+            [8, 4, 10, True, "clear"],
+            [8, 5, 10, True, "clear"]
         ]
         df = pd.DataFrame(data=data, columns=columns)
         return df
@@ -199,7 +214,7 @@ class TestApplyAdditions(object):
         amended.drop("last_frozen", axis=1, inplace=True)
         amended.sort_values(by=["reference", "instance"], ascending=True, inplace=True)
         expected = self.expected_additions()
-        assert_frame_equal(amended, expected), (
+        assert_frame_equal(amended.reset_index(drop=True), expected.reset_index(drop=True)), (
             "Additions not applied as expected."
         )
 
