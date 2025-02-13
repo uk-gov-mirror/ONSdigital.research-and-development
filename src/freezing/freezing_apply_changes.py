@@ -176,7 +176,7 @@ def apply_amendments(
         accepted_amendments_df[["reference", "instance"]].apply(tuple, axis=1).tolist()
     )
 
-    # drop records to be amended from main df
+    # drop records to be amended from main df bassed on values_to_filter
     main_df = main_df[
         ~main_df[["reference", "instance"]].apply(tuple, axis=1).isin(values_to_filter)
     ]
