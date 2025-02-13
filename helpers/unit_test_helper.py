@@ -1,11 +1,11 @@
 """Read in a csv file and ouput a test file with data for a unit test."""
-#%%
+
 import pandas as pd
 import os
 
 filename_string_cols_dict = {
-    "test_CGR_current.csv" : ["200", "201", "601", "status", "postcodes_harmonised", "imp_marker", "imp_class", "selectiontype"],
-    "test_CGR_backdata.csv": ["200", "201", "601", "status", "imp_marker", "imp_class", "selectiontype"], 
+    "test_CGR_current.csv" : ["200", "201", "601", "604", "status", "formtype", "postcodes_harmonised", "imp_marker", "imp_class", "selectiontype"],
+    "test_CGR_backdata.csv": ["200", "201", "601", "604", "status", "formtype", "imp_marker", "imp_class", "selectiontype"], 
     "test_CGR_expected.csv": ["imp_class"],
 }
 
@@ -96,5 +96,3 @@ for filename, string_cols in filename_string_cols_dict.items():
     text_file = open(out_path, "w")
     text_file.write(full_text)
     text_file.close()
-
-# %%
