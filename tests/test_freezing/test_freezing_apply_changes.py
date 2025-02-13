@@ -93,7 +93,8 @@ def frozen_df() -> pd.DataFrame:
         [8, 4, 10, True, "previous_run", "clear"],
         [8, 5, 10, True, "previous_run", "clear"],
         [12, 1.0, 9, True, "previous_run", "clear"],
-        [14, 4.0, 26, True, "previous_run", "clear"]
+        [14, 4.0, 26, True, "previous_run", "clear"],
+        [16, 0.0, 0.0, True, None, "Ceased trading (NIL4)"]
     ]
     df = pd.DataFrame(columns=columns, data=data)
     return df
@@ -141,7 +142,8 @@ class TestApplyAmendments(object):
             [8, 4, 8, True, f"{today}_v1", "clear"],
             [8, 5, 10, True, "previous_run", "clear"],
             [12, 1.0, 9, True, "previous_run", "clear"],
-            [14, 4.0, 26, True, "previous_run", "clear"]
+            [14, 4.0, 26, True, "previous_run", "clear"],
+            [16, 0.0, 0.0, True, None, "Ceased trading (NIL4)"]
         ]
         df = pd.DataFrame(data=data, columns=columns)
         return df
@@ -190,7 +192,8 @@ class TestApplyAdditions(object):
         data = [
             [3, 2.0, 10, True, True, "clear"],
             [3, 3.0, 11, True, False, "clear"],
-            [6, 0.0, 10, False, True, "clear"]
+            [6, 0.0, 10, False, True, "clear"],
+            [16, 1.0, 10, False, True, "Clear"]
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
@@ -199,24 +202,25 @@ class TestApplyAdditions(object):
         """The expected dataframe after amendments are applied."""
         columns = ["reference", "instance", "num", "non_num", "status"]
         data = [
-            [0, 1.0, 4, True, "clear"],
-            [0, 2.0, 5, False, "clear"],
-            [1, 1.0, 8, True, "clear"],
-            [1, 2.0, 9, True, "clear"],
-            [2, 1.0, 10, False, "clear"],
-            [3, 0.0, 10, True, "clear"],
-            [3, 1.0, 11, True, "clear"],
-            [3, 2.0, 10, True, "clear"],
-            [3, 3.0, 11, True, "clear"],
-            [6, 0.0, 10, False, "clear"],
-            [8, 0, 10, True, "clear"],
-            [8, 1, 10, True, "clear"],
-            [8, 2, 10, True, "clear"],
-            [8, 3, 10, True, "clear"],
-            [8, 4, 10, True, "clear"],
-            [8, 5, 10, True, "clear"],
-            [12, 1.0, 9, True, "clear"],
-            [14, 4.0, 26, True, "clear"]
+            [0, 1.0, 4.0, True, "clear"],
+            [0, 2.0, 5.0, False, "clear"],
+            [1, 1.0, 8.0, True, "clear"],
+            [1, 2.0, 9.0, True, "clear"],
+            [2, 1.0, 10.0, False, "clear"],
+            [3, 0.0, 10.0, True, "clear"],
+            [3, 1.0, 11.0, True, "clear"],
+            [3, 2.0, 10.0, True, "clear"],
+            [3, 3.0, 11.0, True, "clear"],
+            [6, 0.0, 10.0, False, "clear"],
+            [8, 0, 10.0, True, "clear"],
+            [8, 1, 10.0, True, "clear"],
+            [8, 2, 10.0, True, "clear"],
+            [8, 3, 10.0, True, "clear"],
+            [8, 4, 10.0, True, "clear"],
+            [8, 5, 10.0, True, "clear"],
+            [12, 1.0, 9.0, True, "clear"],
+            [14, 4.0, 26.0, True, "clear"],
+            [16, 1.0, 10.0, False, "Clear"]
         ]
         df = pd.DataFrame(data=data, columns=columns)
         return df
