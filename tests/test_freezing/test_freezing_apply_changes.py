@@ -109,13 +109,13 @@ class TestApplyAmendments(object):
     @pytest.fixture(scope="function")
     def dummy_amendments(self) -> pd.DataFrame:
         """A dummy amendments dataframe."""
-        columns = ["reference", "instance", "num_updated", "non_num_updated", "accept_changes", "status"]
+        columns = ["reference", "instance", "num_updated", "non_num_updated", "accept_changes", "status", "num_diff"]
         data = [
-            [0, 1.0, 3, True, True, "clear"],
-            [0, 2.0, 4, True, False, "clear"],
-            [8, 4, 8, True, True, "clear"],
-            [12, 1.0, 9, True, False, "clear"],
-            [14, 4.0, 26, True, False, "clear"]
+            [0, 1.0, 3, True, True, "clear", 2],
+            [0, 2.0, 4, True, False, "clear", 2],
+            [8, 4, 8, True, True, "clear", 2],
+            [12, 1.0, 9, True, False, "clear", 2],
+            [14, 4.0, 26, True, False, "clear", 2]
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
