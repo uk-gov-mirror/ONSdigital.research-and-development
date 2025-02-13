@@ -121,7 +121,7 @@ class TestApplyAmendments(object):
         columns = ["reference", "instance", "num", "non_num", "last_frozen", "status"]
         data = [
             [0, 1.0, 3, True, f"{today}_v1", "clear"],
-            [0, 2.0, 5, False, "previous_run", "clear"],
+            [0, 2.0, 4, True, f"{today}_v1", "clear"],
             [1, 1.0, 8, True, "previous_run", "clear"],
             [1, 2.0, 9, True, "previous_run", "clear"],
             [2, 1.0, 10, False, "previous_run", "clear"],

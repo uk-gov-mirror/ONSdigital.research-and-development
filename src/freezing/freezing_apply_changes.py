@@ -143,15 +143,14 @@ def apply_amendments(
     Returns:
         amended_df (pd.DataFrame): The main snapshot with amendments applied.
     """
-    changes_refs_instances_df = amendments_df[
-        amendments_df.accept_changes.isin([True])
-    ][["reference", "instance"]]
 
-    # Merge datafarmes main_df &  changes_refs_instances_df to filter rows where
-    #  "reference" and "instance" are present in both
-    accepted_amendments_df = amendments_df.merge(
-        changes_refs_instances_df, on=["reference", "instance"], how="inner"
-    )
+    # Get references where accept_changes is True
+    changes_refs = amendments_df[
+        amendments_df.accept_changes.isin([True])
+    ].reference.unique()
+
+    # Filter amendments to only include those marked for inclusion
+    accepted_amendments_df = amendments_df[amendments_df.reference.isin(changes_refs)]
 
     if accepted_amendments_df.shape[0] == 0:
         FreezingLogger.info("Amendments file contained no records marked for inclusion")
