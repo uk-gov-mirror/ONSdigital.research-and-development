@@ -3,8 +3,8 @@ import pandas as pd
 import os
 
 # configuration settings
-csv_path = "D:/coding_projects/randd_test_data/"
-input_file = "weights2_input.csv"
+csv_path = "D:/coding_projects/"
+input_file = "backdata.csv"
 
 # whether the unit test data is input or expected output (set "input" or "exp_output")
 in_or_output = "input"
@@ -16,7 +16,7 @@ path1 = os.path.join(csv_path, input_file)
 df1 = pd.read_csv(path1)
 
 # specify string columns- these will have quotes applied
-string_cols = ["formtype", "status", "selectiontype"]
+string_cols = ["formtype", "status", "selectiontype", "601"]
 
 # specify float columns
 float_cols = []

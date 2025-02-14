@@ -7,9 +7,10 @@ import os
 import pytest
 import pandas as pd
 from pandas.testing import assert_frame_equal
+import numpy as np
 
 # Local Imports
-from src.imputation.MoR import run_mor, is_lf_only
+from src.imputation.MoR import run_mor, is_lf_only, mor_preprocessing
 from src.imputation.imputation_helpers import get_imputation_cols, create_imp_class_col
 
 # pytestmark = pytest.mark.runwip
@@ -167,4 +168,181 @@ class TestRunMoRShortForm(object):
 
         assert_frame_equal(result_df, expected_sf_mor_output, check_dtype=False, check_exact=False), (
             "run_mor() not imputing data as expected."
+        )
+
+
+class TestMoRPreprocessing(object):
+    """Tests for MoR preprocessing function."""
+
+    def create_input_df(self) -> pd.DataFrame:
+        input_columns = [
+            "reference",
+            "instance",
+            "selectiontype",
+            "formtype",
+            "601",
+            "status",
+            "imp_marker"
+        ]
+        data = [
+            [1001, 1, "C", "6.0", "CF14 9XY", "Clear", "R"],
+            [1001, 2, "D", "6", "CF14 9XY", "Clear", "R"],
+            [1002, 1, "C", "0006", np.nan, "Form sent out", "CF"],
+            [1003, 1, "C", "0001", "NP10 2RT", "Clear", "MoR"],
+            [1004, 1, "C", "6", np.nan, "Form sent out", "MoR"],
+            [1004, 2, "D", "6.0", np.nan, "Form sent out", "MoR"],
+            [1005, 0, "C", "0001", "SW5 2DW", "Check needed", "MoR"],
+            [1005, 1, "D", "01.0", "SW5 2DW", "Check needed", "MoR"],
+            [1006, 0, np.nan, "6", "CF48 9DU", "Clear - overidden", np.nan],
+            [1006, 1, "C", "6.0", "CF48 9DU", "Clear", "R"],
+            [1006, 2, "D", "6.0", "CF48 9DU", "Clear", "R"],
+        ]
+        input_df = pd.DataFrame(data=data, columns=input_columns)
+        return input_df
+
+    def config_dict(self) -> dict:
+        """A dummy config for testing."""
+        config = {
+            "survey": {
+                "survey_type": "BERD",
+                "survey_year": 2023
+            }
+        }
+        return config
+
+    def create_backdata(self) -> pd.DataFrame:
+        """A dummy backdata for testing."""
+        backdata_columns = [
+            "reference",
+            "instance",
+            "selectiontype",
+            "formtype",
+            "601",
+            "status",
+            "imp_marker"
+        ]
+
+        data = [
+            [1007, 1, "C", "0006", "SW52DW", "Clear", "R"],
+            [1007, 2, "D", "6", "SW52DW", "Clear", "R"],
+            [1008, 1, "C", "0006", np.nan, "Form sent out", np.nan],
+            [1008, 2, "D", "1.0", "NP10 2RT", "Clear", "MoR"],
+            [1009, 1, "C", "6.0", np.nan, "Form sent out", "MoR"],
+            [1010, 0, np.nan, "0006", "NP10 6RT", "Form sent out", "MoR"],
+            [1010, 1, "C", "1", np.nan, "Check needed", np.nan],
+            [1010, 2, "D", "0001", np.nan, "Check needed", np.nan],
+            [1011, 1, "C", "6", np.nan, "Clear - overidden", "R"],
+            [1012, 0, np.nan, "0006", "CF489DU", "Clear", np.nan],
+            [1012, 1, "C", "0006", "CF489DU", "Clear", np.nan],
+        ]
+
+        backdata_df = pd.DataFrame(data=data, columns=backdata_columns)
+        return backdata_df
+
+    def expected_to_impute_df(self) -> pd.DataFrame:
+        """The expected to_impute_df output from the preprocessing function."""
+        expected_columns = [
+            "reference",
+            "instance",
+            "selectiontype",
+            "formtype",
+            "601",
+            "status",
+            "imp_marker",
+        ]
+
+        data = [
+            [1002, 1, "C", "0006", np.nan, "Form sent out", "CF"],
+            [1004, 1, "C", "0006", np.nan, "Form sent out", "MoR"],
+            [1005, 0, "C", "0001", "SW5 2DW", "Check needed", "MoR"]
+        ]
+
+        expected_to_impute_df = pd.DataFrame(data=data, columns=expected_columns)
+        return expected_to_impute_df
+
+    def expected_remainder_df(self) -> pd.DataFrame:
+        """The expected remainder_df output from the preprocessing function."""
+        expected_columns = [
+            "reference",
+            "instance",
+            "selectiontype",
+            "formtype",
+            "601",
+            "status",
+            "imp_marker"
+            ]
+
+        data = [
+            [1001, 1, "C", "0006", "CF14 9XY", "Clear", "R"],
+            [1001, 2, "D", "0006", "CF14 9XY", "Clear", "R"],
+            [1003, 1, "C", "0001", "NP10 2RT", "Clear", "MoR"],
+            [1004, 2, "D", "0006", np.nan, "Form sent out", "MoR"],
+            [1005, 1, "D", np.nan, "SW5 2DW", "Check needed", "MoR"],
+            [1006, 0, np.nan, "0006", "CF48 9DU", "Clear - overidden", np.nan],
+            [1006, 1, "C", "0006", "CF48 9DU", "Clear", "R"],
+            [1006, 2, "D", "0006", "CF48 9DU", "Clear", "R"]
+        ]
+
+        expected_remainder_df = pd.DataFrame(data=data, columns=expected_columns)
+        return expected_remainder_df
+
+    def expected_backdata_df(self) -> pd.DataFrame:
+        """The expected backdata_df output from the preprocessing function."""
+        expected_columns = [
+            "reference",
+            "instance",
+            "selectiontype",
+            "formtype",
+            "601",
+            "status",
+            "imp_marker",
+            ]
+
+        data = [
+            [1007, 1, "C", "0006", "SW5  2DW", "Clear", "R"],
+            [1007, 2, "D", "0006", "SW5  2DW", "Clear", "R"],
+            [1008, 2, "D", "0001", "NP10 2RT", "Clear", "MoR"],
+            [1009, 1, "C", "0006", np.nan, "Form sent out", "MoR"],
+            [1010, 0, np.nan, "0006", "NP10 6RT", "Form sent out", "MoR"],
+            [1011, 1, "C", "0006", np.nan, "Clear - overidden", "R"],
+        ]
+
+        expected_backdata_df = pd.DataFrame(data=data, columns=expected_columns)
+        return expected_backdata_df
+
+    def test_mor_preprocessing(self):
+        """Tests for the MoR preprocessing function."""
+        input_df = self.create_input_df()
+        config = self.config_dict()
+        backdata_df = self.create_backdata()
+        to_impute_df, remainder_df, backdata_df = mor_preprocessing(input_df, backdata_df, config)
+
+        expected_to_impute_df = self.expected_to_impute_df()
+        expected_remainder_df = self.expected_remainder_df()
+        expected_backdata_df = self.expected_backdata_df()
+
+        # Reset index before comparison
+        to_impute_df = to_impute_df.reset_index(drop=True)
+        expected_to_impute_df = expected_to_impute_df.reset_index(drop=True)
+        remainder_df = remainder_df.reset_index(drop=True)
+        expected_remainder_df = expected_remainder_df.reset_index(drop=True)
+        backdata_df = backdata_df.reset_index(drop=True)
+        expected_backdata_df = expected_backdata_df.reset_index(drop=True)
+
+        # Ensure consistent representation of missing values
+        to_impute_df = to_impute_df.replace({None: np.nan})
+        expected_to_impute_df = expected_to_impute_df.replace({None: np.nan})
+        remainder_df = remainder_df.replace({None: np.nan})
+        expected_remainder_df = expected_remainder_df.replace({None: np.nan})
+        backdata_df = backdata_df.replace({None: np.nan})
+        expected_backdata_df = expected_backdata_df.replace({None: np.nan})
+
+        assert_frame_equal(to_impute_df, expected_to_impute_df, check_dtype=False, check_exact=False), (
+            "to_impute_df not as expected."
+        )
+        assert_frame_equal(remainder_df, expected_remainder_df, check_dtype=False, check_exact=False), (
+            "remainder_df not as expected."
+        )
+        assert_frame_equal(backdata_df, expected_backdata_df, check_dtype=False, check_exact=False), (
+            "backdata_df not as expected."
         )
