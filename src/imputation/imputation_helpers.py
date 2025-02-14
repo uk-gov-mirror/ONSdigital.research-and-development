@@ -102,22 +102,22 @@ def create_mask(df: pd.DataFrame, options: List) -> pd.Series:
     df["mask_col"] = False
 
     if "clear_status" in options:
-        df["mask_col"] = df["mask_col"] & clear_mask
+        df["mask_col"] = df["mask_col"] | clear_mask
 
     if "instance_zero" in options:
-        df["mask_col"] = df["mask_col"] & instance_mask
+        df["mask_col"] = df["mask_col"] | instance_mask
 
     elif "instance_nonzero" in options:
-        df["mask_col"] = df["mask_col"] & ~instance_mask
+        df["mask_col"] = df["mask_col"] | ~instance_mask
 
     if "no_r_and_d" in options:
-        df["mask_col"] = df["mask_col"] & no_r_and_d_mask
+        df["mask_col"] = df["mask_col"] | no_r_and_d_mask
 
     if "postcode_only" in options:
-        df["mask_col"] = df["mask_col"] & postcode_only_mask
+        df["mask_col"] = df["mask_col"] | postcode_only_mask
 
     if "excl_postcode_only" in options:
-        df["mask_col"] = df["mask_col"] & ~postcode_only_mask
+        df["mask_col"] = df["mask_col"] | ~postcode_only_mask
 
     return df["mask_col"]
 
