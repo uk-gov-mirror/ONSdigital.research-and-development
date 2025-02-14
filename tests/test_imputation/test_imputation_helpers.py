@@ -401,28 +401,31 @@ class TestConcatWithBool:
     """Unit tests for concat_with_bool function."""
     def input_dfs(self):
         """Define columns and values for the DataFrames"""
-        columns_df1 = ['manual_trim', 'empty_pgsic_group', 'value']
-        values_df1 = [
+        columns1 = ['manual_trim', 'empty_pgsic_group', 'value']
+        values1 = [
             [True, False, 1],
-            [False, True, 2]
+            [False, True, 2],
+            [np.nan, np.nan, 3],
         ]
 
-        columns_df2 = ['empty_pg_group', '305_trim', 'value']
-        values_df2 = [
-            [True, False, 3],
-            [False, True, 4]
+        columns2 = ['empty_pg_group', '305_trim', 'value']
+        values2 = [
+            [True, False, 4],
+            [False, True, 5],
+            [np.nan, np.nan, 6]
         ]
 
-        columns_df3 = ['211_trim', 'value']
-        values_df3 = [
-            [True, 5],
-            [False, 6]
+        columns3 = ['211_trim', 'value']
+        values3 = [
+            [True, 7],
+            [False, 8],
+            [np.nan, 9],
         ]
 
         # Create DataFrames from the lists of values
-        df1 = pd.DataFrame(values_df1, columns=columns_df1)
-        df2 = pd.DataFrame(values_df2, columns=columns_df2)
-        df3 = pd.DataFrame(values_df3, columns=columns_df3)
+        df1 = pd.DataFrame(values1, columns=columns1)
+        df2 = pd.DataFrame(values2, columns=columns2)
+        df3 = pd.DataFrame(values3, columns=columns3)
 
         return df1, df2, df3
 
@@ -432,10 +435,13 @@ class TestConcatWithBool:
         values = [
             [True, False, False, False, False, 1],
             [False, True, False, False, False, 2],
-            [False, False, True, False, False, 3],
-            [False, False, False, True, False, 4],
-            [False, False, False, False, True, 5],
-            [False, False, False, False, False, 6]
+            [False, False, False, False, False, 3],
+            [False, False, True, False, False, 4],
+            [False, False, False, True, False, 5],
+            [False, False, False, False, False, 6],
+            [False, False, False, False, True, 7],
+            [False, False, False, False, False, 8],
+            [False, False, False, False, False, 9],
         ]
 
         df = pd.DataFrame(values, columns=columns)
