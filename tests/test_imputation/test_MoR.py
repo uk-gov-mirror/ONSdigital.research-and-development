@@ -315,7 +315,9 @@ class TestMoRPreprocessing(object):
         input_df = self.create_input_df()
         config = self.config_dict()
         backdata_df = self.create_backdata()
-        to_impute_df, remainder_df = mor_preprocessing(input_df, backdata_df, config)
+        to_impute_df, remainder_df, backdata_df = mor_preprocessing(
+            input_df, backdata_df, config
+        )
         expected_to_impute_df = self.expected_to_impute_df()
         expected_remainder_df = self.expected_remainder_df()
         expected_backdata_df = self.expected_backdata_df()
