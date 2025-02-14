@@ -315,34 +315,27 @@ class TestMoRPreprocessing(object):
         input_df = self.create_input_df()
         config = self.config_dict()
         backdata_df = self.create_backdata()
-        to_impute_df, remainder_df, backdata_df = mor_preprocessing(input_df, backdata_df, config)
-
+        to_impute_df, remainder_df = mor_preprocessing(input_df, backdata_df, config)
         expected_to_impute_df = self.expected_to_impute_df()
         expected_remainder_df = self.expected_remainder_df()
         expected_backdata_df = self.expected_backdata_df()
 
-        # Reset index before comparison
-        to_impute_df = to_impute_df.reset_index(drop=True)
-        expected_to_impute_df = expected_to_impute_df.reset_index(drop=True)
-        remainder_df = remainder_df.reset_index(drop=True)
-        expected_remainder_df = expected_remainder_df.reset_index(drop=True)
-        backdata_df = backdata_df.reset_index(drop=True)
-        expected_backdata_df = expected_backdata_df.reset_index(drop=True)
+        # Reset index and replace missing values for comparison
+        df_list = [
+            to_impute_df, expected_to_impute_df, remainder_df,
+            expected_remainder_df, backdata_df, expected_backdata_df
+        ]
+        for df in df_list:
+            df.reset_index(drop=True, inplace=True)
+            df.replace({None: np.nan}, inplace=True)
 
-        # Ensure consistent representation of missing values
-        to_impute_df = to_impute_df.replace({None: np.nan})
-        expected_to_impute_df = expected_to_impute_df.replace({None: np.nan})
-        remainder_df = remainder_df.replace({None: np.nan})
-        expected_remainder_df = expected_remainder_df.replace({None: np.nan})
-        backdata_df = backdata_df.replace({None: np.nan})
-        expected_backdata_df = expected_backdata_df.replace({None: np.nan})
-
-        assert_frame_equal(to_impute_df, expected_to_impute_df, check_dtype=False, check_exact=False), (
-            "to_impute_df not as expected."
-        )
-        assert_frame_equal(remainder_df, expected_remainder_df, check_dtype=False, check_exact=False), (
-            "remainder_df not as expected."
-        )
-        assert_frame_equal(backdata_df, expected_backdata_df, check_dtype=False, check_exact=False), (
-            "backdata_df not as expected."
-        )
+        for result_df, expected_df, name in [
+            (to_impute_df, expected_to_impute_df, "to_impute_df"),
+            (remainder_df, expected_remainder_df, "remainder_df"),
+            (backdata_df, expected_backdata_df, "backdata_df")
+        ]:
+            assert_frame_equal(
+                result_df, expected_df, check_dtype=False, check_exact=False
+            ), (
+                f"{name} not as expected."
+            )
