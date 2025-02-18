@@ -231,6 +231,7 @@ def create_additional_ni_cols(
     """
     # Add required columns to NI data
     ni_full_responses["a_weight"] = 1
+    ni_full_responses["g_weight"] = 1
     ni_full_responses["604"] = "Yes"
     ni_full_responses["form_status"] = 600
     ni_full_responses["602"] = 100.0

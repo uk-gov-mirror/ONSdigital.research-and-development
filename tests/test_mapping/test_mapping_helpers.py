@@ -242,6 +242,7 @@ class TestCreateAdditionalNiCols(object):
             "reference",
             "value",
             "a_weight",
+            "g_weight",
             "604",
             "form_status",
             "602",
@@ -249,9 +250,9 @@ class TestCreateAdditionalNiCols(object):
             "itl",
         ]
         expected_data = [
-            [1, 10, 1, "Yes", 600, 100.0, "0003", "N92000002"],
-            [2, 20, 1, "Yes", 600, 100.0, "0003", "N92000002"],
-            [3, 30, 1, "Yes", 600, 100.0, "0003", "N92000002"],
+            [1, 10, 1, 1, "Yes", 600, 100.0, "0003", "N92000002"],
+            [2, 20, 1, 1, "Yes", 600, 100.0, "0003", "N92000002"],
+            [3, 30, 1, 1, "Yes", 600, 100.0, "0003", "N92000002"],
         ]
         expected_df = pd.DataFrame(data=expected_data, columns=expected_columns)
 
