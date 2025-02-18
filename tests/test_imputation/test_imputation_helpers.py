@@ -667,7 +667,7 @@ class TestSpecialFilter:
 
 class TestInstanceFix:
     """ test for instance_fix function """
-    def create_input_df(self):
+    def create_input_df(self) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Create an input dataframes for the test."""
         input_cols1 = [
             "reference",
@@ -701,7 +701,7 @@ class TestInstanceFix:
         input_df2 = pd.DataFrame(data=input_data2, columns=input_cols2)
         return input_df1, input_df2
 
-    def expected_output(self):
+    def expected_output(self) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Define the expected output DataFrame"""
         expected_cols1 = [
             "reference",
