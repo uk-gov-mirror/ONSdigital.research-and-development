@@ -468,21 +468,22 @@ class TestCreateRAndDInstance:
         columns = ["reference", "instance", "604", "formtype"]
         values = [
             [1000, 0, "No", "0001"],
+            [1001, 0, "Yes", "0001"],
+            [1001, 1, "Yes", "0001"],
+            [1001, 2, "Yes", "0001"],
+            [1002, np.nan, np.nan, "0001"],
+            [1003, 0, "No", "0001"],
+            [1003, 1, "No", "0001"],
+            [1004, 0, "Yes", "0006"],
             [1004, 1, "Yes", "0006"],
             [1004, 2, "Yes", "0006"],
-            [1001, 0, "Yes", "0001"],
-            [1004, 0, "Yes", "0006"],
-            [1001, 2, "Yes", "0001"],
-            [1001, 1, "Yes", "0001"],
-            [1002, np.nan, np.nan, "0001"],
             [1005, 0, np.nan, "0006"],
             [1005, 1, np.nan, "0006"],
             [1005, 2, np.nan, "0006"],
             [1006, 0, "Yes", "0001"],
             [1006, 1, "Yes", "0001"],
             [1006, 2, "Yes", "0001"],
-            [1003, 0, "No", "0001"],
-            [1003, 1, "No", "0001"],
+            [1007, 0, "No", "0001"],
         ]
 
         # Create DataFrame from the lists of values
@@ -511,6 +512,8 @@ class TestCreateRAndDInstance:
             [1006, 0, "Yes", "0001"],
             [1006, 1, "Yes", "0001"],
             [1006, 2, "Yes", "0001"],
+            [1007, 0, "No", "0001"],
+            [1007, 1, "No", "0001"],
         ]
 
         # Create DataFrame from the lists of values
@@ -683,58 +686,6 @@ class TestInstanceFix:
 
         assert_frame_equal(check_df1.reset_index(drop=True), expected_df1, check_dtype=False)
         assert_frame_equal(check_df2.reset_index(drop=True), expected_df2, check_dtype=False)
-
-class TestCreateMask:
-    """ test for create_mask function """
-    def cre_input_df(self) -> pd.DataFrame:
-        """Define columns and values for the DataFrame"""
-        columns = ["status", "instance", "604", "211", "601"]
-        values = [
-            ["Clear", 1, np.nan, np.nan, np.nan],
-            ["Clear - overridden", 1, np.nan, np.nan, np.nan],
-            [np.nan, 0, np.nan, np.nan, np.nan],
-            [np.nan, 1, "No", np.nan, np.nan],
-            [np.nan, 1, np.nan, np.nan, "not null"],
-            [np.nan, 1, np.nan, np.nan, np.nan],
-        ]
-        df = pd.DataFrame(columns=columns, data=values)
-        return df
-    def cre_test_lists(self) -> list:
-        test_lists = [
-            ["clear_status"],
-            ["instance_zero"],
-            ["instance_nonzero"],
-            ["no_r_and_d"],
-            ["postcode_only"],
-            ["excl_postcode_only"],
-            ["clear_status", "instance_zero"],
-            ["postcode_only", "instance_zero"],
-        ]
-        return test_lists
-    def cre_expected_output(self):
-        expected_outputs = [
-            pd.Series([True, True, False, False, False, False], name='mask_col'),
-            pd.Series([False, False, True, False, False, False], name='mask_col'),
-            pd.Series([True, True, False, True, True, True], name='mask_col'),
-            pd.Series([False, False, False, True, False, False], name='mask_col'),
-            pd.Series([False, False, False, False, True, False], name='mask_col'),
-            pd.Series([True, True, True, True, False, True], name='mask_col'),
-            pd.Series([True, True, True, False, False, False], name='mask_col'),
-            pd.Series([False, False, True, False, True, False], name='mask_col'),
-        ]
-        return expected_outputs
-
-    def test_create_mask(self):
-        """ create test data and run tests """
-
-        input_df = self.cre_input_df()
-        option_lists = self.cre_test_lists()
-        output_lists = self.cre_expected_output()
-        test_data = zip(option_lists, output_lists)
-
-        for options, expected_mask in test_data:
-            output_mask = create_mask(input_df, options)
-            assert_series_equal(expected_mask, output_mask)
 
 class TestCreateMask:
     """Unit tests for create_mask function."""
