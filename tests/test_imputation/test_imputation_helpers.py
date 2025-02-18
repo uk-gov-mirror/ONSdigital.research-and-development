@@ -14,6 +14,7 @@ from src.imputation.imputation_helpers import (
     concat_with_bool,
     create_mask,
     special_filter,
+    instance_fix,
 )
 
 
@@ -663,3 +664,84 @@ class TestSpecialFilter:
 
     def test_special_filter_create_mean_case(self):
         filter_conditions_list = ["clear_status", "instance_nonzero", "exclude_nan_classes"]
+
+class TestInstanceFix:
+    """ test for instance_fix function """
+    def create_input_df(self):
+        """Create an input dataframes for the test."""
+        input_cols1 = [
+            "reference",
+            "instance",
+            "status",
+            "formtype",
+        ]
+
+        input_data1 = [
+            [1000, np.nan, "Form sent out", "0001"],
+            [1001, 0, "Clear", "0001"],
+            [1002, np.nan, np.nan],
+        ]
+        input_cols2 = [
+            "reference",
+            "instance",
+            "status",
+            "formtype",
+            "is_constructed",
+        ]
+
+        input_data2 = [
+            [1000, np.nan, "Form sent out", "0001", True],
+            [1001, 0, "Clear", "0001", True],
+            [1002, np.nan, np.nan, True],
+            [1003, np.nan, "Form sent out", "0001", False],
+            [1004, 0, "Clear", "0001", False],
+            [1005, np.nan, np.nan, False],
+        ]
+        input_df1 = pd.DataFrame(data=input_data1, columns=input_cols1)
+        input_df2 = pd.DataFrame(data=input_data2, columns=input_cols2)
+        return input_df1, input_df2
+
+    def expected_output(self):
+        """Define the expected output DataFrame"""
+        expected_cols1 = [
+            "reference",
+            "instance",
+            "status",
+            "formtype",
+        ]
+
+        expected_data1 = [
+            [1000, 1, "Form sent out", "0001"],
+            [1001, 0, "Clear", "0001"],
+            [1002, np.nan, np.nan],
+        ]
+        expected_cols2 = [
+            "reference",
+            "instance",
+            "status",
+            "formtype",
+            "is_constructed",
+        ]
+
+        expected_data2 = [
+            [1000, np.nan, "Form sent out", "0001", True],
+            [1001, 0, "Clear", "0001", True],
+            [1002, np.nan, np.nan, True],
+            [1003, 1, "Form sent out", "0001", False],
+            [1004, 0, "Clear", "0001", False],
+            [1005, np.nan, np.nan, False],
+        ]
+        expected_df1 = pd.DataFrame(data=expected_data1, columns=expected_cols1)
+        expected_df2 = pd.DataFrame(data=expected_data2, columns=expected_cols2)
+        return expected_df1, expected_df2
+
+    def test_instance_fix(self):
+        """Test for function instance_fix"""
+        input_df1, input_df2 = self.create_input_df()
+        expected_df1, expected_df2 = self.expected_output()
+
+        result_df1 = instance_fix(input_df1)
+        result_df2 = instance_fix(input_df2)
+        # ignore the order of the columns
+        assert_frame_equal(result_df1.reset_index(drop=True), expected_df1, check_like=True)
+        assert_frame_equal(result_df2.reset_index(drop=True), expected_df2, check_like=True)
