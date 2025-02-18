@@ -268,17 +268,16 @@ def apply_deletions_604(main_df, accepted_amendments_df):
 
         # Get pairs of values for columns "reference" and "period"
         # where instance = 0 and 604 = No.
-        reference_period_pairs = list(
-            zip(flagged_df["reference"], flagged_df["period"])
+        flagged_references = list(
+            flagged_df["reference"]
         )
 
         # Iterate over the pairs and delete rows in main_df where
         # instance is greater than 0
-        for reference, period in reference_period_pairs:
+        for reference in flagged_references:
             main_df = main_df[
                 ~(
                     (main_df["reference"] == reference)
-                    & (main_df["period"] == period)
                     & (main_df["instance"] > 0)
                 )
             ]
