@@ -34,7 +34,7 @@ def join_itl_regions(
     """
     # first create itl column
     postcode_mapper = postcode_mapper.rename(columns={"pcd2": pc_col})
-    df = join_with_null_check(df, postcode_mapper, "postcode mapper", pc_col, warn_only)
+    df = join_with_null_check(df, postcode_mapper, "postcode mapper", pc_col, warn=True)
 
     # next join the itl mapper to add the region columns
     gb_itl_col = config["mappers"]["gb_itl"]

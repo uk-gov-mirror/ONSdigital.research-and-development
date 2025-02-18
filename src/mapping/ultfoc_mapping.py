@@ -9,22 +9,6 @@ from src.mapping import mapping_helpers as hlp
 MappingLogger = logging.getLogger(__name__)
 
 
-def validate_ultfoc_mapper(ultfoc_mapper: pd.DataFrame) -> None:
-    """
-    Validate the foreign ownership (ultfoc) mapper.
-
-    NOTE: we can allow this mapper to contain null values in the ultfoc
-
-    Args:
-        ultfoc_mapper (pd.DataFrame): The foreign ownership mapper DataFrame.
-
-    Returns:
-        pd.DataFrame: The validated foreign ownership mapper DataFrame.
-    """
-    hlp.col_validation_checks(ultfoc_mapper, "ultfoc", "ultfoc", str, 2, True)
-    hlp.check_mapping_unique(ultfoc_mapper, "ruref")
-
-
 def join_fgn_ownership(
     responses: Tuple[pd.DataFrame, pd.DataFrame],
     mapper_df: pd.DataFrame,
@@ -40,7 +24,7 @@ def join_fgn_ownership(
         pd.DataFrame: The combined DataFrame resulting from the left join.
     """
     # perform validation on the foreign ownership (ultfoc) mapper
-    validate_ultfoc_mapper(mapper_df)
+    hlp.check_mapping_unique(mapper_df, "ruref")
 
     gb_df, ni_df = responses
 

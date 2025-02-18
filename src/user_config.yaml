@@ -10,9 +10,9 @@ global:
   use_backdata: True
   load_ni_data: False
   # Pipeline run type
-  run_with_snapshot: True                         # Run until point of freezing
+  run_with_snapshot: False                         # Run until point of freezing
   run_with_snapshot_and_freeze: False             # Last run with frozen snapshot - produces frozen csv
-  run_with_frozen_data: False                     # Run with specified frozen csv
+  run_with_frozen_data: True                     # Run with specified frozen csv
   # Freezing settings
   load_updated_snapshot_for_comparison: False     # Run with new json snapshot, and compare to specified frozen csv
   run_updates_and_freeze: False                   # Add specified changes to frozen csv, and refreeze
@@ -48,8 +48,8 @@ global:
   output_intram_by_sic: False
   output_fte_total_qa: False
   output_status_filtered: False
-  output_frozen_group: False
-  output_intram_totals: False
+  output_frozen_group: True
+  output_intram_totals: True
 s3_paths:
   root: "/bat/res_dev/project_data/"
   # staging input paths
@@ -59,7 +59,7 @@ s3_paths:
   feather_path: "staging/feather"
   # Freezing data paths
   frozen_data_staged_output_path: "02_freezing/frozen_data_staged" # path for folder
-  frozen_data_staged_path: "02_freezing/frozen_data_staged/2023_FROZEN_staged_full_responses_24-08-07_v906" # pragma: allowlist secret
+  frozen_data_staged_path: "02_freezing/frozen_data_staged/2023_FROZEN_staged_full_responses_24-08-07_v906.csv" # pragma: allowlist secret
   freezing_changes_to_review_path: "02_freezing/changes_to_review"
   freezing_additions_path: "02_freezing/freezing_updates"
   freezing_amendments_path: "02_freezing/freezing_updates"

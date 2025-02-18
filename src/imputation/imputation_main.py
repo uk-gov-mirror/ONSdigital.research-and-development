@@ -127,15 +127,14 @@ def run_imputation(  # noqa: C901
         links_filename = filename_amender("links_qa", config)
         trimmed_counts_filename = filename_amender("tmi_trim_count_qa", config)
 
-        if config["survey"]["survey_type"] == "BERD":
-            # create trimming qa dataframe with required columns from schema
-            schema_path = config["schema_paths"]["manual_trimming_schema"]
-            schema_dict = load_schema(schema_path)
-            trimming_qa_output = create_output_df(qa_df, schema_dict)
+        # create trimming qa dataframe with required columns from schema
+        schema_path = config["schema_paths"]["manual_trimming_schema"]
+        schema_dict = load_schema(schema_path)
+        trimming_qa_output = create_output_df(qa_df, schema_dict)
 
-            write_csv(os.path.join(qa_path, trim_qa_filename), trimming_qa_output)
-            write_csv(os.path.join(qa_path, trimmed_counts_filename), trim_counts_qa)
-            write_csv(os.path.join(qa_path, wrong_604_filename), wrong_604_qa_df)
+        write_csv(os.path.join(qa_path, trim_qa_filename), trimming_qa_output)
+        write_csv(os.path.join(qa_path, trimmed_counts_filename), trim_counts_qa)
+        write_csv(os.path.join(qa_path, wrong_604_filename), wrong_604_qa_df)
 
         write_csv(os.path.join(qa_path, full_imp_filename), imputed_df)
         if backdata is not None:

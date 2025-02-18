@@ -79,12 +79,23 @@ def frozen_df() -> pd.DataFrame:
     """A dummy frozen_df for testing."""
     columns = ["reference", "instance", "num", "non_num", "last_frozen", "status", "604"]
     data = [
-        [0, 1.0, 4, True, "previous_run", "clear", "Yes"],
-        [0, 2.0, 5, False, "previous_run", "clear", "Yes"],
-        [1, 1.0, 8, True, "previous_run", "clear", "Yes"],
-        [1, 2.0, 9, True, "previous_run", "clear", "Yes"],
-        [2, 1.0, 10, False, "previous_run", "clear", "Yes"],
-        [6, None, 10, False, "previous_run", "Form sent out", None]
+        [0, 1.0, 4, True, "previous_run", "clear"],
+        [0, 2.0, 5, False, "previous_run", "clear"],
+        [1, 1.0, 8, True, "previous_run", "clear"],
+        [1, 2.0, 9, True, "previous_run", "clear"],
+        [2, 1.0, 10, False, "previous_run", "clear"],
+        [3, 0.0, 10, True, "previous_run", "clear"],
+        [3, 1.0, 11, True, "previous_run", "clear"],
+        [6, None, 10, False, "previous_run", "Form sent out"],
+        [8, 0, 10, True, "previous_run", "clear"],
+        [8, 1, 10, True, "previous_run", "clear"],
+        [8, 2, 10, True, "previous_run", "clear"],
+        [8, 3, 10, True, "previous_run", "clear"],
+        [8, 4, 10, True, "previous_run", "clear"],
+        [8, 5, 10, True, "previous_run", "clear"],
+        [12, 1.0, 9, True, "previous_run", "clear"],
+        [14, 4.0, 26, True, "previous_run", "clear"],
+        [16, 0.0, 0.0, True, None, "Ceased trading (NIL4)"]
     ]
     df = pd.DataFrame(columns=columns, data=data)
     return df
@@ -100,10 +111,13 @@ class TestApplyAmendments(object):
     @pytest.fixture(scope="function")
     def dummy_amendments(self) -> pd.DataFrame:
         """A dummy amendments dataframe."""
-        columns = ["reference", "instance", "num_updated", "non_num_updated", "accept_changes", "status", "604"]
+        columns = ["reference", "instance", "num_updated", "non_num_updated", "accept_changes", "status", "num_diff"]
         data = [
-            [0, 1.0, 3, True, True, "clear", "Yes"],
-            [0, 2.0, 4, True, False, "clear", "Yes"],
+            [0, 1.0, 3, True, True, "clear", 2],
+            [0, 2.0, 4, True, False, "clear", 2],
+            [8, 4, 8, True, True, "clear", 2],
+            [12, 1.0, 9, True, False, "clear", 2],
+            [14, 4.0, 26, True, False, "clear", 2]
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
@@ -114,12 +128,23 @@ class TestApplyAmendments(object):
         today = datetime.datetime.now().strftime("%y-%m-%d")
         columns = ["reference", "instance", "num", "non_num", "last_frozen", "status", "604"]
         data = [
-            [0, 1.0, 3, True, f"{today}_v1", "clear", "Yes"],
-            [0, 2.0, 4, True, f"{today}_v1", "clear", "Yes"],
-            [1, 1.0, 8, True, "previous_run", "clear", "Yes"],
-            [1, 2.0, 9, True, "previous_run", "clear", "Yes"],
-            [2, 1.0, 10, False, "previous_run", "clear", "Yes"],
-            [6, None, 10, False, "previous_run", "Form sent out", None]
+            [0, 1.0, 3, True, f"{today}_v1", "clear"],
+            [0, 2.0, 4, True, f"{today}_v1", "clear"],
+            [1, 1.0, 8, True, "previous_run", "clear"],
+            [1, 2.0, 9, True, "previous_run", "clear"],
+            [2, 1.0, 10, False, "previous_run", "clear"],
+            [3, 0.0, 10, True, "previous_run", "clear"],
+            [3, 1.0, 11, True, "previous_run", "clear"],
+            [6, None, 10, False, "previous_run", "Form sent out"],
+            [8, 0, 10, True, "previous_run", "clear"],
+            [8, 1, 10, True, "previous_run", "clear"],
+            [8, 2, 10, True, "previous_run", "clear"],
+            [8, 3, 10, True, "previous_run", "clear"],
+            [8, 4, 8, True, f"{today}_v1", "clear"],
+            [8, 5, 10, True, "previous_run", "clear"],
+            [12, 1.0, 9, True, "previous_run", "clear"],
+            [14, 4.0, 26, True, "previous_run", "clear"],
+            [16, 0.0, 0.0, True, None, "Ceased trading (NIL4)"]
         ]
         df = pd.DataFrame(data=data, columns=columns)
         return df
@@ -131,9 +156,11 @@ class TestApplyAmendments(object):
         amended = apply_amendments(frozen_df, dummy_amendments, {"filename_items": {"run_id": "1"}}, test_logger)
         amended.sort_values(by=["reference", "instance"], ascending=True, inplace=True)
         expected = self.expected_amended()
-        print(amended)
-        print(expected)
-        assert_frame_equal(amended, expected), (
+
+        expected.sort_values(['reference', 'instance'], inplace=True)
+        amended.sort_values(['reference', 'instance'], inplace=True)
+
+        assert_frame_equal(amended.reset_index(drop=True), expected.reset_index(drop=True)), (
             "Amendments not applied as expected."
         )
 
@@ -164,9 +191,10 @@ class TestApplyAdditions(object):
         """A dummy amendments dataframe."""
         columns = ["reference", "instance", "num", "non_num", "accept_changes", "status", "604"]
         data = [
-            [3, 0.0, 10, True, True, "clear", "Yes"],
-            [3, 1.0, 11, False, False, "clear", "Yes"],
-            [6, 0.0, 10, False, True, "clear", "Yes"]
+            [3, 2.0, 10, True, True, "clear"],
+            [3, 3.0, 11, True, False, "clear"],
+            [6, 0.0, 10, False, True, "clear"],
+            [16, 1.0, 10, False, True, "Clear"]
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
@@ -175,14 +203,25 @@ class TestApplyAdditions(object):
         """The expected dataframe after amendments are applied."""
         columns = ["reference", "instance", "num", "non_num", "status", "604"]
         data = [
-            [0, 1.0, 4, True, "clear", "Yes"],
-            [0, 2.0, 5, False, "clear", "Yes"],
-            [1, 1.0, 8, True, "clear", "Yes"],
-            [1, 2.0, 9, True, "clear", "Yes"],
-            [2, 1.0, 10, False, "clear", "Yes"],
-            [3, 0.0, 10, True, "clear", "Yes"],
-            [3, 1.0, 11, False, "clear", "Yes"],
-            [6, 0.0, 10, False, "clear", "Yes"],
+            [0, 1.0, 4.0, True, "clear"],
+            [0, 2.0, 5.0, False, "clear"],
+            [1, 1.0, 8.0, True, "clear"],
+            [1, 2.0, 9.0, True, "clear"],
+            [2, 1.0, 10.0, False, "clear"],
+            [3, 0.0, 10.0, True, "clear"],
+            [3, 1.0, 11.0, True, "clear"],
+            [3, 2.0, 10.0, True, "clear"],
+            [3, 3.0, 11.0, True, "clear"],
+            [6, 0.0, 10.0, False, "clear"],
+            [8, 0, 10.0, True, "clear"],
+            [8, 1, 10.0, True, "clear"],
+            [8, 2, 10.0, True, "clear"],
+            [8, 3, 10.0, True, "clear"],
+            [8, 4, 10.0, True, "clear"],
+            [8, 5, 10.0, True, "clear"],
+            [12, 1.0, 9.0, True, "clear"],
+            [14, 4.0, 26.0, True, "clear"],
+            [16, 1.0, 10.0, False, "Clear"]
         ]
         df = pd.DataFrame(data=data, columns=columns)
         return df
@@ -193,7 +232,7 @@ class TestApplyAdditions(object):
         amended.drop("last_frozen", axis=1, inplace=True)
         amended.sort_values(by=["reference", "instance"], ascending=True, inplace=True)
         expected = self.expected_additions()
-        assert_frame_equal(amended, expected), (
+        assert_frame_equal(amended.reset_index(drop=True), expected.reset_index(drop=True)), (
             "Additions not applied as expected."
         )
 

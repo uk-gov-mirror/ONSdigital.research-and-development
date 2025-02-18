@@ -168,7 +168,7 @@ Deduced_Data_Type = "object"
 
 [300]
 old_name = "300"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "object"
 
 [301]
 old_name = "301"
@@ -192,15 +192,15 @@ Deduced_Data_Type = "float64"
 
 [307]
 old_name = "307"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "object"
 
 [308]
 old_name = "308"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "object"
 
 [309]
 old_name = "309"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "object"
 
 [405]
 old_name = "405"
@@ -276,7 +276,7 @@ Deduced_Data_Type = "float64"
 
 [603]
 old_name = "603"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "object"
 
 [604]
 old_name = "604"
@@ -332,7 +332,7 @@ Deduced_Data_Type = "float64"
 
 [712]
 old_name = "712"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "object"
 
 [713]
 old_name = "713"
@@ -508,7 +508,7 @@ Deduced_Data_Type = "float64"
 
 [companyregistrationnumber]
 old_name = "companyregistrationnumber"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "object"
 
 [numberlivelocalunits]
 old_name = "numberlivelocalunits"
@@ -548,7 +548,7 @@ Deduced_Data_Type = "object"
 
 [tradingstyle]
 old_name = "tradingstyle"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "object"
 
 [selectiontype]
 old_name = "selectiontype"

@@ -12,11 +12,11 @@ Deduced_Data_Type = "object"
 
 [103]
 old_name = "103"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "object"
 
 [104]
 old_name = "104"
-Deduced_Data_Type = "float64"
+Deduced_Data_Type = "object"
 
 [200]
 old_name = "200"

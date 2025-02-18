@@ -38,6 +38,7 @@ def run_site_apportionment(
     """
     if config["survey"]["survey_type"] == "PNP":
         df["a_weight"] = 1.0
+        df["g_weight"] = 1.0
 
     # Create variable for output of QA apportionment file
     qa_path = config["apportionment_paths"]["qa_path"]

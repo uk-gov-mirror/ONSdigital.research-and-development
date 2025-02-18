@@ -3,6 +3,7 @@
 import pandas as pd
 from pandas.testing import assert_frame_equal
 import logging
+import numpy as np
 
 from src.freezing.freezing_compare import get_amendments, get_additions
 from src.freezing.freezing_compare import bring_together_split_cases
@@ -10,79 +11,97 @@ from src.freezing.freezing_compare import bring_together_split_cases
 # create a test logger to pass to functions
 test_logger = logging.getLogger(__name__)
 
+
 class TestGetAmendments:
     """Tests for get_amendments()."""
-
-    def add_numeric_cols(
-        self,
-        df,
-        expected = False
-    ) -> pd.DataFrame:
-        """Numerical columns for test dataframes."""
-        numeric_cols = [
-            "201", "204", "205", "206", "207", "209", "210",
-            "211", "212", "214", "216", "218", "219", "220", "221", "222",
-            "223", "225", "226", "227", "228", "229", "237", "242", "243",
-            "244", "245", "246", "247", "248", "249", "250", "405", "406",
-            "407", "408", "409", "410", "411", "412", "501", "502", "503",
-            "504", "505", "506", "507", "508", "602", "701", "702", "703",
-            "704", "705", "706", "707", "709", "711",
-        ]
-        for col in numeric_cols:
-            df[col] = None
-        if expected:
-            for col in numeric_cols:
-                df[f"{col}_diff"] = None
-        return df
-
 
     # Create test frozen df
     def create_test_frozen_df(self) -> pd.DataFrame:
         """Create a test frozen df."""
-        input_cols = ["reference", "period", "instance", "203", "202", "200", "601"]
+        input_cols = ["reference", "period", "instance", "202", "203", "200", "201", "601", "604"]
         data = [
-            ["A", 202412, 2.0, 1.0, 2.0, "A", None],
-            ["B", 202412, None, None, 1.0, "B", "C"],
-            ["C", 202412, 0.0, 1.0, 2.0, "A", "B"],
-            ["D", 202412, 1.0, 2.0, 3.0, "C", "D"],
-            ["E", 202412, None, 4.0, 5.0, "E", "F"],
+            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes"],
+            ["B", 202412, None, None, 1.0, "B", "Yes", "C", "Yes"],
+            ["C", 202412, 0.0, 1.0, 2.0, "A", "Yes", "B", "Yes"],
+            ["D", 202412, 1.0, 2.0, 3.0, "C", "Yes", "D", "Yes"],
+            ["E", 202412, None, 4.0, 5.0, "E", "Yes", "F", "No"],
+            ["R", 202412, None, 14.0, 14.0, "E", "Yes", "F", "No"],
         ]
         input_frozen_df = pd.DataFrame(data=data, columns=input_cols)
-        input_frozen_df = self.add_numeric_cols(input_frozen_df)
         return input_frozen_df
-
 
     # Create test amendments df
     def create_test_amendments_df(self) -> pd.DataFrame:
         """Create a test amendments df."""
-        input_cols = ["reference", "period", "instance", "203", "202", "200", "601"]
+        input_cols = ["reference", "period", "instance", "202", "203", "200", "201", "601", "604"]
         data = [
-            ["A", 202412, 2.0, 1.0, 2.0, "A", None], # No diffs
-            ["B", 202412, None, None, 1.0, "A", "B"], # 200 diff "A"
-            ["C", 202412, 0.0, 2.0, 2.0, "A", "B"], # 201 diff by 1
-            ["D", 202412, 1.0, 2.0, 3.0, "E", "D"],  # 200 & 601 diff "E", "D"
-            ["E", 202412, None, 10.0, 1.0, "E", "F"], # 201 & 202 by 6, -4
+            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes"], # No diffs
+            ["B", 202412, None, None, 1.0, "A", "Yes", "B", "Yes"], # 200 diff "A"
+            ["C", 202412, 0.0, 2.0, 2.0, "A", "Yes", "B", "No"], # 202 diff by 1, 604 to "No"
+            ["D", 202412, 1.0, 2.0, 3.0, "E", "Yes", "D", "Yes"],  # 200 & 601 diff "E", "D"
+            ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes"], # 202 & 203 by 6, -4, , 604 to "Yes"
+            ["R", 202412, None, 6.0, 6.0, "E", "Yes", "F", "No"], # 202 & 203 by -8, -8
         ]
         input_amendments_df = pd.DataFrame(data=data, columns=input_cols)
-        input_amendments_df = self.add_numeric_cols(input_amendments_df)
         return input_amendments_df
-
 
     # Create expected outcome df
     def create_test_expected_outcome_df(self) -> pd.DataFrame:
         """Create a test expected_outcome df."""
-        input_cols = ["reference", "period", "instance", "203", "202", "200", "601", "203_diff", "202_diff", "200_diff", "601_diff", "accept_changes"]
+        input_cols = ["reference", "period", "instance", "202", "203", "200", "201", "601", "604", "202_diff", "203_diff", "200_diff", "201_diff", "601_diff", "604_diff", "accept_changes"]
         data = [
-            ["A", 202412, 2.0, 1.0, 2.0, "A", None, 0.0, 0.0, None, None, False],
-            ["B", 202412, None, None, 1.0, "A", "B", None, 0.0, "A", "B", False],
-            ["C", 202412, 0.0, 2.0, 2.0, "A", "B", 1.0, 0.0, None, None, False],
-            ["D", 202412, 1.0, 2.0, 3.0, "E", "D", 0.0, 0.0, "E", None, False],
-            ["E", 202412, None, 10.0, 1.0, "E", "F", 6.0, -4.0, None, None, False],
+            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes", 0.0, 0.0, None, None, None, None, False],
+            ["B", 202412, None, None, 1.0, "A", "Yes", "B", "Yes", None, 0.0, "A", None,  "B", None, False],
+            ["C", 202412, 0.0, 2.0, 2.0, "A", "Yes", "B", "No", 1.0, 0.0, None, None, None, "No", False],
+            ["D", 202412, 1.0, 2.0, 3.0, "E", "Yes", "D", "Yes", 0.0, 0.0, "E", None, None, None, False],
+            ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes", 6.0, -4.0, None, None, None, "Yes", False],
+            ["R", 202412, None, 6.0, 6.0, "E", "Yes", "F", "No", -8.0, -8.0, None, None, None, None, False],
         ]
         input_expected_outcome_df = pd.DataFrame(data=data, columns=input_cols)
-        input_expected_outcome_df = self.add_numeric_cols(input_expected_outcome_df, expected = True)
         return input_expected_outcome_df
 
+    # Create config for test
+    def create_config(self) -> dict:
+        """Create a test config."""
+        config = {
+            "consistency_checks": {
+                "2xx_totals": {
+                    "purchases_split": [],
+                    "sal_oth_expend": [],
+                    "research_expend": [],
+                    "capex": [203],
+                    "intram": [202],
+                    "funding": [],
+                    "ownership": [],
+                    "equality": [],
+                    "expenditure": []
+                },
+                "3xx_totals": {
+                    "purchases": []
+                },
+                "4xx_totals": {
+                    "emp_civil": [],
+                    "emp_defence": []
+                },
+                "5xx_totals": {
+                    "headcount_tot_m": [],
+                    "headcount_tot_f": []
+                },
+                "6xx_totals": {
+                    "business_tot_in_workplace": []
+                },
+                "7xx_a_totals": {
+                    "sf_expend": [],
+                    "sf_purchases": [],
+                },
+                "7xx_b_totals": {
+                    "sf_fte": [],
+                    "sf_headcount": []
+                }
+            }
+        }
+
+        return config
 
     def test_get_amendments(self):
         """Test for get_amendments()."""
@@ -90,13 +109,12 @@ class TestGetAmendments:
         input_frozen_df = self.create_test_frozen_df()
         input_amendments_df = self.create_test_amendments_df()
         expected_outcome_df = self.create_test_expected_outcome_df()
+        config = self.create_config()
 
         # Run the function
         result = get_amendments(
-            input_frozen_df, input_amendments_df, test_logger
+            input_frozen_df, input_amendments_df, test_logger, config
         )
-
-        expected_outcome_df = expected_outcome_df[result.columns]
 
         # Check the output
         assert_frame_equal(
