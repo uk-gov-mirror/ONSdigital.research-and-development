@@ -216,9 +216,15 @@ def create_freezing_config(config: dict) -> dict:
     # now update add freezing paths
     paths = get_paths(config)
     survey_path = paths["survey_path"]
-    freezing_dict["frozen_data_staged_path"] = os.path.join(
-        survey_path, paths["frozen_data_staged_path"]
-    )
+
+    if config["survey"]["survey_type"] == "BERD":
+        freezing_dict["frozen_data_staged_path"] = os.path.join(
+            survey_path, paths["berd_frozen_data_staged_path"]
+        )
+    elif config["survey"]["survey_type"] == "PNP":
+        freezing_dict["frozen_data_staged_path"] = os.path.join(
+            survey_path, paths["pnp_frozen_data_staged_path"]
+        )
     freezing_dict["freezing_changes_to_review_path"] = os.path.join(
         survey_path, paths["freezing_changes_to_review_path"]
     )

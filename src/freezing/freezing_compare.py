@@ -3,12 +3,14 @@ import os
 import pandas as pd
 from typing import Callable, Tuple
 from src.utils.helpers import filename_amender
+from src.utils.breakdown_validation import get_equality_dicts
 
 
 def get_amendments(
     frozen_csv: pd.DataFrame,
     updated_snapshot: pd.DataFrame,
     FreezingLogger: logging.Logger,
+    config: dict,
 ) -> pd.DataFrame:
     """Get amended records from updated snapshot.
 
@@ -20,6 +22,7 @@ def get_amendments(
         updated_snapshot (pd.DataFrame): The staged and validated updated
             snapshot data.
         FreezingLogger (logging.Logger): The logger to log to.
+        config (dict): The pipeline configuration.
 
     Returns:
         amendments_df (pd.DataFrame): The records that have changed.
@@ -28,17 +31,21 @@ def get_amendments(
         "Looking for records that have changed in the updated snapshot."
     )
     key_cols = ["reference", "period", "instance"]
-    numeric_cols = [
-        "202", "203", "204", "205", "206", "207", "209", "210",
-        "211", "212", "214", "216", "218", "219", "220", "221", "222",
-        "223", "225", "226", "227", "228", "229", "237", "242", "243",
-        "244", "245", "246", "247", "248", "249", "250", "405", "406",
-        "407", "408", "409", "410", "411", "412", "501", "502", "503",
-        "504", "505", "506", "507", "508", "602", "701", "702", "703",
-        "704", "705", "706", "707", "709", "711",
-    ]
 
-    non_numeric_cols = ["200", "201", "601"]
+    # Get the dictionary of equality lists
+    equality_dict = get_equality_dicts(config, sublist="freezing")
+
+    # Extract the values (lists) from the dictionary
+    equality_lists = list(equality_dict.values())
+
+    # Concatenate all lists into a single list
+    concatenated_list = sum(equality_lists, [])
+
+    # Remove duplicates and sort the list to create numeric_cols
+    numeric_cols = sorted(set(concatenated_list))
+
+    non_numeric_cols = ["200", "201", "601", "604"]
+
     # numeric_cols_new = [f"{i}_updated" for i in numeric_cols]
     numeric_cols_diff = [f"{i}_diff" for i in numeric_cols]
     # non_numeric_cols_new = [f"{i}_updated" for i in non_numeric_cols]
@@ -59,17 +66,20 @@ def get_amendments(
             amendments_df[f"{each}_diff"] = (
                 amendments_df[f"{each}_updated"] - amendments_df[f"{each}_original"]
             )
+            amendments_df[f"{each}_abs_diff"] = (
+                amendments_df[f"{each}_updated"] - amendments_df[f"{each}_original"]
+            ).abs()
             amendments_df.loc[
-                amendments_df[f"{each}_diff"] > 0.00001,
-                f"is_{each}_diff_nonzero_or_true",
+                amendments_df[f"{each}_abs_diff"] > 0.00001,
+                f"is_{each}_abs_diff_nonzero_or_true",
             ] = True
 
         for each in non_numeric_cols:
-            amendments_df[f"is_{each}_diff_nonzero_or_true"] = (
+            amendments_df[f"is_{each}_abs_diff_nonzero_or_true"] = (
                 amendments_df[f"{each}_updated"] != amendments_df[f"{each}_original"]
             )
             amendments_df.loc[
-                amendments_df[f"is_{each}_diff_nonzero_or_true"], f"{each}_diff"
+                amendments_df[f"is_{each}_abs_diff_nonzero_or_true"], f"{each}_diff"
             ] = amendments_df[f"{each}_updated"]
 
         # Take a slice of the df which is just the cols ending with
@@ -80,7 +90,7 @@ def get_amendments(
         # Remove any rows from the df where is_any_diff_nonzero_or_true is False
         amendments_df["is_any_diff_nonzero_or_true"] = amendments_df[
             amendments_df.columns[
-                amendments_df.columns.str.endswith("_diff_nonzero_or_true")
+                amendments_df.columns.str.endswith("_abs_diff_nonzero_or_true")
             ]
         ].any(axis="columns")
         amendments_df = amendments_df.loc[amendments_df["is_any_diff_nonzero_or_true"]]
@@ -258,7 +268,7 @@ def run_comparison(
         frozen_data_for_comparison, updated_snapshot, FreezingLogger
     )
     amendments_df = get_amendments(
-        frozen_data_for_comparison, updated_snapshot, FreezingLogger
+        frozen_data_for_comparison, updated_snapshot, FreezingLogger, config
     )
     additions_df, amendments_df = bring_together_split_cases(
         additions_df, amendments_df, FreezingLogger

@@ -73,7 +73,8 @@ network_paths:
   # updated_snapshot_path: "R:/BERD Results System Development 2023/DAP_emulation/spp_snapshots/2022_snapshots/snapshot-202212-002-83b5bacd-7c99-45cf-b989-d43d762dd054.json"
   # Freezing data paths
   frozen_data_staged_output_path: "02_freezing/frozen_data_staged/"
-  frozen_data_staged_path: "02_freezing/frozen_data_staged/2023_FROZEN_staged_full_responses_25-01-21_v397.csv"
+  berd_frozen_data_staged_path: "02_freezing/frozen_data_staged/2023_FROZEN_staged_full_responses_25-01-29_v597.csv"
+  pnp_frozen_data_staged_path: "02_freezing/frozen_data_staged/PNP_2023_FROZEN_staged_full_responses_25-01-29_v598.csv"
   freezing_changes_to_review_path: "02_freezing/changes_to_review/"
   freezing_additions_path: "R:/BERD Results System Development 2023/DAP_emulation/2023_surveys/BERD/02_freezing/freezing_updates/2023_freezing_additions_to_review_24-09-12_v1324.csv"
   freezing_amendments_path: "R:/BERD Results System Development 2023/DAP_emulation/2023_surveys/BERD/02_freezing/freezing_updates/2023_freezing_amendments_to_review_24-09-12_v1324.csv"
@@ -209,14 +210,29 @@ consistency_checks:
     funding: ['212', '214', '216', '242', '250', '243', '244', '245', '246', '247', '248', '249', '218']
     ownership: ['225', '226', '227', '228', '229', '237', '218']
     equality: ['211', '218']
+    inequality: ["221"]
   3xx_totals:
     purchases: ['302', '303', '304', '305']
   4xx_totals:
     emp_civil: ['405', '407', '409', '411']
     emp_defence: ['406', '408', '410', '412']
   5xx_totals:
-    hc_res_m: ['501', '503', '505', '507']
-    hc_res_f: ['502', '504', '506', '508']
+    headcount_tot_m: ['501', '503', '505', '507']
+    headcount_tot_f: ['502', '504', '506', '508']
+  emp_xx_totals:
+    employment: ["emp_researcher", "emp_technician", "emp_other", "emp_total"]
+  hc_xx_totals:
+    headcount_tot_m: ["headcount_res_m", "headcount_tec_m", "headcount_oth_m", "headcount_tot_m"]
+    headcount_tot_f: ["headcount_res_f", "headcount_tec_f", "headcount_oth_f", "headcount_tot_f"]
+    headcount_total: ["headcount_tot_m", "headcount_tot_f", "headcount_total"]
+  6xx_totals:
+    site_percentage: ["602"]
+  7xx_a_totals:
+    sf_expend: ["701", "702", "709"]
+    sf_purchases: ["703", "704", "710"]
+  7xx_b_totals:
+    sf_fte: ["706", "707", "711"]
+    sf_headcount: ["705"]
 
 s3:
   ssl_file: "/etc/pki/tls/certs/ca-bundle.crt"

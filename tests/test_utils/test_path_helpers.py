@@ -69,7 +69,8 @@ def config():
                 "04_construction/man_con/postcode_construction_file.csv"
             ),
             "construction_file_path_ni": "04_construction/man_con/con_file_ni.csv",
-            "frozen_data_staged_path": "02_freezing/frozen_data_staged/staged.csv",
+            "berd_frozen_data_staged_path": "02_freezing/frozen_data_staged/staged.csv",
+            "pnp_frozen_data_staged_path": "02_freezing/frozen_data_staged/staged.csv",
             "freezing_changes_to_review_path": "02_freezing/changes_to_review/review.csv",
             "freezing_amendments_path": "02_freezing/freezing_updates/updates.csv",
             "freezing_additions_path": "02_freezing/freezing_updates/additions.csv",
@@ -137,7 +138,8 @@ def test_get_paths(config):
             "04_construction/man_con/postcode_construction_file.csv"
         ),
         "construction_file_path_ni": "04_construction/man_con/con_file_ni.csv",
-        "frozen_data_staged_path": "02_freezing/frozen_data_staged/staged.csv",
+        "berd_frozen_data_staged_path": "02_freezing/frozen_data_staged/staged.csv",
+        "pnp_frozen_data_staged_path": "02_freezing/frozen_data_staged/staged.csv",
         "freezing_changes_to_review_path": "02_freezing/changes_to_review/review.csv",
         "freezing_amendments_path": "02_freezing/freezing_updates/updates.csv",
         "freezing_additions_path": "02_freezing/freezing_updates/additions.csv",

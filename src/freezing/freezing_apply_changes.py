@@ -143,10 +143,13 @@ def apply_amendments(
     Returns:
         amended_df (pd.DataFrame): The main snapshot with amendments applied.
     """
+
+    # Get references where accept_changes is True
     changes_refs = amendments_df[
         amendments_df.accept_changes.isin([True])
     ].reference.unique()
 
+    # Filter amendments to only include those marked for inclusion
     accepted_amendments_df = amendments_df[amendments_df.reference.isin(changes_refs)]
 
     if accepted_amendments_df.shape[0] == 0:
@@ -157,19 +160,30 @@ def apply_amendments(
     accepted_amendments_df = accepted_amendments_df.drop(
         columns=[col for col in accepted_amendments_df.columns if col.endswith("_diff")]
     )
+
     accepted_amendments_df = accepted_amendments_df.drop("accept_changes", axis=1)
 
     # rename columns
     accepted_amendments_df.columns = [
         col.replace("_updated", "") for col in accepted_amendments_df.columns
     ]
+
     # update last_frozen column
     accepted_amendments_df = _add_last_frozen_column(accepted_amendments_df, config)
 
-    # drop records to be amended from main df
-    main_df = main_df[~main_df.reference.isin(changes_refs)]
+    # List of tuples with values to filter
+    values_to_filter = (
+        accepted_amendments_df[["reference", "instance"]].apply(tuple, axis=1).tolist()
+    )
+
+    # drop records to be amended from main df bassed on values_to_filter
+    main_df = main_df[
+        ~main_df[["reference", "instance"]].apply(tuple, axis=1).isin(values_to_filter)
+    ]
+
     # add amended records to main df
     amended_df = pd.concat([main_df, accepted_amendments_df])
+
     FreezingLogger.info(
         f"{accepted_amendments_df.shape[0]} record(s) amended during freezing"
     )

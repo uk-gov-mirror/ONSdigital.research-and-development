@@ -82,44 +82,76 @@ def create_notnull_mask(df: pd.DataFrame, col: str) -> pd.Series:
     return df[col].str.len() > 0
 
 
-def create_mask(df: pd.DataFrame, options: List) -> pd.Series:
-    """Create a dataframe mask based on listed options - retrun Bool column.
+def create_mask(df: pd.DataFrame, options: List[str]) -> pd.Series:
+    """Create a dataframe mask based on listed options - return Bool column.
 
     Options include:
         - 'clear_status': rows with one of the clear statuses
         - 'instance_zero': rows with instance = 0
         - 'instance_nonzero': rows with instance != 0
-        - 'no_r_and_d' : rows where q604 = 'No'
+        - 'no_r_and_d': rows where q604 = 'No'
         - 'postcode_only': rows in which there are no numeric values, only postcodes.
+        - 'excl_postcode_only': rows excluding those with only postcodes.
+        - 'exclude_nan_classes': rows excluding those with "nan" in the imp_class col.
+        - 'prn_only': PRN rows, ie, rows with selectiontype = 'P'
+        - 'census_only': Census rows, ie, rows with selectiontype 'C'
+        - 'longform_only': Longform rows, ie, rows with formtype = '0001'
+        - 'shortform_only': Shortform rows, ie, rows with formtype = '0006'
+        - 'bad_status': rows with a status that is not in the clear statuses
+        - 'mor_imputed' : rows with an imp_marker of 'MoR' or 'CF'
+        - 'not_mor_imputed' : rows without an imp_marker of 'MoR' or 'CF'
+
+    Args:
+        df (pd.DataFrame): The input dataframe.
+        options (List[str]): List of options to create the mask.
+
+    Returns:
+        pd.Series: Boolean mask based on the options.
     """
-    clear_mask = df["status"].isin(["Clear", "Clear - overridden"])
-    instance_mask = df.instance == 0
-    no_r_and_d_mask = df["604"] == "No"
-    postcode_only_mask = df["211"].isnull() & ~df["601"].isnull()
+    df = df.copy()  # Ensure the original DataFrame is not modified
 
-    # Set initial values for the mask series as a column in the dataframe
-    df = df.copy()
-    df["mask_col"] = False
+    # Define masks for each option
+    masks = {
+        "clear_status": df["status"].isin(["Clear", "Clear - overridden"]),
+        "instance_zero": df.instance == 0,
+        "instance_nonzero": df.instance > 0,
+        "no_r_and_d": df["604"] == "No",
+        "postcode_only": df["211"].isnull() & df["601"].notnull(),
+        "excl_postcode_only": ~(df["211"].isnull() & df["601"].notnull()),
+        "exclude_nan_classes": ~df["imp_class"].str.contains("nan", na=True),
+        "prn_only": df["selectiontype"] == "P",
+        "census_only": df["selectiontype"] == "C",
+        "longform_only": df["formtype"] == "0001",
+        "shortform_only": df["formtype"] == "0006",
+        "bad_status": df["status"].isin(["Check needed", "Form sent out"]),
+        "mor_imputed": df["imp_marker"].isin(["MoR", "CF"]),
+        "not_mor_imputed": ~df["imp_marker"].isin(["MoR", "CF"]),
+    }
 
-    if "clear_status" in options:
-        df["mask_col"] = df["mask_col"] | clear_mask
+    # Initialize the mask to True
+    mask = pd.Series(True, index=df.index)
 
-    if "instance_zero" in options:
-        df["mask_col"] = df["mask_col"] | instance_mask
+    # Apply the masks based on the options
+    for option in options:
+        if option in masks:
+            mask &= masks[option]
 
-    elif "instance_nonzero" in options:
-        df["mask_col"] = df["mask_col"] | ~instance_mask
+    return mask
 
-    if "no_r_and_d" in options:
-        df["mask_col"] = df["mask_col"] | no_r_and_d_mask
 
-    if "postcode_only" in options:
-        df["mask_col"] = df["mask_col"] | postcode_only_mask
+def special_filter(df: pd.DataFrame, options: List[str]) -> pd.DataFrame:
+    """Filter the dataframe based on a list of options commonly used in the pipeline.
 
-    if "excl_postcode_only" in options:
-        df["mask_col"] = df["mask_col"] | ~postcode_only_mask
+    Args:
+        df (pd.DataFrame): The input dataframe.
+        options (List[str]): List of options to filter the dataframe.
 
-    return df["mask_col"]
+    Returns:
+        pd.DataFrame: The filtered dataframe.
+    """
+    mask = create_mask(df, options)
+    df = df.copy().loc[mask]
+    return df
 
 
 def instance_fix(df: pd.DataFrame):
@@ -281,6 +313,9 @@ def create_r_and_d_instance(
     # Ensure that in the case longforms with "no R&D" we only have one row
     df, mult_604_qa_df = fix_604_error(df)
 
+    # In the case where there is "no R&D", we create a copy of instance 0
+    # and update to instance = 1. In this way we create an "instance 1" which we can
+    # popultae with zeros for imputation purposes (see docstring above).
     no_rd_mask = (df.formtype == "0001") & (df["604"] == "No")
     filtered_df = df.copy().loc[no_rd_mask]
     filtered_df["instance"] = 1
