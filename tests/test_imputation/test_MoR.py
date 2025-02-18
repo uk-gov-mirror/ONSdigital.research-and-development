@@ -9,7 +9,7 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 
 # Local Imports
-from src.imputation.MoR import run_mor, is_lf_only
+from src.imputation.MoR import run_mor, is_lf_only, filter_for_links
 from src.imputation.imputation_helpers import get_imputation_cols, create_imp_class_col
 
 # pytestmark = pytest.mark.runwip
@@ -167,4 +167,68 @@ class TestRunMoRShortForm(object):
 
         assert_frame_equal(result_df, expected_sf_mor_output, check_dtype=False, check_exact=False), (
             "run_mor() not imputing data as expected."
+        )
+
+class TestFilterForLinks(object):
+    """Tests to check the function is fitering correctly"""
+
+    def create_input_df(self) -> pd.DataFrame:
+        """A dummy dataframe used for testing filter_for_links function."""
+        columns = ("reference", "instance", "imp_marker", "imp_class", "selectiontype")
+        data = [
+            [1001, 0, "R", "nan_A", "P"],  # instance 0 and "nan"
+            [1001, 1, "R", "C_A", "P"],
+            [1002, 1, "R", "D_A", "P"],
+            [1003, 1, "TMI", "C_B", "C"],  # not "R"
+            [1004, 1, "R", "C_C", "C"],
+            [1005, 1, "MoR", "nan_D", "C"],  # "nan" imp_class
+            [1005, 2, "MoR", "C_D", "C"],  # not "R"
+
+        ]
+        input_df = pd.DataFrame(data, columns=columns)
+        return input_df
+
+    def expected_output_false(self) -> pd.DataFrame:
+        """Expected dataframe if 'is_current' is set to false.
+       Returns filtered data of both previous and current period data"""
+        columns = ("reference", "instance", "imp_marker", "imp_class", "selectiontype")
+        data = [
+            [1001, 1, "R", "C_A", "P"],
+            [1002, 1, "R", "D_A", "P"],
+            [1004, 1, "R", "C_C", "C"],
+
+        ]
+        exp_df_false = pd.DataFrame(data, columns=columns)
+        return exp_df_false
+
+    def expected_output_true(self) -> pd.DataFrame:
+        """ Expected dataframe if 'is_current' is set to true.
+        Only returns filtered data of current period data"""
+        columns = ("reference", "instance", "imp_marker", "imp_class", "selectiontype")
+        data = [[1004, 1, "R", "C_C", "C"]]
+        exp_df_true = pd.DataFrame(data, columns=columns)
+        return exp_df_true
+
+    def test_filter_for_links(self):
+        # Create the input and expected output dataframes
+        input_df = self.create_input_df()
+        exp_df_false = self.expected_output_false()
+        exp_df_true = self.expected_output_true()
+
+        # Run the function
+        result_false = filter_for_links(input_df, is_current=False)
+        result_true = filter_for_links(input_df, is_current=True)
+
+        # Reset index for comparison
+        df_list = [exp_df_false, exp_df_true, result_false, result_true]
+
+        for df in df_list:
+            df.reset_index(drop=True, inplace=True)
+
+        # Compare the results
+        assert_frame_equal(result_false, exp_df_false, check_dtype=False, check_exact=False), (
+            "filter_for_links() not filtering data as expected."
+        )
+        assert_frame_equal(result_true, exp_df_true, check_dtype=False, check_exact=False), (
+            "filter_for_links() not filtering data as expected."
         )
