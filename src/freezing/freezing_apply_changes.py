@@ -291,6 +291,13 @@ def apply_deletions_604(main_df, accepted_amendments_df):
                 ~((main_df["reference"] == reference) & (main_df["instance"] > 0))
             ]
 
+        # Replace the value in column '604' with 'No' when reference is in
+        # flagged_references and instance is 0
+        main_df.loc[
+            (main_df["reference"].isin(flagged_references))
+            & (main_df["instance"] == 0),
+            "604",
+        ] = "No"
     else:
         pass
 
