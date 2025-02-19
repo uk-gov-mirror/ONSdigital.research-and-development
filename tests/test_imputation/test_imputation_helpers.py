@@ -15,6 +15,7 @@ from src.imputation.imputation_helpers import (
     create_mask,
     special_filter,
     instance_fix,
+    get_mult_604_mask,
 )
 
 
@@ -745,3 +746,33 @@ class TestInstanceFix:
         # ignore the order of the columns
         assert_frame_equal(result_df1.reset_index(drop=True), expected_df1, check_like=True)
         assert_frame_equal(result_df2.reset_index(drop=True), expected_df2, check_like=True)
+
+class TestGetMult604Mask:
+    """ define test for get_mult_604_mask function
+    which returns mask for long form references with "No" in col 604 but >1 instance"""
+
+    def cre_input_df(self) -> pd.DataFrame:
+        input_cols = ['reference', 'instance', 'formtype', '604']
+        input_data = [
+            [1000, np.nan, np.nan, np.nan],
+            [1001, 0, "0001", "No"],
+            [1001, 1, "0001", "No"],
+            [1001, 2, "0001", "No"],
+            [1002, 0, "0006", "Yes"],
+            [1002, 1, "0006", "Yes"],
+            [1002, 2, "0006", "Yes"],
+            [1003, 0, "0001", np.nan],
+            [1004, 0, np.nan, "No"],
+        ]
+        input_df = pd.DataFrame(columns=input_cols, data=input_data)
+        return input_df
+
+    def test_get_mult_604_mask(self):
+
+        input_df = self.cre_input_df()
+
+        expected_mask = pd.Series([False, False, True, True, False, False, False, False, False])
+
+        result_mask = get_mult_604_mask(input_df)
+
+        assert_series_equal(expected_mask, result_mask)
