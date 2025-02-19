@@ -186,16 +186,16 @@ class TestMoRPreprocessing(object):
         ]
         data = [
             [1001, 1, "C", "6.0", "CF14 9XY", "Clear", "R"],
-            [1001, 2, "D", "6", "CF14 9XY", "Clear", "R"],
+            [1001, 2, "P", "6", "CF14 9XY", "Clear", "R"],
             [1002, 1, "C", "0006", np.nan, "Form sent out", "CF"],
             [1003, 1, "C", "0001", "NP10 2RT", "Clear", "MoR"],
             [1004, 1, "C", "6", np.nan, "Form sent out", "MoR"],
-            [1004, 2, "D", "6.0", np.nan, "Form sent out", "MoR"],
+            [1004, 2, "P", "6.0", np.nan, "Form sent out", "MoR"],
             [1005, 0, "C", "0001", "SW5 2DW", "Check needed", "MoR"],
-            [1005, 1, "D", "01.0", "SW5 2DW", "Check needed", "MoR"],
+            [1005, 1, "P", "01.0", "SW5 2DW", "Check needed", "MoR"],
             [1006, 0, np.nan, "6", "CF48 9DU", "Clear - overidden", np.nan],
             [1006, 1, "C", "6.0", "CF48 9DU", "Clear", "R"],
-            [1006, 2, "D", "6.0", "CF48 9DU", "Clear", "R"],
+            [1006, 2, "P", "6.0", "CF48 9DU", "Clear", "R"],
         ]
         input_df = pd.DataFrame(data=data, columns=input_columns)
         return input_df
@@ -224,13 +224,13 @@ class TestMoRPreprocessing(object):
 
         data = [
             [1007, 1, "C", "0006", "SW52DW", "Clear", "R"],
-            [1007, 2, "D", "6", "SW52DW", "Clear", "R"],
+            [1007, 2, "P", "6", "SW52DW", "Clear", "R"],
             [1008, 1, "C", "0006", np.nan, "Form sent out", np.nan],
-            [1008, 2, "D", "1.0", "NP10 2RT", "Clear", "MoR"],
-            [1009, 1, "C", "6.0", np.nan, "Form sent out", "MoR"],
-            [1010, 0, np.nan, "0006", "NP10 6RT", "Form sent out", "MoR"],
+            [1008, 2, "P", "1.0", "NP10 2RT", "Clear", np.nan],
+            [1009, 1, "C", "6.0", np.nan, "Form sent out", "no_imputation"],
+            [1010, 0, np.nan, "0006", "NP10 6RT", "Form sent out", "no_imputation"],
             [1010, 1, "C", "1", np.nan, "Check needed", np.nan],
-            [1010, 2, "D", "0001", np.nan, "Check needed", np.nan],
+            [1010, 2, "P", "0001", np.nan, "Check needed", np.nan],
             [1011, 1, "C", "6", np.nan, "Clear - overidden", "R"],
             [1012, 0, np.nan, "0006", "CF489DU", "Clear", np.nan],
             [1012, 1, "C", "0006", "CF489DU", "Clear", np.nan],
@@ -274,13 +274,13 @@ class TestMoRPreprocessing(object):
 
         data = [
             [1001, 1, "C", "0006", "CF14 9XY", "Clear", "R"],
-            [1001, 2, "D", "0006", "CF14 9XY", "Clear", "R"],
+            [1001, 2, "P", "0006", "CF14 9XY", "Clear", "R"],
             [1003, 1, "C", "0001", "NP10 2RT", "Clear", "MoR"],
-            [1004, 2, "D", "0006", np.nan, "Form sent out", "MoR"],
-            [1005, 1, "D", np.nan, "SW5 2DW", "Check needed", "MoR"],
+            [1004, 2, "P", "0006", np.nan, "Form sent out", "MoR"],
+            [1005, 1, "P", np.nan, "SW5 2DW", "Check needed", "MoR"],
             [1006, 0, np.nan, "0006", "CF48 9DU", "Clear - overidden", np.nan],
             [1006, 1, "C", "0006", "CF48 9DU", "Clear", "R"],
-            [1006, 2, "D", "0006", "CF48 9DU", "Clear", "R"]
+            [1006, 2, "P", "0006", "CF48 9DU", "Clear", "R"]
         ]
 
         expected_remainder_df = pd.DataFrame(data=data, columns=expected_columns)
@@ -300,10 +300,7 @@ class TestMoRPreprocessing(object):
 
         data = [
             [1007, 1, "C", "0006", "SW5  2DW", "Clear", "R"],
-            [1007, 2, "D", "0006", "SW5  2DW", "Clear", "R"],
-            [1008, 2, "D", "0001", "NP10 2RT", "Clear", "MoR"],
-            [1009, 1, "C", "0006", np.nan, "Form sent out", "MoR"],
-            [1010, 0, np.nan, "0006", "NP10 6RT", "Form sent out", "MoR"],
+            [1007, 2, "P", "0006", "SW5  2DW", "Clear", "R"],
             [1011, 1, "C", "0006", np.nan, "Clear - overidden", "R"],
         ]
 
