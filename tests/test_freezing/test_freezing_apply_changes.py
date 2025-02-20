@@ -322,6 +322,7 @@ class TestApplyDeletions604(object):
             [4444, 2, 201812, 0.5, "Yes"],  # ref 4444 to be removed
             [4444, 3, 201812, 0.5, "Yes"],  # ref 4444 to be removed
             [4444, 4, 201812, 0.5, "Yes"]  # ref 4444 to be removed
+        ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
 
