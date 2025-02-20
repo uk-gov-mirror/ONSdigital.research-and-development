@@ -22,7 +22,7 @@ def get_equality_dicts(config: dict, sublist: str = "default") -> dict:
     all_checks_dict = config["consistency_checks"]
 
     # isolate the relationships suitlable for checking in the construction module
-    dict = {
+    columns_of_interest_dict = {
         "default": [
             "2xx_totals",
             "3xx_totals",
@@ -54,11 +54,8 @@ def get_equality_dicts(config: dict, sublist: str = "default") -> dict:
         "604_check": ["4xx_totals", "5xx_totals", "7xx_a_totals", "7xx_b_totals"],
     }
 
-    if sublist in dict.keys():
-        wanted_dicts = dict[sublist]
-
-    else:
-        wanted_dicts = list(all_checks_dict.keys())
+    if sublist in columns_of_interest_dict.keys():
+        wanted_dicts = columns_of_interest_dict[sublist]
 
     # create a dictionary of the relationships to check
     equality_checks = {}
