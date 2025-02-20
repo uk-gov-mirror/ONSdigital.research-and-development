@@ -51,7 +51,7 @@ def get_equality_dicts(config: dict, sublist: str = "default") -> dict:
             "7xx_a_totals",
             "7xx_b_totals",
         ],
-        "604_check": ["4xx_totals", "5xx_totals", "7xx_a_totals", "7xx_b_totals"],
+        "instance_0_cols": ["4xx_totals", "5xx_totals", "7xx_a_totals", "7xx_b_totals"],
     }
 
     if sublist in columns_of_interest_dict.keys():

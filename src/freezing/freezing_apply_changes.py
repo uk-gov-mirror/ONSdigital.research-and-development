@@ -307,7 +307,7 @@ def apply_deletions_604(main_df, accepted_amendments_df, config):
         # columns 4xx's, 5xx's, and 7xx's are set to 0.0.
 
         # get columns to check
-        check_list_604 = get_all_wanted_columns(config, "604_check")
+        check_list_604 = get_all_wanted_columns(config, "instance_0_cols")
 
         # for columns that are instance 0, and were identified as having 604 set from
         # Yes to No, set the value in columns in check_list_604 to 0.0.
