@@ -11,7 +11,7 @@ from pandas.testing import assert_frame_equal
 import numpy as np
 
 # Local Imports
-from src.imputation.MoR import run_mor, is_lf_only, mor_preprocessing, calculate_growth_rates
+from src.imputation.MoR import run_mor, is_lf_only, filter_for_links, mor_preprocessing, calculate_growth_rates
 from src.imputation.imputation_helpers import get_imputation_cols, create_imp_class_col
 
 # pytestmark = pytest.mark.runwip
@@ -190,6 +190,7 @@ class TestMoRPreprocessing(object):
         to_impute_df, remainder_df, backdata_df = mor_preprocessing(
             input_df, backdata_df, config
         )
+
         expected_to_impute_df = self.expected_to_impute_df()
         expected_remainder_df = self.expected_remainder_df()
         expected_backdata_df = self.expected_backdata_df()
@@ -203,15 +204,16 @@ class TestMoRPreprocessing(object):
             df.reset_index(drop=True, inplace=True)
             df.replace({None: np.nan}, inplace=True)
 
-        # round the expected output to 4 decimal places
-        # Apply rounding only to the floating-point columns in the expected output
-        float_cols = expected_lf_mor_output.select_dtypes(include='float').columns
-        expected_lf_mor_output[float_cols] = expected_lf_mor_output[float_cols].round(4)
-        expected_lf_mor_output = expected_lf_mor_output[wanted_cols]
-
-        assert_frame_equal(result_df, expected_lf_mor_output, check_dtype=False, check_exact=False), (
-            "run_mor() not imputing data as expected."
-        )
+        for result_df, expected_df, name in [
+            (to_impute_df, expected_to_impute_df, "to_impute_df"),
+            (remainder_df, expected_remainder_df, "remainder_df"),
+            (backdata_df, expected_backdata_df, "backdata_df")
+        ]:
+            assert_frame_equal(
+                result_df, expected_df, check_dtype=False, check_exact=False
+            ), (
+                f"{name} not as expected."
+            )
 
 
 class TestRunMoRShortForm(object):
