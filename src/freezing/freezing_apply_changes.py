@@ -274,10 +274,7 @@ def apply_deletions_604(main_df, accepted_amendments_df):
 
         # Filter the accepted_amendments_df Dataframe based on for
         # instance =  0 and 604 = No
-        flagged_df = accepted_amendments_df[
-            (accepted_amendments_df["instance"] == 0)
-            & (accepted_amendments_df["604"] == "No")
-        ]
+        flagged_df = accepted_amendments_df[condition]
 
         # Get pairs of values for columns "reference" and "period"
         # where instance = 0 and 604 = No.
