@@ -317,12 +317,11 @@ class TestApplyDeletions604(object):
             [2222, 0, 201812, 0.5, "Yes"],  # ref 2222 nothing to be removed
             [2222, 1, 201812, 0.5, "Yes"],  # ref 2222 nothing to be removed
             [2222, 2, 201812, 0.5, "Yes"],  # ref 2222 nothing to be removed
-            [4444, 0, 201812, 0.5, "Yes"],  # ref 4444 to be flagged not removed
+            [4444, 0, 201812, 0.5, "Yes"],  # ref 4444 to be flagged and amended
             [4444, 1, 201812, 0.5, "Yes"],  # ref 4444 to be removed
             [4444, 2, 201812, 0.5, "Yes"],  # ref 4444 to be removed
-            [4444, 3, 201812, 0.5, "Yes"],  # ref 4444 diff period not to be removed
-            [4444, 4, 201812, 0.5, "Yes"]  # ref 4444 diff period not to be removed
-        ]
+            [4444, 3, 201812, 0.5, "Yes"],  # ref 4444 to be removed
+            [4444, 4, 201812, 0.5, "Yes"]  # ref 4444 to be removed
         df = pd.DataFrame(columns=columns, data=data)
         return df
 
@@ -332,7 +331,7 @@ class TestApplyDeletions604(object):
             [2222, 0, 201812, 0.5, "Yes"],  # ref 2222 nothing removed
             [2222, 1, 201812, 0.5, "Yes"],  # ref 2222 nothing removed
             [2222, 2, 201812, 0.5, "Yes"],  # ref 2222 nothing removed
-            [4444, 0, 201812, 0.0, "No"],  # ref 4444 flagged not removed
+            [4444, 0, 201812, 0.0, "No"],  # ref 4444 flagged and amended
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
