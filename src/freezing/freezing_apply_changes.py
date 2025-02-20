@@ -4,6 +4,7 @@ from typing import Callable, Dict
 import pandas as pd
 
 from src.freezing.freezing_utils import _add_last_frozen_column
+from src.utils.breakdown_validation import get_all_wanted_columns
 
 
 def apply_freezing(
@@ -189,7 +190,7 @@ def apply_amendments(
     )
 
     # Apply deletions for 604
-    main_df = apply_deletions_604(main_df, accepted_amendments_df)
+    main_df = apply_deletions_604(main_df, accepted_amendments_df, config)
 
     return amended_df
 
@@ -248,7 +249,7 @@ def apply_additions(
     return added_df
 
 
-def apply_deletions_604(main_df, accepted_amendments_df):
+def apply_deletions_604(main_df, accepted_amendments_df, config):
     """Apply deletions for 604.
 
     Checks if accepted_amendments_df contains any rows where
@@ -282,19 +283,34 @@ def apply_deletions_604(main_df, accepted_amendments_df):
 
         # Create a mask to identify rows where reference is in flagged_references
         # and instance is greater than 0
-        mask = (main_df["reference"].isin(flagged_references)) & (
+        reference_greater_0_mask = (main_df["reference"].isin(flagged_references)) & (
             main_df["instance"] > 0
         )
 
         # Filter the DataFrame using the mask
-        main_df = main_df[~mask]
+        main_df = main_df[~reference_greater_0_mask]
+
+        # Create a mask to identify rows where reference is in flagged_references
+        # and instance is  equal to 0
+        reference_equal_0_mask = (main_df["reference"].isin(flagged_references)) & (
+            main_df["instance"] == 0
+        )
 
         # Replace the value in column '604' with 'No' when reference is in
         # flagged_references and instance is 0
         main_df.loc[
-            (main_df["reference"].isin(flagged_references))
-            & (main_df["instance"] == 0),
+            reference_equal_0_mask,
             "604",
         ] = "No"
+
+        # For rows where instance = 0 and 604 was changed from "Yes" to "No", ensure
+        # columns 4xx's, 5xx's, and 7xx's are set to 0.0.
+
+        # get columns to check
+        check_list_604 = get_all_wanted_columns(config, "604_check")
+
+        # for columns that are instance 0, and were identified as having 604 set from
+        # Yes to No, set the value in columns in check_list_604 to 0.0.
+        main_df.loc[reference_equal_0_mask, check_list_604] = 0.0
 
     return main_df

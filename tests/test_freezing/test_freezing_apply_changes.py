@@ -277,9 +277,50 @@ class TestApplyAdditions(object):
 class TestApplyDeletions604(object):
     """ Test for apply_deletions_604 """
 
+    def create_config(self) -> dict:
+        """Create a test config."""
+        config = {
+            "consistency_checks": {
+                "2xx_totals": {
+                    "purchases_split": [],
+                    "sal_oth_expend": [],
+                    "research_expend": [],
+                    "capex": [],
+                    "intram": [],
+                    "funding": [],
+                    "ownership": [],
+                    "equality": [],
+                    "expenditure": []
+                },
+                "3xx_totals": {
+                    "purchases": []
+                },
+                "4xx_totals": {
+                    "emp_civil": [],
+                    "emp_defence": []
+                },
+                "5xx_totals": {
+                    "headcount_tot_m": [],
+                    "headcount_tot_f": ['508']
+                },
+                "6xx_totals": {
+                    "business_tot_in_workplace": []
+                },
+                "7xx_a_totals": {
+                    "sf_expend": [],
+                    "sf_purchases": [],
+                },
+                "7xx_b_totals": {
+                    "sf_fte": [],
+                    "sf_headcount": []
+                }
+            }
+        }
+        return config
+
     def amendments(self) -> pd.DataFrame:
         """A dummy amendments dataframe."""
-        columns = ["reference", "instance", "period", "510", "604"]
+        columns = ["reference", "instance", "period", "508", "604"]
         data = [
             [4444, 0, 201812, 0.5, "No"],  # ref 4444 period 201812 to be flagged not removed
         ]
@@ -288,7 +329,7 @@ class TestApplyDeletions604(object):
 
     def primary(self) -> pd.DataFrame:
         """A dummy main dataframe."""
-        columns = ["reference", "instance", "period", "510", "604"]
+        columns = ["reference", "instance", "period", "508", "604"]
         data = [
             [2222, 0, 201812, 0.5, "Yes"],  # ref 2222 nothing to be removed
             [2222, 1, 201812, 0.5, "Yes"],  # ref 2222 nothing to be removed
@@ -296,19 +337,19 @@ class TestApplyDeletions604(object):
             [4444, 0, 201812, 0.5, "Yes"],  # ref 4444 to be flagged not removed
             [4444, 1, 201812, 0.5, "Yes"],  # ref 4444 to be removed
             [4444, 2, 201812, 0.5, "Yes"],  # ref 4444 to be removed
-            [4444, 1, 201812, 0.5, "Yes"],  # ref 4444 diff period not to be removed
-            [4444, 2, 201812, 0.5, "Yes"]  # ref 4444 diff period not to be removed
+            [4444, 3, 201812, 0.5, "Yes"],  # ref 4444 diff period not to be removed
+            [4444, 4, 201812, 0.5, "Yes"]  # ref 4444 diff period not to be removed
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
 
     def expected(self) -> pd.DataFrame:
-        columns = ["reference", "instance", "period", "510", "604"]
+        columns = ["reference", "instance", "period", "508", "604"]
         data = [
             [2222, 0, 201812, 0.5, "Yes"],  # ref 2222 nothing removed
             [2222, 1, 201812, 0.5, "Yes"],  # ref 2222 nothing removed
             [2222, 2, 201812, 0.5, "Yes"],  # ref 2222 nothing removed
-            [4444, 0, 201812, 0.5, "No"],  # ref 4444 flagged not removed
+            [4444, 0, 201812, 0.0, "No"],  # ref 4444 flagged not removed
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
@@ -319,7 +360,8 @@ class TestApplyDeletions604(object):
         primary_df = self.primary()
         amendments_df = self.amendments()
         expected_df = self.expected()
+        config = self.create_config()
 
-        result_df = apply_deletions_604(primary_df, amendments_df)
+        result_df = apply_deletions_604(primary_df, amendments_df, config)
 
         assert_frame_equal(result_df.reset_index(drop=True), expected_df)
