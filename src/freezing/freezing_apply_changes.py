@@ -284,12 +284,14 @@ def apply_deletions_604(main_df, accepted_amendments_df):
         # where instance = 0 and 604 = No.
         flagged_references = list(flagged_df["reference"])
 
-        # Iterate over the pairs and delete rows in main_df where
-        # instance is greater than 0
-        for reference in flagged_references:
-            main_df = main_df[
-                ~((main_df["reference"] == reference) & (main_df["instance"] > 0))
-            ]
+        # Create a mask to identify rows where reference is in flagged_references
+        # and instance is greater than 0
+        mask = (main_df["reference"].isin(flagged_references)) & (
+            main_df["instance"] > 0
+        )
+
+        # Filter the DataFrame using the mask
+        main_df = main_df[~mask]
 
         # Replace the value in column '604' with 'No' when reference is in
         # flagged_references and instance is 0
