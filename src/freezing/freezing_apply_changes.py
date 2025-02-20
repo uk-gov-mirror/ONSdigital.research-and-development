@@ -299,7 +299,5 @@ def apply_deletions_604(main_df, accepted_amendments_df):
             & (main_df["instance"] == 0),
             "604",
         ] = "No"
-    else:
-        pass
 
     return main_df
