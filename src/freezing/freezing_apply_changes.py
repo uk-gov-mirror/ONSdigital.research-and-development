@@ -266,12 +266,11 @@ def apply_deletions_604(main_df, accepted_amendments_df):
     """
 
     # Check if any row meets the condition of instance = 0 and 604 = No
-    condition_met = (
-        (accepted_amendments_df["instance"] == 0)
-        & (accepted_amendments_df["604"] == "No")
-    ).any()
+    condition = (accepted_amendments_df["instance"] == 0) & (
+        accepted_amendments_df["604"] == "No"
+    )
 
-    if condition_met:
+    if condition.any():
 
         # Filter the accepted_amendments_df Dataframe based on for
         # instance =  0 and 604 = No
