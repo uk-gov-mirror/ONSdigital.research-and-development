@@ -3,15 +3,15 @@
 import pandas as pd
 import os
 
+csv_path = "D:/RDSA_R&D/"
 filename_string_cols_dict = {
-    "test_CGR_current.csv" : ["200", "201", "601", "604", "status", "formtype", "postcodes_harmonised", "imp_marker", "imp_class", "selectiontype"],
-    "test_CGR_backdata.csv": ["200", "201", "601", "604", "status", "formtype", "imp_marker", "imp_class", "selectiontype"],
-    "test_CGR_expected.csv": ["imp_class"],
+    "CGR_current_df.csv" : ["imp_marker", "imp_class", "selectiontype"],
+    "CGR_backdata_df.csv": ["imp_marker", "imp_class", "selectiontype"],
+    "CGR_expected_df.csv": ["imp_class"],
 }
 
 for filename, string_cols in filename_string_cols_dict.items():
     # configuration settings
-    csv_path = "D:/RDSA_R&D/"
     input_file = filename
 
     # whether the unit test data is input or expected output (set "input" or "exp_output")
