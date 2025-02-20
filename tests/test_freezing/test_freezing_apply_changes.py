@@ -281,20 +281,6 @@ class TestApplyDeletions604(object):
         """Create a test config."""
         config = {
             "consistency_checks": {
-                "2xx_totals": {
-                    "purchases_split": [],
-                    "sal_oth_expend": [],
-                    "research_expend": [],
-                    "capex": [],
-                    "intram": [],
-                    "funding": [],
-                    "ownership": [],
-                    "equality": [],
-                    "expenditure": []
-                },
-                "3xx_totals": {
-                    "purchases": []
-                },
                 "4xx_totals": {
                     "emp_civil": [],
                     "emp_defence": []
@@ -302,9 +288,6 @@ class TestApplyDeletions604(object):
                 "5xx_totals": {
                     "headcount_tot_m": [],
                     "headcount_tot_f": ['508']
-                },
-                "6xx_totals": {
-                    "business_tot_in_workplace": []
                 },
                 "7xx_a_totals": {
                     "sf_expend": [],
