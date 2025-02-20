@@ -5,7 +5,7 @@ import os
 
 filename_string_cols_dict = {
     "test_CGR_current.csv" : ["200", "201", "601", "604", "status", "formtype", "postcodes_harmonised", "imp_marker", "imp_class", "selectiontype"],
-    "test_CGR_backdata.csv": ["200", "201", "601", "604", "status", "formtype", "imp_marker", "imp_class", "selectiontype"], 
+    "test_CGR_backdata.csv": ["200", "201", "601", "604", "status", "formtype", "imp_marker", "imp_class", "selectiontype"],
     "test_CGR_expected.csv": ["imp_class"],
 }
 
