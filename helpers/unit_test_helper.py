@@ -86,7 +86,7 @@ for filename, string_cols in filename_string_cols_dict.items():
 
         data = [\n{tab}{rows_string}\n{tab}]
 
-        {in_or_output}_df = pandasDF(data=data, columns={in_or_output}_columns)
+        {in_or_output}_df = pd.DataFrame(data=data, columns={in_or_output}_columns)
         return {in_or_output}_df
         '''
 
