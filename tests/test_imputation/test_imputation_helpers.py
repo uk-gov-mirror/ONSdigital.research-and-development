@@ -16,6 +16,7 @@ from src.imputation.imputation_helpers import (
     special_filter,
     instance_fix,
     get_mult_604_mask,
+    split_df_on_trim,
 )
 
 
@@ -776,3 +777,97 @@ class TestGetMult604Mask:
         result_mask = get_mult_604_mask(input_df)
 
         assert_series_equal(expected_mask, result_mask)
+
+class TestSplitDfOnTrim:
+    """ define test for split_df_on_trim function
+    Splits the dataframe in based on if it was trimmed or not"""
+
+    def cre_input_df(self) -> pd.DataFrame:
+        input_cols1 = ['reference', 'manual_trim']
+        input_data1 = [
+            [1000, np.nan],
+            [1001, True],
+            [1002, False],
+            [1003, np.nan],
+        ]
+        input_cols2 = ['reference', '211_trim', '305_trim']
+        input_data2 = [
+            [2000, np.nan, np.nan],
+            [2001, True, True],
+            [2002, True, False],
+            [2003, False, True],
+            [2004, np.nan, True],
+            [2005, np.nan, False],
+            [2006, True, np.nan],
+            [2007, False, np.nan],
+        ]
+        input_df1 = pd.DataFrame(columns=input_cols1, data=input_data1)
+        input_df2 = pd.DataFrame(columns=input_cols2, data=input_data2)
+        return input_df1, input_df2
+
+    def cre_expected_output(self):
+        man_cols1 = ['reference', 'manual_trim']
+        man_data1 = [
+            [1001, True],
+        ]
+        man_cols2 = ['reference', 'manual_trim']
+        man_data2 = [
+            [1000, False],
+            [1002, False],
+            [1003, False],
+        ]
+
+        t211_cols1 = ['reference', '211_trim', '305_trim']
+        t211_data1 = [
+            [2001, True, True],
+            [2002, True, False],
+            [2006, True, np.nan],
+        ]
+        t211_cols2 = ['reference', '211_trim', '305_trim']
+        t211_data2 = [
+            [2000, False, np.nan],
+            [2003, False, True],
+            [2004, False, True],
+            [2005, False, False],
+            [2007, False, np.nan],
+        ]
+
+        t305_cols1 = ['reference', '211_trim', '305_trim']
+        t305_data1 = [
+            [2001, True, True],
+            [2003, False, True],
+            [2004, np.nan, True],
+        ]
+        t305_cols2 = ['reference', '211_trim', '305_trim']
+        t305_data2 = [
+            [2000, np.nan, False],
+            [2002, True, False],
+            [2005, np.nan, False],
+            [2006, True, False],
+            [2007, False, False],
+        ]
+        man_trimmed_df = pd.DataFrame(columns=man_cols1, data=man_data1)
+        man_not_trimmed_df = pd.DataFrame(columns=man_cols2, data=man_data2)
+        t211_trimmed_df = pd.DataFrame(columns=t211_cols1, data=t211_data1)
+        t211_not_trimmed_df = pd.DataFrame(columns=t211_cols2, data=t211_data2)
+        t305_trimmed_df = pd.DataFrame(columns=t305_cols1, data=t305_data1)
+        t305_not_trimmed_df = pd.DataFrame(columns=t305_cols2, data=t305_data2)
+
+        return man_trimmed_df, man_not_trimmed_df, t211_trimmed_df, t211_not_trimmed_df, t305_trimmed_df, t305_not_trimmed_df
+
+    def test_split_df_on_trim(self):
+
+        input_df1, input_df2 = self.cre_input_df()
+
+        man_trimmed_df, man_not_trimmed_df, t211_trimmed_df, t211_not_trimmed_df, t305_trimmed_df, t305_not_trimmed_df = self.cre_expected_output()
+
+        man_df1, man_df2 = split_df_on_trim(input_df1, "manual_trim")
+        t211_df1, t211_df2 = split_df_on_trim(input_df2, "211_trim")
+        t305_df1, t305_df2 = split_df_on_trim(input_df2, "305_trim")
+
+        assert_frame_equal(man_trimmed_df.reset_index(drop=True), man_df1.reset_index(drop=True))
+        assert_frame_equal(man_not_trimmed_df.reset_index(drop=True), man_df2.reset_index(drop=True))
+        assert_frame_equal(t211_trimmed_df.reset_index(drop=True), t211_df1.reset_index(drop=True))
+        assert_frame_equal(t211_not_trimmed_df.reset_index(drop=True), t211_df2.reset_index(drop=True))
+        assert_frame_equal(t305_trimmed_df.reset_index(drop=True), t305_df1.reset_index(drop=True))
+        assert_frame_equal(t305_not_trimmed_df.reset_index(drop=True), t305_df2.reset_index(drop=True))
