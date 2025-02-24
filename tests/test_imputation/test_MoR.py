@@ -281,12 +281,12 @@ class TestRunMoRShortForm(object):
 class Test_calculate_growth_rates(object):
     """Tests for calculate_growth_rates."""
 
-    @pytest.fixture(scope="function")
+
     def target_vars_list(self):
-        """A simple fixture that returns a list."""
+        """A simple method that returns a list."""
         return ["211", "emp_researcher", "emp_technician"]
 
-    @pytest.fixture(scope="function")
+
     def create_test_CGR_current_df(self):
         """Create an test_CGR_current dataframe for the test."""
         test_CGR_current_columns = [
@@ -344,7 +344,7 @@ class Test_calculate_growth_rates(object):
         test_CGR_current_df = pd.DataFrame(data=data, columns=test_CGR_current_columns)
         return test_CGR_current_df
 
-    @pytest.fixture(scope="function")
+
     def create_test_CGR_backdata_df(self):
         """Create an test_CGR_backdata dataframe for the test."""
         test_CGR_backdata_columns = [
@@ -373,7 +373,7 @@ class Test_calculate_growth_rates(object):
         test_CGR_backdata_df = pd.DataFrame(data=data, columns=test_CGR_backdata_columns)
         return test_CGR_backdata_df
 
-    @pytest.fixture(scope="function")
+
     def create_test_CGR_expected_df(self):
         """Create an test_CGR_expected dataframe for the test."""
         test_CGR_expected_columns = [
@@ -403,19 +403,12 @@ class Test_calculate_growth_rates(object):
         return test_CGR_expected_df
 
 
-    def test_calculate_growth_rates(
-        self,
-        create_test_CGR_current_df,
-        create_test_CGR_backdata_df,
-        create_test_CGR_expected_df,
-        target_vars_list
-
-    ):
+    def test_calculate_growth_rates(self):
         """Test the calculate_growth_rates function."""
-        current_df = create_test_CGR_current_df
-        backdata_df = create_test_CGR_backdata_df
-        expected_df = create_test_CGR_expected_df
-        target_vars = target_vars_list
+        current_df = self.create_test_CGR_current_df()
+        backdata_df = self.create_test_CGR_backdata_df()
+        expected_df = self.create_test_CGR_expected_df()
+        target_vars = self.target_vars_list()
 
         result_df = calculate_growth_rates(current_df, backdata_df, target_vars)
 
