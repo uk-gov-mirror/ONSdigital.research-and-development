@@ -402,11 +402,11 @@ class TestConcatWithBool:
     """Unit tests for concat_with_bool function."""
     def input_dfs(self):
         """Define columns and values for the DataFrames"""
-        columns1 = ['manual_trim', 'empty_pgsic_group', 'value']
+        columns1 = ['manual_trim', 'empty_pgsic_group', '211_trim', 'value']
         values1 = [
-            [True, False, 1],
-            [False, True, 2],
-            [np.nan, np.nan, 3],
+            [True, False, True, 1],
+            [False, True, True, 2],
+            [np.nan, np.nan, np.nan, 3],
         ]
 
         columns2 = ['empty_pg_group', '305_trim', 'value']
@@ -434,8 +434,8 @@ class TestConcatWithBool:
         """Define the expected output DataFrame"""
         columns = ['manual_trim', 'empty_pgsic_group', 'empty_pg_group', '305_trim', '211_trim', 'value']
         values = [
-            [True, False, False, False, False, 1],
-            [False, True, False, False, False, 2],
+            [True, False, False, False, True, 1],
+            [False, True, False, False, True, 2],
             [False, False, False, False, False, 3],
             [False, False, True, False, False, 4],
             [False, False, False, True, False, 5],
