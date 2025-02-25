@@ -96,8 +96,9 @@ def aggregate_itl(
     """
     CURRENT_YEAR = config["survey"]["survey_year"]
     GEO_COLS = config["mappers"]["geo_cols"]
+    HC_COLS = config["breakdowns"]["headcount_total"] + ["emp_total"]
     BASE_COLS = ["postcodes_harmonised", "formtype", "211"]
-    df = gb_df[GEO_COLS + BASE_COLS]
+    df = gb_df[GEO_COLS + BASE_COLS + HC_COLS]
 
     # conditionally include NI responses to produce UK
     if uk_output:
@@ -106,10 +107,14 @@ def aggregate_itl(
             ni_df[col] = pd.NA
         df = df.append(ni_df, ignore_index=True).copy()
 
+    # Create the aggregation dictionary
+    agg_dict = {"211": "sum"}
+    agg_dict.update({col: "sum" for col in HC_COLS})
+
     # Aggregate to ITL2 and ITL1 (Keep 3 and 4 letter codes)
-    itl2 = df.groupby(GEO_COLS).agg({"211": "sum"}).reset_index()
+    itl2 = df.groupby(GEO_COLS).agg(agg_dict).reset_index()
     itl1 = itl2.drop(GEO_COLS[:2], axis=1).copy()
-    itl1 = itl1.groupby(GEO_COLS[2:]).agg({"211": "sum"}).copy().reset_index()
+    itl1 = itl1.groupby(GEO_COLS[2:]).agg(agg_dict).copy().reset_index()
 
     # # Clean data rady for export
     itl2 = itl2.drop(GEO_COLS[2:], axis=1)
