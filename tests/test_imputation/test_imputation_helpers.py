@@ -737,16 +737,14 @@ class TestInstanceFix:
         expected_df2 = pd.DataFrame(data=expected_data2, columns=expected_cols2)
         return expected_df1, expected_df2
 
+
     def test_instance_fix(self):
         """Test for function instance_fix"""
-        input_df1, input_df2 = self.create_input_df()
-        expected_df1, expected_df2 = self.expected_output()
 
-        result_df1 = instance_fix(input_df1)
-        result_df2 = instance_fix(input_df2)
-        # ignore the order of the columns
-        assert_frame_equal(result_df1.reset_index(drop=True), expected_df1, check_like=True)
-        assert_frame_equal(result_df2.reset_index(drop=True), expected_df2, check_like=True)
+        for test_input, expected in zip(self.create_input_df(), self.expected_output()):
+            result_df = instance_fix(test_input)
+            assert_frame_equal(result_df.reset_index(drop=True), expected, check_like=True)
+
 
 class TestGetMult604Mask:
     """ define test for get_mult_604_mask function
@@ -853,21 +851,20 @@ class TestSplitDfOnTrim:
         t305_trimmed_df = pd.DataFrame(columns=t305_cols1, data=t305_data1)
         t305_not_trimmed_df = pd.DataFrame(columns=t305_cols2, data=t305_data2)
 
-        return man_trimmed_df, man_not_trimmed_df, t211_trimmed_df, t211_not_trimmed_df, t305_trimmed_df, t305_not_trimmed_df
+        return (man_trimmed_df, man_not_trimmed_df), (t211_trimmed_df, t211_not_trimmed_df), (t305_trimmed_df, t305_not_trimmed_df)
 
     def test_split_df_on_trim(self):
 
         input_df1, input_df2 = self.cre_input_df()
 
-        man_trimmed_df, man_not_trimmed_df, t211_trimmed_df, t211_not_trimmed_df, t305_trimmed_df, t305_not_trimmed_df = self.cre_expected_output()
+        test_input = (
+            (input_df1, "manual_trim"),
+            (input_df2, "211_trim"),
+            (input_df2, "305_trim"),
+        )
+        expected_output = self.cre_expected_output()
 
-        man_df1, man_df2 = split_df_on_trim(input_df1, "manual_trim")
-        t211_df1, t211_df2 = split_df_on_trim(input_df2, "211_trim")
-        t305_df1, t305_df2 = split_df_on_trim(input_df2, "305_trim")
-
-        assert_frame_equal(man_trimmed_df.reset_index(drop=True), man_df1.reset_index(drop=True))
-        assert_frame_equal(man_not_trimmed_df.reset_index(drop=True), man_df2.reset_index(drop=True))
-        assert_frame_equal(t211_trimmed_df.reset_index(drop=True), t211_df1.reset_index(drop=True))
-        assert_frame_equal(t211_not_trimmed_df.reset_index(drop=True), t211_df2.reset_index(drop=True))
-        assert_frame_equal(t305_trimmed_df.reset_index(drop=True), t305_df1.reset_index(drop=True))
-        assert_frame_equal(t305_not_trimmed_df.reset_index(drop=True), t305_df2.reset_index(drop=True))
+        for test_data, expected in zip(test_input, expected_output):
+            out_df = split_df_on_trim(test_data[0], test_data[1])
+            assert_frame_equal(out_df[0].reset_index(drop=True), expected[0].reset_index(drop=True))
+            assert_frame_equal(out_df[1].reset_index(drop=True), expected[1].reset_index(drop=True))
