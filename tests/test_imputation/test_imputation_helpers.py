@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from pandas import DataFrame as pandasDF
 from pandas._testing import assert_series_equal, assert_frame_equal
+import pytest
 
 from src.imputation.imputation_helpers import (
     copy_first_to_group,
@@ -669,81 +670,85 @@ class TestSpecialFilter:
 
 class TestInstanceFix:
     """ test for instance_fix function """
-    def create_input_df(self) -> tuple[pd.DataFrame, pd.DataFrame]:
-        """Create an input dataframes for the test."""
-        input_cols1 = [
-            "reference",
-            "instance",
-            "status",
-            "formtype",
-        ]
 
-        input_data1 = [
-            [1000, np.nan, "Form sent out", "0001"],
-            [1001, 0, "Clear", "0001"],
-            [1002, np.nan, np.nan],
-        ]
-        input_cols2 = [
-            "reference",
-            "instance",
-            "status",
-            "formtype",
-            "is_constructed",
-        ]
-
-        input_data2 = [
-            [1000, np.nan, "Form sent out", "0001", True],
-            [1001, 0, "Clear", "0001", True],
-            [1002, np.nan, np.nan, True],
-            [1003, np.nan, "Form sent out", "0001", False],
-            [1004, 0, "Clear", "0001", False],
-            [1005, np.nan, np.nan, False],
-        ]
-        input_df1 = pd.DataFrame(data=input_data1, columns=input_cols1)
-        input_df2 = pd.DataFrame(data=input_data2, columns=input_cols2)
-        return input_df1, input_df2
-
-    def expected_output(self) -> tuple[pd.DataFrame, pd.DataFrame]:
-        """Define the expected output DataFrame"""
-        expected_cols1 = [
-            "reference",
-            "instance",
-            "status",
-            "formtype",
-        ]
-
-        expected_data1 = [
-            [1000, 1, "Form sent out", "0001"],
-            [1001, 0, "Clear", "0001"],
-            [1002, np.nan, np.nan],
-        ]
-        expected_cols2 = [
-            "reference",
-            "instance",
-            "status",
-            "formtype",
-            "is_constructed",
-        ]
-
-        expected_data2 = [
-            [1000, np.nan, "Form sent out", "0001", True],
-            [1001, 0, "Clear", "0001", True],
-            [1002, np.nan, np.nan, True],
-            [1003, 1, "Form sent out", "0001", False],
-            [1004, 0, "Clear", "0001", False],
-            [1005, np.nan, np.nan, False],
-        ]
-        expected_df1 = pd.DataFrame(data=expected_data1, columns=expected_cols1)
-        expected_df2 = pd.DataFrame(data=expected_data2, columns=expected_cols2)
-        return expected_df1, expected_df2
-
-
-    def test_instance_fix(self):
+    @pytest.mark.parametrize(
+        "test_df, exp_df",
+        [(
+            # first test
+            # test_data : (test_df)
+            pd.DataFrame(
+                data = [
+                    [1000, np.nan, "Form sent out", "0001"],
+                    [1001, 0, "Clear", "0001"],
+                    [1002, np.nan, np.nan],
+                ],
+                columns = [
+                    "reference",
+                    "instance",
+                    "status",
+                    "formtype",
+                ],
+            ),
+            # expected : (exp_df)
+            pd.DataFrame(
+                data = [
+                    [1000, 1, "Form sent out", "0001"],
+                    [1001, 0, "Clear", "0001"],
+                    [1002, np.nan, np.nan],
+                ],
+                columns = [
+                    "reference",
+                    "instance",
+                    "status",
+                    "formtype",
+                ]
+            ),
+        ),
+        (
+            # second test
+            # test_data : (test_df)
+            pd.DataFrame(
+                data = [
+                    [1000, np.nan, "Form sent out", "0001", True],
+                    [1001, 0, "Clear", "0001", True],
+                    [1002, np.nan, np.nan, True],
+                    [1003, np.nan, "Form sent out", "0001", False],
+                    [1004, 0, "Clear", "0001", False],
+                    [1005, np.nan, np.nan, False],
+                ],
+                columns = [
+                    "reference",
+                    "instance",
+                    "status",
+                    "formtype",
+                    "is_constructed",
+                ],
+            ),
+            # expected : (exp_df)
+            pd.DataFrame(
+                data = [
+                    [1000, np.nan, "Form sent out", "0001", True],
+                    [1001, 0, "Clear", "0001", True],
+                    [1002, np.nan, np.nan, True],
+                    [1003, 1, "Form sent out", "0001", False],
+                    [1004, 0, "Clear", "0001", False],
+                    [1005, np.nan, np.nan, False],
+                ],
+                columns = [
+                    "reference",
+                    "instance",
+                    "status",
+                    "formtype",
+                    "is_constructed",
+                ]
+            ),
+        )]
+    )
+    def test_instance_fix(self, test_df, exp_df):
         """Test for function instance_fix"""
 
-        for test_input, expected in zip(self.create_input_df(), self.expected_output()):
-            result_df = instance_fix(test_input)
-            assert_frame_equal(result_df.reset_index(drop=True), expected, check_like=True)
+        result_df = instance_fix(test_df)
+        assert_frame_equal(result_df.reset_index(drop=True), exp_df, check_like=True)
 
 
 class TestGetMult604Mask:
@@ -780,91 +785,136 @@ class TestSplitDfOnTrim:
     """ define test for split_df_on_trim function
     Splits the dataframe in based on if it was trimmed or not"""
 
-    def cre_input_df(self) -> pd.DataFrame:
-        input_cols1 = ['reference', 'manual_trim']
-        input_data1 = [
-            [1000, np.nan],
-            [1001, True],
-            [1002, False],
-            [1003, np.nan],
-        ]
-        input_cols2 = ['reference', '211_trim', '305_trim']
-        input_data2 = [
-            [2000, np.nan, np.nan],
-            [2001, True, True],
-            [2002, True, False],
-            [2003, False, True],
-            [2004, np.nan, True],
-            [2005, np.nan, False],
-            [2006, True, np.nan],
-            [2007, False, np.nan],
-        ]
-        input_df1 = pd.DataFrame(columns=input_cols1, data=input_data1)
-        input_df2 = pd.DataFrame(columns=input_cols2, data=input_data2)
-        return input_df1, input_df2
+    @pytest.mark.parametrize(
+        "test_df, trim_bool_col, exp_df_trimmed, exp_df_not_trimmed",
+        [(
+            # first test
+            # test_data : (test_df1, "manual_trim")
+            pd.DataFrame(
+                data = [
+                    [1000, np.nan],
+                    [1001, True],
+                    [1002, False],
+                    [1003, np.nan],
+                ],
+                columns = [
+                    'reference', 'manual_trim',
+                ],
+            ),
+            "manual_trim",
 
-    def cre_expected_output(self):
-        man_cols1 = ['reference', 'manual_trim']
-        man_data1 = [
-            [1001, True],
-        ]
-        man_cols2 = ['reference', 'manual_trim']
-        man_data2 = [
-            [1000, False],
-            [1002, False],
-            [1003, False],
-        ]
+            # expected : (exp_df_trimmed, exp_df_not_trimmed)
+            pd.DataFrame(
+                data = [
+                [1001, True],
+                ],
+                columns = [
+                    'reference', 'manual_trim'
+                ]
+            ),
+            pd.DataFrame(
+                data = [
+                [1000, False],
+                [1002, False],
+                [1003, False],
+                ],
+                columns = [
+                    'reference', 'manual_trim'
+                ],
+            ),
+        ),
+        (
+            # second test
+            # test_data : (test_df2, "211_trim")
+            pd.DataFrame(
+                data = [
+                    [2000, np.nan, np.nan],
+                    [2001, True, True],
+                    [2002, True, False],
+                    [2003, False, True],
+                    [2004, np.nan, True],
+                    [2005, np.nan, False],
+                    [2006, True, np.nan],
+                    [2007, False, np.nan],
+                ],
+                columns = [
+                    'reference', '211_trim', '305_trim',
+                ],
+            ),
+            "211_trim",
 
-        t211_cols1 = ['reference', '211_trim', '305_trim']
-        t211_data1 = [
-            [2001, True, True],
-            [2002, True, False],
-            [2006, True, np.nan],
-        ]
-        t211_cols2 = ['reference', '211_trim', '305_trim']
-        t211_data2 = [
-            [2000, False, np.nan],
-            [2003, False, True],
-            [2004, False, True],
-            [2005, False, False],
-            [2007, False, np.nan],
-        ]
+            # expected : (exp_df_trimmed, exp_df_not_trimmed)
+            pd.DataFrame(
+                data = [
+                    [2001, True, True],
+                    [2002, True, False],
+                    [2006, True, np.nan],
+                ],
+                columns = [
+                    'reference', '211_trim', '305_trim',
+                ]
+            ),
+            pd.DataFrame(
+                data = [
+                    [2000, False, np.nan],
+                    [2003, False, True],
+                    [2004, False, True],
+                    [2005, False, False],
+                    [2007, False, np.nan],
+                ],
+                columns = [
+                    'reference', '211_trim', '305_trim',
+                ]
+            ),
+        ),
+        (
+            # test 3
+            # test_data : (test_df2, "305_trim")
+            pd.DataFrame(
+                data = [
+                    [2000, np.nan, np.nan],
+                    [2001, True, True],
+                    [2002, True, False],
+                    [2003, False, True],
+                    [2004, np.nan, True],
+                    [2005, np.nan, False],
+                    [2006, True, np.nan],
+                    [2007, False, np.nan],
+                ],
+                columns = [
+                    'reference', '211_trim', '305_trim',
+                ],
+            ),
+            "305_trim",
 
-        t305_cols1 = ['reference', '211_trim', '305_trim']
-        t305_data1 = [
-            [2001, True, True],
-            [2003, False, True],
-            [2004, np.nan, True],
-        ]
-        t305_cols2 = ['reference', '211_trim', '305_trim']
-        t305_data2 = [
-            [2000, np.nan, False],
-            [2002, True, False],
-            [2005, np.nan, False],
-            [2006, True, False],
-            [2007, False, False],
-        ]
-        man_trimmed_df = pd.DataFrame(columns=man_cols1, data=man_data1)
-        man_not_trimmed_df = pd.DataFrame(columns=man_cols2, data=man_data2)
-        t211_trimmed_df = pd.DataFrame(columns=t211_cols1, data=t211_data1)
-        t211_not_trimmed_df = pd.DataFrame(columns=t211_cols2, data=t211_data2)
-        t305_trimmed_df = pd.DataFrame(columns=t305_cols1, data=t305_data1)
-        t305_not_trimmed_df = pd.DataFrame(columns=t305_cols2, data=t305_data2)
+            # expected : (exp_df_trimmed, exp_df_not_trimmed)
+            pd.DataFrame(
+                data = [
+                    [2001, True, True],
+                    [2003, False, True],
+                    [2004, np.nan, True],
+                ],
+                columns = [
+                    'reference', '211_trim', '305_trim',
+                ]
+            ),
+            pd.DataFrame(
+                data = [
+                    [2000, np.nan, False],
+                    [2002, True, False],
+                    [2005, np.nan, False],
+                    [2006, True, False],
+                    [2007, False, False],
+                ],
+                columns = [
+                    'reference', '211_trim', '305_trim',
+                ]
+            ),
 
-        return (man_trimmed_df, man_not_trimmed_df), (t211_trimmed_df, t211_not_trimmed_df), (t305_trimmed_df, t305_not_trimmed_df)
+        ),]
+    )
+    def test_split_df_on_trim(self, test_df, trim_bool_col, exp_df_trimmed, exp_df_not_trimmed):
 
-    def test_split_df_on_trim(self):
-
-        input_df1, input_df2 = self.cre_input_df()
-
-        test_input = (
-            (input_df1, "manual_trim"),
-            (input_df2, "211_trim"),
-            (input_df2, "305_trim"),
-        )
-        expected_output = self.cre_expected_output()
-
-        for test_data, expected in zip(test_input, expected_output):
-            out_df = split_df_on_trim(test_data[0], test_data[1])
-            assert_frame_equal(out_df[0].reset_index(drop=True), expected[0].reset_index(drop=True))
-            assert_frame_equal(out_df[1].reset_index(drop=True), expected[1].reset_index(drop=True))
+        out_df1, out_df2 = split_df_on_trim(test_df, trim_bool_col)
+        assert_frame_equal(out_df1.reset_index(drop=True), exp_df_trimmed.reset_index(drop=True))
+        assert_frame_equal(out_df2.reset_index(drop=True), exp_df_not_trimmed.reset_index(drop=True))
