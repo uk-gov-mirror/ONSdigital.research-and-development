@@ -96,13 +96,17 @@ def aggregate_itl(
     """
     CURRENT_YEAR = config["survey"]["survey_year"]
     GEO_COLS = config["mappers"]["geo_cols"]
-    HC_COLS = config["breakdowns"]["headcount_total"] + ["emp_total"]
+    HC_COLS = (
+        config["breakdowns"]["headcount_total"]
+        + config["breakdowns"]["emp_total"]
+        + config["imputation"]["sum_cols"]
+    )
     BASE_COLS = ["postcodes_harmonised", "formtype", "211"]
     df = gb_df[GEO_COLS + BASE_COLS + HC_COLS]
 
     # conditionally include NI responses to produce UK
     if uk_output:
-        ni_df = ni_df.copy()[["formtype", "211"]]
+        ni_df = ni_df.copy()[["formtype", "211"] + HC_COLS]
         for col in GEO_COLS + ["postcodes_harmonised"]:
             ni_df[col] = pd.NA
         df = df.append(ni_df, ignore_index=True).copy()
