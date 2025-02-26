@@ -363,7 +363,7 @@ def validate_config_paths(config: dict, parent_key: str = "") -> None:
         parent_key (str): The parent key path for nested dictionaries.
 
     Raises:
-        ValueError: If any path in the configuration is an empty string.
+        Warning: If any path in the configuration is an empty string.
     """
     for key, value in config.items():
         # Initialize full_key with the current key
@@ -381,7 +381,7 @@ def validate_config_paths(config: dict, parent_key: str = "") -> None:
         elif value == "":
             # If value is an empty string, raise a ValueError to indicate this and to
             # replace empty string with None or a valid file path.
-            raise ValueError(
-                f"Configuration path '{full_key}' is an empty string. "
-                "Please replace it with a valid file path or None."
+            raise Warning(
+                f"Config path '{full_key}' is an empty string and "
+                " will be updated to None."
             )
