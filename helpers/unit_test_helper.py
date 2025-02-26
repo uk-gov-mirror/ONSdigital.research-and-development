@@ -4,7 +4,7 @@ import os
 
 # configuration settings
 csv_path = "D:/coding_projects/"
-input_file = "backdata.csv"
+input_file = "itl_agg.csv"
 
 # whether the unit test data is input or expected output (set "input" or "exp_output")
 in_or_output = "input"
@@ -16,10 +16,10 @@ path1 = os.path.join(csv_path, input_file)
 df1 = pd.read_csv(path1)
 
 # specify string columns- these will have quotes applied
-string_cols = ["formtype", "status", "selectiontype", "601"]
+string_cols = ["postcodes_harmonised", "formtype", "pcd2", "itl", "ITL221CD", "ITL221NM", "ITL121CD", "ITL121NM"]
 
 # specify float columns
-float_cols = []
+float_cols = ["211"]
 
 int_cols = [c for c in df1.columns if c not in string_cols + float_cols]
 
