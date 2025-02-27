@@ -313,7 +313,10 @@ class TestGroupCalcLink(object):
         return config
 
     def expected_output_df(self) -> pd.DataFrame:
-        """Expected dataframe after running group_calc_links function."""
+        """Expected dataframe after running group_calc_links function.
+            'group_size' is calculated by the sum of valid values in the column.
+            'link' is calculated by the mean growth rate of the column.
+            'trim' is specified conditions in the config."""
         columns = [
             "reference",
             "imp_class",
@@ -328,6 +331,7 @@ class TestGroupCalcLink(object):
             "emp_researcher_group_size",
             "emp_researcher_link",
         ]
+        # Data has been sorted by growth rate (emp_researcher_gr) in descending order
         data = [
             [1047, "C_AA", 400, 20, 1.0, 1.0, False, 5, 2.93, False, 4, 1.5],
             [1047, "C_AA", 200, 10, 1.0, 1.0, False, 5, 2.93, False, 4, 1.5],
