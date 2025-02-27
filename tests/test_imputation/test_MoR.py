@@ -295,7 +295,7 @@ class TestGroupCalcLink(object):
             [1031, "C_AA", 10, 0, 1.0, np.nan],
             [1045, "C_AA", 80500, 20, 8.05, np.nan],
             [1045, "C_AA", 36000, 30, 3.6, 3.0],
-            [1047, "C_AA", 400, 20, 1.0, 1.0 ],
+            [1047, "C_AA", 400, 20, 1.0, 1.0],
             [1047, "C_AA", 200, 10, 1.0, 1.0]]
 
         input_df = pd.DataFrame(data=data, columns=columns)
@@ -359,5 +359,5 @@ class TestGroupCalcLink(object):
 
         # Compare the results
         assert_frame_equal(result_df, expected_output_df, check_dtype=False, check_exact=False), (
-            "group_calc_links() not grouping and calculating links as expected."
+            "group_calc_links() not calculating links as expected."
         )
