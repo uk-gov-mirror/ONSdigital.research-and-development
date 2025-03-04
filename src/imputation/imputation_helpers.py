@@ -597,7 +597,8 @@ def concat_with_bool(dfs: list[pd.DataFrame]) -> pd.DataFrame:
     for df in dfs:
         for col in bool_columns:
             if col in df.columns:
-                df[col] = df[col].fillna(False).astype(bool)
+                print(col, "apple")
+                df.loc[:, col] = df.loc[:, col].fillna(False).astype(bool)
 
     # Concatenate the DataFrames
     concatenated_df = pd.concat(dfs, ignore_index=True)
