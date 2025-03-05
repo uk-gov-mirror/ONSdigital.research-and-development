@@ -353,35 +353,3 @@ def update_config_with_paths(config: dict, modules: list) -> dict:
         config[f"{module_name}_paths"] = create_module_config(config, module_name)
 
     return config
-
-
-def validate_config_paths(config: dict, parent_key: str = "") -> None:
-    """Validate configuration paths, ensuring no empty strings are present.
-
-    Args:
-        config (dict): The configuration dictionary to validate.
-        parent_key (str): The parent key path for nested dictionaries.
-
-    Raises:
-        Warning: If any path in the configuration is an empty string.
-    """
-    for key, value in config.items():
-        # Initialize full_key with the current key
-        full_key = key
-
-        # Check if parent_key is not empty
-        if parent_key:
-            # Concatenate it with the current key
-            full_key = f"{parent_key}.{key}"
-        # Check if value is a dictionary
-        if isinstance(value, dict):
-            # If value is a dictionary, call the function to validate.
-            validate_config_paths(value, full_key)
-        # Check if value is an empty string
-        elif value == "":
-            # If value is an empty string, raise a ValueError to indicate this and to
-            # replace empty string with None or a valid file path.
-            raise Warning(
-                f"Config path '{full_key}' is an empty string and "
-                " will be updated to None."
-            )
