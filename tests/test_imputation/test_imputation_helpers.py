@@ -668,87 +668,83 @@ class TestSpecialFilter:
     def test_special_filter_create_mean_case(self):
         filter_conditions_list = ["clear_status", "instance_nonzero", "exclude_nan_classes"]
 
-class TestInstanceFix:
-    """ test for instance_fix function """
+@pytest.fixture(scope="module")
+def cre_instance_fix_data():
 
-    @pytest.mark.parametrize(
-        "test_df, exp_df",
-        [(
-            # first test
-            # test_data : (test_df)
-            pd.DataFrame(
-                data = [
-                    [1000, np.nan, "Form sent out", "0001"],
-                    [1001, 0, "Clear", "0001"],
-                    [1002, np.nan, np.nan],
-                ],
-                columns = [
-                    "reference",
-                    "instance",
-                    "status",
-                    "formtype",
-                ],
-            ),
-            # expected : (exp_df)
-            pd.DataFrame(
-                data = [
-                    [1000, 1, "Form sent out", "0001"],
-                    [1001, 0, "Clear", "0001"],
-                    [1002, np.nan, np.nan],
-                ],
-                columns = [
-                    "reference",
-                    "instance",
-                    "status",
-                    "formtype",
-                ]
-            ),
-        ),
-        (
-            # second test
-            # test_data : (test_df)
-            pd.DataFrame(
-                data = [
-                    [1000, np.nan, "Form sent out", "0001", True],
-                    [1001, 0, "Clear", "0001", True],
-                    [1002, np.nan, np.nan, True],
-                    [1003, np.nan, "Form sent out", "0001", False],
-                    [1004, 0, "Clear", "0001", False],
-                    [1005, np.nan, np.nan, False],
-                ],
-                columns = [
-                    "reference",
-                    "instance",
-                    "status",
-                    "formtype",
-                    "is_constructed",
-                ],
-            ),
-            # expected : (exp_df)
-            pd.DataFrame(
-                data = [
-                    [1000, np.nan, "Form sent out", "0001", True],
-                    [1001, 0, "Clear", "0001", True],
-                    [1002, np.nan, np.nan, True],
-                    [1003, 1, "Form sent out", "0001", False],
-                    [1004, 0, "Clear", "0001", False],
-                    [1005, np.nan, np.nan, False],
-                ],
-                columns = [
-                    "reference",
-                    "instance",
-                    "status",
-                    "formtype",
-                    "is_constructed",
-                ]
-            ),
-        )]
+    test_df1 = pd.DataFrame(
+        [
+            [1000, np.nan, "Form sent out", "0001"],
+            [1001, 0, "Clear", "0001"],
+            [1002, np.nan, np.nan, np.nan],
+        ],
+        columns = [
+            "reference",
+            "instance",
+            "status",
+            "formtype",
+        ],
     )
-    def test_instance_fix(self, test_df, exp_df):
-        """Test for function instance_fix"""
+    exp_df1 = pd.DataFrame(
+        [
+            [1000, 1, "Form sent out", "0001"],
+            [1001, 0, "Clear", "0001"],
+            [1002, np.nan, np.nan, np.nan],
+        ],
+        columns = [
+            "reference",
+            "instance",
+            "status",
+            "formtype",
+        ],
+    )
 
-        result_df = instance_fix(test_df)
-        assert_frame_equal(result_df.reset_index(drop=True), exp_df, check_like=True)
+    test_df2 = pd.DataFrame(
+        [
+            [1000, np.nan, "Form sent out", "0001", True],
+            [1001, 0, "Clear", "0001", True],
+            [1002, np.nan, np.nan, np.nan, True],
+            [1003, np.nan, "Form sent out", "0001", False],
+            [1004, 0, "Clear", "0001", False],
+            [1005, np.nan, np.nan, np.nan, False],
+        ],
+        columns = [
+            "reference",
+            "instance",
+            "status",
+            "formtype",
+            "is_constructed"
+        ],
+    )
+
+    exp_df2 = pd.DataFrame(
+        [
+            [1000, np.nan, "Form sent out", "0001", True],
+            [1001, 0, "Clear", "0001", True],
+            [1002, np.nan, np.nan, np.nan, True],
+            [1003, 1, "Form sent out", "0001", False],
+            [1004, 0, "Clear", "0001", False],
+            [1005, np.nan, np.nan, np.nan, False],
+        ],
+        columns = [
+            "reference",
+            "instance",
+            "status",
+            "formtype",
+            "is_constructed"
+        ],
+    )
+
+    # return test data as tuples of tuples
+    return (test_df1, exp_df1), (test_df2, exp_df2)
+
+def test_instance_fix(cre_instance_fix_data):
+    """Test for function instance_fix"""
+
+    test_data = cre_instance_fix_data
+
+    for input, expected in test_data:
+        result_df = instance_fix(input)
+        assert_frame_equal(result_df.reset_index(drop=True), expected, check_like=True)
 
 
 class TestGetMult604Mask:
