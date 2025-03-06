@@ -37,7 +37,7 @@ def get_imputation_cols(config: dict) -> list:
 
 def create_imp_class_col(
     df: pd.DataFrame,
-    column_list: List[str],
+    column_list: list[str],
     class_name: str = "imp_class",
     use_cellno: bool = True,
 ) -> pd.DataFrame:
