@@ -109,7 +109,7 @@ def aggregate_itl(
         ni_df = ni_df.copy()[["formtype", "211"] + hc_cols]
         for col in geo_cols + ["postcodes_harmonised"]:
             ni_df[col] = pd.NA
-        df = df.append(ni_df, ignore_index=True).copy()
+        df = pd.concat([df, ni_df], ignore_index=True).copy()
     # Drop any NI data that is in existing df
     else:
         for col in geo_cols:

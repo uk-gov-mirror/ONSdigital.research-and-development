@@ -76,7 +76,7 @@ class TestAggregateItl(object):
 
 
     @pytest.fixture(scope="function")
-    def gb_input_data(self):
+    def input_data(self):
         """A dataframe that joins the ITL columns to the input data."""
         columns = ["postcodes_harmonised", "formtype", "211", "pcd2", "itl", "ITL221CD", "ITL221NM", "ITL121CD", "ITL121NM",
            "emp_total", "emp_researcher", "headcount_res_m"]
@@ -91,7 +91,11 @@ class TestAggregateItl(object):
             ["TA21 8NL", "0001", 15463.5, "E07000246", "TLK", "TLK2", "Dorset and Somerset", "TLK", "South West (England)", 50, 60, 55],
             ["SP10 3SD", "0006", 0.0, "E07000093", "TLJ", "TLJ3", "Hampshire and Isle of Wight", "TLJ", "South East (England)", 0, 0, 0],
             ["SP10 3SD", "0001", 12345678.0, "E07000093", "TLJ", "TLJ3", "Hampshire and Isle of Wight", "TLJ", "South East (England)", 5000, 1500, 1200],
-]
+            ["BT6 2RD","0001", 213.0, "N09000003", "TLN", "TLN0", "Northern Ireland", "TLN", "Northern Ireland",5, 5, 20],
+            ["BT6 2RD","0006", 25.0, "N09000005", "TLN", "TLN0", "Northern Ireland", "TLN", "Northern Ireland", 1, 2, 10],
+            ["BT48 3FY","0001", 75.0, "N09000011", "TLN", "TLN0", "Northern Ireland", "TLN", "Northern Ireland", 5, 8, 30],
+            ["BT48 3FY","0006", 167.0, "N09000002", "TLN", "TLN0", "Northern Ireland", "TLN", "Northern Ireland", 8, 10, 40],
+            ]
         df = pd.DataFrame(data=data, columns=columns)
         return df
 
@@ -134,6 +138,7 @@ class TestAggregateItl(object):
             ["TLJ", "South East (England)", 12345878.0, 1215, 1515, 5030],
             ["TLK", "South West (England)", 151306.5, 190, 330, 2550],
             ["TLL", "Wales", 359585.6683, 50, 60, 300],
+            ["TLN", "Northern Ireland", 480, 100, 25, 19],
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
@@ -148,25 +153,27 @@ class TestAggregateItl(object):
             ["TLJ3", "Hampshire and Isle of Wight", 12345878.0, 1215, 1515, 5030],
             ["TLK2", "Dorset and Somerset", 151306.5, 190, 330, 2550],
             ["TLL1", "West Wales and The Valleys", 359585.6683, 50, 60, 300],
+            ["TLN0", "Northern Ireland", 480, 100, 25, 19],
+
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
 
     def test_aggregate_itl_gb(
         self,
-        gb_input_data,
+        input_data,
         ni_input_data,
         gb_itl1_output,
         gb_itl2_output,
         config,
     ):
         """Test for aggregate_itl with GB data."""
-        print(gb_input_data)
+        print(input_data)
         print(ni_input_data)
         print(gb_itl1_output)
         print(gb_itl2_output)
 
-        itl1, itl2 = aggregate_itl(gb_input_data, ni_input_data, config)
+        itl1, itl2 = aggregate_itl(input_data, ni_input_data, config)
         itl1 = itl1.round(4)
         itl2 = itl2.round(4)
         assert itl1.equals(gb_itl1_output), "GB ITL1 Output Not as Expected."
@@ -175,14 +182,14 @@ class TestAggregateItl(object):
 
     def test_aggregate_itl_uk(
         self,
-        gb_input_data,
+        input_data,
         ni_input_data,
         uk_itl1_output,
         uk_itl2_output,
         config,
     ):
         """Test fpr aggregate_itl with NI data."""
-        itl1, itl2 = aggregate_itl(gb_input_data, ni_input_data, config, uk_output=True)
+        itl1, itl2 = aggregate_itl(input_data, ni_input_data, config, uk_output=True)
 
         itl1 = itl1.round(4)
         itl2 = itl2.round(4)
