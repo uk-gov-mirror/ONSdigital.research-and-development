@@ -191,7 +191,7 @@ old_name = "a_weight"
 Deduced_Data_Type = "float64"
 
 [g_weight]
-old_name = "a_weight"
+old_name = "g_weight"
 Deduced_Data_Type = "float64"
 
 [curr_mat]
