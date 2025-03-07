@@ -110,11 +110,6 @@ def aggregate_itl(
         for col in geo_cols + ["postcodes_harmonised"]:
             ni_df[col] = pd.NA
         df = pd.concat([df, ni_df], ignore_index=True).copy()
-    # Drop any NI data that is in existing df
-    else:
-        for col in geo_cols:
-            # Remove NI data from the GB data
-            df = df[~df[col].str.contains("TLN", na=False)]
 
     # Create the aggregation dictionary
     agg_dict = {"211": "sum"}

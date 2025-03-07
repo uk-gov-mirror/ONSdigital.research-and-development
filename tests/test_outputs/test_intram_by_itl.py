@@ -91,11 +91,7 @@ class TestAggregateItl(object):
             ["TA21 8NL", "0001", 15463.5, "E07000246", "TLK", "TLK2", "Dorset and Somerset", "TLK", "South West (England)", 50, 60, 55],
             ["SP10 3SD", "0006", 0.0, "E07000093", "TLJ", "TLJ3", "Hampshire and Isle of Wight", "TLJ", "South East (England)", 0, 0, 0],
             ["SP10 3SD", "0001", 12345678.0, "E07000093", "TLJ", "TLJ3", "Hampshire and Isle of Wight", "TLJ", "South East (England)", 5000, 1500, 1200],
-            ["BT6 2RD","0001", 213.0, "N09000003", "TLN", "TLN0", "Northern Ireland", "TLN", "Northern Ireland",5, 5, 20],
-            ["BT6 2RD","0006", 25.0, "N09000005", "TLN", "TLN0", "Northern Ireland", "TLN", "Northern Ireland", 1, 2, 10],
-            ["BT48 3FY","0001", 75.0, "N09000011", "TLN", "TLN0", "Northern Ireland", "TLN", "Northern Ireland", 5, 8, 30],
-            ["BT48 3FY","0006", 167.0, "N09000002", "TLN", "TLN0", "Northern Ireland", "TLN", "Northern Ireland", 8, 10, 40],
-            ]
+        ]
         df = pd.DataFrame(data=data, columns=columns)
         return df
 
@@ -138,7 +134,6 @@ class TestAggregateItl(object):
             ["TLJ", "South East (England)", 12345878.0, 1215, 1515, 5030],
             ["TLK", "South West (England)", 151306.5, 190, 330, 2550],
             ["TLL", "Wales", 359585.6683, 50, 60, 300],
-            ["TLN", "Northern Ireland", 480, 100, 25, 19],
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
@@ -153,7 +148,6 @@ class TestAggregateItl(object):
             ["TLJ3", "Hampshire and Isle of Wight", 12345878.0, 1215, 1515, 5030],
             ["TLK2", "Dorset and Somerset", 151306.5, 190, 330, 2550],
             ["TLL1", "West Wales and The Valleys", 359585.6683, 50, 60, 300],
-            ["TLN0", "Northern Ireland", 480, 100, 25, 19],
 
         ]
         df = pd.DataFrame(columns=columns, data=data)
