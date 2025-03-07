@@ -9,7 +9,7 @@ from src.imputation.apportionment import run_apportionment
 from src.staging import staging_helpers as stage_hlp
 from src.staging.postcode_validation import format_postcodes
 from src.imputation import imputation_helpers as hlp
-from src.mapping.pg_conversion import pg_to_pg_mapper
+from src.mapping.pg_conversion import pg_to_pg_mapper, sic_to_pg_mapper
 from src.utils.config import config_setup
 from src.utils.local_file_mods import rd_read_csv, rd_write_csv, rd_file_exists
 import logging
@@ -271,6 +271,15 @@ def create_201(df, config, rd_file_exists, rd_read_csv):
     Return:
         df (pd.DataFrame): The dataframe with the created 201 column.
     """
+    # Load and validate the SIC to PG mappers, to be used to impute missing PG
+    sic_pg_num = stage_hlp.load_validate_mapper(
+        "sic_pg_num_mapper_path",
+        config,
+        MappingMainLogger,
+        rd_file_exists,
+        rd_read_csv,
+    )
+
     # Load and validate the PG mappers
     pg_num_alpha = stage_hlp.load_validate_mapper(
         "pg_num_alpha_mapper_path",
@@ -280,10 +289,12 @@ def create_201(df, config, rd_file_exists, rd_read_csv):
         rd_read_csv,
     )
 
-    df = pg_to_pg_mapper(
-        df,
-        pg_num_alpha,
-    )
+    if not "201" in df.columns:
+        df["201"] = np.nan
+
+    sic_to_pg_mapper(df, sic_pg_num, "201")
+
+    df = pg_to_pg_mapper(df, pg_num_alpha)
     return df
 
 
@@ -591,7 +602,7 @@ def create_pnp_backdata(df):
                               'Employees': 'emp_total',
                               'Year': 'period_year',
                               'Instance': 'instance',
-                              'RUSICcur': '201',
+                              'RUSICcur': 'rusic',
                               'q0101': '101',
                               'q0102': '103',
                               'q0103': '104',
@@ -773,7 +784,7 @@ def main():
     rd_write_csv(
         os.path.join(
             backdata_out_path,
-            "PNP_2021_backdata_final.csv"),
+            "PNP_2021_backdata_with_pg.csv"),
         pnp_backdata_df
     )
 
