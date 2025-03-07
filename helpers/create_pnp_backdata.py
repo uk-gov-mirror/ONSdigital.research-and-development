@@ -41,7 +41,6 @@ config = config_setup(
     dev_config_path
 )
 
-
 def get_numcols(config):
     """ Function to get the columns that start with 2xx or 3xx.
 
@@ -292,7 +291,7 @@ def create_201(df, config, rd_file_exists, rd_read_csv):
     if not "201" in df.columns:
         df["201"] = np.nan
 
-    sic_to_pg_mapper(df, sic_pg_num, "201")
+    df = sic_to_pg_mapper(df, sic_pg_num, "201")
 
     df = pg_to_pg_mapper(df, pg_num_alpha)
     return df
