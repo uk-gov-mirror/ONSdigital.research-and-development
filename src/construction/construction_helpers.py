@@ -203,6 +203,7 @@ def finalise_forms_gb(updated_snapshot_df: pd.DataFrame) -> pd.DataFrame:
 
     # Top up all new postcodes so they're all eight characters exactly
     postcode_cols = ["601", "referencepostcode", "postcodes_harmonised"]
+    constructed_df = constructed_df.copy()
     for col in postcode_cols:
         constructed_df[col] = constructed_df[col].apply(pcval.format_postcodes)
 
@@ -236,6 +237,7 @@ def add_constructed_nonresponders(
     rows_to_add = construction_df[new_rows]
     construction_df = construction_df[~new_rows]
     missing_columns = set(updated_snapshot_df.columns) - set(rows_to_add.columns)
+    rows_to_add = rows_to_add.copy()
     for col in missing_columns:
         rows_to_add[col] = np.nan
     rows_to_add = prep_new_rows(rows_to_add, updated_snapshot_df)
