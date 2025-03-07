@@ -3,7 +3,7 @@ config_validation:
   path: src/user_config_schema.yaml
 survey:
   survey_type: "BERD"
-  survey_year: 2023
+  survey_year: 2022
 global:
   # Staging and validation settings
   postcode_csv_check: True
