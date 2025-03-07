@@ -185,3 +185,63 @@ Deduced_Data_Type ="Int64"
 [ex_total]
 old_name = "305"
 Deduced_Data_Type ="Int64"
+
+[curr_mat]
+old_name = "curr_oth"
+Deduced_Data_Type = "Int64"
+
+[curr_serv]
+old_name = "curr_oth"
+Deduced_Data_Type = "Int64"
+
+[cpx_Ind]
+old_name = "c_Ind_bl"
+Deduced_Data_Type = "float64"
+
+[cpx_bld]
+old_name = "c_Ind_bl"
+Deduced_Data_Type = "float64"
+
+[cpx_sof]
+old_name = "221"
+Deduced_Data_Type = "float64"
+
+[cpx_tot]
+old_name = "210"
+Deduced_Data_Type = "float64"
+
+[pnp]
+old_name = "oth_sc"
+Deduced_Data_Type = "Int64"
+
+[hed]
+old_name = "oth_sc"
+Deduced_Data_Type = "Int64"
+
+[bus_ex_uk]
+old_name = "ovss_oth"
+Deduced_Data_Type = "Int64"
+
+[oth_bus_ex_uk]
+old_name = "ovss_oth"
+Deduced_Data_Type = "Int64"
+
+[gov_ex_uk]
+old_name = "ovss_oth"
+Deduced_Data_Type = "Int64"
+
+[hed_ex_uk]
+old_name = "ovss_oth"
+Deduced_Data_Type = "Int64"
+
+[pnp_ex_uk]
+old_name = "ovss_oth"
+Deduced_Data_Type = "Int64"
+
+[int_orgs]
+old_name = "oth_sc"
+Deduced_Data_Type = "Int64"
+
+[any_oth_ex_uk]
+old_name = "ovss_oth"
+Deduced_Data_Type = "Int64"
