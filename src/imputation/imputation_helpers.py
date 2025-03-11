@@ -644,6 +644,8 @@ def imputation_prep(df: pd.DataFrame, config: dict):
         df = create_imp_class_col(df, ["200", "201"])
     elif config["survey"]["survey_type"] == "PNP":
         df = create_imp_class_col(df, ["area"], use_cellno=False)
+        # fill nulls in question 200 (civil or defence) with "C"
+        df.loc[df["instance"] > 0, "200"] = df["200"].fillna("C")
 
     # Get a list of all the target values and breakdown columns from the config
     to_impute_cols = get_imputation_cols(config)
