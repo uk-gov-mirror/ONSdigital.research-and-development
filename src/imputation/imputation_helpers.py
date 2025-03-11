@@ -586,7 +586,7 @@ def concat_with_bool(dfs: list[pd.DataFrame], force_manual_trim=False) -> pd.Dat
     Returns:
         pd.DataFrame: The concatenated dataframe with updated boolean columns.
     """
-    common_bool_columns = [
+    bool_columns = [
         "manual_trim",
         "empty_pgsic_group",
         "empty_pg_group",
@@ -600,7 +600,7 @@ def concat_with_bool(dfs: list[pd.DataFrame], force_manual_trim=False) -> pd.Dat
     # they exist
     for df in dfs:
         df = df.copy()
-        for col in common_bool_columns:
+        for col in bool_columns:
             if col in df.columns:
                 df[col] = df[col].fillna(False)
                 df[col] = df[col].astype("bool")
@@ -615,7 +615,7 @@ def concat_with_bool(dfs: list[pd.DataFrame], force_manual_trim=False) -> pd.Dat
     concatenated_df = pd.concat(dfs, ignore_index=True)
 
     # Ensure the boolean columns retain their type in the concatenated DataFrame
-    for col in common_bool_columns:
+    for col in bool_columns:
         if col in concatenated_df.columns:
             concatenated_df[col] = concatenated_df[col].fillna(False).astype(bool)
 
