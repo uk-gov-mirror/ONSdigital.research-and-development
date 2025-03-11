@@ -595,10 +595,15 @@ def concat_with_bool(dfs: list[pd.DataFrame]) -> pd.DataFrame:
 
     # Convert columns to boolean type in all dataframes if they exist
     for df in dfs:
-        # df.astype({"manual_trim": str})
+        df = df.copy()
         for col in bool_columns:
             if col in df.columns:
-                df.loc[:, col] = df.loc[:, col].fillna(False).astype(object)
+                df[col] = df[col].fillna(False)
+
+    # Convert 'manual_trim' column to boolean type in all dataframes if it exists
+    for df in dfs:
+        if "manual_trim" in df.columns:
+            df["manual_trim"] = df["manual_trim"].astype("bool")
 
     # Concatenate the DataFrames
     concatenated_df = pd.concat(dfs, ignore_index=True)
