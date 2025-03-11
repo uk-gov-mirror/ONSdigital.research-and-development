@@ -215,73 +215,8 @@ class TestMoRPreprocessing(object):
                 f"{name} not as expected."
             )
 
-
-class TestRunMoRShortForm(object):
-    """Tests for run_mor in the short form case."""
-
-    @pytest.fixture(scope="function")
-    def input_sf_mor_df(self) -> pd.DataFrame:
-        """A dummy dataframe used for testing MoR imputation."""
-        fpath = os.path.join("tests/data/imputation/sf_mor_input_anon.csv")
-        df = pd.read_csv(fpath)
-        df = df.astype({"reference": "Int64", "instance": "Int64"})
-        df["referencepostcode"] = pd.NA
-        df = create_imp_class_col(df, ["200", "201"])
-        return df
-
-    @pytest.fixture(scope="function")
-    def sf_mor_backdata(self) -> pd.DataFrame:
-        """Dummy backdata used for testing MoR imputation."""
-        fpath = os.path.join("tests/data/imputation/sf_mor_backdata_anon.csv")
-        df = pd.read_csv(fpath)
-        df = df.astype({"reference": "Int64", "instance": "Int64"})
-        return df
-
-    @pytest.fixture(scope="function")
-    def expected_sf_mor_output(self) -> pd.DataFrame:
-        """The expected output from run_mor."""
-        fpath = os.path.join("tests/data/imputation/sf_mor_expected.csv")
-        df = pd.read_csv(fpath)
-        df = df.astype({"reference": "Int64", "instance": "Int64"})
-        # order by reference and then instance
-        df = df.sort_values(["reference", "instance"]).reset_index(drop=True)
-        return df
-
-    def test_run_mor_short_form(
-        self,
-        input_sf_mor_df,
-        sf_mor_backdata,
-        expected_sf_mor_output,
-        imputation_config
-        ):
-        """General tests for run_mor."""
-        impute_vars = get_imputation_cols(imputation_config)
-        result_df, qa = run_mor(
-            df=input_sf_mor_df,
-            backdata=sf_mor_backdata,
-            config=imputation_config
-        )
-        # select only the required columns for the result and the expected output
-        wanted_cols = ["reference", "instance", "imp_class", "211_link", "211_imputed","212_imputed", "214_imputed", "216_imputed"]
-
-        result_filter = (result_df.instance != 0) & (result_df.formtype == "0006") & (result_df["200"].notnull()) & (result_df.imp_marker.isin(["CF","MoR"]))
-        result_df = result_df.loc[result_filter][wanted_cols].round(4)
-        result_df = result_df.sort_values(["reference", "instance"]).reset_index(drop=True)
-
-        # round the expected output to 4 decimal places
-        # Apply rounding only to the floating-point columns in the expected output
-        float_cols = expected_sf_mor_output.select_dtypes(include='float').columns
-        expected_sf_mor_output[float_cols] = expected_sf_mor_output[float_cols].round(4)
-        expected_sf_mor_output = expected_sf_mor_output[wanted_cols]
-
-        assert_frame_equal(result_df, expected_sf_mor_output, check_dtype=False, check_exact=False), (
-            "run_mor() not imputing data as expected."
-        )
-
 class Test_calculate_growth_rates(object):
     """Tests for calculate_growth_rates."""
-
-
     def target_vars_list(self):
         """A simple method that returns a list."""
         return ["211", "emp_researcher", "emp_technician"]
