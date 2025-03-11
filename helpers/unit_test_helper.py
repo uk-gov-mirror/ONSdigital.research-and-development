@@ -3,24 +3,24 @@
 import pandas as pd
 import os
 
-csv_path = "D:/RDSA_R&D/"
+csv_path = "D:/coding_projects/randd_test_data/imputation test data/"
 filename_string_cols_dict = {
-    "CGR_current_df.csv" : ["imp_marker", "imp_class", "selectiontype"],
-    "CGR_backdata_df.csv": ["imp_marker", "imp_class", "selectiontype"],
-    "CGR_expected_df.csv": ["imp_class"],
+    "input_current.csv" : ["imp_marker", "imp_class", "200", "201", "601", "602"],
+    "input_backdata.csv":  ["imp_marker", "imp_class", "200", "201", "601", "602"],
+    "expected.csv": ["imp_marker", "imp_class"],
 }
 
 for filename, string_cols in filename_string_cols_dict.items():
     # configuration settings
-    input_file = filename
+    file_type = filename
 
     # whether the unit test data is input or expected output (set "input" or "exp_output")
-    in_or_output = input_file.split(".csv")[0]
+    in_or_output = file_type.split(".csv")[0]
 
     output_filename = f"{in_or_output}_function"
 
     # read in the csv
-    path1 = os.path.join(csv_path, input_file)
+    path1 = os.path.join(csv_path, file_type)
     df1 = pd.read_csv(path1)
 
     # specify float columns
