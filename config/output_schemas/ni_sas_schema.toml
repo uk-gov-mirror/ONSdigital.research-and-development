@@ -187,19 +187,19 @@ old_name = "305"
 Deduced_Data_Type ="Int64"
 
 [curr_mat]
-old_name = "curr_oth"
+old_name = "222"
 Deduced_Data_Type = "Int64"
 
 [curr_serv]
-old_name = "curr_oth"
+old_name = "223"
 Deduced_Data_Type = "Int64"
 
 [cpx_Ind]
-old_name = "c_Ind_bl"
+old_name = "219"
 Deduced_Data_Type = "float64"
 
 [cpx_bld]
-old_name = "c_Ind_bl"
+old_name = "220"
 Deduced_Data_Type = "float64"
 
 [cpx_sof]
@@ -211,37 +211,37 @@ old_name = "210"
 Deduced_Data_Type = "float64"
 
 [pnp]
-old_name = "oth_sc"
+old_name = "242"
 Deduced_Data_Type = "Int64"
 
 [hed]
-old_name = "oth_sc"
+old_name = "250"
 Deduced_Data_Type = "Int64"
 
 [bus_ex_uk]
-old_name = "ovss_oth"
+old_name = "243"
 Deduced_Data_Type = "Int64"
 
 [oth_bus_ex_uk]
-old_name = "ovss_oth"
+old_name = "244"
 Deduced_Data_Type = "Int64"
 
 [gov_ex_uk]
-old_name = "ovss_oth"
+old_name = "245"
 Deduced_Data_Type = "Int64"
 
 [hed_ex_uk]
-old_name = "ovss_oth"
+old_name = "246"
 Deduced_Data_Type = "Int64"
 
 [pnp_ex_uk]
-old_name = "ovss_oth"
+old_name = "247"
 Deduced_Data_Type = "Int64"
 
 [int_orgs]
-old_name = "oth_sc"
+old_name = "248"
 Deduced_Data_Type = "Int64"
 
 [any_oth_ex_uk]
-old_name = "ovss_oth"
+old_name = "249"
 Deduced_Data_Type = "Int64"
