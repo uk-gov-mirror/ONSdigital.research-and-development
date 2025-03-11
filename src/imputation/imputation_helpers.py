@@ -576,40 +576,46 @@ def imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def concat_with_bool(dfs: list[pd.DataFrame]) -> pd.DataFrame:
+def concat_with_bool(dfs: list[pd.DataFrame], force_manual_trim=False) -> pd.DataFrame:
     """Concatenate a list of dataframes and update boolean columns.
 
     Args:
         dfs (list[pd.DataFrame]): List of dataframes to concatenate.
+        force_manual_trim: Whether to force the 'manual_trim' column to be boolean.
 
     Returns:
         pd.DataFrame: The concatenated dataframe with updated boolean columns.
     """
-    bool_columns = [
+    common_bool_columns = [
         "manual_trim",
         "empty_pgsic_group",
         "empty_pg_group",
         "305_trim",
         "211_trim",
+        "is_constructed",
+        "force_imputation",
     ]
 
-    # Convert columns to boolean type in all dataframes if they exist
+    # Convert common and uncommon columns to boolean type in all dataframes if
+    # they exist
     for df in dfs:
         df = df.copy()
-        for col in bool_columns:
+        for col in common_bool_columns:
             if col in df.columns:
                 df[col] = df[col].fillna(False)
+                df[col] = df[col].astype("bool")
 
     # Convert 'manual_trim' column to boolean type in all dataframes if it exists
-    for df in dfs:
-        if "manual_trim" in df.columns:
-            df["manual_trim"] = df["manual_trim"].astype("bool")
+    if force_manual_trim:
+        for df in dfs:
+            if "manual_trim" in df.columns:
+                df["manual_trim"] = df["manual_trim"].astype("bool")
 
     # Concatenate the DataFrames
     concatenated_df = pd.concat(dfs, ignore_index=True)
 
     # Ensure the boolean columns retain their type in the concatenated DataFrame
-    for col in bool_columns:
+    for col in common_bool_columns:
         if col in concatenated_df.columns:
             concatenated_df[col] = concatenated_df[col].fillna(False).astype(bool)
 

@@ -445,7 +445,9 @@ def run_tmi(
             shortform_df, config
         )
         # concatinate the short and long form with the excluded dataframes
-        full_df = hlp.concat_with_bool([longform_tmi_df, shortform_tmi_df, excluded_df])
+        full_df = hlp.concat_with_bool(
+            [longform_tmi_df, shortform_tmi_df, excluded_df], force_manual_trim=True
+        )
 
         # concatinate qa dataframes from short forms and long forms
         full_qa_df = hlp.concat_with_bool([qa_df_long, qa_df_short])
@@ -455,7 +457,9 @@ def run_tmi(
     elif config["survey"]["survey_type"] == "PNP":
         # apply TMI imputation to PNP long forms
         longform_tmi_df, full_qa_df, trim_counts = run_longform_tmi(longform_df, config)
-        full_df = hlp.concat_with_bool([longform_tmi_df, excluded_df])
+        full_df = hlp.concat_with_bool(
+            [longform_tmi_df, excluded_df], force_manual_trim=True
+        )
         # add extra cols to compenste for the missing short form columns in PNP
         full_qa_df[[["emp_total_trim", "headcount_total_trim"]]] = False
 
@@ -476,7 +480,11 @@ def run_tmi(
     ).reset_index(drop=True)
 
     # concatenate dataframes bearing in mind boolean columns
-    full_qa_df = hlp.concat_with_bool([full_qa_df, imputed_only_df])
+    full_qa_df = hlp.concat_with_bool(
+        [full_qa_df, imputed_only_df],
+        force_manual_trim=True,
+        force_uncommon_bool_columns=True,
+    )
 
     # rearange the rows to put the manual_trim column at the end
     cols = [col for col in full_df.columns if col != "manual_trim"] + ["manual_trim"]
