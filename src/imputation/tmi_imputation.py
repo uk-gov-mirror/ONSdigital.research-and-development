@@ -483,7 +483,6 @@ def run_tmi(
     full_qa_df = hlp.concat_with_bool(
         [full_qa_df, imputed_only_df],
         force_manual_trim=True,
-        force_uncommon_bool_columns=True,
     )
 
     # rearange the rows to put the manual_trim column at the end
