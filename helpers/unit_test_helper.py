@@ -1,93 +1,98 @@
 """Read in a csv file and ouput a test file with data for a unit test."""
+
 import pandas as pd
 import os
 
-# configuration settings
-csv_path = "D:/coding_projects/"
-input_file = "backdata.csv"
+csv_path = "D:/coding_projects/randd_test_data/imputation test data/"
+filename_string_cols_dict = {
+    "input_current.csv" : ["imp_marker", "imp_class", "200", "201", "601", "602"],
+    "input_backdata.csv":  ["imp_marker", "imp_class", "200", "201", "601", "602"],
+    "expected.csv": ["imp_marker", "imp_class"],
+}
 
-# whether the unit test data is input or expected output (set "input" or "exp_output")
-in_or_output = "input"
+for filename, string_cols in filename_string_cols_dict.items():
+    # configuration settings
+    file_type = filename
 
-output_filename = f"{in_or_output}_function"
+    # whether the unit test data is input or expected output (set "input" or "exp_output")
+    in_or_output = file_type.split(".csv")[0]
 
-# read in the csv
-path1 = os.path.join(csv_path, input_file)
-df1 = pd.read_csv(path1)
+    output_filename = f"{in_or_output}_function"
 
-# specify string columns- these will have quotes applied
-string_cols = ["formtype", "status", "selectiontype", "601"]
+    # read in the csv
+    path1 = os.path.join(csv_path, file_type)
+    df1 = pd.read_csv(path1)
 
-# specify float columns
-float_cols = []
+    # specify float columns
+    float_cols = []
 
-int_cols = [c for c in df1.columns if c not in string_cols + float_cols]
+    int_cols = [c for c in df1.columns if c not in string_cols + float_cols]
 
-# set all datatypes to string - we are outputting all the data as a string
-df1 = df1.astype(str)
+    # set all datatypes to string - we are outputting all the data as a string
+    df1 = df1.astype(str)
 
-# if formtype is in the columns, convert to 0001 and 0006
-if "formtype" in df1.columns:
-    df1.formtype = df1.formtype.str.zfill(4)
-
-
-def add_quotes(x):
-    """add quotes to the strings in the columns that should show as string types."""
-    x = '"' + x + '"'
-    return x
+    # if formtype is in the columns, convert to 0001 and 0006
+    if "formtype" in df1.columns:
+        df1.formtype = df1.formtype.str.zfill(4)
 
 
-def format_float(x):
-    """Add a point and a zero for columns that should show as floats."""
-    if "." in x:
+    def add_quotes(x):
+        """add quotes to the strings in the columns that should show as string types."""
+        x = '"' + x + '"'
         return x
-    else:
-        return x + ".0"
 
 
-for c in string_cols:
-    df1.loc[df1[c] != "nan", c] = df1.loc[df1[c] != "nan", c].apply(add_quotes, 1)
+    def format_float(x):
+        """Add a point and a zero for columns that should show as floats."""
+        if "." in x:
+            return x
+        else:
+            return x + ".0"
 
-for c in float_cols:
-    df1.loc[df1[c] != "nan", c] = df1.loc[df1[c] != "nan", c].apply(format_float, 1)
 
-# replace nulls, which are now  rendered "nan" since we made all columns strings,
-# with "np.nan" for output
-df1 = df1.replace("nan", "np.nan")
+    for c in string_cols:
+        df1.loc[df1[c] != "nan", c] = df1.loc[df1[c] != "nan", c].apply(add_quotes, 1)
 
-# prepare the output formatting
-tab = " " * 4
+    for c in float_cols:
+        df1.loc[df1[c] != "nan", c] = df1.loc[df1[c] != "nan", c].apply(format_float, 1)
 
-# create the text to represent a list of the columns
-col_list = df1.columns
-col_string = ""
-for col in df1.columns:
-    col_string += f'{tab}{tab}"{col}",\n'
+    # replace nulls, which are now  rendered "nan" since we made all columns strings,
+    # with "np.nan" for output
+    df1 = df1.replace("nan", "np.nan")
 
-# create a new column that joins the contents of the other columns
-df1["output"] = f"{tab}["
-for col in df1.columns[:-2]:
-    df1["output"] += df1[col] + ", "
+    # prepare the output formatting
+    tab = " " * 4
 
-df1["output"] += df1[df1.columns[-2]] + "],"
+    # create the text to represent a list of the columns
+    col_list = df1.columns
+    col_string = ""
+    for col in df1.columns:
+        col_string += f'{tab}{tab}"{col}",\n'
 
-# concatenate everything in the new column into a single string
-rows_string = df1["output"].str.cat(sep=f"\n{tab}")
+    # create a new column that joins the contents of the other columns
+    df1["output"] = f"{tab}["
+    for col in df1.columns[:-2]:
+        df1["output"] += df1[col] + ", "
 
-# join all the components into a final string for output
-full_text = f'''def create_{in_or_output}_df(self):
-    """Create an {in_or_output} dataframe for the test."""
-    {in_or_output}_columns = [\n{col_string}{tab}]
+    df1["output"] += df1[df1.columns[-2]] + "],"
 
-    data = [\n{tab}{rows_string}\n{tab}]
+    # concatenate everything in the new column into a single string
+    rows_string = df1["output"].str.cat(sep=f"\n{tab}")
 
-    {in_or_output}_df = pandasDF(data=data, columns={in_or_output}_columns)
-    return {in_or_output}_df
-    '''
+    # join all the components into a final string for output
+    full_text = f'''def create_{in_or_output}_df(self):
+        """Create an {in_or_output} dataframe for the test."""
+        {in_or_output}_columns = [\n{col_string}{tab}]
 
-# write the prepared text to a txt file
-out_path = os.path.join(csv_path, output_filename + ".txt")
+        data = [\n{tab}{rows_string}\n{tab}]
 
-text_file = open(out_path, "w")
-text_file.write(full_text)
-text_file.close()
+        {in_or_output}_df = pd.DataFrame(data=data, columns={in_or_output}_columns)
+        return {in_or_output}_df
+        '''
+
+    # write the prepared text to a txt file
+    out_path = os.path.join(csv_path, output_filename + ".txt")
+
+    text_file = open(out_path, "w")
+    text_file.write(full_text)
+    text_file.close()

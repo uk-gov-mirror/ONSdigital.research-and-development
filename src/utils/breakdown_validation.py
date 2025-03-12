@@ -22,8 +22,8 @@ def get_equality_dicts(config: dict, sublist: str = "default") -> dict:
     all_checks_dict = config["consistency_checks"]
 
     # isolate the relationships suitlable for checking in the construction module
-    if sublist == "default":
-        wanted_dicts = [
+    columns_of_interest_dict = {
+        "default": [
             "2xx_totals",
             "3xx_totals",
             "4xx_totals",
@@ -31,34 +31,31 @@ def get_equality_dicts(config: dict, sublist: str = "default") -> dict:
             "6xx_totals",
             "7xx_a_totals",
             "7xx_b_totals",
-        ]
-    elif sublist == "longform":
-        wanted_dicts = ["2xx_totals", "3xx_totals", "emp_xx_totals", "hc_xx_totals"]
-    elif sublist == "imputation":
-        wanted_dicts = ["2xx_totals", "3xx_totals"]
-    elif sublist == "freezing":
-        wanted_dicts = [
+        ],
+        "longform": ["2xx_totals", "3xx_totals", "emp_xx_totals", "hc_xx_totals"],
+        "imputation": ["2xx_totals", "3xx_totals"],
+        "freezing": [
             "2xx_totals",
             "4xx_totals",
             "5xx_totals",
             "6xx_totals",
             "7xx_a_totals",
             "7xx_b_totals",
-        ]
-    elif sublist == "employment":
-        wanted_dicts = ["emp_xx_totals", "hc_xx_totals", "7xx_b_totals"]
-    elif sublist == "estimation":
-        wanted_dicts = [
+        ],
+        "employment": ["emp_xx_totals", "hc_xx_totals", "7xx_b_totals"],
+        "estimation": [
             "2xx_totals",
             "3xx_totals",
             "emp_xx_totals",
             "hc_xx_totals",
             "7xx_a_totals",
             "7xx_b_totals",
-        ]
+        ],
+        "instance_0_cols": ["4xx_totals", "5xx_totals", "7xx_a_totals", "7xx_b_totals"],
+    }
 
-    else:
-        wanted_dicts = list(all_checks_dict.keys())
+    if sublist in columns_of_interest_dict.keys():
+        wanted_dicts = columns_of_interest_dict[sublist]
 
     # create a dictionary of the relationships to check
     equality_checks = {}
