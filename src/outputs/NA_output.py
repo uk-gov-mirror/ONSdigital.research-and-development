@@ -66,10 +66,10 @@ def map_to_prev_civil(df: pd.DataFrame):
         "218": "q0325",
         "214": "q0327",
         "250": "q0329",
-        "405": "q0509",
-        "407": "q0511",
-        "409": "q0513",
-        "411": "q0515",
+        "405": "q0509",  # FTE Researchers - civil
+        "407": "q0511",  # FTE Technicians - civil
+        "409": "q0513",  # FTE Other - civil
+        "411": "q0515",  # FTE Total - civil
     }
 
     for col in columns_to_revert:
@@ -107,10 +107,10 @@ def map_to_prev_defence(df: pd.DataFrame):
         "218": "q0326",
         "214": "q0328",
         "250": "q0330",
-        "405": "q0510",
-        "407": "q0512",
-        "409": "q0514",
-        "411": "q0516",
+        "405": "q0510",  # FTE Researchers- defence
+        "407": "q0512",  # FTE Technicians- defence
+        "409": "q0514",  # FTE Other - defence
+        "411": "q0516",  # FTE Total - defence
     }
 
     for col in columns_to_revert:
@@ -124,14 +124,14 @@ def map_to_prev_defence(df: pd.DataFrame):
 def reformat_questions(df: pd.DataFrame):
     """Columns common to both civil and defence that names need to be reverted"""
     columns_to_revert = {
-        "501": "q0501",
-        "502": "q0502",
-        "503": "q0503",
-        "504": "q0504",
-        "505": "q0505",
-        "506": "q0506",
-        "507": "q0507",
-        "508": "q0508",
+        "headcount_res_m": "q0501",
+        "headcount_res_f": "q0502",
+        "headcount_tec_m": "q0503",
+        "headcount_tec_f": "q0504",
+        "headcount_oth_m": "q0505",
+        "headcount_oth_f": "q0506",
+        "headcount_tot_m": "q0507",
+        "headcount_tot_f": "q0508",
         "601": "q0601",
         "602": "q0602",
     }
