@@ -2,6 +2,7 @@
 
 import logging
 import pandas as pd
+from src.utils.breakdown_validation import get_all_wanted_columns
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -9,18 +10,7 @@ OutputMainLogger = logging.getLogger(__name__)
 def divide_by_1000(df, config):
     """Values in columns starting 2xxx or 3xxx are divided by 1000"""
     # Get cols from config
-    cols = (
-        config["consistency_checks"]["2xx_totals"]["purchases_split"]
-        + config["consistency_checks"]["2xx_totals"]["sal_oth_expend"]
-        + config["consistency_checks"]["2xx_totals"]["research_expend"]
-        + config["consistency_checks"]["2xx_totals"]["capex"]
-        + config["consistency_checks"]["2xx_totals"]["intram"]
-        + config["consistency_checks"]["2xx_totals"]["funding"]
-        + config["consistency_checks"]["2xx_totals"]["ownership"]
-        + config["consistency_checks"]["2xx_totals"]["equality"]
-        + config["consistency_checks"]["2xx_totals"]["inequality"]
-        + config["consistency_checks"]["3xx_totals"]["purchases"]
-    )
+    cols = get_all_wanted_columns(config, "imputation")
 
     for col in cols:
         if col in df.columns:
