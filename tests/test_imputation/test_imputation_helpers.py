@@ -423,26 +423,42 @@ class TestConcatWithBool:
             [np.nan, 9],
         ]
 
+        columns4 = ["is_constructed", "force_imputation", "value"]
+        values4 = [
+            ["True", "False", 10],
+            ["True", "True", 11],
+            ["False", "False", 12],
+            [np.nan, np.nan, 13],
+        ]
+
         # Create DataFrames from the lists of values
         df1 = pd.DataFrame(values1, columns=columns1)
         df2 = pd.DataFrame(values2, columns=columns2)
         df3 = pd.DataFrame(values3, columns=columns3)
+        df4 = pd.DataFrame(values4, columns=columns4)
 
-        return df1, df2, df3
+        return df1, df2, df3, df4
 
     def expected_output(self):
         """Define the expected output DataFrame"""
-        columns = ['manual_trim', 'empty_pgsic_group', 'empty_pg_group', '305_trim', '211_trim', 'value']
+        columns = [
+            'manual_trim', 'empty_pgsic_group', 'empty_pg_group', '305_trim',
+            '211_trim', 'is_constructed', 'force_imputation', 'value',
+        ]
         values = [
-            [True, False, False, False, True, 1],
-            [False, True, False, False, True, 2],
-            [False, False, False, False, False, 3],
-            [False, False, True, False, False, 4],
-            [False, False, False, True, False, 5],
-            [False, False, False, False, False, 6],
-            [False, False, False, False, True, 7],
-            [False, False, False, False, False, 8],
-            [False, False, False, False, False, 9],
+            [True, False, False, False, True, False, False, 1],
+            [False, True, False, False, True, False, False, 2],
+            [False, False, False, False, False, False, False, 3],
+            [False, False, True, False, False, False, False, 4],
+            [False, False, False, True, False, False, False, 5],
+            [False, False, False, False, False, False, False, 6],
+            [False, False, False, False, True, False, False, 7],
+            [False, False, False, False, False, False, False, 8],
+            [False, False, False, False, False, False, False, 9],
+            [False, False, False, False, False, True, False, 10],
+            [False, False, False, False, False, True, True, 11],
+            [False, False, False, False, False, False, False, 12],
+            [False, False, False, False, False, False, False, 13],
         ]
 
         df = pd.DataFrame(values, columns=columns)
@@ -454,10 +470,10 @@ class TestConcatWithBool:
 
     def test_concat_with_bool(self):
         """Test for function concat_with_bool."""
-        df1, df2, df3 = self.input_dfs()
+        df1, df2, df3, df4 = self.input_dfs()
         expected_df = self.expected_output()
 
-        result_df = concat_with_bool([df1, df2, df3])
+        result_df = concat_with_bool([df1, df2, df3, df4])
         # ignore the order of the columns
         assert_frame_equal(result_df.reset_index(drop=True), expected_df, check_like=True)
 
