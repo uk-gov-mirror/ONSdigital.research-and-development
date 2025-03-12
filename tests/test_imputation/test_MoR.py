@@ -11,7 +11,12 @@ from pandas.testing import assert_frame_equal
 import numpy as np
 
 # Local Imports
-from src.imputation.MoR import run_mor, is_lf_only, filter_for_links, mor_preprocessing, calculate_growth_rates
+from src.imputation.MoR import (
+    is_lf_only,
+    mor_preprocessing,
+    calculate_growth_rates,
+    group_calc_link
+)
 from src.imputation.imputation_helpers import get_imputation_cols, create_imp_class_col
 
 # pytestmark = pytest.mark.runwip
@@ -325,4 +330,92 @@ class Test_calculate_growth_rates(object):
 
         assert_frame_equal(result_df, expected_df, check_dtype=False, check_exact=False), (
             "calculate_growth_rates() did not return the expected dataframe."
+        )
+
+class TestGroupCalcLink(object):
+    """Tests for the group_calc_links function."""
+    def create_input_df(self) -> pd.DataFrame:
+        """A dummy dataframe used for testing group_calc_links function."""
+        columns = [
+            "reference",
+            "imp_class",
+            "211",
+            "emp_researcher",
+            "211_gr",
+            "emp_researcher_gr",
+        ]
+        data = [
+            [1031, "C_AA", 20, 10, np.nan, 1.0],
+            [1031, "C_AA", 10, 0, 1.0, np.nan],
+            [1045, "C_AA", 80500, 20, 8.05, np.nan],
+            [1045, "C_AA", 36000, 30, 3.6, 3.0],
+            [1047, "C_AA", 400, 20, 1.0, 1.0],
+            [1047, "C_AA", 200, 10, 1.0, 1.0]]
+
+        input_df = pd.DataFrame(data=data, columns=columns)
+        return input_df
+
+    def dummy_config(self) -> dict:
+        """A dummy config for testing."""
+        config = {"imputation": {
+            "mor_threshold": 3,
+            "trim_threshold": 10,
+            "lower_trim_perc": 15,
+            "upper_trim_perc": 15,
+            "target_vars": ["211","emp_researcher"]},
+        }
+        return config
+
+    def expected_output_df(self) -> pd.DataFrame:
+        """Expected dataframe after running group_calc_links function.
+            'group_size' is calculated by the sum of valid values in the column.
+            'link' is calculated by the mean growth rate of the column.
+            'trim' is specified conditions in the config."""
+        columns = [
+            "reference",
+            "imp_class",
+            "211",
+            "emp_researcher",
+            "211_gr",
+            "emp_researcher_gr",
+            "211_gr_trim",
+            "211_group_size",
+            "211_link",
+            "emp_researcher_gr_trim",
+            "emp_researcher_group_size",
+            "emp_researcher_link",
+        ]
+        # Data has been sorted by growth rate (emp_researcher_gr) in descending order
+        data = [
+            [1047, "C_AA", 400, 20, 1.0, 1.0, False, 5, 2.93, False, 4, 1.5],
+            [1047, "C_AA", 200, 10, 1.0, 1.0, False, 5, 2.93, False, 4, 1.5],
+            [1031, "C_AA", 20, 10, np.nan, 1.0, False, 5, 2.93, False, 4, 1.5],
+            [1045, "C_AA", 36000, 30, 3.6, 3.0, False, 5, 2.93, False, 4, 1.5],
+            [1031, "C_AA", 10, 0, 1.0, np.nan, False, 5, 2.93, False, 4, 1.5],
+            [1045, "C_AA", 80500, 20, 8.05, np.nan, False, 5, 2.93, False, 4, 1.5],
+            ]
+
+        expected_output_df = pd.DataFrame(data=data, columns=columns)
+        return expected_output_df
+
+
+    def test_group_calc_link(self):
+        # Create the input and expected output dataframes
+        input_df = self.create_input_df()
+        config = self.dummy_config()
+        expected_output_df = self.expected_output_df()
+        target_vars = config["imputation"]["target_vars"]
+
+        # Run the function
+        result_df = group_calc_link(input_df, target_vars, config)
+
+        # Reset index for comparison
+        df_list = [expected_output_df, result_df]
+
+        for df in df_list:
+            df.reset_index(drop=True, inplace=True)
+
+        # Compare the results
+        assert_frame_equal(result_df, expected_output_df, check_dtype=False, check_exact=False), (
+            "group_calc_links() not calculating links as expected."
         )

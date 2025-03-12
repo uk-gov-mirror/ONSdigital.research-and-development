@@ -576,7 +576,7 @@ def imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def concat_with_bool(dfs: list[pd.DataFrame]) -> pd.DataFrame:
+def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
     """Concatenate a list of dataframes and update boolean columns.
 
     Args:
