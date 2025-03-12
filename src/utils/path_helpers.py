@@ -218,21 +218,21 @@ def create_freezing_config(config: dict) -> dict:
     survey_path = paths["survey_path"]
 
     if config["survey"]["survey_type"] == "BERD":
-        freezing_dict["frozen_data_staged_path"] = os.path.join(
-            survey_path, paths["berd_frozen_data_staged_path"]
+        freezing_dict["frozen_data_staged_path"] = (
+            f"{survey_path}{paths['berd_frozen_data_staged_path']}"
         )
     elif config["survey"]["survey_type"] == "PNP":
-        freezing_dict["frozen_data_staged_path"] = os.path.join(
-            survey_path, paths["pnp_frozen_data_staged_path"]
+        freezing_dict["frozen_data_staged_path"] = (
+            f"{survey_path}{paths['pnp_frozen_data_staged_path']}"
         )
-    freezing_dict["freezing_changes_to_review_path"] = os.path.join(
-        survey_path, paths["freezing_changes_to_review_path"]
+    freezing_dict["freezing_changes_to_review_path"] = (
+        f"{survey_path}{paths['freezing_changes_to_review_path']}"
     )
-    freezing_dict["freezing_additions_path"] = os.path.join(
-        survey_path, paths["freezing_additions_path"]
+    freezing_dict["freezing_additions_path"] = (
+        f"{survey_path}{paths['freezing_additions_path']}"
     )
-    freezing_dict["freezing_amendments_path"] = os.path.join(
-        survey_path, paths["freezing_amendments_path"]
+    freezing_dict["freezing_amendments_path"] = (
+        f"{survey_path}{paths['freezing_amendments_path']}"
     )
 
     return freezing_dict
@@ -252,14 +252,14 @@ def create_construction_config(config: dict) -> dict:
     # now update add construction paths
     paths = get_paths(config)
     survey_path = paths["survey_path"]
-    construction_dict["all_data_construction_file_path"] = os.path.join(
-        survey_path, paths["all_data_construction_file_path"]
+    construction_dict["all_data_construction_file_path"] = (
+        f"{survey_path}{paths['all_data_construction_file_path']}"
     )
-    construction_dict["construction_file_path_ni"] = os.path.join(
-        survey_path, paths["construction_file_path_ni"]
+    construction_dict["construction_file_path_ni"] = (
+        f"{survey_path}{paths['construction_file_path_ni']}"
     )
-    construction_dict["postcode_construction_file_path"] = os.path.join(
-        survey_path, paths["postcode_construction_file_path"]
+    construction_dict["postcode_construction_file_path"] = (
+        f"{survey_path}{paths['postcode_construction_file_path']}"
     )
 
     return construction_dict
