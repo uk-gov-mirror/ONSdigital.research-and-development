@@ -425,9 +425,9 @@ class TestConcatWithBool:
 
         columns4 = ["is_constructed", "force_imputation", "value"]
         values4 = [
-            ["True", "False", 10],
-            ["True", "True", 11],
-            ["False", "False", 12],
+            [True, False, 10],
+            [True, True, 11],
+            [False, False, 12],
             [np.nan, np.nan, 13],
         ]
 
