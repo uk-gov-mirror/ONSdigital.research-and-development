@@ -47,12 +47,13 @@ def check_log_unreal_postcodes(
         unreal_postcodes,  # "not found in masterlist"
     )
 
-    # Log the unreal postcodes
+    # Log the unique unreal postcodes
+    bad_postcodes = unreal_postcodes.unique().tolist()
     ValidationLogger.warning(
-        f"These postcodes are not found in the ONS postcode list: {unreal_postcodes.to_list()}"  # noqa
+        f"These postcodes are not found in the ONS postcode list: {bad_postcodes}"
     )
     ValidationLogger.warning(
-        f"Number of postcodes not found in the ONS postcode list: {len(unreal_postcodes.to_list())}"  # noqa
+        f"Number of postcodes not found in the ONS postcode list: {len(bad_postcodes)}"
     )
     return invalid_postcode_df, unreal_postcodes
 
