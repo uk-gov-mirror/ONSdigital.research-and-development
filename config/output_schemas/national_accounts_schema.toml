@@ -1,0 +1,167 @@
+[q0202]
+name = "Total Capex- civil"
+old_name = "210"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "210_C"
+
+[q0203]
+name = "Total Capex- defence"
+old_name = "210"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "210_D"
+
+[q0204]
+name = "Land acquired- civil"
+old_name = "219"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "219_C"
+
+[q0205]
+name = "Land acquired- defence"
+old_name = "219"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "219_D"
+
+[q0206]
+name = "Buildings- civil"
+old_name = "220"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "220_C"
+
+[q0207]
+name = "Buildings-defence"
+old_name = "220"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "221_D"
+
+[q0208]
+name = "Equipment and machinery- civil"
+old_name = "q0208"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "q0208_C"
+
+[q0209]
+name = "Equipment and machinery- defence"
+old_name = "q0208"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "q0208_D"
+
+[q0210]
+name = "Computer software- civil"
+old_name = "221"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "221_C"
+
+[q0211]
+name = "Computer software- defence"
+old_name = "221"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "221_D"
+
+[q0212]
+name = "Total non-capex- civil"
+old_name = "204"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "204_C"
+
+[q0213]
+name = "Total non-capex- defence"
+old_name = "204"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "204_D"
+
+[q0214]
+name = "Salaries and Wages- civil"
+old_name = "202"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "202_C"
+
+[q0215]
+name = "Salaries and Wages -defence"
+old_name = "202"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "202_D"
+
+[q0216]
+name = "Materials- civil"
+old_name = "222"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "222_C"
+
+[q0217]
+name = "Materials- defence"
+old_name = "222"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "222_D"
+
+[q0218]
+name = "Services- civil"
+old_name = "223"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "223_C"
+
+[q0219]
+name = "Services-defence"
+old_name = "223"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "223_D"
+
+[q0222]
+name = "Total capex and non-capex- civil"
+old_name = "211"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "211_C"
+
+[q0223]
+name = "Total capex and non-capex- defence"
+old_name = "211"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "211_D"
+
+[q0224]
+name = "Basic research- civil"
+old_name = "205"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "205_C"
+
+[q0225]
+name = "Basic research- defence"
+old_name = "205"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "205_D"
+
+[q0226]
+name = "Applied research- civil"
+old_name = "206"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "206_C"
+
+[q0227]
+name = "Applied research- defence"
+old_name = "206"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "206_D"
+
+[q0228]
+name = "Experimental - civil"
+old_name = "207"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "207_C"
+
+[q0229]
+name = "Experimental- defence"
+old_name = "207"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "207_D"
+
+[q0301]
+name = "Own funds- Civil"
+old_name = "212"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "212_C"
+
+[q0302]
+name = "Own funds-defence"
+old_name = "212"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "212_D"

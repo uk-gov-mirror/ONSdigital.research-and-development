@@ -2,9 +2,69 @@
 
 import logging
 import pandas as pd
+from src.staging.validation import load_schema
+from src.utils.helpers import filename_amender
 from src.utils.breakdown_validation import get_all_wanted_columns
+from src.outputs.outputs_helpers import create_output_df
 
 OutputMainLogger = logging.getLogger(__name__)
+
+
+def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
+    """Creates a National Accounts output for PNP only, mapping back to the original
+    questions. Selects and adds columns where needed for back-compatibility, to output
+    a CSV file of the appropriate format.
+
+    Args:
+        df (pd.DataFrame): The complete data.
+        config (dict): The configuration settings.
+        write_csv (callable): Function to write to a csv file.
+
+    Returns:
+        None
+
+    """
+    output_path = config["outputs_paths"]["outputs_master"]
+
+    # Get columns from config
+    cols = get_all_wanted_columns(config, "imputation")
+
+    # Select only the columns we need
+    div_df = df.copy()
+    div_df = div_df[cols]
+
+    # Divide by 1000
+    div_df = divide_by_1000(div_df, config)
+
+    # Replace cols in df with the new values
+    df[cols] = div_df[cols]
+
+    # Add columns for back-compatibility
+    df = cols_to_add(df)
+
+    # Filter civil and defence data into seperate dataframes
+    civil_df = df[df["200"] == "C"]
+    defence_df = df[df["200"] == "D"]
+
+    # Add "C" or "D" to the columns of the corresponding dataframes
+    civil_df.columns = civil_df.columns + "_C"
+    defence_df.columns = defence_df.columns + "_D"
+
+    # Concatenate the dataframes
+    df = concat_df(civil_df, defence_df)
+
+    # Create output dataframe with required columns from schema
+    schema_path = config["schema_paths"]["frozen_group_schema"]
+    schema_dict = load_schema(schema_path)
+    output = create_output_df(df, schema_dict)
+
+    # Reorder Columns
+    output = output.sort_values(by=["Column_name"], ascending=True)
+    output = create_output_df(df, schema_dict)
+
+    # Outputting the CSV file
+    filename = filename_amender("output_frozen_group", config)
+    write_csv(f"{output_path}/output_frozen_group/{filename}", output)
 
 
 def divide_by_1000(df, config):
@@ -21,7 +81,7 @@ def divide_by_1000(df, config):
 
 def cols_to_add(df: pd.DataFrame):
     """Adds columns for back-compatibility."""
-    cols_to_add = ["q303", "q327", "q319", "q323", "q208"]
+    cols_to_add = ["q0303", "q0327", "q0319", "q0323", "q0208"]
 
     for col in cols_to_add:
         if col not in df.columns:
@@ -44,6 +104,7 @@ def map_to_prev_civil(df: pd.DataFrame):
         "211": "q0222",
         "205": "q0224",
         "206": "q0226",
+        "208": "q0228",
         "212": "q0301",
         "216": "q0305",
         "242": "q0307",
