@@ -240,6 +240,11 @@ def run_full_postcode_process(
         validation_df, postcode_masterlist, config
     )
 
+    # Add "legalstatus" to the invalid_postcode_df to separate BERD and PNP
+    invalid_postcode_df = invalid_postcode_df.merge(
+        validation_df[["reference", "legalstatus"]], on="reference", how="left"
+    )
+
     ValidationLogger.info("Update full responses....")
     # update df to exclude any invalid/unreal postcode entries, and format cols
     full_responses = update_full_responses(df, invalid_postcode_df)

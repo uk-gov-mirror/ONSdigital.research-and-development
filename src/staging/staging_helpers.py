@@ -300,6 +300,9 @@ def stage_validate_harmonise_postcodes(
         full_responses, postcode_mapper, config
     )
 
+    # Filter invalid postcodes for BERD or PNP data
+    invalid_df = filter_pnp_data(invalid_df, config)
+
     # Log the saving of invalid postcodes to a file
     StagingHelperLogger.info("Saving Invalid Postcodes to File")
 
