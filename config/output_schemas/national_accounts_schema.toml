@@ -165,3 +165,75 @@ name = "Own funds-defence"
 old_name = "212"
 Deduced_Data_Type = "Int64"
 R_and_D_Type = "212_D"
+
+[q0303]
+name = "UK Gov- civil"
+old_name = "214"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "214_C"
+
+[q0304]
+name = "UK Gov- defence"
+old_name = "214"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "214_D"
+
+[q0305]
+name = "Other UK private business- civil"
+old_name = "216"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "216_C"
+
+[q0306]
+name = "Other UK private business- defence"
+old_name = "216"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "216_D"
+
+[q0307]
+name = "UK PNP - Civil"
+old_name = "242"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "242_C"
+
+[q0308]
+name = "UK PNP - defence"
+old_name = "242"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "242_D"
+
+[q0309]
+name = "Business enterprises in group outside uk- civil"
+old_name = "243"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "243_C"
+
+[q0310]
+name = "Business enterprises in group outside uk- defence"
+old_name = "243"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "243_D"
+
+[q0311]
+name = "Other business enterprises outside uk- civil"
+old_name = "244"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "243_C"
+
+[q0312]
+name = "Other business enterprises outside uk- defence"
+old_name = "244"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "243_D"
+
+[q0313]
+name = "Other Governments outside uk- civil"
+old_name = "245"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "245_C"
+
+[q0314]
+name = "Other Governments outside uk- defence"
+old_name = "245"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "245_D"

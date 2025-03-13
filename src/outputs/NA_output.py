@@ -54,7 +54,7 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
     df = concat_df(civil_df, defence_df)
 
     # Create output dataframe with required columns from schema
-    schema_path = config["schema_paths"]["frozen_group_schema"]
+    schema_path = config["schema_paths"]["nation_accounts_schema"]
     schema_dict = load_schema(schema_path)
     output = create_output_df(df, schema_dict)
 
