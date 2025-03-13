@@ -237,3 +237,193 @@ name = "Other Governments outside uk- defence"
 old_name = "245"
 Deduced_Data_Type = "Int64"
 R_and_D_Type = "245_D"
+
+[q0315]
+name = "Higher education outside uk- civil"
+old_name = "246"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "246_C"
+
+[q0316]
+name = "Higher education outside uk- defence"
+old_name = "246"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "246_D"
+
+[q0317]
+name = "Non-profit outside uk- civil"
+old_name = "247"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "247_C"
+
+[q0318]
+name = "Non-profit outside uk- defence"
+old_name = "247"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "247_D"
+
+[q0319]
+name = "Commission of EU- civil"
+old_name = "q0319"
+Deduced_Data_Type = "Int64"
+
+[q0320]
+name = "Commission of EU- defence"
+old_name = "q0320"
+Deduced_Data_Type = "Int64"
+
+[q0321]
+name = "International organisations- civil"
+old_name = "248"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "248_C"
+
+[q0322]
+name = "International organisations- defence"
+old_name = "248"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "248_D"
+
+[q0323]
+name = "Any other orgs outside uk- civil"
+old_name = "q0323"
+Deduced_Data_Type = "Int64"
+
+[q0324]
+name = "Any other orgs outside uk- defence"
+old_name = "q0324"
+Deduced_Data_Type = "Int64"
+
+[q0325]
+name = "Total funding- civil"
+old_name = "218"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "218_C"
+
+[q0326]
+name = "Total funding- defence"
+old_name = "218"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "218_D"
+
+[q0327]
+name = "UK Research council- civil"
+old_name = "214"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "214_C"
+
+[q0328]
+name = "UK Research council- defence"
+old_name = "214"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "214_D"
+
+[q0329]
+name = "(New) UK Higher Education - civil"
+old_name = "250"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "250_C"
+
+[q0330]
+name = "(New) UK Higher Education - defence"
+old_name = "250"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "250_D"
+
+[q0501]
+name = "Researchers male"
+old_name = "headcount_res_m"
+Deduced_Data_Type = "Int64"
+
+[q0502]
+name = "Researchers female"
+old_name = "headcount_res_f"
+Deduced_Data_Type = "Int64"
+
+[q0503]
+name = "Technicians Male"
+old_name = "headcount_tec_m"
+Deduced_Data_Type = "Int64"
+
+[q0504]
+name = "Technicians female"
+old_name = "headcount_tec_f"
+Deduced_Data_Type = "Int64"
+
+[q0505]
+name = "Others Male"
+old_name = "headcount_oth_m"
+Deduced_Data_Type = "Int64"
+
+[q0506]
+name = "Others female"
+old_name = "headcount_oth_f"
+Deduced_Data_Type = "Int64"
+
+[q0507]
+name = "Total HC Male"
+old_name = "headcount_tot_m"
+Deduced_Data_Type = "Int64"
+
+[q0508]
+name = "headcount_tot_f"
+old_name = "508"
+Deduced_Data_Type = "Int64"
+
+[q0509]
+name = "FTE Researchers- civil"
+old_name = "405"
+Deduced_Data_Type = "Float"
+R_and_D_Type = "405_C"
+
+[q0510]
+name = "FTE Researchers- defence"
+old_name = "405"
+Deduced_Data_Type = "Float"
+R_and_D_Type = "405_D"
+
+[q0511]
+name = "FTE Technicians- civil"
+old_name = "407"
+Deduced_Data_Type = "Float"
+R_and_D_Type = "407_C"
+
+[q0512]
+name = "FTE Technicians- defence"
+old_name = "407"
+Deduced_Data_Type = "Float"
+R_and_D_Type = "407_D"
+
+[q0513]
+name = "FTE Others- civil"
+old_name = "409"
+Deduced_Data_Type = "Float"
+R_and_D_Type = "409_C"
+
+[q0514]
+name = "FTE Others- defence"
+old_name = "409"
+Deduced_Data_Type = "Float"
+R_and_D_Type = "409_D"
+
+[q0515]
+name = "Total FTE- civil"
+old_name = "411"
+Deduced_Data_Type = "Float"
+R_and_D_Type = "411_C"
+
+[q0516]
+name = "Total FTE- defence"
+old_name = "411"
+Deduced_Data_Type = "Float"
+R_and_D_Type = "411_D"
+
+[q0601]
+name = "Postcode"
+old_name = "postcodes_harmonised"
+Deduced_Data_Type = "String"
+
+[q0602]
+name = "% of R&D"
+old_name = "602"
+Deduced_Data_Type = "Int64"
