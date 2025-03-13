@@ -214,28 +214,3 @@ def update_ref_list(full_df: pd.DataFrame, ref_list_df: pd.DataFrame) -> pd.Data
     df = df.drop(["_merge", "cellnumber_new"], axis=1)
 
     return df
-
-
-def create_additional_ni_cols(
-    ni_full_responses: pd.DataFrame, config: dict
-) -> pd.DataFrame:
-    """
-    Create additional columns for Northern Ireland data.
-
-    Args:
-        df (pd.DataFrame): The main DataFrame.
-        config (dict): The pipeline configuration settings.
-
-    Returns:
-        pd.DataFrame: The DataFrame with additional columns.
-    """
-    # Add required columns to NI data
-    ni_full_responses["a_weight"] = 1
-    ni_full_responses["g_weight"] = 1
-    ni_full_responses["604"] = "Yes"
-    ni_full_responses["form_status"] = 600
-    ni_full_responses["602"] = 100.0
-    ni_full_responses["formtype"] = "0003"
-    ni_full_responses["itl"] = config["mappers"]["ni_itl"]
-
-    return ni_full_responses

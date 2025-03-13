@@ -5,8 +5,11 @@ import logging
 import pathlib
 import os
 import re
-from src.utils.helpers import filename_amender
+
 from typing import Callable, Dict, Any, Union, Tuple
+
+from src.utils.helpers import filename_amender
+from src.utils.breakdown_validation import get_all_wanted_columns
 
 # Third Party Imports
 import pandas as pd
@@ -96,24 +99,21 @@ def aggregate_itl(
     """
     current_year = config["survey"]["survey_year"]
     geo_cols = config["mappers"]["geo_cols"]
-    hc_cols = (
-        config["breakdowns"]["headcount_total"]
-        + config["breakdowns"]["emp_total"]
-        + config["imputation"]["sum_cols"]
-    )
-    base_cols = ["postcodes_harmonised", "formtype", "211"]
-    df = gb_df[geo_cols + base_cols + hc_cols]
+    # return a list of the emp_xx and hc_xx columns
+    emp_cols = get_all_wanted_columns(config, "employment_lf")
+
+    base_cols = ["formtype", "211"]
+    df = gb_df[base_cols + emp_cols + geo_cols].copy()
 
     # conditionally include NI responses to produce UK
     if uk_output:
-        ni_df = ni_df.copy()[["formtype", "211"] + hc_cols]
-        for col in geo_cols + ["postcodes_harmonised"]:
-            ni_df[col] = pd.NA
+        ni_df = ni_df[base_cols + emp_cols + geo_cols].copy()
+
         df = pd.concat([df, ni_df], ignore_index=True).copy()
 
     # Create the aggregation dictionary
     agg_dict = {"211": "sum"}
-    agg_dict.update({col: "sum" for col in hc_cols})
+    agg_dict.update({col: "sum" for col in emp_cols})
 
     # Aggregate to ITL2 and ITL1 (Keep 3 and 4 letter codes)
     itl2 = df.groupby(geo_cols).agg(agg_dict).reset_index()

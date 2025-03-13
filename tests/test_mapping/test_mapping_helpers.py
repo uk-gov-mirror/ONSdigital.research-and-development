@@ -8,7 +8,6 @@ from src.mapping.mapping_helpers import (
     col_validation_checks,
     check_mapping_unique,
     update_ref_list,
-    create_additional_ni_cols,
     join_with_null_check,
     mapper_null_checks
 )
@@ -212,58 +211,6 @@ class TestUpdateRefList(object):
         with pytest.raises(ValueError, match=error_msg):
             update_ref_list(full_input_df, ref_list_input)
 
-
-class TestCreateAdditionalNiCols(object):
-    """Tests for create_additional_ni_cols function."""
-    def config(self) -> dict:
-        """A dummy config for running join_itl_regions tests."""
-        config = {
-            "mappers": {
-                "geo_cols": ["ITL221CD", "ITL221NM", "ITL121CD", "ITL121NM"],
-                "gb_itl": "LAU121CD",
-                "ni_itl": "N92000002",
-            }
-        }
-        return config
-
-    def test_create_additional_ni_cols(self):
-        """Test create_additional_ni_cols function."""
-        # Create sample input DataFrame
-        columns = ["reference", "value"]
-        data = [
-            [1, 10],
-            [2, 20],
-            [3, 30],
-        ]
-        df = pd.DataFrame(data=data, columns=columns)
-
-        # Expected output DataFrame
-        expected_columns = [
-            "reference",
-            "value",
-            "a_weight",
-            "g_weight",
-            "604",
-            "form_status",
-            "602",
-            "formtype",
-            "itl",
-        ]
-        expected_data = [
-            [1, 10, 1, 1, "Yes", 600, 100.0, "0003", "N92000002"],
-            [2, 20, 1, 1, "Yes", 600, 100.0, "0003", "N92000002"],
-            [3, 30, 1, 1, "Yes", 600, 100.0, "0003", "N92000002"],
-        ]
-        expected_df = pd.DataFrame(data=expected_data, columns=expected_columns)
-
-        # Call the function
-        config = self.config()
-        output_df = create_additional_ni_cols(df, config)
-
-        # Check if the output matches the expected DataFrame
-        assert output_df.equals(
-            expected_df
-        ), "Output from create_additional_ni_cols not as expected."
 
 class TestValidateMappingFilenames(object):
     def test_validate_mapper_config_raises_file_incorrect(self):
