@@ -9,7 +9,7 @@ from src.construction.construction_helpers import (
     prepare_forms_gb,
     clean_construction_type,
     add_constructed_nonresponders,
-    remove_short_to_long_0,
+    # remore_short_to_long_0,
     finalise_forms_gb,
     replace_values_in_construction,
 )
@@ -114,12 +114,12 @@ def all_data_construction(  # noqa: C901
         updated_snapshot_df, construction_df
     )
 
-    if "construction_type" in construction_df.columns:
-        if "short_to_long" in construction_df["construction_type"].values:
-            construction_df.reset_index(inplace=True)
-            updated_snapshot_df = remove_short_to_long_0(
-                updated_snapshot_df, construction_df
-            )
+    # f "construction_type" in construction_df.columns:
+    #   if "short_to_long" in construction_df["construction_type"].values:
+    #       construction_df.reset_index(inplace=True)
+    #       updated_snapshot_df = remove_short_to_long_0(
+    #           updated_snapshot_df, construction_df
+    #       )
 
     # Run GB specific actions
     if not is_northern_ireland:
