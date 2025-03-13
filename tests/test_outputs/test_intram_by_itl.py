@@ -1,13 +1,10 @@
 """Tests for intram_by_itl.py."""
-# Standard Library Imports
 import pytest
-import os
-import pathlib
-from datetime import datetime
 
-# Third Party Imports
 import pandas as pd
 import numpy as np
+
+from pandas._testing import assert_frame_equal
 
 # Local Imports
 from src.outputs.intram_by_itl import rename_itl, aggregate_itl
@@ -57,20 +54,28 @@ class TestAggregateItl(object):
                 "gb_itl": "LAU121CD",
                 "ni_itl": "N92000002",
             },
-            "imputation":{"sum_cols":["emp_total"]},
-            "breakdowns": {"emp_total":["emp_researcher"],
-              "headcount_total": ["headcount_res_m"]}
+            "consistency_checks": {
+                "2xx_totals": {
+                    "equality": ["211", "218"]
+                },
+                "emp_xx_totals": {
+                    "employment": ["emp_researcher", "emp_total"]
+                },
+                "hc_xx_totals": {
+                    "headcount": ["headcount_res_m"]
+                }
+            }
         }
         return config
 
     @pytest.fixture(scope="function")
     def ni_input_data(self) -> pd.DataFrame:
         """UK input data for output_intram_by_itl tests."""
-        columns = ["formtype", "211","headcount_res_m", "emp_researcher", "emp_total"]
-        data = [["0003", 213.0, 5, 5, 20],
-                ["0003", 25.0, 1, 2, 10],
-                ["0003", 75.0, 5, 8, 30],
-                ["0003", 167.0, 8, 10, 40],]
+        columns = ["formtype", "211","headcount_res_m", "emp_researcher", "emp_total", 'ITL221CD', 'ITL221NM', 'ITL121CD', 'ITL121NM']
+        data = [["0003", 213.0, 5, 5, 20, "TLN0", "Northern Ireland", "TLN", "Northern Ireland"],
+                ["0003", 25.0, 1, 2, 10, "TLN0", "Northern Ireland", "TLN", "Northern Ireland"],
+                ["0003", 75.0, 5, 8, 30, "TLN0", "Northern Ireland", "TLN", "Northern Ireland"],
+                ["0003", 167.0, 8, 10, 40, "TLN0", "Northern Ireland", "TLN", "Northern Ireland"],]
         df = pd.DataFrame(data=data, columns=columns)
         return df
 
@@ -134,6 +139,7 @@ class TestAggregateItl(object):
             ["TLJ", "South East (England)", 12345878.0, 1215, 1515, 5030],
             ["TLK", "South West (England)", 151306.5, 190, 330, 2550],
             ["TLL", "Wales", 359585.6683, 50, 60, 300],
+            ["TLN", "Northern Ireland", 480.0, 19, 25, 100],
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
@@ -148,7 +154,7 @@ class TestAggregateItl(object):
             ["TLJ3", "Hampshire and Isle of Wight", 12345878.0, 1215, 1515, 5030],
             ["TLK2", "Dorset and Somerset", 151306.5, 190, 330, 2550],
             ["TLL1", "West Wales and The Valleys", 359585.6683, 50, 60, 300],
-
+            ["TLN0", "Northern Ireland", 480.0, 19, 25, 100],
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
@@ -170,9 +176,8 @@ class TestAggregateItl(object):
         itl1, itl2 = aggregate_itl(input_data, ni_input_data, config)
         itl1 = itl1.round(4)
         itl2 = itl2.round(4)
-        assert itl1.equals(gb_itl1_output), "GB ITL1 Output Not as Expected."
-        assert itl2.equals(gb_itl2_output), "GB ITL2 Output Not as Expected."
-
+        assert_frame_equal(itl1, gb_itl1_output, check_like=True)
+        assert_frame_equal(itl2, gb_itl2_output, check_like=True)
 
     def test_aggregate_itl_uk(
         self,
@@ -187,5 +192,5 @@ class TestAggregateItl(object):
 
         itl1 = itl1.round(4)
         itl2 = itl2.round(4)
-        assert itl1.equals(uk_itl1_output), "UK ITL1 Output Not as Expected."
-        assert itl2.equals(uk_itl2_output), "UK ITL2 Output Not as Expected."
+        assert_frame_equal(itl1, uk_itl1_output, check_like=True)
+        assert_frame_equal(itl2, uk_itl2_output, check_like=True)
