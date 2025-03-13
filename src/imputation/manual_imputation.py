@@ -23,7 +23,9 @@ def merge_manual_imputation(
     if manual_trim_df is not None:
         if "manual_trim" in df.columns:
             df = df.drop(columns=["manual_trim"])
-        manual_trim_df = manual_trim_df.astype({"instance": "float64"})
+        manual_trim_df = manual_trim_df.astype(
+            {"reference": "Int64", "instance": "Int64"}
+        )
 
         df = df.merge(manual_trim_df, on=["reference", "instance"], how="left")
         df["manual_trim"] = df["manual_trim"].fillna(False).astype(bool)
