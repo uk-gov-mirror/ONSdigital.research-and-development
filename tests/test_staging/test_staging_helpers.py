@@ -2,9 +2,11 @@
 # Standard Library Imports
 import os
 import pytest
-import pathlib
-from unittest.mock import Mock
-from typing import Tuple, Dict, Any
+
+import pandas as pd
+from pandas._testing import assert_frame_equal
+
+from typing import  Dict, Any
 from datetime import date
 import logging
 from unittest.mock import patch
@@ -368,14 +370,9 @@ class TestStageValidateHarmonisePostcodes(object):
             write_csv=write_csv,
         )
         # test direct function outputs
-        assert fr.equals(full_responses_output), (
-            "full_responses output from stage_validate_harmonise_postcodes not"
-            " as expected."
-        )
-        assert pm.equals(pc_mapper_output), (
-            "postcode_mapper output from stage_validate_harmonise_postcodes not"
-            " as expected."
-        )
+        assert_frame_equal(fr, full_responses_output, check_like=True)
+        assert_frame_equal(pm, pc_mapper_output, check_like=True)
+
         # assert that invalid postcodes have been saved out
         files = os.listdir(tmp_path)
         filename = (
