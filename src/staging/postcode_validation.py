@@ -46,14 +46,6 @@ def check_log_unreal_postcodes(
         validation_df,
         unreal_postcodes,  # "not found in masterlist"
     )
-
-    # Log the unreal postcodes
-    ValidationLogger.warning(
-        f"These postcodes are not found in the ONS postcode list: {unreal_postcodes.to_list()}"  # noqa
-    )
-    ValidationLogger.warning(
-        f"Number of postcodes not found in the ONS postcode list: {len(unreal_postcodes.to_list())}"  # noqa
-    )
     return invalid_postcode_df, unreal_postcodes
 
 
@@ -238,6 +230,11 @@ def run_full_postcode_process(
     # Check for unreal entries in postcodes_harmonised column
     invalid_postcode_df, unreal_postcodes = check_log_unreal_postcodes(
         validation_df, postcode_masterlist, config
+    )
+
+    # Add "legalstatus" to the invalid_postcode_df to separate BERD and PNP
+    invalid_postcode_df = invalid_postcode_df.merge(
+        validation_df[["reference", "legalstatus"]], on="reference", how="left"
     )
 
     ValidationLogger.info("Update full responses....")
