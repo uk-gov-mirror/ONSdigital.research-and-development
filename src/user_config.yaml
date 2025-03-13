@@ -8,7 +8,7 @@ global:
   # Staging and validation settings
   postcode_csv_check: True
   use_backdata: True
-  load_ni_data: True
+  load_ni_data: False
   # Pipeline run type
   run_with_snapshot: False                       # Run until point of freezing
   run_with_snapshot_and_freeze: False             # Last run with frozen snapshot - produces frozen csv
@@ -48,7 +48,7 @@ global:
   output_intram_by_sic: False
   output_fte_total_qa: False
   output_status_filtered: False
-  output_frozen_group: True
+  output_frozen_group: False
   output_intram_totals: True
 s3_paths:
   root: "/bat/res_dev/project_data/"
