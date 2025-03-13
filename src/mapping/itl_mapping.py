@@ -13,13 +13,13 @@ def join_itl_regions(
     pc_col: str = "postcodes_harmonised",
     warn_only: bool = False,
 ) -> pd.DataFrame:
-    """Joins the itl regions onto the full dataframe using the mapper provided.
+    """Joins the itl regions onto the responses dataframe using the mapper provided.
 
     First, the itl column is added to the dataframe by joining the postcode_mapper.
     Then the itl mapper is joined to add the region columns.
 
     Args:
-        df (pd.DataFrame): The BERD responses dataframes
+        df (pd.DataFrame): The BERD or PNP responses dataframes
         postcode_mapper (pd.DataFrame): Mapper containing postcodes and regions
         itl_mapper (pd.DataFrame): Mapper containing ITL regions
         config (dict): Pipeline configuration settings
