@@ -6,11 +6,18 @@ import os
 # Third Party Imports
 import pytest
 import pandas as pd
+import numpy as np
 from pandas.testing import assert_frame_equal
 import numpy as np
 
 # Local Imports
-from src.imputation.MoR import run_mor, is_lf_only, filter_for_links, mor_preprocessing, calculate_links
+from src.imputation.MoR import (
+    is_lf_only,
+    mor_preprocessing,
+    calculate_growth_rates,
+    group_calc_link,
+    calculate_links
+)
 from src.imputation.imputation_helpers import get_imputation_cols, create_imp_class_col
 
 # pytestmark = pytest.mark.runwip
@@ -214,70 +221,205 @@ class TestMoRPreprocessing(object):
                 f"{name} not as expected."
             )
 
-class TestFilterForLinks(object):
-    """Tests to check the function is fitering correctly"""
+class Test_calculate_growth_rates(object):
+    """Tests for calculate_growth_rates."""
+    def target_vars_list(self):
+        """A simple method that returns a list."""
+        return ["211", "emp_researcher", "emp_technician"]
 
-    def create_input_df(self) -> pd.DataFrame:
-        """A dummy dataframe used for testing filter_for_links function."""
-        columns = ("reference", "instance", "imp_marker", "imp_class", "selectiontype")
+
+    def create_test_CGR_current_df(self):
+        """Create an test_CGR_current dataframe for the test."""
+        test_CGR_current_columns = [
+        "reference",
+        "instance",
+        "211",
+        "emp_researcher",
+        "emp_technician",
+        "imp_marker",
+        "imp_class",
+        "selectiontype",
+    ]
+
         data = [
-            [1001, 0, "R", "nan_A", "P"],  # instance 0 and "nan"
-            [1001, 1, "R", "C_A", "P"],
-            [1002, 1, "R", "D_A", "P"],
-            [1003, 1, "TMI", "C_B", "C"],  # not "R"
-            [1004, 1, "R", "C_C", "C"],
-            [1005, 1, "MoR", "nan_D", "C"],  # "nan" imp_class
-            [1005, 2, "MoR", "C_D", "C"],  # not "R"
+        [1031, 1, 20, 10, 10.0, "R", "C_AA", "C"],
+        [1031, 2, 10, 0, 10.0, "R", "D_AA", "C"],
+        [1032, 1, 0, 0, 0.0, "R", "<NA>_L", "C"],
+        [1033, 1, 0, 0, 0.0, "R", "C_AB", "C"],
+        [1040, 1, 86000, 0, 0.0, "R", "D_AB", "C"],
+        [1042, 1, 9000, 0, 0.0, "R", "D_AB", "C"],
+        [1045, 1, 80500, 20, np.nan, "R", "C_AH", "C"],
+        [1045, 2, 36000, 30, 10.0, "R", "D_AH", "C"],
+        [1046, 1, 80500, 0, 0.0, "R", "D_AD", "C"],
+        [1046, 2, 36000, 0, 0.0, "R", "C_AD", "C"],
+        [1046, 3, 0, 0, 0.0, "R", "<NA>_AD", "C"],
+        [1046, 4, 0, 0, 0.0, "R", "<NA>_AD", "C"],
+        [1047, 1, 400, 20, np.nan, "R", "C_BC", "C"],
+        [1047, 2, 200, 10, 10.0, "R", "D_BC", "C"],
+    ]
 
+        test_CGR_current_df = pd.DataFrame(data=data, columns=test_CGR_current_columns)
+        return test_CGR_current_df
+
+
+    def create_test_CGR_backdata_df(self):
+        """Create an test_CGR_backdata dataframe for the test."""
+        test_CGR_backdata_columns = [
+        "reference",
+        "instance",
+        "211",
+        "emp_researcher",
+        "emp_technician",
+        "imp_marker",
+        "imp_class",
+        "selectiontype",
+    ]
+
+        data = [
+        [1031, 1, 0.0, 10.0, np.nan, "R", "C_AA", "C"],
+        [1031, 2, 10.0, 10.0, 20.0, "R", "D_AA", "C"],
+        [1032, 1, np.nan, 0.0, 0.0, "R", "C_L", "C"],
+        [1040, 1, 87200.0, np.nan, np.nan, "R", "D_G", "C"],
+        [1042, 1, 8000.0, np.nan, np.nan, "R", "D_P", "C"],
+        [1045, 1, 10000.0, 0.0, 10.0, "R", "C_AH", "C"],
+        [1045, 2, 10000.0, 10.0, 10.0, "R", "D_AH", "C"],
+        [1047, 1, 400.0, 20.0, 0.0, "R", "C_BC", "C"],
+        [1047, 2, 200.0, 10.0, 10.0, "R", "D_BC", "C"],
+    ]
+
+        test_CGR_backdata_df = pd.DataFrame(data=data, columns=test_CGR_backdata_columns)
+        return test_CGR_backdata_df
+
+
+    def create_test_CGR_expected_df(self):
+        """Create an test_CGR_expected dataframe for the test."""
+        test_CGR_expected_columns = [
+        "reference",
+        "imp_class",
+        "211",
+        "emp_researcher",
+        "emp_technician",
+        "211_prev",
+        "emp_researcher_prev",
+        "emp_technician_prev",
+        "211_gr",
+        "emp_researcher_gr",
+        "emp_technician_gr",
+    ]
+
+        data = [
+        [1031, "C_AA", 20, 10, 10.0, 0.0, 10.0, 0.0, np.nan, 1.0, np.nan],
+        [1031, "D_AA", 10, 0, 10.0, 10.0, 10.0, 20.0, 1.0, np.nan, 0.5],
+        [1045, "C_AH", 80500, 20, 0.0, 10000.0, 0.0, 10.0, 8.05, np.nan, np.nan],
+        [1045, "D_AH", 36000, 30, 10.0, 10000.0, 10.0, 10.0, 3.6, 3.0, 1.0],
+        [1047, "C_BC", 400, 20, 0.0, 400.0, 20.0, 0.0, 1.0, 1.0, np.nan],
+        [1047, "D_BC", 200, 10, 10.0, 200.0, 10.0, 10.0, 1.0, 1.0, 1.0],
+    ]
+
+        test_CGR_expected_df = pd.DataFrame(data=data, columns=test_CGR_expected_columns)
+        return test_CGR_expected_df
+
+
+    def test_calculate_growth_rates(self):
+        """Test the calculate_growth_rates function."""
+        current_df = self.create_test_CGR_current_df()
+        backdata_df = self.create_test_CGR_backdata_df()
+        expected_df = self.create_test_CGR_expected_df()
+        target_vars = self.target_vars_list()
+
+        result_df = calculate_growth_rates(current_df, backdata_df, target_vars)
+
+        assert_frame_equal(result_df, expected_df, check_dtype=False, check_exact=False), (
+            "calculate_growth_rates() did not return the expected dataframe."
+        )
+
+class TestGroupCalcLink(object):
+    """Tests for the group_calc_links function."""
+    def create_input_df(self) -> pd.DataFrame:
+        """A dummy dataframe used for testing group_calc_links function."""
+        columns = [
+            "reference",
+            "imp_class",
+            "211",
+            "emp_researcher",
+            "211_gr",
+            "emp_researcher_gr",
         ]
-        input_df = pd.DataFrame(data, columns=columns)
+        data = [
+            [1031, "C_AA", 20, 10, np.nan, 1.0],
+            [1031, "C_AA", 10, 0, 1.0, np.nan],
+            [1045, "C_AA", 80500, 20, 8.05, np.nan],
+            [1045, "C_AA", 36000, 30, 3.6, 3.0],
+            [1047, "C_AA", 400, 20, 1.0, 1.0],
+            [1047, "C_AA", 200, 10, 1.0, 1.0]]
+
+        input_df = pd.DataFrame(data=data, columns=columns)
         return input_df
 
-    def expected_output_false(self) -> pd.DataFrame:
-        """Expected dataframe if 'is_current' is set to false.
-       Returns filtered data of both previous and current period data"""
-        columns = ("reference", "instance", "imp_marker", "imp_class", "selectiontype")
-        data = [
-            [1001, 1, "R", "C_A", "P"],
-            [1002, 1, "R", "D_A", "P"],
-            [1004, 1, "R", "C_C", "C"],
+    def dummy_config(self) -> dict:
+        """A dummy config for testing."""
+        config = {"imputation": {
+            "mor_threshold": 3,
+            "trim_threshold": 10,
+            "lower_trim_perc": 15,
+            "upper_trim_perc": 15,
+            "target_vars": ["211","emp_researcher"]},
+        }
+        return config
 
+    def expected_output_df(self) -> pd.DataFrame:
+        """Expected dataframe after running group_calc_links function.
+            'group_size' is calculated by the sum of valid values in the column.
+            'link' is calculated by the mean growth rate of the column.
+            'trim' is specified conditions in the config."""
+        columns = [
+            "reference",
+            "imp_class",
+            "211",
+            "emp_researcher",
+            "211_gr",
+            "emp_researcher_gr",
+            "211_gr_trim",
+            "211_group_size",
+            "211_link",
+            "emp_researcher_gr_trim",
+            "emp_researcher_group_size",
+            "emp_researcher_link",
         ]
-        exp_df_false = pd.DataFrame(data, columns=columns)
-        return exp_df_false
+        # Data has been sorted by growth rate (emp_researcher_gr) in descending order
+        data = [
+            [1047, "C_AA", 400, 20, 1.0, 1.0, False, 5, 2.93, False, 4, 1.5],
+            [1047, "C_AA", 200, 10, 1.0, 1.0, False, 5, 2.93, False, 4, 1.5],
+            [1031, "C_AA", 20, 10, np.nan, 1.0, False, 5, 2.93, False, 4, 1.5],
+            [1045, "C_AA", 36000, 30, 3.6, 3.0, False, 5, 2.93, False, 4, 1.5],
+            [1031, "C_AA", 10, 0, 1.0, np.nan, False, 5, 2.93, False, 4, 1.5],
+            [1045, "C_AA", 80500, 20, 8.05, np.nan, False, 5, 2.93, False, 4, 1.5],
+            ]
 
-    def expected_output_true(self) -> pd.DataFrame:
-        """ Expected dataframe if 'is_current' is set to true.
-        Only returns filtered data of current period data"""
-        columns = ("reference", "instance", "imp_marker", "imp_class", "selectiontype")
-        data = [[1004, 1, "R", "C_C", "C"]]
-        exp_df_true = pd.DataFrame(data, columns=columns)
-        return exp_df_true
+        expected_output_df = pd.DataFrame(data=data, columns=columns)
+        return expected_output_df
 
-    def test_filter_for_links(self):
+
+    def test_group_calc_link(self):
         # Create the input and expected output dataframes
         input_df = self.create_input_df()
-        exp_df_false = self.expected_output_false()
-        exp_df_true = self.expected_output_true()
+        config = self.dummy_config()
+        expected_output_df = self.expected_output_df()
+        target_vars = config["imputation"]["target_vars"]
 
         # Run the function
-        result_false = filter_for_links(input_df, is_current=False)
-        result_true = filter_for_links(input_df, is_current=True)
+        result_df = group_calc_link(input_df, target_vars, config)
 
         # Reset index for comparison
-        df_list = [exp_df_false, exp_df_true, result_false, result_true]
+        df_list = [expected_output_df, result_df]
 
         for df in df_list:
             df.reset_index(drop=True, inplace=True)
 
         # Compare the results
-        assert_frame_equal(result_false, exp_df_false, check_dtype=False, check_exact=False), (
-            "filter_for_links() not filtering data as expected."
+        assert_frame_equal(result_df, expected_output_df, check_dtype=False, check_exact=False), (
+            "group_calc_links() not calculating links as expected."
         )
-        assert_frame_equal(result_true, exp_df_true, check_dtype=False, check_exact=False), (
-            "filter_for_links() not filtering data as expected."
-        )
-
 class TestCalculateLinks(object):
     """Tests to check the function is ordering the data correctly"""
 
