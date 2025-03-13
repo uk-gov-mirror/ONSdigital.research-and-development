@@ -373,55 +373,55 @@ Deduced_Data_Type = "Int64"
 [q0509]
 name = "FTE Researchers- civil"
 old_name = "405"
-Deduced_Data_Type = "Float"
+Deduced_Data_Type = "float64"
 R_and_D_Type = "405_C"
 
 [q0510]
 name = "FTE Researchers- defence"
 old_name = "405"
-Deduced_Data_Type = "Float"
+Deduced_Data_Type = "float64"
 R_and_D_Type = "405_D"
 
 [q0511]
 name = "FTE Technicians- civil"
 old_name = "407"
-Deduced_Data_Type = "Float"
+Deduced_Data_Type = "float64"
 R_and_D_Type = "407_C"
 
 [q0512]
 name = "FTE Technicians- defence"
 old_name = "407"
-Deduced_Data_Type = "Float"
+Deduced_Data_Type = "float64"
 R_and_D_Type = "407_D"
 
 [q0513]
 name = "FTE Others- civil"
 old_name = "409"
-Deduced_Data_Type = "Float"
+Deduced_Data_Type = "float64"
 R_and_D_Type = "409_C"
 
 [q0514]
 name = "FTE Others- defence"
 old_name = "409"
-Deduced_Data_Type = "Float"
+Deduced_Data_Type = "float64"
 R_and_D_Type = "409_D"
 
 [q0515]
 name = "Total FTE- civil"
 old_name = "411"
-Deduced_Data_Type = "Float"
+Deduced_Data_Type = "float64"
 R_and_D_Type = "411_C"
 
 [q0516]
 name = "Total FTE- defence"
 old_name = "411"
-Deduced_Data_Type = "Float"
+Deduced_Data_Type = "float64"
 R_and_D_Type = "411_D"
 
 [q0601]
 name = "Postcode"
 old_name = "postcodes_harmonised"
-Deduced_Data_Type = "String"
+Deduced_Data_Type = "string"
 
 [q0602]
 name = "% of R&D"
