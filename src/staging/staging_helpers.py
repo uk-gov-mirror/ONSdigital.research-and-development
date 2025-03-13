@@ -299,6 +299,14 @@ def stage_validate_harmonise_postcodes(
     full_responses, invalid_df = pcval.run_full_postcode_process(
         full_responses, postcode_mapper, config
     )
+    # Log the unique unreal postcodes
+    bad_postcodes = invalid_df.incorrect_postcode.unique().tolist()
+    StagingHelperLogger.warning(
+        f"These postcodes are not found in the ONS postcode list: {bad_postcodes}"
+    )
+    StagingHelperLogger.warning(
+        f"Number of postcodes not found in the ONS postcode list: {len(bad_postcodes)}"
+    )
 
     # Filter invalid postcodes for BERD or PNP data
     invalid_df = filter_pnp_data(invalid_df, config)
