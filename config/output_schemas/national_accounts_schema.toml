@@ -421,7 +421,7 @@ R_and_D_Type = "411_D"
 [q0601]
 name = "Postcode"
 old_name = "postcodes_harmonised"
-Deduced_Data_Type = "string"
+Deduced_Data_Type = "str"
 
 [q0602]
 name = "% of R&D"

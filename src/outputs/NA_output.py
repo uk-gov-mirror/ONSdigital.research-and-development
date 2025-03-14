@@ -55,23 +55,22 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
     df = concat_df(civil_df, defence_df)
 
     # Remove duplicate columns
-    df = remove_duplicate_columns(df, config)
+    df = remove_duplicate_columns(df)
 
     # Add empty columns
     df = empty_columns(df)
 
+    # Reorder Columns
+    df = df.sort_values(by=["Column_name"], ascending=True)
+
     # Create output dataframe with required columns from schema
-    schema_path = config["schema_paths"]["nation_accounts_schema"]
+    schema_path = config["schema_paths"]["national_accounts_schema"]
     schema_dict = load_schema(schema_path)
     output = create_output_df(df, schema_dict)
 
-    # Reorder Columns
-    output = output.sort_values(by=["Column_name"], ascending=True)
-    output = create_output_df(df, schema_dict)
-
     # Outputting the CSV file
-    filename = filename_amender("output_frozen_group", config)
-    write_csv(f"{output_path}/output_frozen_group/{filename}", output)
+    filename = filename_amender("output_national_accounts", config)
+    write_csv(f"{output_path}/output_national_accounts/{filename}", output)
 
 
 def divide_by_1000(df, config):
@@ -83,7 +82,7 @@ def divide_by_1000(df, config):
         if col in df.columns:
             df[col] = df[col].apply(lambda x: x / 1000 if x > 0 else x)
 
-            return df
+    return df
 
 
 def cols_to_add(df: pd.DataFrame):
@@ -103,7 +102,7 @@ def empty_columns(df: pd.DataFrame):
 
     for col in empty_cols:
         if col not in df.columns:
-            df[col] = pd.NA
+            df[col] = 0
 
 
 def concat_df(civil_df: pd.DataFrame, defence_df: pd.DataFrame):
@@ -121,34 +120,30 @@ def concat_df(civil_df: pd.DataFrame, defence_df: pd.DataFrame):
     return df
 
 
-def remove_duplicate_columns(df: pd.DataFrame, config: dict):
-    """Removes duplicate columns from the dataframe."""
+def remove_duplicate_columns(df: pd.DataFrame):
+    """Removes duplicate columns that are from the dataframe who are not divided
+    by civil or defence."""
 
-    # Get cols from config
-    hc_cols = config["consistency_checks"]["hc_xx_totals"]
-
-    # From the df get cols that start with hc_cols
+    # From the df get cols that start with headcount
     cols = []
     for col in df.columns:
-        if col.startswith(hc_cols):
+        if col.startswith("headcount"):
             cols.append(col)
 
-    # Drop "_C" or "_D" from the column names
-    modified_cols = []
-    for col in cols:
-        if col.endswith("_C") or col.endswith("_D"):
-            col = col[:-2]
-        modified_cols.append(col)
-
-    # Drop duplicate columns
+    # Drop all columns that have come from the defence_df "_D"
     cols_to_drop = []
-    for col in modified_cols:
-        if col in df.columns:
+    for col in cols:
+        if col.endswith("_D"):
             cols_to_drop.append(col)
 
     df = df.drop(cols_to_drop, axis=1)
 
-    # Add the columns to the dataframe
-    df = df[modified_cols]
+    # Remove the "_C" from cols
+    col_c = []
+    for col in cols:
+        if col.endswith("_C"):
+            col_c.append(col)
+            for col in col_c:
+                df = df.rename(columns={col: col[:-2]})
 
     return df

@@ -21,6 +21,7 @@ from src.outputs.intram_by_civil_defence import output_intram_by_civil_defence
 from src.outputs.intram_by_sic import output_intram_by_sic
 from src.outputs.total_fte import qa_output_total_fte
 from src.outputs.intram_totals import output_intram_totals
+from src.outputs.NA_output import output_na
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -218,5 +219,10 @@ def run_outputs(  # noqa: C901
     if config["global"]["output_intram_totals"]:
         output_intram_totals(intram_tot_dict, config, write_csv)
         OutputMainLogger.info("Finished Intramural totals output.")
+
+    # Running National Accounts output
+    if config["global"]["output_na"]:
+        output_na(outputs_df, config, write_csv)
+        OutputMainLogger.info("Starting National Accounts output...")
 
     OutputMainLogger.info("Finished Outputs module.")
