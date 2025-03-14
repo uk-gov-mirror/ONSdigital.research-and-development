@@ -54,7 +54,11 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
     # Concatenate the dataframes
     df = concat_df(civil_df, defence_df)
 
-    # Columns 5xxx "_C" and "D", need to be combined as one total
+    # Remove duplicate columns
+    df = remove_duplicate_columns(df, config)
+
+    # Add empty columns
+    df = empty_columns(df)
 
     # Create output dataframe with required columns from schema
     schema_path = config["schema_paths"]["nation_accounts_schema"]
@@ -93,6 +97,15 @@ def cols_to_add(df: pd.DataFrame):
     return df
 
 
+def empty_columns(df: pd.DataFrame):
+    """Adds empty columns to the dataframe for NA purposes."""
+    empty_cols = ["q0701", "q0702", "q0703", "q0704", "q0705", "q0706"]
+
+    for col in empty_cols:
+        if col not in df.columns:
+            df[col] = pd.NA
+
+
 def concat_df(civil_df: pd.DataFrame, defence_df: pd.DataFrame):
     """Concatenates the civil and defence dataframes to one datdframe.
 
@@ -104,5 +117,38 @@ def concat_df(civil_df: pd.DataFrame, defence_df: pd.DataFrame):
 
     """
     df = pd.concat([civil_df, defence_df], ignore_index=True, axis=0)
+
+    return df
+
+
+def remove_duplicate_columns(df: pd.DataFrame, config: dict):
+    """Removes duplicate columns from the dataframe."""
+
+    # Get cols from config
+    hc_cols = config["consistency_checks"]["hc_xx_totals"]
+
+    # From the df get cols that start with hc_cols
+    cols = []
+    for col in df.columns:
+        if col.startswith(hc_cols):
+            cols.append(col)
+
+    # Drop "_C" or "_D" from the column names
+    modified_cols = []
+    for col in cols:
+        if col.endswith("_C") or col.endswith("_D"):
+            col = col[:-2]
+        modified_cols.append(col)
+
+    # Drop duplicate columns
+    cols_to_drop = []
+    for col in modified_cols:
+        if col in df.columns:
+            cols_to_drop.append(col)
+
+    df = df.drop(cols_to_drop, axis=1)
+
+    # Add the columns to the dataframe
+    df = df[modified_cols]
 
     return df
