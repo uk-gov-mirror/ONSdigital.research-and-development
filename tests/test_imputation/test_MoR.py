@@ -15,7 +15,8 @@ from src.imputation.MoR import (
     is_lf_only,
     mor_preprocessing,
     calculate_growth_rates,
-    group_calc_link
+    group_calc_link,
+    calculate_links
 )
 from src.imputation.imputation_helpers import get_imputation_cols, create_imp_class_col
 
@@ -418,4 +419,97 @@ class TestGroupCalcLink(object):
         # Compare the results
         assert_frame_equal(result_df, expected_output_df, check_dtype=False, check_exact=False), (
             "group_calc_links() not calculating links as expected."
+        )
+class TestCalculateLinks(object):
+    """Tests to check the function is ordering the data correctly"""
+
+    def config_dict(self):
+        """Dummy config for testing."""
+        config = {"imputation": {
+            "mor_threshold": 3,
+            "trim_threshold": 10,
+            "lower_trim_perc": 15,
+            "upper_trim_perc": 15,
+            "target_vars": ["211", "emp_researcher", "emp_technician"]},
+        }
+        return config
+
+    def create_input_df(self) -> pd.DataFrame:
+        """A dummy dataframe used for testing calculate_links function."""
+        columns = [
+            "reference",
+            "imp_class",
+            "211",
+            "emp_researcher",
+            "emp_technician",
+            "211_prev",
+            "emp_researcher_prev",
+            "emp_technician_prev",
+            "211_gr",
+            "emp_researcher_gr",
+            "emp_technician_gr",
+        ]
+
+        data = [
+            [1031, "C_AA", 20, 10, 10.0, 0.0, 10.0, 0.0, np.nan, 1.0, np.nan],
+            [1031, "D_AA", 10, 0, 10.0, 10.0, 10.0, 20.0, 1.0, np.nan, 0.5],
+            [1045, "C_AH", 80500, 20, 0.0, 10000.0, 0.0, 10.0, 8.05, np.nan, np.nan],
+            [1045, "D_AH", 36000, 30, 10.0, 10000.0, 10.0, 10.0, 3.6, 3.0, 1.0],
+            [1047, "C_BC", 400, 20, 0.0, 400.0, 20.0, 0.0, 1.0, 1.0, np.nan],
+            [1047, "D_BC", 200, 10, 10.0, 200.0, 10.0, 10.0, 1.0, 1.0, 1.0],
+        ]
+        input_df = pd.DataFrame(data, columns=columns)
+        return input_df
+
+    def expected_output(self) -> pd.DataFrame:
+        """Expected dataframe if 'is_current' is set to false.
+       Returns filtered data of both previous and current period data"""
+        columns = [
+            "imp_class",
+            "reference",
+            "211",
+            "211_prev",
+            "211_group_size",
+            "211_gr",
+            "211_gr_trim",
+            "211_link",
+            "emp_researcher",
+            "emp_researcher_prev",
+            "emp_researcher_group_size",
+            "emp_researcher_gr",
+            "emp_researcher_gr_trim",
+            "emp_researcher_link",
+            "emp_technician",
+            "emp_technician_prev",
+            "emp_technician_group_size",
+            "emp_technician_gr",
+            "emp_technician_gr_trim",
+            "emp_technician_link",
+        ]
+
+        data = [
+            ["C_AA", 1031, 20, 0.0, 0, np.nan, False, 1.0, 10, 10.0, 1, 1.0, False, 1.0, 10.0, 0.0, 0, np.nan, False, 1.0],
+            ["D_AA", 1031, 10, 10.0, 1, 1.0, False, 1.0, 0, 10.0, 0, np.nan, False, 1.0, 10.0, 20.0, 1, 0.5, False, 1.0],
+            ["C_AH", 1045, 80500, 10000.0, 1, 8.05, False, 1.0, 20, 0.0, 0, np.nan, False, 1.0, 0.0, 10.0, 0, np.nan, False, 1.0],
+            ["D_AH", 1045, 36000, 10000.0, 1, 3.6, False, 1.0, 30, 10.0, 1, 3.0, False, 1.0, 10.0, 10.0, 1, 1.0, False, 1.0],
+            ["C_BC", 1047, 400, 400.0, 1, 1.0, False, 1.0, 20, 20.0, 1, 1.0, False, 1.0, 0.0, 0.0, 0, np.nan, False, 1.0],
+            ["D_BC", 1047, 200, 200.0, 1, 1.0, False, 1.0, 10, 10.0, 1, 1.0, False, 1.0, 10.0, 10.0, 1, 1.0, False, 1.0],
+        ]
+
+        exp_df = pd.DataFrame(data, columns=columns)
+        return exp_df
+
+    def test_calculate_links(self):
+        # Create the input and expected output dataframes
+        input_df = self.create_input_df()
+        exp_df = self.expected_output()
+        config = self.config_dict()
+        target_vars = config["imputation"]["target_vars"]
+
+        # Run the function
+        result = calculate_links(input_df, target_vars, config)
+
+        # Compare the results
+        assert_frame_equal(result, exp_df, check_dtype=False, check_exact=False), (
+            "calculate_links() not ordering data as expected."
         )
