@@ -190,7 +190,7 @@ def apply_amendments(
     )
 
     # Apply deletions for 604
-    main_df = apply_deletions_604(main_df, accepted_amendments_df, config)
+    amended_df = apply_deletions_604(amended_df, accepted_amendments_df, config)
 
     return amended_df
 
