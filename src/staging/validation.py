@@ -156,7 +156,8 @@ def validate_data_with_schema(survey_df: pd.DataFrame, schema_path: str):  # noq
                         f"Failed to convert column '{column}' to datetime. Please check"
                         " the data."
                     )
-            survey_df[column] = survey_df[column].astype(dtypes_dict[column])
+            else:
+                survey_df[column] = survey_df[column].astype(dtypes_dict[column])
         except Exception as e:
             ValidationLogger.error(e)
     ValidationLogger.info("Validation successful")
@@ -227,7 +228,6 @@ def combine_schemas_validate_full_df(
     ValidationLogger.info("Finished data type casting process")
 
 
-@time_logger_wrap
 @exception_wrap
 def validate_many_to_one(*args) -> pd.DataFrame:
     """
