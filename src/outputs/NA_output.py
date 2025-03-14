@@ -5,7 +5,6 @@ import pandas as pd
 from src.staging.validation import load_schema
 from src.utils.helpers import filename_amender
 from src.utils.breakdown_validation import get_all_wanted_columns
-from src.outputs.outputs_helpers import create_output_df
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -58,15 +57,12 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
     df = remove_duplicate_columns(df)
 
     # Add empty columns
-    df = empty_columns(df)
-
-    # Reorder Columns
-    df = df.sort_values(by=["Column_name"], ascending=True)
+    # df = empty_columns(df)
 
     # Create output dataframe with required columns from schema
     schema_path = config["schema_paths"]["national_accounts_schema"]
     schema_dict = load_schema(schema_path)
-    output = create_output_df(df, schema_dict)
+    output = create_na_output(df, schema_dict)
 
     # Outputting the CSV file
     filename = filename_amender("output_national_accounts", config)
@@ -147,3 +143,56 @@ def remove_duplicate_columns(df: pd.DataFrame):
                 df = df.rename(columns={col: col[:-2]})
 
     return df
+
+
+def create_na_output(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
+    """Creates the dataframe for outputs with
+    the required columns. The naming of the columns comes
+    from the schema provided.
+
+    Args:
+        df (pd.DataFrame): Dataframe containing all columns
+        output_schema (str): Toml schema containing the old and new
+        column names for the outputs
+
+    Returns:
+        (pd.DataFrame): A dataframe consisting of only the
+        required short form output data
+    """
+
+    # Create dict of current and required column names
+    colname_schema_dict = {
+        output_schema[column_nm]["R_and_D_Type"]: column_nm
+        for column_nm in output_schema.keys()
+    }
+
+    # Check if colname_schema_dict is empty
+    if not colname_schema_dict:
+        raise ValueError("colname_schema_dict is empty. Please check the schema.")
+
+    # Check if all keys in colname_schema_dict are in df.columns
+    missing_cols = [col for col in colname_schema_dict.keys() if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing columns in DataFrame: {missing_cols}")
+
+    # Create subset dataframe with only the required outputs
+    output_df = df[colname_schema_dict.keys()].copy()
+
+    # Rename columns to match the output specification
+    output_df.rename(columns=colname_schema_dict, inplace=True)
+
+    # Rearrange to match user defined output order
+    output_df = output_df[colname_schema_dict.values()]
+
+    headers = [output_schema[col]["name"] for col in colname_schema_dict.values()]
+
+    # Create a DataFrame for headers and subheaders
+    header_df = pd.DataFrame([headers], columns=output_df.columns)
+
+    # Concatenate the header DataFrame with the output DataFrame
+    output_df = pd.concat([header_df, output_df], ignore_index=True)
+
+    # Reset the index
+    output_df = output_df.reset_index(drop=True)
+
+    return output_df
