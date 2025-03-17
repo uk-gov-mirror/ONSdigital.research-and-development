@@ -111,6 +111,10 @@ def run_imputation(  # noqa: C901
             imputed_df, qa_df, links_df, trimmed_df, config
         )
 
+    imputed_df = imputed_df.sort_values(
+        ["reference", "instance"], ascending=[True, True]
+    ).reset_index(drop=True)
+
     ImputationMainLogger.info("Finished Imputation calculation.")
 
     # Output QA files

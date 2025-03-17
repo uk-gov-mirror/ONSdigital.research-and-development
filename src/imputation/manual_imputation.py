@@ -61,13 +61,18 @@ def join_manual_trim_df_for_qa(
             the manual_trim column added.
     """
     imputed_df = pd.concat([imputed_df, trimmed_df])
-    imputed_df = imputed_df.sort_values(
-        ["reference", "instance"], ascending=[True, True]
-    ).reset_index(drop=True)
     qa_df = pd.concat([qa_df, trimmed_df]).reset_index(drop=True)
 
-    oth_cols = ["imp_class", "reference", "emp_total", "headcount_total", "manual_trim"]
+    oth_cols = [
+        "imp_class",
+        "reference",
+        "emp_total",
+        "headcount_total",
+        "manual_trim",
+        "formtype",
+    ]  # noqa
     wanted_cols = config["imputation"]["lf_target_vars"] + oth_cols
+    wanted_cols = [col for col in wanted_cols if col in trimmed_df.columns]
     links_df = pd.concat([links_df, trimmed_df[wanted_cols]]).reset_index(drop=True)
 
     return imputed_df, qa_df, links_df
