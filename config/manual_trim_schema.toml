@@ -1,6 +1,6 @@
 [reference]
 Description = "nan"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int64"
 Nullable = false
 Current_Data_Type = "str"
 Length = ">=1"
@@ -10,7 +10,7 @@ Possible_Categorical_Values = ["nan"]
 
 [instance]
 Description = "nan"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int64"
 Nullable = false
 Current_Data_Type = "str"
 Length = "nan"
