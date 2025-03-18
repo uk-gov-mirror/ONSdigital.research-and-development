@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from pandas import DataFrame as pandasDF
 from pandas._testing import assert_series_equal, assert_frame_equal
+import pytest
 
 from src.imputation.imputation_helpers import (
     copy_first_to_group,
@@ -16,6 +17,9 @@ from src.imputation.imputation_helpers import (
     get_imputation_cols,
     instance_fix,
     create_mask,
+    instance_fix,
+    get_mult_604_mask,
+    split_df_on_trim,
 )
 
 
@@ -766,3 +770,250 @@ class TestSpecialFilter:
 
     def test_special_filter_create_mean_case(self):
         filter_conditions_list = ["clear_status", "instance_nonzero", "exclude_nan_classes"]
+
+@pytest.fixture(scope="module")
+def cre_instance_fix_data():
+
+    test_df1 = pd.DataFrame(
+        [
+            [1000, np.nan, "Form sent out", "0001"],
+            [1001, 0, "Clear", "0001"],
+            [1002, np.nan, np.nan, np.nan],
+        ],
+        columns = [
+            "reference",
+            "instance",
+            "status",
+            "formtype",
+        ],
+    )
+    exp_df1 = pd.DataFrame(
+        [
+            [1000, 1, "Form sent out", "0001"],
+            [1001, 0, "Clear", "0001"],
+            [1002, np.nan, np.nan, np.nan],
+        ],
+        columns = [
+            "reference",
+            "instance",
+            "status",
+            "formtype",
+        ],
+    )
+
+    test_df2 = pd.DataFrame(
+        [
+            [1000, np.nan, "Form sent out", "0001", True],
+            [1001, 0, "Clear", "0001", True],
+            [1002, np.nan, np.nan, np.nan, True],
+            [1003, np.nan, "Form sent out", "0001", False],
+            [1004, 0, "Clear", "0001", False],
+            [1005, np.nan, np.nan, np.nan, False],
+        ],
+        columns = [
+            "reference",
+            "instance",
+            "status",
+            "formtype",
+            "is_constructed"
+        ],
+    )
+
+    exp_df2 = pd.DataFrame(
+        [
+            [1000, np.nan, "Form sent out", "0001", True],
+            [1001, 0, "Clear", "0001", True],
+            [1002, np.nan, np.nan, np.nan, True],
+            [1003, 1, "Form sent out", "0001", False],
+            [1004, 0, "Clear", "0001", False],
+            [1005, np.nan, np.nan, np.nan, False],
+        ],
+        columns = [
+            "reference",
+            "instance",
+            "status",
+            "formtype",
+            "is_constructed"
+        ],
+    )
+
+    # return test data as tuples of tuples
+    return (test_df1, exp_df1), (test_df2, exp_df2)
+
+def test_instance_fix(cre_instance_fix_data):
+    """Test for function instance_fix"""
+
+    test_data = cre_instance_fix_data
+
+    for input, expected in test_data:
+        result_df = instance_fix(input)
+        assert_frame_equal(result_df.reset_index(drop=True), expected, check_like=True)
+
+
+class TestGetMult604Mask:
+    """ define test for get_mult_604_mask function
+    which returns mask for long form references with "No" in col 604 but >1 instance"""
+
+    def cre_input_df(self) -> pd.DataFrame:
+        input_cols = ['reference', 'instance', 'formtype', '604']
+        input_data = [
+            [1000, np.nan, np.nan, np.nan],
+            [1001, 0, "0001", "No"],
+            [1001, 1, "0001", "No"],
+            [1001, 2, "0001", "No"],
+            [1002, 0, "0006", "Yes"],
+            [1002, 1, "0006", "Yes"],
+            [1002, 2, "0006", "Yes"],
+            [1003, 0, "0001", np.nan],
+            [1004, 0, np.nan, "No"],
+        ]
+        input_df = pd.DataFrame(columns=input_cols, data=input_data)
+        return input_df
+
+    def test_get_mult_604_mask(self):
+
+        input_df = self.cre_input_df()
+
+        expected_mask = pd.Series([False, False, True, True, False, False, False, False, False])
+
+        result_mask = get_mult_604_mask(input_df)
+
+        assert_series_equal(expected_mask, result_mask)
+
+class TestSplitDfOnTrim:
+    """ define test for split_df_on_trim function
+    Splits the dataframe in based on if it was trimmed or not"""
+
+    @pytest.mark.parametrize(
+        "test_df, trim_bool_col, exp_df_trimmed, exp_df_not_trimmed",
+        [(
+            # first test
+            # test_data : (test_df1, "manual_trim")
+            pd.DataFrame(
+                data = [
+                    [1000, np.nan],
+                    [1001, True],
+                    [1002, False],
+                    [1003, np.nan],
+                ],
+                columns = [
+                    'reference', 'manual_trim',
+                ],
+            ),
+            "manual_trim",
+
+            # expected : (exp_df_trimmed, exp_df_not_trimmed)
+            pd.DataFrame(
+                data = [
+                [1001, True],
+                ],
+                columns = [
+                    'reference', 'manual_trim'
+                ]
+            ),
+            pd.DataFrame(
+                data = [
+                [1000, False],
+                [1002, False],
+                [1003, False],
+                ],
+                columns = [
+                    'reference', 'manual_trim'
+                ],
+            ),
+        ),
+        (
+            # second test
+            # test_data : (test_df2, "211_trim")
+            pd.DataFrame(
+                data = [
+                    [2000, np.nan, np.nan],
+                    [2001, True, True],
+                    [2002, True, False],
+                    [2003, False, True],
+                    [2004, np.nan, True],
+                    [2005, np.nan, False],
+                    [2006, True, np.nan],
+                    [2007, False, np.nan],
+                ],
+                columns = [
+                    'reference', '211_trim', '305_trim',
+                ],
+            ),
+            "211_trim",
+
+            # expected : (exp_df_trimmed, exp_df_not_trimmed)
+            pd.DataFrame(
+                data = [
+                    [2001, True, True],
+                    [2002, True, False],
+                    [2006, True, np.nan],
+                ],
+                columns = [
+                    'reference', '211_trim', '305_trim',
+                ]
+            ),
+            pd.DataFrame(
+                data = [
+                    [2000, False, np.nan],
+                    [2003, False, True],
+                    [2004, False, True],
+                    [2005, False, False],
+                    [2007, False, np.nan],
+                ],
+                columns = [
+                    'reference', '211_trim', '305_trim',
+                ]
+            ),
+        ),
+        (
+            # test 3
+            # test_data : (test_df2, "305_trim")
+            pd.DataFrame(
+                data = [
+                    [2000, np.nan, np.nan],
+                    [2001, True, True],
+                    [2002, True, False],
+                    [2003, False, True],
+                    [2004, np.nan, True],
+                    [2005, np.nan, False],
+                    [2006, True, np.nan],
+                    [2007, False, np.nan],
+                ],
+                columns = [
+                    'reference', '211_trim', '305_trim',
+                ],
+            ),
+            "305_trim",
+
+            # expected : (exp_df_trimmed, exp_df_not_trimmed)
+            pd.DataFrame(
+                data = [
+                    [2001, True, True],
+                    [2003, False, True],
+                    [2004, np.nan, True],
+                ],
+                columns = [
+                    'reference', '211_trim', '305_trim',
+                ]
+            ),
+            pd.DataFrame(
+                data = [
+                    [2000, np.nan, False],
+                    [2002, True, False],
+                    [2005, np.nan, False],
+                    [2006, True, False],
+                    [2007, False, False],
+                ],
+                columns = [
+                    'reference', '211_trim', '305_trim',
+                ]
+            ),
+
+        ),]
+    )
+    def test_split_df_on_trim(self, test_df, trim_bool_col, exp_df_trimmed, exp_df_not_trimmed):
+
+        out_df1, out_df2 = split_df_on_trim(test_df, trim_bool_col)
+        assert_frame_equal(out_df1.reset_index(drop=True), exp_df_trimmed.reset_index(drop=True))
+        assert_frame_equal(out_df2.reset_index(drop=True), exp_df_not_trimmed.reset_index(drop=True))
