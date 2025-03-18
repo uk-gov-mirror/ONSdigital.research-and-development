@@ -184,15 +184,19 @@ def create_na_output(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
     # Rearrange to match user defined output order
     output_df = output_df[colname_schema_dict.values()]
 
-    headers = [output_schema[col]["name"] for col in colname_schema_dict.values()]
+    # Create a list of new column names using the "name" field from the schema
+    new_column_names = [
+        output_schema[col]["name"] for col in colname_schema_dict.values()
+    ]
 
-    # Create a DataFrame for headers and subheaders
-    header_df = pd.DataFrame([headers], columns=output_df.columns)
+    # Create a DataFrame for the first row with the original column names
+    first_row_values = list(colname_schema_dict.values())
+    first_row_df = pd.DataFrame([first_row_values], columns=new_column_names)
 
-    # Concatenate the header DataFrame with the output DataFrame
-    output_df = pd.concat([header_df, output_df], ignore_index=True)
+    # Rename the columns of the output DataFrame to the new column names
+    output_df.columns = new_column_names
 
-    # Reset the index
-    output_df = output_df.reset_index(drop=True)
+    # Concatenate the first row DataFrame with the output DataFrame
+    output_df = pd.concat([first_row_df, output_df], ignore_index=True)
 
     return output_df

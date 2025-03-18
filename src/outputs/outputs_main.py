@@ -222,7 +222,8 @@ def run_outputs(  # noqa: C901
 
     # Running National Accounts output
     if config["global"]["output_na"]:
-        output_na(outputs_df, config, write_csv)
         OutputMainLogger.info("Starting National Accounts output...")
+        output_na(outputs_df, config, write_csv)
+        OutputMainLogger.info("Finished National Accounts output.")
 
     OutputMainLogger.info("Finished Outputs module.")
