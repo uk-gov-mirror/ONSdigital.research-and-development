@@ -2,6 +2,7 @@
 
 import logging
 import pandas as pd
+import numpy as np
 from src.staging.validation import load_schema
 from src.utils.helpers import filename_amender
 from src.utils.breakdown_validation import get_all_wanted_columns
@@ -76,7 +77,7 @@ def divide_by_1000(df, config):
 
     for col in cols:
         if col in df.columns:
-            df[col] = df[col].apply(lambda x: x / 1000 if x > 0 else x)
+            df[col] = df[col].apply(lambda x: round(x / 1000, 0) if x > 0 else x)
 
     return df
 
@@ -98,7 +99,9 @@ def empty_columns(df: pd.DataFrame):
 
     for col in empty_cols:
         if col not in df.columns:
-            df[col] = 0
+            df[col] = np.nan
+
+    return df
 
 
 def concat_df(civil_df: pd.DataFrame, defence_df: pd.DataFrame):
