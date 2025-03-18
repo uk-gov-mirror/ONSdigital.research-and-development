@@ -68,12 +68,12 @@ def run_imputation(  # noqa: C901
             ~(df["is_constructed"].isin([True]) & df["force_imputation"].isin([False]))
         ]
 
+    # create extra columns for imputation and fix data issues
+    df, wrong_604_qa_df = hlp.imputation_prep(df, config)
+
     # Load manual imputation file
     df = mimp.merge_manual_imputation(df, manual_trimming_df)
     trimmed_df, df = hlp.split_df_on_trim(df, "manual_trim")
-
-    # create extra columns for imputation and fix data issues
-    df, wrong_604_qa_df = hlp.imputation_prep(df, config)
 
     # Run MoR
     if backdata is not None:
@@ -107,8 +107,9 @@ def run_imputation(  # noqa: C901
 
     # join manually trimmed columns back to the imputed df
     if not trimmed_df.empty:
-        imputed_df = pd.concat([imputed_df, trimmed_df])
-        qa_df = pd.concat([qa_df, trimmed_df]).reset_index(drop=True)
+        (imputed_df, qa_df, links_df) = mimp.join_manual_trim_df_for_qa(
+            imputed_df, qa_df, links_df, trimmed_df, config
+        )
 
     imputed_df = imputed_df.sort_values(
         ["reference", "instance"], ascending=[True, True]

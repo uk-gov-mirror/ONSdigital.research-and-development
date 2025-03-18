@@ -1,6 +1,8 @@
 import pandas as pd
 import logging
 
+from typing import Tuple, Dict, Any
+
 
 ManualImputationLogger = logging.getLogger(__name__)
 
@@ -23,9 +25,13 @@ def merge_manual_imputation(
     if manual_trim_df is not None:
         if "manual_trim" in df.columns:
             df = df.drop(columns=["manual_trim"])
-        manual_trim_df = manual_trim_df.astype(
-            {"reference": "Int64", "instance": "Int64"}
-        )
+
+        dtypes_dict = {
+            "reference": df["reference"].dtype,
+            "instance": df["instance"].dtype,
+            "manual_trim": bool,
+        }
+        manual_trim_df = manual_trim_df.astype(dtypes_dict)
 
         df = df.merge(manual_trim_df, on=["reference", "instance"], how="left")
         df["manual_trim"] = df["manual_trim"].fillna(False).astype(bool)
@@ -37,3 +43,43 @@ def merge_manual_imputation(
         if "manual_trim" not in df.columns:
             df["manual_trim"] = False
     return df
+
+
+def join_manual_trim_df_for_qa(
+    imputed_df: pd.DataFrame,
+    qa_df: pd.DataFrame,
+    links_df: pd.DataFrame,
+    trimmed_df: pd.DataFrame,
+    config: Dict[str, Any],
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """
+    Joins the manual trimming dataframe to a sweries of QA dataframes.
+
+    Args:
+        imputed_df (pd.DataFrame): The responses dataframe with imputed and unimputed
+            values
+        qa_df (pd.DataFrame): The QA dataframe for trimming
+        links_df (pd.DataFrame): The dataframe containing imputation links
+        trimmed_df (pd.DataFrame): The responses that were trimmed in manual trimming
+        config (Dict[str, Any]): The configuration dictionary.
+
+    Returns:
+        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]: The dataframes with
+            the manual_trim column added.
+    """
+    imputed_df = pd.concat([imputed_df, trimmed_df])
+    qa_df = pd.concat([qa_df, trimmed_df]).reset_index(drop=True)
+
+    oth_cols = [
+        "imp_class",
+        "reference",
+        "emp_total",
+        "headcount_total",
+        "manual_trim",
+        "formtype",
+    ]  # noqa
+    wanted_cols = config["imputation"]["lf_target_vars"] + oth_cols
+    wanted_cols = [col for col in wanted_cols if col in trimmed_df.columns]
+    links_df = pd.concat([links_df, trimmed_df[wanted_cols]]).reset_index(drop=True)
+
+    return imputed_df, qa_df, links_df
