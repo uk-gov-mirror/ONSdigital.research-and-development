@@ -26,6 +26,13 @@ def merge_manual_imputation(
         if "manual_trim" in df.columns:
             df = df.drop(columns=["manual_trim"])
 
+        dtypes_dict = {
+            "reference": df["reference"].dtype,
+            "instance": df["instance"].dtype,
+            "manual_trim": bool,
+        }
+        manual_trim_df = manual_trim_df.astype(dtypes_dict)
+
         df = df.merge(manual_trim_df, on=["reference", "instance"], how="left")
         df["manual_trim"] = df["manual_trim"].fillna(False).astype(bool)
 

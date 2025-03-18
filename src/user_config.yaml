@@ -2,7 +2,7 @@ config_validation:
   validate: True
   path: src/user_config_schema.yaml
 survey:
-  survey_type: "PNP"
+  survey_type: "BERD"
   survey_year: 2023
 global:
   # Staging and validation settings
@@ -25,7 +25,7 @@ global:
   # Backdata output settings
   output_backdata: False
   # QA output settings
-  output_full_responses: False
+  output_full_responses: True
   output_ni_full_responses: False
   output_mapping_qa: False
   output_mapping_ni_qa: False
