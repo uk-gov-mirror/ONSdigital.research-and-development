@@ -133,7 +133,7 @@ R_and_D_Type = "206_D"
 [q0228]
 name = "Experimental- civil"
 old_name = "207"
-Deduced_Data_Type = ""float64"
+Deduced_Data_Type = "float64"
 R_and_D_Type = "207_C"
 
 [q0229]
