@@ -127,7 +127,17 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
     MainLogger.info("Finished Freezing module...")
 
     if config["global"]["load_updated_snapshot_for_comparison"]:
-        MainLogger.info("Finishing Pipeline .......................")
+        MainLogger.info(
+            "Updated SPP snapshot & frozen data comparisson done. Finishing Pipeline..."
+        )
+
+        runlog_obj.write_runlog()
+        runlog_obj.mark_mainlog_passed()
+
+        return runlog_obj.time_taken
+
+    if config["global"]["run_updates_and_freeze"]:
+        MainLogger.info("New frozen csv file generated. Finishing Pipeline...")
 
         runlog_obj.write_runlog()
         runlog_obj.mark_mainlog_passed()
