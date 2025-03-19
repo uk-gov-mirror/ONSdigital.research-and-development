@@ -39,10 +39,6 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
     # Replace cols in df with the new values
     df[cols] = div_df[cols]
 
-    # Add columns for back-compatibility
-    # TO DO: Check whether the cols_to_add are civil or defence q's
-    # df = cols_to_add(df, config)
-
     # Filter civil and defence data into seperate dataframes
     civil_df = df[df["200"] == "C"]
     defence_df = df[df["200"] == "D"]
@@ -50,6 +46,17 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
     # Add "C" or "D" to the columns of the corresponding dataframes
     civil_df.columns = civil_df.columns + "_C"
     defence_df.columns = defence_df.columns + "_D"
+
+    # Remove _C or _D from columns that do not start with a number
+    for col in civil_df.columns:
+        # Doesn't start with a number
+        if not col[0].isdigit():
+            civil_df = civil_df.rename(columns={col: col[:-2]})
+
+    for col in defence_df.columns:
+        # Doesn't start with a number
+        if not col[0].isdigit():
+            defence_df = defence_df.rename(columns={col: col[:-2]})
 
     # Concatenate the dataframes
     df = concat_df(civil_df, defence_df)
@@ -78,13 +85,6 @@ def divide_by_1000(df, config):
     for col in cols:
         if col in df.columns:
             df[col] = df[col].apply(lambda x: round(x / 1000, 0) if x > 0 else x)
-
-    return df
-
-
-def cols_to_add(df, config):
-    """Adds columns for back compatibility to the orginial questions"""
-    # cols_to_add = ["q0303", "q0319", "q0320", "q0323", "q0324" "q0208"]
 
     return df
 
@@ -177,7 +177,6 @@ def create_na_output(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
         (pd.DataFrame): A dataframe consisting of only the
         required short form output data
     """
-
     # Create dict of current and required column names
     colname_schema_dict = {
         output_schema[column_nm]["R_and_D_Type"]: column_nm
@@ -203,9 +202,9 @@ def create_na_output(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
     output_df = output_df[colname_schema_dict.values()]
 
     # Create a list of new column names using the "name" field from the schema
-    new_column_names = [
-        output_schema[col]["name"] for col in colname_schema_dict.values()
-    ]
+    new_column_names = []
+    for col in colname_schema_dict.values():
+        new_column_names.append(output_schema[col]["name"])
 
     # Create a DataFrame for the first row with the original column names
     first_row_values = list(colname_schema_dict.values())

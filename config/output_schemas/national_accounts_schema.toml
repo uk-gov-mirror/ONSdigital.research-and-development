@@ -1,3 +1,15 @@
+[IDBRPeriod]
+name = ""
+old_name = "period_year"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "period_year"
+
+[RUReference]
+name = ""
+old_name = "reference"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "reference"
+
 [q0202]
 name = "Total Capex- civil"
 old_name = "210"
@@ -33,6 +45,18 @@ name = "Buildings- defence"
 old_name = "220"
 Deduced_Data_Type = "float64"
 R_and_D_Type = "221_D"
+
+[q0208]
+name = "Equipment and machinery- civil"
+old_name = "209"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "209_C"
+
+[q0209]
+name = "Equipment and machinery- defence"
+old_name = "209"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "209_D"
 
 [q0210]
 name = "Computer software- civil"
@@ -156,15 +180,15 @@ R_and_D_Type = "212_D"
 
 [q0303]
 name = "UK Gov- civil"
-old_name = "214"
+old_name = "214_ex_303"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "214_C"
+R_and_D_Type = "214_ex_303_C"
 
 [q0304]
 name = "UK Gov- defence"
-old_name = "214"
+old_name = "214_ex_303"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "214_D"
+R_and_D_Type = "214_ex_303_D"
 
 [q0305]
 name = "Other UK private business- civil"
@@ -250,6 +274,18 @@ old_name = "247"
 Deduced_Data_Type = "float64"
 R_and_D_Type = "247_D"
 
+[q0319]
+name = "Commission of EU- civil"
+old_name = "249_ex_319"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "249_ex_319_C"
+
+[q0320]
+name = "Commission of EU- defence"
+old_name = "249_ex_319"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "249_ex_319_D"
+
 [q0321]
 name = "International organisations- civil"
 old_name = "248"
@@ -261,6 +297,18 @@ name = "International organisations- defence"
 old_name = "248"
 Deduced_Data_Type = "float64"
 R_and_D_Type = "248_D"
+
+[q0323]
+name = "Any other orgs outside uk- civil"
+old_name = "249_ex_323"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "249_ex_323_C"
+
+[q0324]
+name = "Any other orgs outside uk- defence"
+old_name = "249_ex_323"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "249_ex_323_D"
 
 [q0325]
 name = "Total funding- civil"
