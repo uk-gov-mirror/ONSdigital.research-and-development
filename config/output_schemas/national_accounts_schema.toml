@@ -298,6 +298,102 @@ old_name = "250"
 Deduced_Data_Type = "float64"
 R_and_D_Type = "250_D"
 
+[q0331]
+name = "Total expenditure on Covid civil"
+old_name = "331"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "331"
+
+[q0332]
+name = "Total expenditure on Covid defence"
+old_name = "332"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "332"
+
+[q0333]
+name = "Covid own funds from UK civil"
+old_name = "333"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "333"
+
+[q0334]
+name = "Covid own funds from UK defence"
+old_name = "334"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "334"
+
+[q0335]
+name = "Covid from UK Gov Civil"
+old_name = "335"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "335"
+
+[q0336]
+name = "Covid from UK Gov defence"
+old_name = "336"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "336"
+
+[q0337]
+name = "Covid from UKRI civil"
+old_name = "337"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "337"
+
+[q0338]
+name = "Covid from UKRI defence"
+old_name = "338"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "338"
+
+[q0339]
+name = "Covid from other UK business enterprises civil"
+old_name = "339"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "339"
+
+[q0340]
+name = "Covid from other UK business enterprises defence"
+old_name = "340"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "340"
+
+[q0341]
+name = "Covid from other UK non profit organsiations civil"
+old_name = "341"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "341"
+
+[q0342]
+name = "Covid from other UK non profit organsiations defence"
+old_name = "342"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "342"
+
+[q0343]
+name = "Covid from  UK higher education civil"
+old_name = "343"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "343"
+
+[q0344]
+name = "Covid from  UK higher education defence"
+old_name = "344"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "344"
+
+[q0345]
+name = "Covid from outside UK civil"
+old_name = "345"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "345"
+
+[q0346]
+name = "Covid from outside UK defence"
+old_name = "346"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "346"
+
 [q0501]
 name = "Researchers male"
 old_name = "headcount_res_m"
@@ -393,3 +489,87 @@ name = "Total FTE- defence"
 old_name = "411"
 Deduced_Data_Type = "float64"
 R_and_D_Type = "411_D"
+
+[q0701]
+name = ""
+old_name = "701"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "701"
+
+[q0702]
+name = ""
+old_name = "702"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "702"
+
+[q0703]
+name = ""
+old_name = "703"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "703"
+
+[q0704]
+name = ""
+old_name = "704"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "704"
+
+[q0705]
+name = ""
+old_name = "705"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "705"
+
+[q0706]
+name = ""
+old_name = "706"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "706"
+
+[q0902]
+name = ""
+old_name = "302"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "302_C"
+
+[q0903]
+name = ""
+old_name = "302"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "302_D"
+
+[q0904]
+name = ""
+old_name = "303"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "303_C"
+
+[q0905]
+name = ""
+old_name = "303"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "303_D"
+
+[q0906]
+name = ""
+old_name = "304"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "304_C"
+
+[q0907]
+name = ""
+old_name = "304"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "304_D"
+
+[q0908]
+name = ""
+old_name = "305"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "305_C"
+
+[q0909]
+name = ""
+old_name = "305"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "305_D"

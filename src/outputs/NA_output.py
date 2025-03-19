@@ -41,7 +41,7 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
 
     # Add columns for back-compatibility
     # TO DO: Check whether the cols_to_add are civil or defence q's
-    df = cols_to_add(df)
+    # df = cols_to_add(df, config)
 
     # Filter civil and defence data into seperate dataframes
     civil_df = df[df["200"] == "C"]
@@ -58,7 +58,7 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
     df = remove_duplicate_columns(df)
 
     # Add empty columns
-    # df = empty_columns(df)
+    df = empty_columns(df, config)
 
     # Create output dataframe with required columns from schema
     schema_path = config["schema_paths"]["national_accounts_schema"]
@@ -82,25 +82,34 @@ def divide_by_1000(df, config):
     return df
 
 
-def cols_to_add(df: pd.DataFrame):
-    """Adds columns for back-compatibility."""
-    cols_to_add = ["q0303", "q0319", "q0320", "q0323", "q0324" "q0208"]
-
-    for col in cols_to_add:
-        if col not in df.columns:
-            df[col] = 0
+def cols_to_add(df, config):
+    """Adds columns for back compatibility to the orginial questions"""
+    # cols_to_add = ["q0303", "q0319", "q0320", "q0323", "q0324" "q0208"]
 
     return df
 
 
-def empty_columns(df: pd.DataFrame):
-    """Adds empty columns to the dataframe for NA purposes."""
-    empty_cols = ["q0701", "q0702", "q0703", "q0704", "q0705", "q0706"]
+def empty_columns(df, config):
+    """Adds columns empty cols for National Accounts"""
+    cols = get_all_wanted_columns(config, "estimation")
+    # Get the 7XXX cols
+    seven_cols = []
+    for col in cols:
+        if col.startswith("7"):
+            seven_cols.append(col)
 
-    for col in empty_cols:
+    # Add the 7XXX cols to the dataframe
+    for col in seven_cols:
         if col not in df.columns:
+            df = df.copy()
             df[col] = np.nan
 
+    # Adding not in the config.(q0331 TO q0346)
+    for i in range(331, 347):
+        col = str(i)
+        if col not in df.columns:
+            df = df.copy()
+            df[col] = np.nan
     return df
 
 
