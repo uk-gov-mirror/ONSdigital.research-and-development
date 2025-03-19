@@ -119,31 +119,37 @@ def concat_df(civil_df: pd.DataFrame, defence_df: pd.DataFrame):
     return df
 
 
-def remove_duplicate_columns(df: pd.DataFrame):
-    """Removes duplicate columns that are from the dataframe who are not divided
-    by civil or defence."""
+def remove_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Removes duplicate columns from the dataframe that are not divided
+    by civil or defence.
 
+    Args:
+        df (pd.DataFrame): The input DataFrame.
+
+    Returns:
+        pd.DataFrame: The DataFrame with duplicate columns removed.
+    """
     # From the df get cols that start with headcount
     cols = []
     for col in df.columns:
         if col.startswith("headcount"):
             cols.append(col)
 
-    # Drop all columns that have come from the defence_df "_D"
-    cols_to_drop = []
-    for col in cols:
-        if col.endswith("_D"):
-            cols_to_drop.append(col)
-
-    df = df.drop(cols_to_drop, axis=1)
-
-    # Remove the "_C" from cols
-    col_c = []
+    # Create a dictionary to map original columns to modified columns
+    col_mapping = {}
     for col in cols:
         if col.endswith("_C"):
-            col_c.append(col)
-            for col in col_c:
-                df = df.rename(columns={col: col[:-2]})
+            col_mapping[col] = col[:-2]
+        elif col.endswith("_D"):
+            col_mapping[col] = col[:-2]
+        else:
+            col_mapping[col] = col
+
+    # Apply the modified cols to the DataFrame
+    df = df.rename(columns=col_mapping)
+
+    # Aggregate the grouped columns by taking the first non-null value
+    df = df.groupby(level=0, axis=1).first()
 
     return df
 
