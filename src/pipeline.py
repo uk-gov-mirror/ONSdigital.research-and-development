@@ -126,9 +126,12 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
     )
     MainLogger.info("Finished Freezing module...")
 
+    run_id = runlog_obj.run_id
+
     if config["global"]["load_updated_snapshot_for_comparison"]:
         MainLogger.info(
-            "Updated SPP snapshot & frozen data comparisson done. Finishing Pipeline..."
+            "Updated SPP snapshot & frozen data comparisson done.\n"
+            f"Finishing Pipeline run id {run_id}........."
         )
 
         runlog_obj.write_runlog()
@@ -137,7 +140,10 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
         return runlog_obj.time_taken
 
     if config["global"]["run_updates_and_freeze"]:
-        MainLogger.info("New frozen csv file generated. Finishing Pipeline...")
+        MainLogger.info(
+            "New frozen csv file generated.\n"
+            f"Finishing Pipeline run id {run_id}........."
+        )
 
         runlog_obj.write_runlog()
         runlog_obj.mark_mainlog_passed()
@@ -259,7 +265,6 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
         sic_division_detailed,
     )
 
-    run_id = runlog_obj.run_id
     MainLogger.info(f"Finishing Pipeline run id {run_id}.........")
 
     runlog_obj.write_runlog()
