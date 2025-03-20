@@ -124,6 +124,18 @@ class TestGetAmendments:
 
 class TestGetAdditions:
     """Tests for get_additions()."""
+
+    # Create config for test
+    def create_config(self) -> dict:
+        """Create a test config."""
+        config = {
+            "survey": {
+                "survey_type": "BERD"
+            }
+        }
+
+        return config
+
     # Create test frozen df
     def create_test_frozen_df(self) -> pd.DataFrame:
         """Create a test frozen df"""
@@ -138,37 +150,37 @@ class TestGetAdditions:
         input_frozen_df = pd.DataFrame(data=data, columns=input_cols)
         return input_frozen_df
 
-
     # Create test additions df
     def create_test_additions_df(self) -> pd.DataFrame:
         """Create a test additions df."""
-        input_cols = ["reference", "period", "instance", "other"]
+        input_cols = ["reference", "period", "instance", "other", "legalstatus"]
         data = [
-            ["A", 202412, 2.0, 1.0],
-            ["B", 202412, None, None],
-            ["C", 202412, 0.0, 1.0],
-            ["D", 202412, 1.0, 2.0],
-            ["E", 202412, None, None],
-            ["F", 202412, 1.0, 4.0],
-            ["G", 202412, None, 4.0],
-            ["H", 202412, 1.0, None]
+            ["A", 202412, 2.0, 1.0, "4"],
+            ["B", 202412, None, None, "4"],
+            ["C", 202412, 0.0, 1.0, "4"],
+            ["D", 202412, 1.0, 2.0, "4"],
+            ["E", 202412, None, None, "4"],
+            ["F", 202412, 1.0, 4.0, "4"],
+            ["G", 202412, None, 4.0, "4"],
+            ["H", 202412, 1.0, None, "4"],
+            ["X", 202412, 1.0, None, "7"],
+            ["Y", 202412, 1.0, None, "7"],
+            ["Z", 202412, 1.0, None, "7"],
         ]
         input_additions_df = pd.DataFrame(data=data, columns=input_cols)
         return input_additions_df
 
-
     # Create expected outcome df
     def create_test_expected_outcome_df(self) -> pd.DataFrame:
         """Create a test expected_outcome df."""
-        input_cols = ["reference", "period", "instance", "other", "accept_changes"]
+        input_cols = ["reference", "period", "instance", "other", "legalstatus", "accept_changes"]
         data = [
-            ["F", 202412, 1.0, 4.0, False],
-            ["G", 202412, None, 4.0, False],
-            ["H", 202412, 1.0, None, False]
+            ["F", 202412, 1.0, 4.0, "4", False],
+            ["G", 202412, None, 4.0, "4", False],
+            ["H", 202412, 1.0, None, "4", False]
         ]
         input_expected_outcome_df = pd.DataFrame(data=data, columns=input_cols)
         return input_expected_outcome_df
-
 
     def test_get_additions(self):
         """Test for get_additions()."""
@@ -176,10 +188,11 @@ class TestGetAdditions:
         input_frozen_df = self.create_test_frozen_df()
         input_additions_df = self.create_test_additions_df()
         expected_outcome_df = self.create_test_expected_outcome_df()
+        config = self.create_config()
 
         # Run the function
         result = get_additions(
-            input_frozen_df, input_additions_df, test_logger
+            input_frozen_df, input_additions_df, test_logger, config
         )
 
         # Check the output
