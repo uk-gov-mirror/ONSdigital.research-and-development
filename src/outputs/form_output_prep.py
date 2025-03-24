@@ -43,6 +43,7 @@ def form_output_prep(
     flag_no_rand_spenders(weighted_df, "error")
 
     tau_outputs_df = filter_outputs(weighted_df)
+    tau_outputs_df = tau_outputs_df.loc[tau_outputs_df.instance != 0]
     tau_outputs_df = create_period_year(tau_outputs_df)
 
     # Now that the tau outputs have been created, we can apply the weights to the
