@@ -61,12 +61,6 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
     # Concatenate the dataframes
     df = concat_df(civil_df, defence_df)
 
-    # Remove duplicate columns
-    df = remove_duplicate_columns(df)
-
-    # Add empty columns
-    df = empty_columns(df, config)
-
     # Create output dataframe with required columns from schema
     schema_path = config["schema_paths"]["national_accounts_schema"]
     schema_dict = load_schema(schema_path)
@@ -83,6 +77,7 @@ def divide_by_1000(df, config):
     cols = get_all_wanted_columns(config, "imputation")
 
     for col in cols:
+        df = df.copy()
         if col in df.columns:
             df[col] = df[col].apply(lambda x: round(x / 1000, 0) if x > 0 else x)
 
@@ -128,41 +123,6 @@ def concat_df(civil_df: pd.DataFrame, defence_df: pd.DataFrame):
     return df
 
 
-def remove_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Removes duplicate columns from the dataframe that are not divided
-    by civil or defence.
-
-    Args:
-        df (pd.DataFrame): The input DataFrame.
-
-    Returns:
-        pd.DataFrame: The DataFrame with duplicate columns removed.
-    """
-    # From the df get cols that start with headcount
-    cols = []
-    for col in df.columns:
-        if col.startswith("headcount"):
-            cols.append(col)
-
-    # Create a dictionary to map original columns to modified columns
-    col_mapping = {}
-    for col in cols:
-        if col.endswith("_C"):
-            col_mapping[col] = col[:-2]
-        elif col.endswith("_D"):
-            col_mapping[col] = col[:-2]
-        else:
-            col_mapping[col] = col
-
-    # Apply the modified cols to the DataFrame
-    df = df.rename(columns=col_mapping)
-
-    # Aggregate the grouped columns by taking the first non-null value
-    df = df.groupby(level=0, axis=1).first()
-
-    return df
-
-
 def create_na_output(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
     """Creates the dataframe for outputs with
     the required columns. The naming of the columns comes
@@ -183,14 +143,11 @@ def create_na_output(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
         for column_nm in output_schema.keys()
     }
 
-    # Check if colname_schema_dict is empty
-    if not colname_schema_dict:
-        raise ValueError("colname_schema_dict is empty. Please check the schema.")
-
-    # Check if all keys in colname_schema_dict are in df.columns
-    missing_cols = [col for col in colname_schema_dict.keys() if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing columns in DataFrame: {missing_cols}")
+    # If col is in schema but not in df, add it to the df
+    for col in colname_schema_dict.keys():
+        if col not in df.columns:
+            df = df.copy()
+            df[col] = np.nan
 
     # Create subset dataframe with only the required outputs
     output_df = df[colname_schema_dict.keys()].copy()

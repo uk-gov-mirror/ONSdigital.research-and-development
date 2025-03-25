@@ -1,14 +1,338 @@
+[InquiryIDBRCode]
+name = ""
+old_name = "survey"
+Deduced_Data_Type = "str"
+R_and_D_Type = "survey"
+
 [IDBRPeriod]
 name = ""
-old_name = "period_year"
+old_name = "period"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "period_year"
+R_and_D_Type = "period"
 
 [RUReference]
 name = ""
 old_name = "reference"
 Deduced_Data_Type = "Int64"
 R_and_D_Type = "reference"
+
+[FormType]
+name = ""
+old_name = "formtype"
+Deduced_Data_Type = "str"
+R_and_D_Type = "formtype"
+
+[Upddate]
+name = ""
+old_name = "Upddate"
+Deduced_Data_Type = "str"
+R_and_D_Type = "Upddate"
+
+[Addr1]
+name = ""
+old_name = "Addr1"
+Deduced_Data_Type = "str"
+R_and_D_Type = "Addr1"
+
+[Addr2]
+name = ""
+old_name = "Addr2"
+Deduced_Data_Type = "str"
+R_and_D_Type = "Addr2"
+
+[Addr3]
+name = ""
+old_name = "Addr3"
+Deduced_Data_Type = "str"
+R_and_D_Type = "Addr3"
+
+[Addr4]
+name = ""
+old_name = "Addr4"
+Deduced_Data_Type = "str"
+R_and_D_Type = "Addr4"
+
+[Addr5]
+name = ""
+old_name = "Addr5"
+Deduced_Data_Type = "str"
+R_and_D_Type = "Addr5"
+
+[Name]
+name = ""
+old_name = "referencename"
+Deduced_Data_Type = "str"
+R_and_D_Type = "referencename"
+
+[Contact]
+name = ""
+old_name = "Contact"
+Deduced_Data_Type = "str"
+R_and_D_Type = "Contact"
+
+[Curr]
+name = ""
+old_name = "currency"
+Deduced_Data_Type = "str"
+R_and_D_Type = "currency"
+
+[Email]
+name = ""
+old_name = "Email"
+Deduced_Data_Type = "str"
+R_and_D_Type = "Email"
+
+[RecieptDate]
+name = ""
+old_name = "receiptdate"
+Deduced_Data_Type = "datetime64[ns]"
+R_and_D_Type = "receiptdate"
+
+[EmpsIDBR]
+name = ""
+old_name = "EmpsIDBR"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "EmpsIDBR"
+
+[Empt]
+name = ""
+old_name = "employment"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "employment"
+
+[Emptfro]
+name = ""
+old_name = "frozenemployment"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "frozenemployment"
+
+[Entref]
+name = ""
+old_name = "enterprisereference"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "enterprisereference"
+
+[Entgroup]
+name = ""
+old_name = "wowenterprisereference"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "wowenterprisereference"
+
+[VETs]
+name = ""
+old_name = "VETs"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "VETs"
+
+[FormStatus]
+name = ""
+old_name = "status"
+Deduced_Data_Type = "category"
+R_and_D_Type = "status"
+
+[Employees]
+name = ""
+old_name = "employees"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "employees"
+
+[Formver]
+name = ""
+old_name = "Formver"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "Formver"
+
+[FTEfro]
+name = ""
+old_name = "frozenfteemployment"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "frozenfteemployment"
+
+[FTE]
+name = ""
+old_name = "fteemployment"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "fteemployment"
+
+[Updby]
+name = ""
+old_name = "Updby"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "Updby"
+
+[Legalstatus]
+name = ""
+old_name = "legalstatus"
+Deduced_Data_Type = "catergory"
+R_and_D_Type = "legalstatus"
+
+[Lockdate]
+name = ""
+old_name = "lockeddate"
+Deduced_Data_Type = "pd.NA"
+R_and_D_Type = "lockeddate"
+
+[MC]
+name = ""
+old_name = "MC"
+Deduced_Data_Type = "pd.NA"
+R_and_D_Type = "MC"
+
+[Month]
+name = ""
+old_name = "Month"
+Deduced_Data_Type = "pd.NA"
+R_and_D_Type = "Month"
+
+[NS]
+name = ""
+old_name = "NS"
+Deduced_Data_Type = "pd.NA"
+R_and_D_Type = "NS"
+
+[Nonresp]
+name = ""
+old_name = "Nonresp"
+Deduced_Data_Type = "pd.NA"
+R_and_D_Type = "Nonresp"
+
+[PC]
+name = ""
+old_name = "referencepostcode"
+Deduced_Data_Type = "str"
+R_and_D_Type = "referencepostcode"
+
+[Turnover]
+name = ""
+old_name = "turnover"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "turnover"
+
+[Region]
+name = ""
+old_name = "region"
+Deduced_Data_Type = "catergory"
+R_and_D_Type = "region"
+
+[RUSICcur]
+name = ""
+old_name = "rusic"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "rusic"
+
+[RUSICprev]
+name = ""
+old_name = "rusicoutdated"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "rusicoutdated"
+
+[CellSelection]
+name = ""
+old_name = "CellSelection"
+Deduced_Data_Type = "pd.NA"
+R_and_D_Type = "CellSelection"
+
+[SICcurfro]
+name = ""
+old_name = "frozensic"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "frozensic"
+
+[DataSource]
+name = ""
+old_name = "DataSource"
+Deduced_Data_Type = "pd.NA"
+R_and_D_Type = "DataSource"
+
+[SICprevfro]
+name = ""
+old_name = "frozensicoutdated"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "frozensicoutdated"
+
+[SICprev]
+name = ""
+old_name = "SICprev"
+Deduced_Data_Type = "pd.NA"
+R_and_D_Type = "SICprev"
+
+[Tel]
+name = ""
+old_name = "Tel"
+Deduced_Data_Type = "pd.NA"
+R_and_D_Type = "Tel"
+
+[CurrentSIC]
+name = ""
+old_name = "CurrentSIC"
+Deduced_Data_Type = "pd.NA"
+R_and_D_Type = "CurrentSIC"
+
+[TOfro]
+name = ""
+old_name = "frozenturnover"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "frozenturnover"
+
+[TOIDBR]
+name = ""
+old_name = "TOIDBR"
+Deduced_Data_Type = "pd.NA"
+R_and_D_Type = "TOIDBR"
+
+[Year]
+name = ""
+old_name = "period_year"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "period_year"
+
+[Instance]
+name = ""
+old_name = "instance"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "instance"
+
+[q0001]
+name = ""
+old_name = "q0001"
+Deduced_Data_Type = "pd.NA"
+R_and_D_Type = "q0001"
+
+[q0002]
+name = ""
+old_name = "q0002"
+Deduced_Data_Type = "pd.NA"
+R_and_D_Type = "q0002"
+
+[q0003]
+name = ""
+old_name = "q0003"
+Deduced_Data_Type = "pd.NA"
+R_and_D_Type = "q0003"
+
+[q0101]
+name = ""
+old_name = "101"
+Deduced_Data_Type = "str"
+R_and_D_Type = "101"
+
+[q0102]
+name = ""
+old_name = "103"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "103"
+
+[q0103]
+name = ""
+old_name = "104"
+Deduced_Data_Type = "str"
+R_and_D_Type = "104"
+
+[q0201]
+name = ""
+old_name = "604"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "604"
 
 [q0202]
 name = "Total Capex- civil"
