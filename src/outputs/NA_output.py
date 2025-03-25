@@ -84,30 +84,6 @@ def divide_by_1000(df, config):
     return df
 
 
-def empty_columns(df, config):
-    """Adds columns empty cols for National Accounts"""
-    cols = get_all_wanted_columns(config, "estimation")
-    # Get the 7XXX cols
-    seven_cols = []
-    for col in cols:
-        if col.startswith("7"):
-            seven_cols.append(col)
-
-    # Add the 7XXX cols to the dataframe
-    for col in seven_cols:
-        if col not in df.columns:
-            df = df.copy()
-            df[col] = np.nan
-
-    # Adding not in the config.(q0331 TO q0346)
-    for i in range(331, 347):
-        col = str(i)
-        if col not in df.columns:
-            df = df.copy()
-            df[col] = np.nan
-    return df
-
-
 def concat_df(civil_df: pd.DataFrame, defence_df: pd.DataFrame):
     """Concatenates the civil and defence dataframes to one datdframe.
 
