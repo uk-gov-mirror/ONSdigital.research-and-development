@@ -10,6 +10,19 @@ from src.utils.breakdown_validation import get_all_wanted_columns
 OutputMainLogger = logging.getLogger(__name__)
 
 
+def divide_by_1000(df, config):
+    """Values in columns starting 2xxx or 3xxx are divided by 1000"""
+    # Get cols from config
+    cols = get_all_wanted_columns(config, "imputation")
+
+    for col in cols:
+        df = df.copy()
+        if col in df.columns and not isinstance(col, str):
+            df[col] = df[col].apply(lambda x: round(x / 1000, 0) if x > 0 else x)
+
+    return df
+
+
 def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
     """Creates a National Accounts output for PNP only, mapping back to the original
     questions. Selects and adds columns where needed for back-compatibility, to output
@@ -59,7 +72,7 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
             defence_df = defence_df.rename(columns={col: col[:-2]})
 
     # Concatenate the dataframes
-    df = concat_df(civil_df, defence_df)
+    df = pd.concat([civil_df, defence_df], ignore_index=True, axis=0)
 
     # Create output dataframe with required columns from schema
     schema_path = config["schema_paths"]["national_accounts_schema"]
@@ -69,34 +82,6 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
     # Outputting the CSV file
     filename = filename_amender("output_national_accounts", config)
     write_csv(f"{output_path}/output_national_accounts/{filename}", output)
-
-
-def divide_by_1000(df, config):
-    """Values in columns starting 2xxx or 3xxx are divided by 1000"""
-    # Get cols from config
-    cols = get_all_wanted_columns(config, "imputation")
-
-    for col in cols:
-        df = df.copy()
-        if col in df.columns:
-            df[col] = df[col].apply(lambda x: round(x / 1000, 0) if x > 0 else x)
-
-    return df
-
-
-def concat_df(civil_df: pd.DataFrame, defence_df: pd.DataFrame):
-    """Concatenates the civil and defence dataframes to one datdframe.
-
-    Args:
-        df(pd.DataFrame): The filtered and reformatted civil dataframe.
-        df(pd.DataFrame): The filtered and reformatted defence dataframe.
-    Return:
-        df(pd.DataFrame): The joined dataframe, ready for output.
-
-    """
-    df = pd.concat([civil_df, defence_df], ignore_index=True, axis=0)
-
-    return df
 
 
 def create_na_output(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
