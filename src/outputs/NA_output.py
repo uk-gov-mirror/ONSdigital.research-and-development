@@ -17,7 +17,7 @@ def divide_by_1000(df, config):
 
     for col in cols:
         df = df.copy()
-        if col in df.columns and not isinstance(col, str):
+        if col in df.columns:
             df[col] = df[col].apply(lambda x: round(x / 1000, 0) if x > 0 else x)
 
     return df
@@ -82,6 +82,9 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
     # Outputting the CSV file
     filename = filename_amender("output_national_accounts", config)
     write_csv(f"{output_path}/output_national_accounts/{filename}", output)
+
+    # Return the processed DataFrame for QA
+    return output
 
 
 def create_na_output(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:

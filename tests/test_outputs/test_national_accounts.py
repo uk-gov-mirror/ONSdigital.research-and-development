@@ -6,6 +6,7 @@ import pytest
 # Third Party Imports
 import pandas as pd
 import numpy as np
+from unittest.mock import patch
 from pandas.testing import assert_frame_equal
 
 # Local Imports
@@ -67,16 +68,19 @@ class TestOutputNa(object):
     def create_config(self) -> dict:
         """Create a test config."""
         config = {
-        "outputs_paths": {
-            "outputs_master": "dummy_output_path"
-        },
-        "output_schemas": {
-                "national_accounts_schema": "config/output_schemas/national_accounts_schema.toml"
-        },
-        "consistency_checks": {
-            "2xx_totals": {
-                "imputation": ['200', '202', '204', '210'],
-                "emp_defence": []
+            "survey": {
+                "survey_year": "2023",
+                "survey_type": "PNP"},
+            "filename_items": {
+                "run_id": "dummy_run_id",
+                "tdate": "dummy_tdate"},
+            "outputs_paths": {
+                "outputs_master": "dummy_output_path"},
+            "schema_paths": {
+                "national_accounts_schema": "dummy_schema"},
+            "consistency_checks": {
+                "2xx_totals": {
+                "imputation": ['202', '204', '210'],
             }
         }
     }
@@ -98,24 +102,44 @@ class TestOutputNa(object):
     def expected_output(self):
         """Expected output data for output_na tests."""
         columns = ["RUReference", "Salaries and Wages- civil", "Salaries and Wages- defence", "Total non-capex- civil", "Total non-capex- defence", "Total Capex- civil", "Total Capex- defence"]
-        data = ([1001, 11, 0, 20, 2, 8, 0],
-                [1002, 8, 1, 24, 3, 10, 0],
-                [1003, 4, 1, 38, 0, 2, 0])
+        data = ([1001, 11, np.NaN, 20, np.NaN, 8, np.NaN],
+                [1001, np.NaN, 0, np.NaN, 2, np.NaN, 0],
+                [1002, 8, np.NaN, 24, np.NaN, 10, np.NaN],
+                [1002, np.NaN, 1, np.NaN, 3, np.NaN, 0],
+                [1003, 4, np.NaN, 38, np.NaN, 2, np.NaN],
+                [1003, np.NaN, 1, np.NaN, 0, np.NaN, 0])
 
 
         df = pd.DataFrame(data=data, columns=columns)
         return df
 
-
-    def test_output_na(self):
+    @patch("src.outputs.NA_output.load_schema")
+    def test_output_na(self, mock_load_schema):
         """General tests for output_na."""
+        # Define the dummy schema
+        dummy_schema = {
+            "RUReference": {"old_name": "ref", "name": "RUReference", "R_and_D_Type": "ref"},
+            "q0214": {"old_name": "202", "name": "Salaries and Wages- civil", "R_and_D_Type": "202_C"},
+            "q0215": {"old_name": "202", "name": "Salaries and Wages- defence", "R_and_D_Type": "202_D"},
+            "q0212": {"old_name": "204","name": "Total non-capex- civil", "R_and_D_Type": "204_C"},
+            "q0213": {"old_name": "204","name": "Total non-capex- defence", "R_and_D_Type": "204_D"},
+            "q0202": {"old_name": "210","name": "Total Capex- civil", "R_and_D_Type": "210_C"},
+            "q0203": {"old_name": "210","name": "Total Capex- defence", "R_and_D_Type": "210_D"}
+        }
+
+        # Mock the load_schema function to return the dummy schema
+        mock_load_schema.return_value = dummy_schema
+
+        # Run the test
         config = self.create_config()
         input_data = self.input_data()
         expected_output = self.expected_output()
 
         result_df = output_na(input_data, config, dummy_write_csv)
 
+        # Assert the result matches the expected output
         assert_frame_equal(
             result_df.reset_index(drop=True),
             expected_output.reset_index(drop=True),
-            check_dtype=False)
+            check_dtype=False
+        )
