@@ -102,12 +102,13 @@ class TestOutputNa(object):
     def expected_output(self):
         """Expected output data for output_na tests."""
         columns = ["RUReference", "Salaries and Wages- civil", "Salaries and Wages- defence", "Total non-capex- civil", "Total non-capex- defence", "Total Capex- civil", "Total Capex- defence"]
-        data = ([1001, 11, np.NaN, 20, np.NaN, 8, np.NaN],
-                [1001, np.NaN, 0, np.NaN, 2, np.NaN, 0],
+        data = (["RUReference", "q0214", "q0215", "q0212", "q0213", "q0202", "q0203"],
+                [1001, 11, np.NaN, 20, np.NaN, 8, np.NaN],
                 [1002, 8, np.NaN, 24, np.NaN, 10, np.NaN],
-                [1002, np.NaN, 1, np.NaN, 3, np.NaN, 0],
                 [1003, 4, np.NaN, 38, np.NaN, 2, np.NaN],
-                [1003, np.NaN, 1, np.NaN, 0, np.NaN, 0])
+                [1001, np.NaN, 0, np.NaN, 2, np.NaN, 0],
+                [1002, np.NaN, 1, np.NaN, 3, np.NaN, 0],
+                [1003, np.NaN, 0, np.NaN, 4, np.NaN, 0])
 
 
         df = pd.DataFrame(data=data, columns=columns)
