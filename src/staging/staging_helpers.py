@@ -193,16 +193,17 @@ def load_val_snapshot_json(
     val.validate_data_with_schema(contributors_df, "./config/contributors_schema.toml")
     val.validate_data_with_schema(responses_df, "./config/long_response.toml")
 
-    if config["global"]["platform"] == "s3" and config["global"]["dev_test"]:
+    if config["dev_global"]["platform"] == "s3" and config["dev_global"]["dev_test"]:
         responses_df["instance"] = 0
 
     # Data Transmutation
     full_responses = processing.full_responses(contributors_df, responses_df)
+
     # the anonymised snapshot data we use in the DevTest environment
     # does not include the instance column. This fix should be removed
     # when new anonymised data is given.
-    if config["global"]["platform"] == "hdfs" and config["global"]["dev_test"]:
-        full_responses = fix_anon_data(full_responses, config)
+    # if config["dev_global"]["platform"] == "s3" and config["dev_global"]["dev_test"]:
+    #     full_responses = fix_anon_data(full_responses, config)
 
     StagingHelperLogger.info(
         "Finished Data Transmutation and validation of full responses dataframe"

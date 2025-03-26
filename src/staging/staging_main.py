@@ -62,9 +62,9 @@ def run_staging(  # noqa: C901
             sic_pg_alpha (pd.DataFrame): SIC code to product group alpha mapper.
     """
     # Check the environment switch
-    platform = config["global"]["platform"]
+    platform = config["dev_global"]["platform"]
     is_network = platform == "network"
-    load_from_feather = config["global"]["load_from_feather"]
+    load_from_feather = config["dev_global"]["load_from_feather"]
 
     # set up dictionaries with all the paths needed for the staging module
     staging_dict = config["staging_paths"]
@@ -126,7 +126,7 @@ def run_staging(  # noqa: C901
             )  # TODO: We might want to use this in a QA output
 
             # Data validation of json or feather data
-            is_dev = config["global"]["dev_test"]
+            is_dev = config["dev_global"]["dev_test"]
             if is_dev:
                 StagingMainLogger.info("Platform is DEV, check data shape skipped")
             else:

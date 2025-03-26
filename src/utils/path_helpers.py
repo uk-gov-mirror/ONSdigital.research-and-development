@@ -28,7 +28,7 @@ def validate_config_strings(config: dict) -> dict:
             f"it should be one of {valid_survey_types}"
         )
 
-    platform = config["global"]["platform"]
+    platform = config["dev_global"]["platform"]
     platform = platform.lower()
     valid_platforms = ["network", "s3"]
 
@@ -38,13 +38,13 @@ def validate_config_strings(config: dict) -> dict:
         )
 
     config["survey"]["survey_type"] = survey_type
-    config["global"]["platform"] = platform
+    config["dev_global"]["platform"] = platform
     return config
 
 
 def get_paths(config: dict) -> dict:
     """Return either network_paths or hdfs_paths despending on the environment."""
-    platform = config["global"]["platform"]
+    platform = config["dev_global"]["platform"]
     survey = config["survey"]["survey_type"]
 
     # select either network_paths or s3_paths from the config, depending on platform,

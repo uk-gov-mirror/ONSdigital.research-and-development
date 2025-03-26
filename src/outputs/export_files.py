@@ -126,7 +126,7 @@ def check_files_exist(file_list: List, config: dict, isfile: callable):
 
     # Check if the output dirs supplied are string, change to list if so
 
-    platform = config["global"]["platform"]
+    platform = config["dev_global"]["platform"]
 
     if isinstance(file_list, str):
         file_list = [file_list]
@@ -223,12 +223,12 @@ def run_export(user_config_path: str, dev_config_path: str):
     config = config_setup(user_config_path, dev_config_path)
 
     # Get and set logging level
-    logging_level = config["global"]["logging_level"]
+    logging_level = config["dev_global"]["logging_level"]
     logging_levels = {"INFO": logging.INFO, "DEBUG": logging.DEBUG}
     logging.basicConfig(level=logging_levels[logging_level.upper()])
 
     # Check the environment switch
-    platform = config["global"]["platform"]
+    platform = config["dev_global"]["platform"]
 
     if platform == "s3":
         # create singletion boto3 client object & pass in bucket string
