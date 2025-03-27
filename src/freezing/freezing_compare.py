@@ -113,6 +113,9 @@ def get_amendments(
 
         # Add markers
         amendments_df["accept_changes"] = False
+        amendments_df["frozen_data_file"] = config["freezing_paths"][
+            "frozen_data_staged_path"
+        ]
 
         return amendments_df
     else:
