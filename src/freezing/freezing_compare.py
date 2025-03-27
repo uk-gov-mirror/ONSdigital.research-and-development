@@ -115,7 +115,7 @@ def get_amendments(
         amendments_df["accept_changes"] = False
         amendments_df["frozen_data_file"] = config["freezing_paths"][
             "frozen_data_staged_path"
-        ]
+        ].rsplit("/", 1)[-1]
 
         return amendments_df
     else:
@@ -171,6 +171,9 @@ def get_additions(
 
     if additions_df.shape[0] > 0:
         additions_df["accept_changes"] = False
+        additions_df["frozen_data_file"] = config["freezing_paths"][
+            "frozen_data_staged_path"
+        ].rsplit("/", 1)[-1]
         return additions_df
     else:
         FreezingLogger.info("No additions found.")
