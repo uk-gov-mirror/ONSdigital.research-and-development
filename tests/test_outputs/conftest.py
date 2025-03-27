@@ -17,17 +17,17 @@ def read_config() -> dict:
     return config
 
 
-CONFIG = read_config()
-LOCATION = CONFIG["global"]["platform"]
+config = read_config()
+location = config["dev_global"]["platform"]
 
 
 @pytest.fixture(scope="module")
 def write_csv_func() -> Callable:
     """Import and return the correct write_csv function."""
     # import the correct write_csv (assumption config is correct)
-    if LOCATION.lower() == "network":
+    if location.lower() == "network":
         from src.utils.local_file_mods import rd_write_csv as write_csv
-    elif LOCATION.lower() == "s3":
+    elif location.lower() == "s3":
         from src.utils.s3_mods import rd_write_csv as write_csv
     else:
         from src.utils.hdfs_mods import rd_write_csv as write_csv

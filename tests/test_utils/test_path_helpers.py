@@ -24,7 +24,7 @@ def berd_config():
             "survey_type": "BERD",
             "survey_year": 2022
         },
-        "global": {"platform": "network"},
+        "dev_global": {"platform": "network"},
         "network_paths": {
             "root": "R:/DAP_emulation/",
             "snapshot_path": "/2023_snapshots/snapshot_file-202212.json",
@@ -50,7 +50,7 @@ def config():
             "survey_type": "PNP",
             "survey_year": 2022
         },
-        "global": {"platform": "network"},
+        "dev_global": {"platform": "network"},
         "network_paths": {
             "root": "R:/DAP_emulation/",
             "snapshot_path": "/2023_snapshots/snapshot_file-202212.json",
@@ -202,7 +202,7 @@ def test_validate_snapshot_files_success(config, caplog):
     """Tests for staging_validation function."""
     config = {
         'survey': {'survey_type': 'PNP', 'survey_year': 2023},
-        'global': {'platform': "network"},
+        'dev_global': {'platform': "network"},
         'network_paths': {
             'root': "R:/DAP_emulation/",
             'snapshot_path': "/2023_snapshots/snapshot_file-202312.json",
@@ -219,7 +219,7 @@ def test_validate_snapshot_files_fail(config, caplog):
     """Tests for staging_validation function."""
     config = {
         'survey': {'survey_type': 'PNP', 'survey_year': 2023},
-        'global': {'platform': "network"},
+        'dev_global': {'platform': "network"},
         'network_paths': {
             'root': "R:/BERD Results System Development 2023/DAP_emulation/",
             'snapshot_path': "/ons/rdbe_dev/spp_snapshots/2023_snapshots/snapshot-20212-002-b9b6048a-51c9-4669-919a-e92fc6e9c433.json",
@@ -237,7 +237,7 @@ def test_validate_snapshot_files_success_blank(config, caplog):
     """Tests for staging_validation function."""
     config = {
         'survey': {'survey_type': 'PNP', 'survey_year': 2023},
-        'global': {'platform': "network"},
+        'dev_global': {'platform': "network"},
         'network_paths': {
             'root': "R:/BERD Results System Development 2023/DAP_emulation/",
             'snapshot_path': "/ons/rdbe_dev/spp_snapshots/2023_snapshots/snapshot-202312-002-b9b6048a-51c9-4669-919a-e92fc6e9c433.json",
@@ -370,22 +370,22 @@ def test_update_config_with_paths(
 def test_validate_config_strings_success(config):
     """Test validate_config_strings function with valid survey type and platform."""
     config["survey"]["survey_type"] = "PNP"
-    config["global"]["platform"] = "network"
+    config["dev_global"]["platform"] = "network"
     updated_config = validate_config_strings(config)
     assert updated_config["survey"]["survey_type"] == "PNP", "Survey type should be PNP"
-    assert updated_config["global"]["platform"] == "network", "Platform should be network"
+    assert updated_config["dev_global"]["platform"] == "network", "Platform should be network"
 
     config["survey"]["survey_type"] = "PNP"
-    config["global"]["platform"] = "s3"
+    config["dev_global"]["platform"] = "s3"
     updated_config = validate_config_strings(config)
     assert updated_config["survey"]["survey_type"] == "PNP", "Survey type should be PNP"
-    assert updated_config["global"]["platform"] == "s3", "Platform should be s3"
+    assert updated_config["dev_global"]["platform"] == "s3", "Platform should be s3"
 
 
 def test_validate_config_strings_invalid_survey_type(config):
     """Test validate_config_strings function with invalid survey type."""
     config["survey"]["survey_type"] = "invalid_type"
-    config["global"]["platform"] = "network"
+    config["dev_global"]["platform"] = "network"
     with pytest.raises(ValueError, match="The config setting for survey_type given, INVALID_TYPE, is not valid- it should be one of \['BERD', 'PNP'\]"):
         validate_config_strings(config)
 
@@ -393,6 +393,6 @@ def test_validate_config_strings_invalid_survey_type(config):
 def test_validate_config_strings_invalid_platform(config):
     """Test validate_config_strings function with invalid platform."""
     config["survey"]["survey_type"] = "PNP"
-    config["global"]["platform"] = "invalid_platform"
+    config["dev_global"]["platform"] = "invalid_platform"
     with pytest.raises(ValueError, match="Platform invalid_platform is not valid- it must be one of \['network', 's3'\]"):
         validate_config_strings(config)

@@ -21,7 +21,7 @@ class RunLog:
     ):
         # config based attrs
         self.config = config
-        self.environment = config["global"]["platform"]
+        self.environment = config["dev_global"]["platform"]
         self.logs_folder = config[f"{self.environment}_paths"]["logs_foldername"]
         self.log_filenames = config["log_filenames"]
         # user information
