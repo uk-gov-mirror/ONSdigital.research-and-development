@@ -172,6 +172,12 @@ old_name = "lockeddate"
 Deduced_Data_Type = "pd.NA"
 R_and_D_Type = "lockeddate"
 
+[Lockby]
+name = ""
+old_name = "lockedby"
+Deduced_Data_Type = "pd.NA"
+R_and_D_Type = "lockedby"
+
 [MC]
 name = ""
 old_name = "MC"
@@ -368,7 +374,7 @@ R_and_D_Type = "220_C"
 name = "Buildings- defence"
 old_name = "220"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "221_D"
+R_and_D_Type = "220_D"
 
 [q0208]
 name = "Equipment and machinery- civil"
@@ -489,6 +495,12 @@ name = "Experimental- defence"
 old_name = "207"
 Deduced_Data_Type = "float64"
 R_and_D_Type = "207_D"
+
+[q0230]
+name = ""
+old_name = "230"
+Deduced_Data_Type = "str"
+R_and_D_Type = "230"
 
 [q0301]
 name = "Own funds- civil"
@@ -862,6 +874,24 @@ old_name = "411"
 Deduced_Data_Type = "float64"
 R_and_D_Type = "411_D"
 
+[q0601]
+name = "Postcode"
+old_name = "601"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "601"
+
+[q0602]
+name = "% of R&D"
+old_name = "602"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "602"
+
+[q0603]
+name = "Region"
+old_name = "region"
+Deduced_Data_Type = "str"
+R_and_D_Type = "region"
+
 [q0701]
 name = ""
 old_name = "701"
@@ -897,6 +927,12 @@ name = ""
 old_name = "706"
 Deduced_Data_Type = "float64"
 R_and_D_Type = "706"
+
+[q0901]
+name = ""
+old_name = "901"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "901"
 
 [q0902]
 name = ""
