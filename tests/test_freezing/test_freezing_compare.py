@@ -118,7 +118,6 @@ class TestGetAmendments:
         result = get_amendments(
             input_frozen_df, input_amendments_df, test_logger, config
         )
-        print(result["reference"])
 
         # Check the output
         assert_frame_equal(
