@@ -6,6 +6,7 @@ import numpy as np
 from src.staging.validation import load_schema
 from src.utils.helpers import filename_amender
 from src.utils.breakdown_validation import get_all_wanted_columns
+from src.outputs.map_output_cols import create_cora_status_col
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -93,6 +94,9 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
 
     # Concatenate the dataframes
     df = pd.concat([civil_df, defence_df], ignore_index=True, axis=0)
+
+    # Map to the CORA statuses from the statusencoded column
+    df = create_cora_status_col(df)
 
     # Create output dataframe with required columns from schema
     schema_path = config["schema_paths"]["national_accounts_schema"]

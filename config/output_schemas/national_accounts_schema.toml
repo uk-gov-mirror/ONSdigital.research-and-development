@@ -126,9 +126,9 @@ R_and_D_Type = "VETs"
 
 [FormStatus]
 name = ""
-old_name = "statusencoded"
+old_name = "form_status"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "statusencoded"
+R_and_D_Type = "form_status"
 
 [Employees]
 name = ""
