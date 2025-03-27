@@ -1,9 +1,11 @@
+from typing import Callable, Tuple
 import logging
 import os
 import pandas as pd
-from typing import Callable, Tuple
-from src.utils.helpers import filename_amender
+
+from src.staging.staging_helpers import filter_pnp_data
 from src.utils.breakdown_validation import get_equality_dicts
+from src.utils.helpers import filename_amender
 
 
 def get_amendments(
@@ -44,7 +46,7 @@ def get_amendments(
     # Remove duplicates and sort the list to create numeric_cols
     numeric_cols = sorted(set(concatenated_list))
 
-    non_numeric_cols = ["200", "201", "601", "604"]
+    non_numeric_cols = ["200", "201", "601", "604", "status"]
 
     # numeric_cols_new = [f"{i}_updated" for i in numeric_cols]
     numeric_cols_diff = [f"{i}_diff" for i in numeric_cols]
@@ -122,6 +124,7 @@ def get_additions(
     frozen_csv: pd.DataFrame,
     updated_snapshot: pd.DataFrame,
     FreezingLogger: logging.Logger,
+    config: dict,
 ) -> pd.DataFrame:
     """Get added records from the updated snapshot.
 
@@ -131,6 +134,7 @@ def get_additions(
         frozen_csv (pd.DataFrame): The staged and validated frozen data.
         updated_snapshot (pd.DataFrame): The staged and validated updated snapshot data.
         FreezingLogger (logging.Logger): The logger to log to.
+        config (dict): The pipeline configuration.
 
     Returns:
         additions_df (pd.DataFrame): The new records identified in
@@ -158,6 +162,9 @@ def get_additions(
     additions_df = additions_df[
         additions_df.columns[~additions_df.columns.str.endswith("_old")]
     ]
+
+    # filter for either BERD or PNP data
+    additions_df = filter_pnp_data(additions_df, config)
 
     if additions_df.shape[0] > 0:
         additions_df["accept_changes"] = False
@@ -265,7 +272,7 @@ def run_comparison(
         None
     """
     additions_df = get_additions(
-        frozen_data_for_comparison, updated_snapshot, FreezingLogger
+        frozen_data_for_comparison, updated_snapshot, FreezingLogger, config
     )
     amendments_df = get_amendments(
         frozen_data_for_comparison, updated_snapshot, FreezingLogger, config

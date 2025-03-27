@@ -43,6 +43,7 @@ def get_equality_dicts(config: dict, sublist: str = "default") -> dict:
             "7xx_b_totals",
         ],
         "employment": ["emp_xx_totals", "hc_xx_totals", "7xx_b_totals"],
+        "employment_lf": ["emp_xx_totals", "hc_xx_totals"],
         "estimation": [
             "2xx_totals",
             "3xx_totals",
