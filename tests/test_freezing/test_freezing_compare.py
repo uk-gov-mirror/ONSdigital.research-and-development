@@ -48,14 +48,14 @@ class TestGetAmendments:
     # Create expected outcome df
     def create_test_expected_outcome_df(self) -> pd.DataFrame:
         """Create a test expected_outcome df."""
-        input_cols = ["reference", "period", "instance", "202", "203", "200", "201", "601", "604", "202_diff", "203_diff", "200_diff", "201_diff", "601_diff", "604_diff", "accept_changes"]
+        input_cols = ["reference", "period", "instance", "202", "203", "200", "201", "601", "604", "202_diff", "203_diff", "200_diff", "201_diff", "601_diff", "604_diff", "accept_changes", "frozen_data_file"]
         data = [
-            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes", 0.0, 0.0, None, None, None, None, False],
-            ["B", 202412, None, None, 1.0, "A", "Yes", "B", "Yes", None, 0.0, "A", None,  "B", None, False],
-            ["C", 202412, 0.0, 2.0, 2.0, "A", "Yes", "B", "No", 1.0, 0.0, None, None, None, "No", False],
-            ["D", 202412, 1.0, 2.0, 3.0, "E", "Yes", "D", "Yes", 0.0, 0.0, "E", None, None, None, False],
-            ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes", 6.0, -4.0, None, None, None, "Yes", False],
-            ["R", 202412, None, 6.0, 6.0, "E", "Yes", "F", "No", -8.0, -8.0, None, None, None, None, False],
+            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes", 0.0, 0.0, None, None, None, None, False, "frozen_data_v123.csv"],
+            ["B", 202412, None, None, 1.0, "A", "Yes", "B", "Yes", None, 0.0, "A", None,  "B", None, False, "frozen_data_v123.csv"],
+            ["C", 202412, 0.0, 2.0, 2.0, "A", "Yes", "B", "No", 1.0, 0.0, None, None, None, "No", False, "frozen_data_v123.csv"],
+            ["D", 202412, 1.0, 2.0, 3.0, "E", "Yes", "D", "Yes", 0.0, 0.0, "E", None, None, None, False, "frozen_data_v123.csv"],
+            ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes", 6.0, -4.0, None, None, None, "Yes", False, "frozen_data_v123.csv"],
+            ["R", 202412, None, 6.0, 6.0, "E", "Yes", "F", "No", -8.0, -8.0, None, None, None, None, False, "frozen_data_v123.csv"],
         ]
         input_expected_outcome_df = pd.DataFrame(data=data, columns=input_cols)
         return input_expected_outcome_df
@@ -98,6 +98,9 @@ class TestGetAmendments:
                     "sf_fte": [],
                     "sf_headcount": []
                 }
+            },
+            "freezing_paths": {
+                "frozen_data_staged_path": "berd/freezing/frozen_data_v123.csv"
             }
         }
 
@@ -131,6 +134,9 @@ class TestGetAdditions:
         config = {
             "survey": {
                 "survey_type": "BERD"
+            },
+            "freezing_paths": {
+                "frozen_data_staged_path": "berd/freezing/frozen_data_v123.csv"
             }
         }
 
@@ -173,11 +179,11 @@ class TestGetAdditions:
     # Create expected outcome df
     def create_test_expected_outcome_df(self) -> pd.DataFrame:
         """Create a test expected_outcome df."""
-        input_cols = ["reference", "period", "instance", "other", "legalstatus", "accept_changes"]
+        input_cols = ["reference", "period", "instance", "other", "legalstatus", "accept_changes", "frozen_data_file"]
         data = [
-            ["F", 202412, 1.0, 4.0, "4", False],
-            ["G", 202412, None, 4.0, "4", False],
-            ["H", 202412, 1.0, None, "4", False]
+            ["F", 202412, 1.0, 4.0, "4", False, "frozen_data_v123.csv"],
+            ["G", 202412, None, 4.0, "4", False, "frozen_data_v123.csv"],
+            ["H", 202412, 1.0, None, "4", False, "frozen_data_v123.csv"]
         ]
         input_expected_outcome_df = pd.DataFrame(data=data, columns=input_cols)
         return input_expected_outcome_df
