@@ -113,9 +113,9 @@ def get_amendments(
 
         # Add markers
         amendments_df["accept_changes"] = False
-        amendments_df["frozen_data_file"] = config["freezing_paths"][
-            "frozen_data_staged_path"
-        ].rsplit("/", 1)[-1]
+        frozen_csv_path = config["freezing_paths"]["frozen_data_staged_path"]
+        frozen_file_name = frozen_csv_path.rsplit("/", 1)[-1]
+        amendments_df["frozen_data_file"] = frozen_file_name
 
         return amendments_df
     else:
@@ -171,9 +171,9 @@ def get_additions(
 
     if additions_df.shape[0] > 0:
         additions_df["accept_changes"] = False
-        additions_df["frozen_data_file"] = config["freezing_paths"][
-            "frozen_data_staged_path"
-        ].rsplit("/", 1)[-1]
+        frozen_csv_path = config["freezing_paths"]["frozen_data_staged_path"]
+        frozen_file_name = frozen_csv_path.rsplit("/", 1)[-1]
+        additions_df["frozen_data_file"] = frozen_file_name
         return additions_df
     else:
         FreezingLogger.info("No additions found.")
