@@ -23,6 +23,33 @@ def divide_by_1000(df, config):
     return df
 
 
+def expenditure_by_region(df):
+    """Calculation to populate the expenditure by region column."""
+    # Create a new column for expenditure by region
+    df["Expenditure by Region"] = np.nan
+    # Add column 211__C and 211_D then multiply 602
+    df["Expenditure by Region"] = (df["211__C"] + df["211__D"]) * (df["602"])
+    return df
+
+
+def remove_C_D(df: pd.DataFrame):
+    """Removes _C or _D from columns where it is unnecessary"""
+
+    # Remove _C or _D from columns that do not start with a number
+    for col in df.columns:
+        # Doesn't start with a number
+        if not col[0].isdigit():
+            df = df.rename(columns={col: col[:-2]})
+
+    # Remove _C or _D from 6XXX cols
+
+    for col in df.columns:
+        if col[0] == "6":
+            df = df.rename(columns={col: col[:-2]})
+
+            return df
+
+
 def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
     """Creates a National Accounts output for PNP only, mapping back to the original
     questions. Selects and adds columns where needed for back-compatibility, to output
@@ -60,16 +87,9 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
     civil_df.columns = civil_df.columns + "_C"
     defence_df.columns = defence_df.columns + "_D"
 
-    # Remove _C or _D from columns that do not start with a number
-    for col in civil_df.columns:
-        # Doesn't start with a number
-        if not col[0].isdigit():
-            civil_df = civil_df.rename(columns={col: col[:-2]})
-
-    for col in defence_df.columns:
-        # Doesn't start with a number
-        if not col[0].isdigit():
-            defence_df = defence_df.rename(columns={col: col[:-2]})
+    # Remove _C or _D from columns that do not start with a number or 6XX cols
+    civil_df = remove_C_D(civil_df)
+    defence_df = remove_C_D(defence_df)
 
     # Concatenate the dataframes
     df = pd.concat([civil_df, defence_df], ignore_index=True, axis=0)

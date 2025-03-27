@@ -126,9 +126,9 @@ R_and_D_Type = "VETs"
 
 [FormStatus]
 name = ""
-old_name = "status"
-Deduced_Data_Type = "category"
-R_and_D_Type = "status"
+old_name = "statusencoded"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "statusencoded"
 
 [Employees]
 name = ""
@@ -213,12 +213,6 @@ name = ""
 old_name = "turnover"
 Deduced_Data_Type = "Int64"
 R_and_D_Type = "turnover"
-
-[Region]
-name = ""
-old_name = "region"
-Deduced_Data_Type = "catergory"
-R_and_D_Type = "region"
 
 [RUSICcur]
 name = ""
@@ -877,8 +871,8 @@ R_and_D_Type = "411_D"
 [q0601]
 name = "Postcode"
 old_name = "601"
-Deduced_Data_Type = "float64"
-R_and_D_Type = "601"
+Deduced_Data_Type = "object"
+R_and_D_Type ="601"
 
 [q0602]
 name = "% of R&D"
@@ -889,8 +883,14 @@ R_and_D_Type = "602"
 [q0603]
 name = "Region"
 old_name = "region"
-Deduced_Data_Type = "str"
+Deduced_Data_Type = "category"
 R_and_D_Type = "region"
+
+[""]
+name= "Expenditure by Region"
+old_name = "Expenditure by Region"
+Deduced_Data_Type = "float64"
+R_and_D_Type = "Expenditure by Region"
 
 [q0701]
 name = ""
