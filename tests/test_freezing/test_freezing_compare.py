@@ -18,14 +18,15 @@ class TestGetAmendments:
     # Create test frozen df
     def create_test_frozen_df(self) -> pd.DataFrame:
         """Create a test frozen df."""
-        input_cols = ["reference", "period", "instance", "202", "203", "200", "201", "601", "604"]
+        input_cols = ["reference", "period", "instance", "202", "203", "200", "201", "601", "604", "status"]
         data = [
-            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes"],
-            ["B", 202412, None, None, 1.0, "B", "Yes", "C", "Yes"],
-            ["C", 202412, 0.0, 1.0, 2.0, "A", "Yes", "B", "Yes"],
-            ["D", 202412, 1.0, 2.0, 3.0, "C", "Yes", "D", "Yes"],
-            ["E", 202412, None, 4.0, 5.0, "E", "Yes", "F", "No"],
-            ["R", 202412, None, 14.0, 14.0, "E", "Yes", "F", "No"],
+            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes", "clear"],
+            ["B", 202412, None, None, 1.0, "B", "Yes", "C", "Yes", "form sent out"],
+            ["C", 202412, 0.0, 1.0, 2.0, "A", "Yes", "B", "Yes", "clear"],
+            ["D", 202412, 1.0, 2.0, 3.0, "C", "Yes", "D", "Yes", "clear"],
+            ["E", 202412, None, 4.0, 5.0, "E", "Yes", "F", "No", "form sent out"],
+            ["R", 202412, None, 14.0, 14.0, "E", "Yes", "F", "No", "form sent out"],
+            ["X", 202412, 8.0, 2.0, 2.0, "E", "Yes", "F", "Yes", "check needed"],
         ]
         input_frozen_df = pd.DataFrame(data=data, columns=input_cols)
         return input_frozen_df
@@ -33,14 +34,15 @@ class TestGetAmendments:
     # Create test amendments df
     def create_test_amendments_df(self) -> pd.DataFrame:
         """Create a test amendments df."""
-        input_cols = ["reference", "period", "instance", "202", "203", "200", "201", "601", "604"]
+        input_cols = ["reference", "period", "instance", "202", "203", "200", "201", "601", "604", "status"]
         data = [
-            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes"], # No diffs
-            ["B", 202412, None, None, 1.0, "A", "Yes", "B", "Yes"], # 200 diff "A"
-            ["C", 202412, 0.0, 2.0, 2.0, "A", "Yes", "B", "No"], # 202 diff by 1, 604 to "No"
-            ["D", 202412, 1.0, 2.0, 3.0, "E", "Yes", "D", "Yes"],  # 200 & 601 diff "E", "D"
-            ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes"], # 202 & 203 by 6, -4, , 604 to "Yes"
-            ["R", 202412, None, 6.0, 6.0, "E", "Yes", "F", "No"], # 202 & 203 by -8, -8
+            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes", "clear"], # No diffs
+            ["B", 202412, None, None, 1.0, "A", "Yes", "B", "Yes", "form sent out"], # 200 diff "A"
+            ["C", 202412, 0.0, 2.0, 2.0, "A", "Yes", "B", "No", "clear"], # 202 diff by 1, 604 to "No"
+            ["D", 202412, 1.0, 2.0, 3.0, "E", "Yes", "D", "Yes", "clear"],  # 200 & 601 diff "E", "D"
+            ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes", "form sent out"], # 202 & 203 by 6, -4, , 604 to "Yes"
+            ["R", 202412, None, 6.0, 6.0, "E", "Yes", "F", "No", "form sent out"], # 202 & 203 by -8, -8
+            ["X", 202412, 8.0, 2.0, 2.0, "E", "Yes", "F", "Yes", "clear"], # status changed to "clear"
         ]
         input_amendments_df = pd.DataFrame(data=data, columns=input_cols)
         return input_amendments_df
@@ -48,14 +50,15 @@ class TestGetAmendments:
     # Create expected outcome df
     def create_test_expected_outcome_df(self) -> pd.DataFrame:
         """Create a test expected_outcome df."""
-        input_cols = ["reference", "period", "instance", "202", "203", "200", "201", "601", "604", "202_diff", "203_diff", "200_diff", "201_diff", "601_diff", "604_diff", "accept_changes"]
+        input_cols = ["reference", "period", "instance", "202", "203", "200", "201", "601", "604", "status", "202_diff", "203_diff", "200_diff", "201_diff", "601_diff", "604_diff", "status_diff", "accept_changes"]
         data = [
-            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes", 0.0, 0.0, None, None, None, None, False],
-            ["B", 202412, None, None, 1.0, "A", "Yes", "B", "Yes", None, 0.0, "A", None,  "B", None, False],
-            ["C", 202412, 0.0, 2.0, 2.0, "A", "Yes", "B", "No", 1.0, 0.0, None, None, None, "No", False],
-            ["D", 202412, 1.0, 2.0, 3.0, "E", "Yes", "D", "Yes", 0.0, 0.0, "E", None, None, None, False],
-            ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes", 6.0, -4.0, None, None, None, "Yes", False],
-            ["R", 202412, None, 6.0, 6.0, "E", "Yes", "F", "No", -8.0, -8.0, None, None, None, None, False],
+            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes", "clear", 0.0, 0.0, None, None, None, None, None, False],
+            ["B", 202412, None, None, 1.0, "A", "Yes", "B", "Yes", "form sent out", None, 0.0, "A", None,  "B", None, None, False],
+            ["C", 202412, 0.0, 2.0, 2.0, "A", "Yes", "B", "No", "clear", 1.0, 0.0, None, None, None, "No", None, False],
+            ["D", 202412, 1.0, 2.0, 3.0, "E", "Yes", "D", "Yes", "clear", 0.0, 0.0, "E", None, None, None, None, False],
+            ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes", "form sent out", 6.0, -4.0, None, None, None, "Yes", None, False],
+            ["R", 202412, None, 6.0, 6.0, "E", "Yes", "F", "No", "form sent out", -8.0, -8.0, None, None, None, None, None, False],
+            ["X", 202412, 8.0, 2.0, 2.0, "E", "Yes", "F", "Yes", "clear", 0.0, 0.0, None, None, None, None, "clear", False],
         ]
         input_expected_outcome_df = pd.DataFrame(data=data, columns=input_cols)
         return input_expected_outcome_df
