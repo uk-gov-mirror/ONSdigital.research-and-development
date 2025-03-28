@@ -114,34 +114,33 @@ class TestOutputNa(object):
         df = pd.DataFrame(data=data, columns=columns)
         return df
 
-    """@patch("src.outputs.NA_output.load_schema")
-    def test_output_na(self, mock_load_schema):
-        """General tests for output_na."""
-        # Define the dummy schema
-        dummy_schema = {
-            "RUReference": {"old_name": "ref", "name": "RUReference", "R_and_D_Type": "ref"},
-            "q0214": {"old_name": "202", "name": "Salaries and Wages- civil", "R_and_D_Type": "202_C"},
-            "q0215": {"old_name": "202", "name": "Salaries and Wages- defence", "R_and_D_Type": "202_D"},
-            "q0212": {"old_name": "204","name": "Total non-capex- civil", "R_and_D_Type": "204_C"},
-            "q0213": {"old_name": "204","name": "Total non-capex- defence", "R_and_D_Type": "204_D"},
-            "q0202": {"old_name": "210","name": "Total Capex- civil", "R_and_D_Type": "210_C"},
-            "q0203": {"old_name": "210","name": "Total Capex- defence", "R_and_D_Type": "210_D"}
-        }
+    # @patch("src.outputs.NA_output.load_schema")
+    # def test_output_na(self, mock_load_schema):
+    #     """General tests for output_na."""
+    #     # Define the dummy schema
+    #     dummy_schema = {
+    #         "RUReference": {"old_name": "ref", "name": "RUReference", "R_and_D_Type": "ref"},
+    #         "q0214": {"old_name": "202", "name": "Salaries and Wages- civil", "R_and_D_Type": "202_C"},
+    #         "q0215": {"old_name": "202", "name": "Salaries and Wages- defence", "R_and_D_Type": "202_D"},
+    #         "q0212": {"old_name": "204","name": "Total non-capex- civil", "R_and_D_Type": "204_C"},
+    #         "q0213": {"old_name": "204","name": "Total non-capex- defence", "R_and_D_Type": "204_D"},
+    #         "q0202": {"old_name": "210","name": "Total Capex- civil", "R_and_D_Type": "210_C"},
+    #         "q0203": {"old_name": "210","name": "Total Capex- defence", "R_and_D_Type": "210_D"}
+    #     }
 
-        # Mock the load_schema function to return the dummy schema
-        mock_load_schema.return_value = dummy_schema
+    #     # Mock the load_schema function to return the dummy schema
+    #     mock_load_schema.return_value = dummy_schema
 
-        # Run the test
-        config = self.create_config()
-        input_data = self.input_data()
-        expected_output = self.expected_output()
+    #     # Run the test
+    #     config = self.create_config()
+    #     input_data = self.input_data()
+    #     expected_output = self.expected_output()
 
-        result_df = output_na(input_data, config, dummy_write_csv)
+    #     result_df = output_na(input_data, config, dummy_write_csv)
 
-        # Assert the result matches the expected output
-        assert_frame_equal(
-            result_df.reset_index(drop=True),
-            expected_output.reset_index(drop=True),
-            check_dtype=False
-        )
-"""
+    #     # Assert the result matches the expected output
+    #     assert_frame_equal(
+    #         result_df.reset_index(drop=True),
+    #         expected_output.reset_index(drop=True),
+    #         check_dtype=False
+    #     )

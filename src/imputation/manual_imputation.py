@@ -1,46 +1,12 @@
 import pandas as pd
 import logging
 
-from src.utils.wrappers import validate_dataframe_not_empty
+from typing import Tuple, Dict, Any
+
 
 ManualImputationLogger = logging.getLogger(__name__)
 
 
-@validate_dataframe_not_empty
-def add_trim_column(
-    df: pd.DataFrame, column_name: str = "manual_trim", trim_bool: bool = False
-) -> pd.DataFrame:
-    """
-    Adds a new column to a DataFrame with a default value.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to add the new column to.
-        column_name (str, optional): The name of the new column.
-        value (bool, optional): The default value for the new column. Defaults to False.
-
-    Returns:
-        pd.DataFrame: The DataFrame with the new column added.
-
-    Raises:
-        ValueError: If the DataFrame is empty or the column already exists in the
-        DataFrame.
-    """
-    if column_name in df.columns:
-        ManualImputationLogger.info(
-            f"A column with name {column_name} already exists in the DataFrame."
-            "A new trim column will not be added"
-        )
-        return df
-
-    df[column_name] = trim_bool
-
-    return df
-
-
-# check if any files are in imputation/manual_trim folder and check if
-# load_manual_imputation is True- if so load the file and any records which are marked
-# True in the manual_trim column will be excluded from the imputation process and will
-# be output as is. They will be marked as 'manual_trim' in the imp_marker column
 def merge_manual_imputation(
     df: pd.DataFrame,
     manual_trim_df: pd.DataFrame,
@@ -57,12 +23,63 @@ def merge_manual_imputation(
         pd.DataFrame: The DataFrame with the manual_trim column added.
     """
     if manual_trim_df is not None:
-        # An empty df will be initialised if there's no man trim file
         if "manual_trim" in df.columns:
             df = df.drop(columns=["manual_trim"])
 
+        dtypes_dict = {
+            "reference": df["reference"].dtype,
+            "instance": df["instance"].dtype,
+            "manual_trim": bool,
+        }
+        manual_trim_df = manual_trim_df.astype(dtypes_dict)
+
         df = df.merge(manual_trim_df, on=["reference", "instance"], how="left")
         df["manual_trim"] = df["manual_trim"].fillna(False).astype(bool)
+
+        ManualImputationLogger.info(
+            "manual imputation dataframe joined to responses dataframe"
+        )
     else:
-        df = add_trim_column(df)
+        if "manual_trim" not in df.columns:
+            df["manual_trim"] = False
     return df
+
+
+def join_manual_trim_df_for_qa(
+    imputed_df: pd.DataFrame,
+    qa_df: pd.DataFrame,
+    links_df: pd.DataFrame,
+    trimmed_df: pd.DataFrame,
+    config: Dict[str, Any],
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """
+    Joins the manual trimming dataframe to a sweries of QA dataframes.
+
+    Args:
+        imputed_df (pd.DataFrame): The responses dataframe with imputed and unimputed
+            values
+        qa_df (pd.DataFrame): The QA dataframe for trimming
+        links_df (pd.DataFrame): The dataframe containing imputation links
+        trimmed_df (pd.DataFrame): The responses that were trimmed in manual trimming
+        config (Dict[str, Any]): The configuration dictionary.
+
+    Returns:
+        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]: The dataframes with
+            the manual_trim column added.
+    """
+    imputed_df = pd.concat([imputed_df, trimmed_df])
+    qa_df = pd.concat([qa_df, trimmed_df]).reset_index(drop=True)
+
+    oth_cols = [
+        "imp_class",
+        "reference",
+        "emp_total",
+        "headcount_total",
+        "manual_trim",
+        "formtype",
+    ]  # noqa
+    wanted_cols = config["imputation"]["lf_target_vars"] + oth_cols
+    wanted_cols = [col for col in wanted_cols if col in trimmed_df.columns]
+    links_df = pd.concat([links_df, trimmed_df[wanted_cols]]).reset_index(drop=True)
+
+    return imputed_df, qa_df, links_df

@@ -29,10 +29,9 @@ def apply_freezing(
             from the freezing files.
     """
     # Prepare filepaths to read from
-    platform = config["global"]["platform"]
-    paths = config[f"{platform}_paths"]
-    amendments_filepath = paths["freezing_amendments_path"]
-    additions_filepath = paths["freezing_additions_path"]
+    freezing_paths = config["freezing_paths"]
+    amendments_filepath = freezing_paths["freezing_amendments_path"]
+    additions_filepath = freezing_paths["freezing_additions_path"]
 
     # Check if the freezing files exist
     amendments_exist = check_file_exists(amendments_filepath)
@@ -190,7 +189,7 @@ def apply_amendments(
     )
 
     # Apply deletions for 604
-    main_df = apply_deletions_604(main_df, accepted_amendments_df, config)
+    amended_df = apply_deletions_604(amended_df, accepted_amendments_df, config)
 
     return amended_df
 

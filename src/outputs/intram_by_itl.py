@@ -5,8 +5,11 @@ import logging
 import pathlib
 import os
 import re
-from src.utils.helpers import filename_amender
+
 from typing import Callable, Dict, Any, Union, Tuple
+
+from src.utils.helpers import filename_amender
+from src.utils.breakdown_validation import get_all_wanted_columns
 
 # Third Party Imports
 import pandas as pd
@@ -94,27 +97,33 @@ def aggregate_itl(
     Returns:
         Tuple[pd.DataFrame, pd.DataFrame]: The ITL1 and ITL2 dataframes.
     """
-    CURRENT_YEAR = config["survey"]["survey_year"]
-    GEO_COLS = config["mappers"]["geo_cols"]
-    BASE_COLS = ["postcodes_harmonised", "formtype", "211"]
-    df = gb_df[GEO_COLS + BASE_COLS]
+    current_year = config["survey"]["survey_year"]
+    geo_cols = config["mappers"]["geo_cols"]
+    # return a list of the emp_xx and hc_xx columns
+    emp_cols = get_all_wanted_columns(config, "employment_lf")
+
+    base_cols = ["formtype", "211"]
+    df = gb_df[base_cols + emp_cols + geo_cols].copy()
 
     # conditionally include NI responses to produce UK
     if uk_output:
-        ni_df = ni_df.copy()[["formtype", "211"]]
-        for col in GEO_COLS + ["postcodes_harmonised"]:
-            ni_df[col] = pd.NA
-        df = df.append(ni_df, ignore_index=True).copy()
+        ni_df = ni_df[base_cols + emp_cols + geo_cols].copy()
+
+        df = pd.concat([df, ni_df], ignore_index=True).copy()
+
+    # Create the aggregation dictionary
+    agg_dict = {"211": "sum"}
+    agg_dict.update({col: "sum" for col in emp_cols})
 
     # Aggregate to ITL2 and ITL1 (Keep 3 and 4 letter codes)
-    itl2 = df.groupby(GEO_COLS).agg({"211": "sum"}).reset_index()
-    itl1 = itl2.drop(GEO_COLS[:2], axis=1).copy()
-    itl1 = itl1.groupby(GEO_COLS[2:]).agg({"211": "sum"}).copy().reset_index()
+    itl2 = df.groupby(geo_cols).agg(agg_dict).reset_index()
+    itl1 = itl2.drop(geo_cols[:2], axis=1).copy()
+    itl1 = itl1.groupby(geo_cols[2:]).agg(agg_dict).copy().reset_index()
 
-    # # Clean data rady for export
-    itl2 = itl2.drop(GEO_COLS[2:], axis=1)
-    itl1 = rename_itl(itl1, 1, CURRENT_YEAR)
-    itl2 = rename_itl(itl2, 2, CURRENT_YEAR)
+    # Clean data ready for export
+    itl2 = itl2.drop(geo_cols[2:], axis=1)
+    itl1 = rename_itl(itl1, 1, current_year)
+    itl2 = rename_itl(itl2, 2, current_year)
 
     return itl1, itl2
 

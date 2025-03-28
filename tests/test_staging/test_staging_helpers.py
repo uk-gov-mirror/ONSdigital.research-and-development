@@ -2,9 +2,11 @@
 # Standard Library Imports
 import os
 import pytest
-import pathlib
-from unittest.mock import Mock
-from typing import Tuple, Dict, Any
+
+import pandas as pd
+from pandas._testing import assert_frame_equal
+
+from typing import  Dict, Any
 from datetime import date
 import logging
 from unittest.mock import patch
@@ -282,20 +284,20 @@ class TestStageValidateHarmonisePostcodes(object):
     @pytest.fixture(scope="function")
     def full_responses(self) -> pd.DataFrame:
         """Test data for stag_validate_harmonise_postcodes."""
-        columns = ["reference", "instance", "formtype", "601", "referencepostcode"]
+        columns = ["reference", "instance", "formtype", "601", "referencepostcode", "legalstatus",]
         data = [
-            [39900000404, 0.0, 6, None, "NP442NZ"],  # add white space
-            [39900000404, 1.0, 6, "NP442NZ", "NP442NZ"],
-            [39900000960, 0.0, 1, None, "CE1 4OY"],  # add white space
-            [39900000960, 1.0, 1, "CE1 4OY", "CE1 4OY"],
-            [39900001530, 0.0, 6, "CE2", "CE2"],  # invalid
-            [39900001601, 0.0, 1, None, "RH12 1XL"],  # normal
-            [39900001601, 1.0, 1, "RH12 1XL", "RH12 1XL"],
-            [39900003110, 0.0, 6, None, "CE11 8IU"],
-            [39900003110, 1.0, 6, "CE11 8iu", "CE11 8IU"],
-            [39900003110, 2.0, 6, "Ce11 8iU", "CE11 8IU"],
-            [38880003110, 0.0, 6, None, "NP22 8UI"],  # not in postcode list
-            [38880003110, 1.0, 6, "NP22 8UI", "NP22 8UI"],
+            [39900000404, 0.0, 6, None, "NP442NZ", 7],  # add white space
+            [39900000404, 1.0, 6, "NP442NZ", "NP442NZ", 7],
+            [39900000960, 0.0, 1, None, "CE1 4OY",1],  # add white space
+            [39900000960, 1.0, 1, "CE1 4OY", "CE1 4OY", 1],
+            [39900001530, 0.0, 6, "CE2", "CE2", 7],  # invalid
+            [39900001601, 0.0, 1, None, "RH12 1XL", 3],  # normal
+            [39900001601, 1.0, 1, "RH12 1XL", "RH12 1XL", 3],
+            [39900003110, 0.0, 6, None, "CE11 8IU", 2],
+            [39900003110, 1.0, 6, "CE11 8iu", "CE11 8IU", 2],
+            [39900003110, 2.0, 6, "Ce11 8iU", "CE11 8IU", 2],
+            [38880003110, 0.0, 6, None, "NP22 8UI", 2],  # not in postcode list
+            [38880003110, 1.0, 6, "NP22 8UI", "NP22 8UI", 2],
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
@@ -318,20 +320,21 @@ class TestStageValidateHarmonisePostcodes(object):
             "601",
             "referencepostcode",
             "postcodes_harmonised",
+            "legalstatus",
         ]
         data = [
-            [39900000404, 0.0, 6, None, "NP442NZ", "NP44 2NZ"],
-            [39900000404, 1.0, 6, "NP44 2NZ", "NP442NZ", "NP44 2NZ"],
-            [39900000960, 0.0, 1, None, "CE1 4OY", "CE1  4OY"],
-            [39900000960, 1.0, 1, "CE1  4OY", "CE1 4OY", "CE1  4OY"],
-            [39900001530, 0.0, 6, "CE2     ", "CE2", None],
-            [39900001601, 0.0, 1, None, "RH12 1XL", "RH12 1XL"],
-            [39900001601, 1.0, 1, "RH12 1XL", "RH12 1XL", "RH12 1XL"],
-            [39900003110, 0.0, 6, None, "CE11 8IU", "CE11 8IU"],
-            [39900003110, 1.0, 6, "CE11 8IU", "CE11 8IU", "CE11 8IU"],
-            [39900003110, 2.0, 6, "CE11 8IU", "CE11 8IU", "CE11 8IU"],
-            [38880003110, 0.0, 6, None, "NP22 8UI", None],
-            [38880003110, 1.0, 6, "NP22 8UI", "NP22 8UI", None],
+            [39900000404, 0.0, 6, None, "NP442NZ", "NP44 2NZ", 7],
+            [39900000404, 1.0, 6, "NP44 2NZ", "NP442NZ", "NP44 2NZ", 7],
+            [39900000960, 0.0, 1, None, "CE1 4OY", "CE1  4OY", 1],
+            [39900000960, 1.0, 1, "CE1  4OY", "CE1 4OY", "CE1  4OY", 1],
+            [39900001530, 0.0, 6, "CE2     ", "CE2", None, 7],
+            [39900001601, 0.0, 1, None, "RH12 1XL", "RH12 1XL", 3],
+            [39900001601, 1.0, 1, "RH12 1XL", "RH12 1XL", "RH12 1XL", 3],
+            [39900003110, 0.0, 6, None, "CE11 8IU", "CE11 8IU", 2],
+            [39900003110, 1.0, 6, "CE11 8IU", "CE11 8IU", "CE11 8IU", 2],
+            [39900003110, 2.0, 6, "CE11 8IU", "CE11 8IU", "CE11 8IU", 2],
+            [38880003110, 0.0, 6, None, "NP22 8UI", None, 2],
+            [38880003110, 1.0, 6, "NP22 8UI", "NP22 8UI", None, 2],
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
@@ -367,14 +370,9 @@ class TestStageValidateHarmonisePostcodes(object):
             write_csv=write_csv,
         )
         # test direct function outputs
-        assert fr.equals(full_responses_output), (
-            "full_responses output from stage_validate_harmonise_postcodes not"
-            " as expected."
-        )
-        assert pm.equals(pc_mapper_output), (
-            "postcode_mapper output from stage_validate_harmonise_postcodes not"
-            " as expected."
-        )
+        assert_frame_equal(fr, full_responses_output, check_like=True)
+        assert_frame_equal(pm, pc_mapper_output, check_like=True)
+
         # assert that invalid postcodes have been saved out
         files = os.listdir(tmp_path)
         filename = (
