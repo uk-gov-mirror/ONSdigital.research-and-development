@@ -26,10 +26,12 @@ def divide_by_1000(df, config):
 
 def expenditure_by_region(df):
     """Calculation to populate the expenditure by region column."""
-    # Create a new column for expenditure by region
-    df["Expenditure by Region"] = np.nan
-    # Add column 211__C and 211_D then multiply 602
-    df["Expenditure by Region"] = (df["211__C"] + df["211__D"]) * (df["602"])
+    # Add column for expenditure by region
+    df["Expenditure by Region"] = (
+        (df["602"].fillna(0))
+        / 100
+        * (df["211_C"].fillna(0) + df["211_D"].fillna(0)).round(2)
+    )
     return df
 
 
@@ -44,11 +46,14 @@ def remove_C_D(df: pd.DataFrame):
 
     # Remove _C or _D from 6XXX cols
 
-    for col in df.columns:
-        if col[0] == "6":
+    # Get 6XXX cols
+    cols = [col for col in df.columns if col.startswith("6")]
+    for col in cols:
+        df = df.copy()
+        if col in df.columns:
             df = df.rename(columns={col: col[:-2]})
 
-            return df
+    return df
 
 
 def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
@@ -97,6 +102,9 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
 
     # Map to the CORA statuses from the statusencoded column
     df = create_cora_status_col(df)
+
+    # Calculate the expenditure by region
+    df = expenditure_by_region(df)
 
     # Create output dataframe with required columns from schema
     schema_path = config["schema_paths"]["national_accounts_schema"]
