@@ -245,7 +245,7 @@ def run_staging(  # noqa: C901
         if stage_frozen_snapshot or stage_updated_snapshot:
             full_responses = helpers.filter_pnp_data(full_responses, config)
 
-        output_stagging_qa(full_responses, config, staging_dict, rd_write_csv)
+        output_staging_qa(full_responses, config, staging_dict, rd_write_csv)
 
         # Return staged BERD data, additional data and mappers
         return (
@@ -259,7 +259,7 @@ def run_staging(  # noqa: C901
         )
 
     else:
-        output_stagging_qa(full_responses, config, staging_dict, rd_write_csv)
+        output_staging_qa(full_responses, config, staging_dict, rd_write_csv)
 
         return (
             full_responses,
@@ -272,8 +272,8 @@ def run_staging(  # noqa: C901
         )
 
 
-def output_stagging_qa(full_responses, config, staging_dict, rd_write_csv):
-    """Output the staged data.
+def output_staging_qa(full_responses, config, staging_dict, rd_write_csv):
+    """Output full reponses staged data.
 
     Args:
         full_responses (pd.DataFrame): The staged data
