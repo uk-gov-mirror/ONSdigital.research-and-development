@@ -346,3 +346,37 @@ def filter_pnp_data(full_responses, config):
         full_responses = full_responses.loc[(full_responses["legalstatus"] == "7")]
 
     return full_responses
+
+
+def output_staging_qa(
+    full_responses, config, staging_dict, rd_write_csv, StagingMainLogger
+):
+    """
+    Output full reponses staged data.
+
+    Args:
+        full_responses (pd.DataFrame): The staged data
+        config (dict): The pipeline configuration
+        staging_dict (dict): The staging dictionary
+        rd_write_csv (Callable): Function to write to a csv file.
+            Avaible in s3, hdfs or network version depending "
+        StagingMainLogger (logging.Logger): The logger for the staging module.
+    Returns:
+        None
+    """
+    if (
+        config["global"]["output_full_responses"]
+        and config["global"]["run_with_frozen_data"] is False
+    ):
+        survey_type = config["survey"]["survey_type"]
+        StagingMainLogger.info(f"Starting output of staged {survey_type} data...")
+        staging_folder = staging_dict["staging_output_path"]
+        if survey_type == "PNP":
+            staged_filename = filename_amender("staged_full_responses", config)
+        else:
+            staged_filename = filename_amender("staged_BERD_full_responses", config)
+
+        rd_write_csv(f"{staging_folder}/{staged_filename}", full_responses)
+        StagingMainLogger.info(f"Finished output of staged {survey_type} data.")
+    else:
+        StagingMainLogger.info("Skipping output of staged data...")
