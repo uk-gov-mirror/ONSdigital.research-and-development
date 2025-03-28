@@ -59,9 +59,6 @@ class TestDivideBy1000(object):
             check_dtype=False
         )
 
-def dummy_write_csv(file_path, df):
-    """Dummy write_csv function for testing."""
-    print(f"Dummy write_csv called with file_path: {file_path}")
 
 class TestExpentitureByRegion(object):
     """ Test to check the generation and calculation of expenditure by region col."""
