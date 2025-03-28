@@ -28,10 +28,9 @@ def expenditure_by_region(df):
     """Calculation to populate the expenditure by region column."""
     # Add column for expenditure by region
     df["Expenditure by Region"] = (
-        (df["602"].fillna(0))
-        / 100
-        * (df["211_C"].fillna(0) + df["211_D"].fillna(0)).round(2)
+        (df["602"].fillna(0)) / 100 * (df["211_C"].fillna(0) + df["211_D"].fillna(0))
     )
+    df["Expenditure by Region"] = df["Expenditure by Region"].astype(float).round(2)
     return df
 
 
@@ -45,7 +44,6 @@ def remove_C_D(df: pd.DataFrame):
             df = df.rename(columns={col: col[:-2]})
 
     # Remove _C or _D from 6XXX cols
-
     # Get 6XXX cols
     cols = [col for col in df.columns if col.startswith("6")]
     for col in cols:
