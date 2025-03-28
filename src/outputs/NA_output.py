@@ -68,6 +68,15 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
         None
 
     """
+
+    # Check that PNP is set
+    if config["survey"]["survey_type"] != "PNP":
+        raise ValueError(
+            "The survey type is not set to PNP. "
+            "The national accounts output is for PNP only "
+            "and will not be created."
+        )
+
     output_path = config["outputs_paths"]["outputs_master"]
 
     # Get columns from config
@@ -111,7 +120,7 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
 
     # Outputting the CSV file
     filename = filename_amender("output_national_accounts", config)
-    write_csv(f"{output_path}/output_national_accounts/{filename}", output)
+    write_csv(f"{output_path}/output_PNP_national_accounts/{filename}", output)
 
     # Return the processed DataFrame for QA
     return output
