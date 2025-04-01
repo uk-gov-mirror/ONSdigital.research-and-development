@@ -24,25 +24,6 @@ def divide_by_1000(df, config):
     return df
 
 
-def remove_C_D(df: pd.DataFrame):
-    """Removes _C or _D from columns where it is unnecessary"""
-
-    # Remove _C or _D from columns that do not start with a number
-    for col in df.columns:
-        # Doesn't start with a number
-        if not col[0].isdigit():
-            df = df.rename(columns={col: col[:-2]})
-
-    # Remove _C or _D from 6XXX cols
-    # Get 6XXX cols
-    cols = [col for col in df.columns if col.startswith("6")]
-    for col in cols:
-        if col in df.columns:
-            df = df.rename(columns={col: col[:-2]})
-
-    return df
-
-
 def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
     """Creates a National Accounts output for PNP only, mapping back to the original
     questions. Selects and adds columns where needed for back-compatibility, to output
@@ -77,7 +58,10 @@ def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
         civil_df, defence_df, on=join_cols, how="outer", suffixes=("", "_drop")
     )
 
+    # Drop the columns that are not needed
     join_df = join_df.loc[:, ~join_df.columns.str.endswith("_drop")]
+
+    # Add together the columns that are the same in both dataframes for headcount
 
     # Map to the CORA statuses from the statusencoded column
     df = create_cora_status_col(df)
