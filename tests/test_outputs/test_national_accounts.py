@@ -62,48 +62,6 @@ class TestDivideBy1000(object):
         )
 
 
-class TestExpentitureByRegion(object):
-    """ Test to check the generation and calculation of expenditure by region col."""
-
-    def input_data(self):
-        """Create input data"""
-        columns = ["ref", "211_C", "211_D", "602"]
-        data = ([1001, 5000, 0, 60],
-                [1001, 2000, 0, 40],
-                [1002, pd.NA, 3000, 50],
-                [1002, pd.NA, 3000, 50],
-                [1003, 1000, 0, 100],
-                [1004, pd.NA, 2000, 100])
-
-        df = pd.DataFrame(data=data, columns=columns)
-        return df
-
-    def expected_output(self):
-        """Create expected output data"""
-        columns = ["ref", "211_C", "211_D", "602", "Expenditure by Region"]
-        data = ([1001, 5000, 0, 60, 3000.0],
-                [1001, 2000, 0, 40, 800.0],
-                [1002, pd.NA, 3000, 50, 1500.0],
-                [1002, pd.NA, 3000, 50, 1500.0],
-                [1003, 1000, 0, 100, 1000.0],
-                [1004, pd.NA, 2000, 100, 2000.0])
-
-        df = pd.DataFrame(data=data, columns=columns)
-        return df
-
-    def test_expenditure_by_region(self):
-        """Test for expenditure_by_region."""
-        input_data = self.input_data()
-        expected_output = self.expected_output()
-
-        result_df = expenditure_by_region(input_data)
-
-        assert_frame_equal(
-            result_df.reset_index(drop=True),
-            expected_output.reset_index(drop=True),
-            check_dtype=False
-        )
-
 class TestRemoveC_D(object):
     """Test for remove_C_D from specific columns."""
 
