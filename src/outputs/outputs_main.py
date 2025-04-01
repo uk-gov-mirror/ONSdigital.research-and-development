@@ -221,7 +221,7 @@ def run_outputs(  # noqa: C901
         OutputMainLogger.info("Finished Intramural totals output.")
 
     # Running National Accounts output
-    if config["survey"]["survey_type"] == ["PNP"] & config["global"]["output_pnp_na"]:
+    if config["global"]["output_pnp_na"]:
         OutputMainLogger.info("Starting PNP National Accounts output...")
         output_pnp_na(outputs_df, config, write_csv)
         OutputMainLogger.info("Finished PNP National Accounts output.")

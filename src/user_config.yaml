@@ -2,7 +2,7 @@ config_validation:
   validate: True
   path: src/user_config_schema.yaml
 survey:
-  survey_type: "BERD"
+  survey_type: "PNP"
   survey_year: 2023
 global:
   # Staging and validation settings

@@ -214,6 +214,12 @@ old_name = "turnover"
 Deduced_Data_Type = "Int64"
 R_and_D_Type = "turnover"
 
+[Region]
+name = ""
+old_name = "region"
+Deduced_Data_Type = "Int64"
+R_and_D_Type = "region"
+
 [RUSICcur]
 name = ""
 old_name = "rusic"
@@ -876,15 +882,15 @@ R_and_D_Type ="601"
 
 [q0602]
 name = "% of R&D"
-old_name = "602"
+old_name = "% of R&D"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "602"
+R_and_D_Type = "% of R&D"
 
 [q0603]
 name = "Region"
-old_name = "region"
+old_name = "Region"
 Deduced_Data_Type = "category"
-R_and_D_Type = "region"
+R_and_D_Type = "Region"
 
 [""]
 name= "Expenditure by Region"

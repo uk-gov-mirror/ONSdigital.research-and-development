@@ -17,6 +17,7 @@ def divide_by_1000(df, config):
     cols = get_all_wanted_columns(config, "imputation")
 
     for col in cols:
+        df = df.copy()
         if col in df.columns:
             df[col] = df[col].apply(lambda x: round(x / 1000, 0) if x > 0 else x)
 
@@ -58,18 +59,8 @@ def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
     """
     output_path = config["outputs_paths"]["outputs_master"]
 
-    # Get columns from config
-    cols = get_all_wanted_columns(config, "imputation")
-
-    # Select only the columns we need
-    div_df = df.copy()
-    div_df = div_df[cols]
-
     # Divide by 1000
-    div_df = divide_by_1000(div_df, config)
-
-    # Replace cols in df with the new values
-    df[cols] = div_df[cols]
+    df = divide_by_1000(df, config)
 
     # Filter civil and defence data into seperate dataframes
     civil_df = df[df["200"] == "C"]
@@ -95,7 +86,7 @@ def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
     output = create_na_output(df, schema_dict)
 
     # Outputting the CSV file
-    filename = filename_amender("output_national_accounts", config)
+    filename = filename_amender("output_PNP_national_accounts", config)
     write_csv(f"{output_path}/output_PNP_national_accounts/{filename}", output)
 
     # Return the processed DataFrame for QA
