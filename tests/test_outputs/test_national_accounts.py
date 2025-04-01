@@ -10,7 +10,7 @@ from unittest.mock import patch
 from pandas.testing import assert_frame_equal
 
 # Local Imports
-from src.outputs.NA_output import (
+from src.outputs.PNP_NA_output import (
     divide_by_1000,
     expenditure_by_region,
     remove_C_D,
@@ -34,7 +34,9 @@ class TestDivideBy1000(object):
     def input_data(self):
         """Input data for divide_by_1000 tests."""
         columns = ["212", "250", "247"]
-        data = [[1, 500, 1000], [2, 1000, 2000], [3, 2000, 3000]]
+        data = [[1, 500, 1000],
+                [2, 1000, 2000],
+                [3, 2000, 3000]]
         df = pd.DataFrame(data=data, columns=columns)
         return df
 

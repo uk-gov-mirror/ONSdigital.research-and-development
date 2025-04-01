@@ -50,7 +50,7 @@ global:
   output_status_filtered: False
   output_frozen_group: False
   output_intram_totals: False
-  output_na: True
+  output_pnp_na: True
 s3_paths:
   root: "/bat/res_dev/project_data/"
   # staging input paths

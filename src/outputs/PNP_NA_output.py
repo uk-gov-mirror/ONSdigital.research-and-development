@@ -54,7 +54,7 @@ def remove_C_D(df: pd.DataFrame):
     return df
 
 
-def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
+def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
     """Creates a National Accounts output for PNP only, mapping back to the original
     questions. Selects and adds columns where needed for back-compatibility, to output
     a CSV file of the appropriate format.
@@ -114,7 +114,7 @@ def output_na(df: pd.DataFrame, config: dict, write_csv: callable):
     df = expenditure_by_region(df)
 
     # Create output dataframe with required columns from schema
-    schema_path = config["schema_paths"]["national_accounts_schema"]
+    schema_path = config["schema_paths"]["pnp_national_accounts_schema"]
     schema_dict = load_schema(schema_path)
     output = create_na_output(df, schema_dict)
 
