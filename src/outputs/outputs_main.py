@@ -21,7 +21,7 @@ from src.outputs.intram_by_civil_defence import output_intram_by_civil_defence
 from src.outputs.intram_by_sic import output_intram_by_sic
 from src.outputs.total_fte import qa_output_total_fte
 from src.outputs.intram_totals import output_intram_totals
-from src.outputs.PNP_NA_output import output_na
+from src.outputs.PNP_NA_output import output_pnp_na
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -221,9 +221,9 @@ def run_outputs(  # noqa: C901
         OutputMainLogger.info("Finished Intramural totals output.")
 
     # Running National Accounts output
-    if config["global"]["output_pnp_na"]:
+    if config["survey"]["survey_type"] == ["PNP"] & config["global"]["output_pnp_na"]:
         OutputMainLogger.info("Starting PNP National Accounts output...")
-        output_na(outputs_df, config, write_csv)
+        output_pnp_na(outputs_df, config, write_csv)
         OutputMainLogger.info("Finished PNP National Accounts output.")
 
     OutputMainLogger.info("Finished Outputs module.")

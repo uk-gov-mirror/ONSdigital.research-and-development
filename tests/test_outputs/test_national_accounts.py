@@ -12,7 +12,6 @@ from pandas.testing import assert_frame_equal
 # Local Imports
 from src.outputs.PNP_NA_output import (
     divide_by_1000,
-    expenditure_by_region,
     remove_C_D,
 )
 

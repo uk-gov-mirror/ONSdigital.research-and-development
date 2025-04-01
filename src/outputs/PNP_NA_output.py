@@ -17,20 +17,9 @@ def divide_by_1000(df, config):
     cols = get_all_wanted_columns(config, "imputation")
 
     for col in cols:
-        df = df.copy()
         if col in df.columns:
             df[col] = df[col].apply(lambda x: round(x / 1000, 0) if x > 0 else x)
 
-    return df
-
-
-def expenditure_by_region(df):
-    """Calculation to populate the expenditure by region column."""
-    # Add column for expenditure by region
-    df["Expenditure by Region"] = (
-        (df["602"].fillna(0)) / 100 * (df["211_C"].fillna(0) + df["211_D"].fillna(0))
-    )
-    df["Expenditure by Region"] = df["Expenditure by Region"].astype(float).round(2)
     return df
 
 
@@ -47,7 +36,6 @@ def remove_C_D(df: pd.DataFrame):
     # Get 6XXX cols
     cols = [col for col in df.columns if col.startswith("6")]
     for col in cols:
-        df = df.copy()
         if col in df.columns:
             df = df.rename(columns={col: col[:-2]})
 
@@ -68,15 +56,6 @@ def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
         None
 
     """
-
-    # Check that PNP is set
-    if config["survey"]["survey_type"] != "PNP":
-        raise ValueError(
-            "The survey type is not set to PNP. "
-            "The national accounts output is for PNP only "
-            "and will not be created."
-        )
-
     output_path = config["outputs_paths"]["outputs_master"]
 
     # Get columns from config
@@ -142,11 +121,12 @@ def create_na_output(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
         output_schema[column_nm]["R_and_D_Type"]: column_nm
         for column_nm in output_schema.keys()
     }
+    # Creating a copy of the df
+    df = df.copy()
 
     # If col is in schema but not in df, add it to the df
     for col in colname_schema_dict.keys():
         if col not in df.columns:
-            df = df.copy()
             df[col] = np.nan
 
     # Create subset dataframe with only the required outputs
