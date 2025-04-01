@@ -62,20 +62,22 @@ def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
     # Divide by 1000
     df = divide_by_1000(df, config)
 
-    # Filter civil and defence data into seperate dataframes
-    civil_df = df[df["200"] == "C"]
-    defence_df = df[df["200"] == "D"]
+    # Get the columns that are required for the output
+    wanted_cols = get_all_wanted_columns(config, "longform")
 
-    # Add "C" or "D" to the columns of the corresponding dataframes
-    civil_df.columns = civil_df.columns + "_C"
-    defence_df.columns = defence_df.columns + "_D"
+    #  Add "C" or "D" to the columns of the corresponding dataframes
+    civil_df = df.rename(columns={col: col + "_C" for col in wanted_cols})
+    defence_df = df.rename(columns={col: col + "_D" for col in wanted_cols})
 
-    # Remove _C or _D from columns that do not start with a number or 6XX cols
-    civil_df = remove_C_D(civil_df)
-    defence_df = remove_C_D(defence_df)
+    # Get columns consistent in both dataframes
+    join_cols = ["reference", "201", "601"]
 
-    # Concatenate the dataframes
-    df = pd.concat([civil_df, defence_df], ignore_index=True, axis=0)
+    # Merge the dataframes
+    join_df = pd.merge(
+        civil_df, defence_df, on=join_cols, how="outer", suffixes=("", "_drop")
+    )
+
+    join_df = join_df.loc[:, ~join_df.columns.str.endswith("_drop")]
 
     # Map to the CORA statuses from the statusencoded column
     df = create_cora_status_col(df)
@@ -112,8 +114,6 @@ def create_na_output(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
         output_schema[column_nm]["R_and_D_Type"]: column_nm
         for column_nm in output_schema.keys()
     }
-    # Creating a copy of the df
-    df = df.copy()
 
     # If col is in schema but not in df, add it to the df
     for col in colname_schema_dict.keys():
