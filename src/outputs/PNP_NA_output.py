@@ -24,6 +24,19 @@ def divide_by_1000(df, config):
     return df
 
 
+def add_headcount(df, config):
+    """Add headcount columns for civil and defence together to get the 5XXX columns"""
+    # Get cols from config
+    cols = config["breakdowns"]["headcount_total"]
+
+    # Add together the columns that are the same in both dataframes for headcount
+    for col in cols:
+        if f"{col}_C" in df.columns and f"{col}_D" in df.columns:
+            df[col] = df[f"{col}_C"].fillna(0) + df[f"{col}_D"].fillna(0)
+
+    return df
+
+
 def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
     """Creates a National Accounts output for PNP only, mapping back to the original
     questions. Selects and adds columns where needed for back-compatibility, to output
@@ -62,6 +75,7 @@ def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
     join_df = join_df.loc[:, ~join_df.columns.str.endswith("_drop")]
 
     # Add together the columns that are the same in both dataframes for headcount
+    df = add_headcount(join_df, config)
 
     # Map to the CORA statuses from the statusencoded column
     df = create_cora_status_col(df)
