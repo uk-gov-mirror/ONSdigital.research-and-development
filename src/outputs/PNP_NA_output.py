@@ -17,7 +17,6 @@ def divide_by_1000(df, config):
     cols = get_all_wanted_columns(config, "imputation")
 
     for col in cols:
-        df = df.copy()
         if col in df.columns:
             df[col] = df[col].apply(lambda x: round(x / 1000, 0) if x > 0 else x)
 
@@ -27,7 +26,7 @@ def divide_by_1000(df, config):
 def add_headcount(df, config):
     """Add headcount columns for civil and defence together to get the 5XXX columns"""
     # Get cols from config
-    cols = config["breakdowns"]["headcount_total"]
+    cols = get_all_wanted_columns(config, "employment_lf")
 
     # Add together the columns that are the same in both dataframes for headcount
     for col in cols:
@@ -53,29 +52,31 @@ def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
     """
     output_path = config["outputs_paths"]["outputs_master"]
 
+    df = df.copy()
+
     # Divide by 1000
     df = divide_by_1000(df, config)
 
     # Get the columns that are required for the output
     wanted_cols = get_all_wanted_columns(config, "longform")
 
+    # Filter civil and defence data into seperate dataframes
+    civil_df = df[df["200"] == "C"]
+    defence_df = df[df["200"] == "D"]
+
     #  Add "C" or "D" to the columns of the corresponding dataframes
-    civil_df = df.rename(columns={col: col + "_C" for col in wanted_cols})
-    defence_df = df.rename(columns={col: col + "_D" for col in wanted_cols})
+    civil_df = civil_df.rename(columns={col: col + "_C" for col in wanted_cols})
+    defence_df = defence_df.rename(columns={col: col + "_D" for col in wanted_cols})
 
     # Get columns consistent in both dataframes
     join_cols = ["reference", "201", "601"]
+    defence_df = defence_df[join_cols + [col + "_D" for col in wanted_cols]]
 
     # Merge the dataframes
-    join_df = pd.merge(
-        civil_df, defence_df, on=join_cols, how="outer", suffixes=("", "_drop")
-    )
-
-    # Drop the columns that are not needed
-    join_df = join_df.loc[:, ~join_df.columns.str.endswith("_drop")]
+    df = pd.merge(civil_df, defence_df, on=join_cols, how="outer")
 
     # Add together the columns that are the same in both dataframes for headcount
-    df = add_headcount(join_df, config)
+    df = add_headcount(df, config)
 
     # Map to the CORA statuses from the statusencoded column
     df = create_cora_status_col(df)

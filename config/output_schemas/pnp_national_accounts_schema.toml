@@ -816,7 +816,7 @@ R_and_D_Type = "headcount_oth_f"
 
 [q0507]
 name = "Total HC male"
-old_name = "headcount_tot_m"
+old_name = "507"
 Deduced_Data_Type = "float64"
 R_and_D_Type = "headcount_tot_m"
 
@@ -830,49 +830,49 @@ R_and_D_Type = "headcount_tot_f"
 name = "FTE Researchers- civil"
 old_name = "405"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "405_C"
+R_and_D_Type = "emp_researcher_C"
 
 [q0510]
 name = "FTE Researchers- defence"
 old_name = "405"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "405_D"
+R_and_D_Type = "emp_researcher_D"
 
 [q0511]
 name = "FTE Technicians- civil"
 old_name = "407"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "407_C"
+R_and_D_Type = "emp_technician_C"
 
 [q0512]
 name = "FTE Technicians- defence"
 old_name = "407"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "407_D"
+R_and_D_Type = "emp_technician_D"
 
 [q0513]
 name = "FTE Others- civil"
 old_name = "409"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "409_C"
+R_and_D_Type = "emp_other_C"
 
 [q0514]
 name = "FTE Others- defence"
 old_name = "409"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "409_D"
+R_and_D_Type = "emp_other_D"
 
 [q0515]
 name = "Total FTE- civil"
 old_name = "411"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "411_C"
+R_and_D_Type = "emp_total_C"
 
 [q0516]
 name = "Total FTE- defence"
 old_name = "411"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "411_D"
+R_and_D_Type = "emp_total_D"
 
 [q0601]
 name = "Postcode"
