@@ -61,8 +61,8 @@ def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
     wanted_cols = get_all_wanted_columns(config, "longform")
 
     # Filter civil and defence data into seperate dataframes
-    civil_df = df[df["200"] == "C"]
-    defence_df = df[df["200"] == "D"]
+    civil_df = df[df["200"] == "C"].copy()
+    defence_df = df[df["200"] == "D"].copy()
 
     #  Add "C" or "D" to the columns of the corresponding dataframes
     civil_df = civil_df.rename(columns={col: col + "_C" for col in wanted_cols})
@@ -70,10 +70,13 @@ def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
 
     # Get columns consistent in both dataframes
     join_cols = ["reference", "201", "601"]
+    civil_df = civil_df[join_cols + [col + "_C" for col in wanted_cols]]
     defence_df = defence_df[join_cols + [col + "_D" for col in wanted_cols]]
 
+    merge_df = pd.merge(civil_df, defence_df, on=join_cols, how="outer")
+
     # Merge the dataframes
-    df = pd.merge(civil_df, defence_df, on=join_cols, how="outer")
+    df = pd.merge(df, merge_df, on=join_cols, how="outer")
 
     # Add together the columns that are the same in both dataframes for headcount
     df = add_headcount(df, config)
