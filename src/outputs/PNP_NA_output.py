@@ -2,11 +2,11 @@
 
 import logging
 import pandas as pd
-import numpy as np
 from src.staging.validation import load_schema
 from src.utils.helpers import filename_amender
 from src.utils.breakdown_validation import get_all_wanted_columns
 from src.outputs.map_output_cols import create_cora_status_col
+from src.outputs.outputs_helpers import create_output_df
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -19,19 +19,6 @@ def divide_by_1000(df, config):
     for col in cols:
         if col in df.columns:
             df[col] = df[col].apply(lambda x: round(x / 1000, 0) if x > 0 else x)
-
-    return df
-
-
-def add_headcount(df, config):
-    """Add headcount columns for civil and defence together to get the 5XXX columns"""
-    # Get cols from config
-    cols = get_all_wanted_columns(config, "employment_lf")
-
-    # Add together the columns that are the same in both dataframes for headcount
-    for col in cols:
-        if f"{col}_C" in df.columns and f"{col}_D" in df.columns:
-            df[col] = df[f"{col}_C"].fillna(0) + df[f"{col}_D"].fillna(0)
 
     return df
 
@@ -57,36 +44,13 @@ def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
     # Divide by 1000
     df = divide_by_1000(df, config)
 
-    # Get the columns that are required for the output
-    wanted_cols = get_all_wanted_columns(config, "longform")
-
-    # Filter civil and defence data into seperate dataframes
-    civil_df = df[df["200"] == "C"].copy()
-    defence_df = df[df["200"] == "D"].copy()
-
-    #  Add "C" or "D" to the columns of the corresponding dataframes
-    civil_df = civil_df.rename(columns={col: col + "_C" for col in wanted_cols})
-    defence_df = defence_df.rename(columns={col: col + "_D" for col in wanted_cols})
-
-    # Get columns consistent in both dataframes
-    join_cols = ["reference", "201", "601"]
-    civil_df = civil_df[join_cols + [col + "_C" for col in wanted_cols]]
-    defence_df = defence_df[join_cols + [col + "_D" for col in wanted_cols]]
-
-    merge_df = pd.merge(civil_df, defence_df, on=join_cols, how="outer")
-
-    # Merge the dataframes
-    df = pd.merge(df, merge_df, on=join_cols, how="outer")
-
-    # Add together the columns that are the same in both dataframes for headcount
-    df = add_headcount(df, config)
-
     # Map to the CORA statuses from the statusencoded column
     df = create_cora_status_col(df)
 
     # Create output dataframe with required columns from schema
     schema_path = config["schema_paths"]["pnp_national_accounts_schema"]
     schema_dict = load_schema(schema_path)
+    output = create_output_df(df, schema_dict)
     output = create_na_output(df, schema_dict)
 
     # Outputting the CSV file
@@ -111,37 +75,23 @@ def create_na_output(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
         (pd.DataFrame): A dataframe consisting of only the
         required short form output data
     """
+    output_df = df.copy()
+
     # Create dict of current and required column names
-    colname_schema_dict = {
-        output_schema[column_nm]["R_and_D_Type"]: column_nm
+    description_schema_dict = {
+        output_schema[column_nm]["name"]: column_nm
         for column_nm in output_schema.keys()
     }
 
-    # If col is in schema but not in df, add it to the df
-    for col in colname_schema_dict.keys():
-        if col not in df.columns:
-            df[col] = np.nan
-
-    # Create subset dataframe with only the required outputs
-    output_df = df[colname_schema_dict.keys()].copy()
-
-    # Rename columns to match the output specification
-    output_df.rename(columns=colname_schema_dict, inplace=True)
-
-    # Rearrange to match user defined output order
-    output_df = output_df[colname_schema_dict.values()]
-
-    # Create a list of new column names using the "name" field from the schema
-    new_column_names = []
-    for col in colname_schema_dict.values():
-        new_column_names.append(output_schema[col]["name"])
+    # Create a list of descriptions for column headers
+    description_row = list(description_schema_dict.keys())
 
     # Create a DataFrame for the first row with the original column names
-    first_row_values = list(colname_schema_dict.values())
-    first_row_df = pd.DataFrame([first_row_values], columns=new_column_names)
+    first_row_values = list(description_schema_dict.values())
+    first_row_df = pd.DataFrame([first_row_values], columns=description_row)
 
     # Rename the columns of the output DataFrame to the new column names
-    output_df.columns = new_column_names
+    output_df.columns = description_row
 
     # Concatenate the first row DataFrame with the output DataFrame
     output_df = pd.concat([first_row_df, output_df], ignore_index=True)

@@ -2,988 +2,823 @@
 name = ""
 old_name = "survey"
 Deduced_Data_Type = "str"
-R_and_D_Type = "survey"
 
 [IDBRPeriod]
 name = ""
 old_name = "period"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "period"
 
 [RUReference]
 name = ""
 old_name = "reference"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "reference"
 
 [FormType]
 name = ""
 old_name = "formtype"
 Deduced_Data_Type = "str"
-R_and_D_Type = "formtype"
 
 [Upddate]
 name = ""
 old_name = "Upddate"
 Deduced_Data_Type = "str"
-R_and_D_Type = "Upddate"
 
 [Addr1]
 name = ""
 old_name = "Addr1"
 Deduced_Data_Type = "str"
-R_and_D_Type = "Addr1"
 
 [Addr2]
 name = ""
 old_name = "Addr2"
 Deduced_Data_Type = "str"
-R_and_D_Type = "Addr2"
 
 [Addr3]
 name = ""
 old_name = "Addr3"
 Deduced_Data_Type = "str"
-R_and_D_Type = "Addr3"
 
 [Addr4]
 name = ""
 old_name = "Addr4"
 Deduced_Data_Type = "str"
-R_and_D_Type = "Addr4"
 
 [Addr5]
 name = ""
 old_name = "Addr5"
 Deduced_Data_Type = "str"
-R_and_D_Type = "Addr5"
 
 [Name]
 name = ""
 old_name = "referencename"
 Deduced_Data_Type = "str"
-R_and_D_Type = "referencename"
 
 [Contact]
 name = ""
 old_name = "Contact"
 Deduced_Data_Type = "str"
-R_and_D_Type = "Contact"
 
 [Curr]
 name = ""
 old_name = "currency"
 Deduced_Data_Type = "str"
-R_and_D_Type = "currency"
 
 [Email]
 name = ""
 old_name = "Email"
 Deduced_Data_Type = "str"
-R_and_D_Type = "Email"
 
 [RecieptDate]
 name = ""
 old_name = "receiptdate"
 Deduced_Data_Type = "datetime64[ns]"
-R_and_D_Type = "receiptdate"
 
 [EmpsIDBR]
 name = ""
 old_name = "EmpsIDBR"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "EmpsIDBR"
 
 [Empt]
 name = ""
 old_name = "employment"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "employment"
 
 [Emptfro]
 name = ""
 old_name = "frozenemployment"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "frozenemployment"
 
 [Entref]
 name = ""
 old_name = "enterprisereference"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "enterprisereference"
 
 [Entgroup]
 name = ""
 old_name = "wowenterprisereference"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "wowenterprisereference"
 
 [VETs]
 name = ""
 old_name = "VETs"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "VETs"
 
 [FormStatus]
 name = ""
 old_name = "form_status"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "form_status"
 
 [Employees]
 name = ""
 old_name = "employees"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "employees"
 
 [Formver]
 name = ""
 old_name = "Formver"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "Formver"
 
 [FTEfro]
 name = ""
 old_name = "frozenfteemployment"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "frozenfteemployment"
 
 [FTE]
 name = ""
 old_name = "fteemployment"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "fteemployment"
 
 [Updby]
 name = ""
 old_name = "Updby"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "Updby"
 
 [Legalstatus]
 name = ""
 old_name = "legalstatus"
 Deduced_Data_Type = "catergory"
-R_and_D_Type = "legalstatus"
 
 [Lockdate]
 name = ""
 old_name = "lockeddate"
 Deduced_Data_Type = "pd.NA"
-R_and_D_Type = "lockeddate"
 
 [Lockby]
 name = ""
 old_name = "lockedby"
 Deduced_Data_Type = "pd.NA"
-R_and_D_Type = "lockedby"
 
 [MC]
 name = ""
 old_name = "MC"
 Deduced_Data_Type = "pd.NA"
-R_and_D_Type = "MC"
 
 [Month]
 name = ""
 old_name = "Month"
 Deduced_Data_Type = "pd.NA"
-R_and_D_Type = "Month"
 
 [NS]
 name = ""
 old_name = "NS"
 Deduced_Data_Type = "pd.NA"
-R_and_D_Type = "NS"
 
 [Nonresp]
 name = ""
 old_name = "Nonresp"
 Deduced_Data_Type = "pd.NA"
-R_and_D_Type = "Nonresp"
 
 [PC]
 name = ""
 old_name = "referencepostcode"
 Deduced_Data_Type = "str"
-R_and_D_Type = "referencepostcode"
 
 [Turnover]
 name = ""
 old_name = "turnover"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "turnover"
 
 [Region]
 name = ""
 old_name = "region"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "region"
 
 [RUSICcur]
 name = ""
 old_name = "rusic"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "rusic"
 
 [RUSICprev]
 name = ""
 old_name = "rusicoutdated"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "rusicoutdated"
 
 [CellSelection]
 name = ""
 old_name = "CellSelection"
 Deduced_Data_Type = "pd.NA"
-R_and_D_Type = "CellSelection"
 
 [SICcurfro]
 name = ""
 old_name = "frozensic"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "frozensic"
 
 [DataSource]
 name = ""
 old_name = "DataSource"
 Deduced_Data_Type = "pd.NA"
-R_and_D_Type = "DataSource"
 
 [SICprevfro]
 name = ""
 old_name = "frozensicoutdated"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "frozensicoutdated"
 
 [SICprev]
 name = ""
 old_name = "SICprev"
 Deduced_Data_Type = "pd.NA"
-R_and_D_Type = "SICprev"
 
 [Tel]
 name = ""
 old_name = "Tel"
 Deduced_Data_Type = "pd.NA"
-R_and_D_Type = "Tel"
 
 [CurrentSIC]
 name = ""
 old_name = "CurrentSIC"
 Deduced_Data_Type = "pd.NA"
-R_and_D_Type = "CurrentSIC"
 
 [TOfro]
 name = ""
 old_name = "frozenturnover"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "frozenturnover"
 
 [TOIDBR]
 name = ""
 old_name = "TOIDBR"
 Deduced_Data_Type = "pd.NA"
-R_and_D_Type = "TOIDBR"
 
 [Year]
 name = ""
 old_name = "period_year"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "period_year"
 
 [Instance]
 name = ""
 old_name = "instance"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "instance"
 
 [q0001]
 name = ""
 old_name = "q0001"
 Deduced_Data_Type = "pd.NA"
-R_and_D_Type = "q0001"
 
 [q0002]
 name = ""
 old_name = "q0002"
 Deduced_Data_Type = "pd.NA"
-R_and_D_Type = "q0002"
 
 [q0003]
 name = ""
 old_name = "q0003"
 Deduced_Data_Type = "pd.NA"
-R_and_D_Type = "q0003"
 
 [q0101]
 name = ""
 old_name = "101"
 Deduced_Data_Type = "str"
-R_and_D_Type = "101"
 
 [q0102]
 name = ""
 old_name = "103"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "103"
 
 [q0103]
 name = ""
 old_name = "104"
 Deduced_Data_Type = "str"
-R_and_D_Type = "104"
 
 [q0201]
 name = ""
 old_name = "604"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "604"
 
 [q0202]
 name = "Total Capex- civil"
 old_name = "210"
 Deduced_Data_Type = "Int64"
-R_and_D_Type = "210_C"
 
 [q0203]
 name = "Total Capex- defence"
 old_name = "210"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "210_D"
 
 [q0204]
 name = "Land acquired- civil"
 old_name = "219"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "219_C"
 
 [q0205]
 name = "Land acquired- defence"
 old_name = "219"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "219_D"
 
 [q0206]
 name = "Buildings- civil"
 old_name = "220"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "220_C"
 
 [q0207]
 name = "Buildings- defence"
 old_name = "220"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "220_D"
 
 [q0208]
 name = "Equipment and machinery- civil"
 old_name = "209"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "209_C"
 
 [q0209]
 name = "Equipment and machinery- defence"
 old_name = "209"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "209_D"
 
 [q0210]
 name = "Computer software- civil"
 old_name = "221"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "221_C"
 
 [q0211]
 name = "Computer software- defence"
 old_name = "221"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "221_D"
 
 [q0212]
 name = "Total non-capex- civil"
 old_name = "204"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "204_C"
 
 [q0213]
 name = "Total non-capex- defence"
 old_name = "204"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "204_D"
 
 [q0214]
 name = "Salaries and Wages- civil"
 old_name = "202"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "202_C"
 
 [q0215]
 name = "Salaries and Wages- defence"
 old_name = "202"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "202_D"
 
 [q0216]
 name = "Materials- civil"
 old_name = "222"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "222_C"
 
 [q0217]
 name = "Materials- defence"
 old_name = "222"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "222_D"
 
 [q0218]
 name = "Services- civil"
 old_name = "223"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "223_C"
 
 [q0219]
 name = "Services- defence"
 old_name = "223"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "223_D"
 
 [q0222]
 name = "Total capex and non-capex- civil"
 old_name = "211"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "211_C"
 
 [q0223]
 name = "Total capex and non-capex- defence"
 old_name = "211"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "211_D"
 
 [q0224]
 name = "Basic research- civil"
 old_name = "205"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "205_C"
 
 [q0225]
 name = "Basic research- defence"
 old_name = "205"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "205_D"
 
 [q0226]
 name = "Applied research- civil"
 old_name = "206"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "206_C"
 
 [q0227]
 name = "Applied research- defence"
 old_name = "206"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "206_D"
 
 [q0228]
 name = "Experimental- civil"
 old_name = "207"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "207_C"
 
 [q0229]
 name = "Experimental- defence"
 old_name = "207"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "207_D"
 
 [q0230]
 name = ""
 old_name = "230"
 Deduced_Data_Type = "str"
-R_and_D_Type = "230"
 
 [q0301]
 name = "Own funds- civil"
 old_name = "212"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "212_C"
 
 [q0302]
 name = "Own funds- defence"
 old_name = "212"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "212_D"
 
 [q0303]
 name = "UK Gov- civil"
 old_name = "214_ex_303"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "214_ex_303_C"
 
 [q0304]
 name = "UK Gov- defence"
 old_name = "214_ex_303"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "214_ex_303_D"
 
 [q0305]
 name = "Other UK private business- civil"
 old_name = "216"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "216_C"
 
 [q0306]
 name = "Other UK private business- defence"
 old_name = "216"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "216_D"
 
 [q0307]
 name = "UK PNP- civil"
 old_name = "242"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "242_C"
 
 [q0308]
 name = "UK PNP- defence"
 old_name = "242"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "242_D"
 
 [q0309]
 name = "Business enterprises in group outside UK- civil"
 old_name = "243"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "243_C"
 
 [q0310]
 name = "Business enterprises in group outside UK- defence"
 old_name = "243"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "243_D"
 
 [q0311]
 name = "Other business enterprises outside UK- civil"
 old_name = "244"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "244_C"
 
 [q0312]
 name = "Other business enterprises outside UK- defence"
 old_name = "244"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "244_D"
 
 [q0313]
 name = "Other Governments outside UK- civil"
 old_name = "245"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "245_C"
 
 [q0314]
 name = "Other Governments outside UK- defence"
 old_name = "245"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "245_D"
 
 [q0315]
 name = "Higher education outside UK- civil"
 old_name = "246"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "246_C"
 
 [q0316]
 name = "Higher education outside UK- defence"
 old_name = "246"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "246_D"
 
 [q0317]
 name = "Non-profit outside UK- civil"
 old_name = "247"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "247_C"
 
 [q0318]
 name = "Non-profit outside UK- defence"
 old_name = "247"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "247_D"
 
 [q0319]
 name = "Commission of EU- civil"
 old_name = "249_ex_319"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "249_ex_319_C"
 
 [q0320]
 name = "Commission of EU- defence"
 old_name = "249_ex_319"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "249_ex_319_D"
 
 [q0321]
 name = "International organisations- civil"
 old_name = "248"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "248_C"
 
 [q0322]
 name = "International organisations- defence"
 old_name = "248"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "248_D"
 
 [q0323]
 name = "Any other orgs outside uk- civil"
 old_name = "249_ex_323"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "249_ex_323_C"
 
 [q0324]
 name = "Any other orgs outside uk- defence"
 old_name = "249_ex_323"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "249_ex_323_D"
 
 [q0325]
 name = "Total funding- civil"
 old_name = "218"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "218_C"
 
 [q0326]
 name = "Total funding- defence"
 old_name = "218"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "218_D"
 
 [q0327]
 name = "UK Research council- civil"
 old_name = "214"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "214_C"
 
 [q0328]
 name = "UK Research council- defence"
 old_name = "214"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "214_D"
 
 [q0329]
 name = "(New) UK Higher Education- civil"
 old_name = "250"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "250_C"
 
 [q0330]
 name = "(New) UK Higher Education- defence"
 old_name = "250"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "250_D"
 
 [q0331]
 name = "Total expenditure on Covid civil"
 old_name = "331"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "331"
 
 [q0332]
 name = "Total expenditure on Covid defence"
 old_name = "332"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "332"
 
 [q0333]
 name = "Covid own funds from UK civil"
 old_name = "333"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "333"
 
 [q0334]
 name = "Covid own funds from UK defence"
 old_name = "334"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "334"
 
 [q0335]
 name = "Covid from UK Gov Civil"
 old_name = "335"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "335"
 
 [q0336]
 name = "Covid from UK Gov defence"
 old_name = "336"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "336"
 
 [q0337]
 name = "Covid from UKRI civil"
 old_name = "337"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "337"
 
 [q0338]
 name = "Covid from UKRI defence"
 old_name = "338"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "338"
 
 [q0339]
 name = "Covid from other UK business enterprises civil"
 old_name = "339"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "339"
 
 [q0340]
 name = "Covid from other UK business enterprises defence"
 old_name = "340"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "340"
 
 [q0341]
 name = "Covid from other UK non profit organsiations civil"
 old_name = "341"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "341"
 
 [q0342]
 name = "Covid from other UK non profit organsiations defence"
 old_name = "342"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "342"
 
 [q0343]
 name = "Covid from  UK higher education civil"
 old_name = "343"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "343"
 
 [q0344]
 name = "Covid from  UK higher education defence"
 old_name = "344"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "344"
 
 [q0345]
 name = "Covid from outside UK civil"
 old_name = "345"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "345"
 
 [q0346]
 name = "Covid from outside UK defence"
 old_name = "346"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "346"
 
 [q0501]
 name = "Researchers male"
 old_name = "headcount_res_m"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "headcount_res_m"
 
 [q0502]
 name = "Researchers female"
 old_name = "headcount_res_f"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "headcount_res_f"
 
 [q0503]
 name = "Technicians male"
 old_name = "headcount_tec_m"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "headcount_tec_m"
 
 [q0504]
 name = "Technicians female"
 old_name = "headcount_tec_f"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "headcount_tec_f"
 
 [q0505]
 name = "Others male"
 old_name = "headcount_oth_m"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "headcount_oth_m"
 
 [q0506]
 name = "Others female"
 old_name = "headcount_oth_f"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "headcount_oth_f"
 
 [q0507]
 name = "Total HC male"
-old_name = "507"
+old_name = "headcount_tot_m"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "headcount_tot_m"
 
 [q0508]
 name = "Total HC female"
-old_name = "508"
+old_name = "headcount_tot_f"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "headcount_tot_f"
 
 [q0509]
 name = "FTE Researchers- civil"
-old_name = "405"
+old_name = "emp_researcher"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "emp_researcher_C"
 
 [q0510]
 name = "FTE Researchers- defence"
 old_name = "405"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "emp_researcher_D"
 
 [q0511]
 name = "FTE Technicians- civil"
-old_name = "407"
+old_name = "emp_technician"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "emp_technician_C"
 
 [q0512]
 name = "FTE Technicians- defence"
 old_name = "407"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "emp_technician_D"
 
 [q0513]
 name = "FTE Others- civil"
-old_name = "409"
+old_name = "emp_other"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "emp_other_C"
 
 [q0514]
 name = "FTE Others- defence"
 old_name = "409"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "emp_other_D"
 
 [q0515]
 name = "Total FTE- civil"
-old_name = "411"
+old_name = "emp_total"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "emp_total_C"
 
 [q0516]
 name = "Total FTE- defence"
 old_name = "411"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "emp_total_D"
 
 [q0601]
 name = "Postcode"
 old_name = "601"
 Deduced_Data_Type = "object"
-R_and_D_Type ="601"
 
 [q0602]
 name = "% of R&D"
 old_name = "% of R&D"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "% of R&D"
 
 [q0603]
 name = "Region"
 old_name = "Region"
 Deduced_Data_Type = "category"
-R_and_D_Type = "Region"
 
 [""]
 name= "Expenditure by Region"
 old_name = "Expenditure by Region"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "Expenditure by Region"
 
 [q0701]
 name = ""
 old_name = "701"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "701"
 
 [q0702]
 name = ""
 old_name = "702"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "702"
 
 [q0703]
 name = ""
 old_name = "703"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "703"
 
 [q0704]
 name = ""
 old_name = "704"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "704"
 
 [q0705]
 name = ""
 old_name = "705"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "705"
 
 [q0706]
 name = ""
 old_name = "706"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "706"
 
 [q0901]
 name = ""
 old_name = "901"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "901"
 
 [q0902]
 name = ""
 old_name = "302"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "302_C"
 
 [q0903]
 name = ""
 old_name = "302"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "302_D"
 
 [q0904]
 name = ""
 old_name = "303"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "303_C"
 
 [q0905]
 name = ""
 old_name = "303"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "303_D"
 
 [q0906]
 name = ""
 old_name = "304"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "304_C"
 
 [q0907]
 name = ""
 old_name = "304"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "304_D"
 
 [q0908]
 name = ""
 old_name = "305"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "305_C"
 
 [q0909]
 name = ""
 old_name = "305"
 Deduced_Data_Type = "float64"
-R_and_D_Type = "305_D"
