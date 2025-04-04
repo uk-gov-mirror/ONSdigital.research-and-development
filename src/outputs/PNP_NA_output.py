@@ -43,7 +43,7 @@ def create_na_output(df: pd.DataFrame, schema_dict: dict) -> pd.DataFrame:
     """
     output_df = df.copy()
 
-    # Create a row with the original column names
+    # Create a df with the original column names and the schema names
     first_row = pd.DataFrame(
         [output_df.columns],
         columns=[schema_dict[col]["name"] for col in output_df.columns],
