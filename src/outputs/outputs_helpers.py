@@ -13,7 +13,7 @@ def create_output_df(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
         column names for the outputs
 
     Returns:
-        (pd.DataFrame): A dataframe consisting of only the
+        (pd.DataFrame): A dataframe of only the
         required short form output data
     """
 

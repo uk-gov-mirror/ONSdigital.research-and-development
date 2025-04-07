@@ -290,7 +290,7 @@ Deduced_Data_Type = "Int64"
 
 [q0203]
 name = "Total Capex- defence"
-old_name = "210"
+old_name = "210_defence"
 Deduced_Data_Type = "float64"
 
 [q0204]
@@ -300,7 +300,7 @@ Deduced_Data_Type = "float64"
 
 [q0205]
 name = "Land acquired- defence"
-old_name = "219"
+old_name = "219_defence"
 Deduced_Data_Type = "float64"
 
 [q0206]
@@ -310,7 +310,7 @@ Deduced_Data_Type = "float64"
 
 [q0207]
 name = "Buildings- defence"
-old_name = "220"
+old_name = "220_defence"
 Deduced_Data_Type = "float64"
 
 [q0208]
@@ -320,7 +320,7 @@ Deduced_Data_Type = "float64"
 
 [q0209]
 name = "Equipment and machinery- defence"
-old_name = "209"
+old_name = "209_defence"
 Deduced_Data_Type = "float64"
 
 [q0210]
@@ -330,7 +330,7 @@ Deduced_Data_Type = "float64"
 
 [q0211]
 name = "Computer software- defence"
-old_name = "221"
+old_name = "221_defence"
 Deduced_Data_Type = "float64"
 
 [q0212]
@@ -340,7 +340,7 @@ Deduced_Data_Type = "float64"
 
 [q0213]
 name = "Total non-capex- defence"
-old_name = "204"
+old_name = "204_defence"
 Deduced_Data_Type = "float64"
 
 [q0214]
@@ -350,7 +350,7 @@ Deduced_Data_Type = "float64"
 
 [q0215]
 name = "Salaries and Wages- defence"
-old_name = "202"
+old_name = "202_defence"
 Deduced_Data_Type = "float64"
 
 [q0216]
@@ -360,7 +360,7 @@ Deduced_Data_Type = "float64"
 
 [q0217]
 name = "Materials- defence"
-old_name = "222"
+old_name = "222_defence"
 Deduced_Data_Type = "float64"
 
 [q0218]
@@ -370,7 +370,7 @@ Deduced_Data_Type = "float64"
 
 [q0219]
 name = "Services- defence"
-old_name = "223"
+old_name = "223_defence"
 Deduced_Data_Type = "float64"
 
 [q0222]
@@ -380,7 +380,7 @@ Deduced_Data_Type = "float64"
 
 [q0223]
 name = "Total capex and non-capex- defence"
-old_name = "211"
+old_name = "211_defence"
 Deduced_Data_Type = "float64"
 
 [q0224]
@@ -390,7 +390,7 @@ Deduced_Data_Type = "float64"
 
 [q0225]
 name = "Basic research- defence"
-old_name = "205"
+old_name = "205_defence"
 Deduced_Data_Type = "float64"
 
 [q0226]
@@ -400,7 +400,7 @@ Deduced_Data_Type = "float64"
 
 [q0227]
 name = "Applied research- defence"
-old_name = "206"
+old_name = "206_defence"
 Deduced_Data_Type = "float64"
 
 [q0228]
@@ -410,7 +410,7 @@ Deduced_Data_Type = "float64"
 
 [q0229]
 name = "Experimental- defence"
-old_name = "207"
+old_name = "207_defence"
 Deduced_Data_Type = "float64"
 
 [q0230]
@@ -425,7 +425,7 @@ Deduced_Data_Type = "float64"
 
 [q0302]
 name = "Own funds- defence"
-old_name = "212"
+old_name = "212_defence"
 Deduced_Data_Type = "float64"
 
 [q0303]
@@ -435,7 +435,7 @@ Deduced_Data_Type = "float64"
 
 [q0304]
 name = "UK Gov- defence"
-old_name = "214_ex_303"
+old_name = "214_ex_303_defence"
 Deduced_Data_Type = "float64"
 
 [q0305]
@@ -445,7 +445,7 @@ Deduced_Data_Type = "float64"
 
 [q0306]
 name = "Other UK private business- defence"
-old_name = "216"
+old_name = "216_defence"
 Deduced_Data_Type = "float64"
 
 [q0307]
@@ -455,7 +455,7 @@ Deduced_Data_Type = "float64"
 
 [q0308]
 name = "UK PNP- defence"
-old_name = "242"
+old_name = "242_defence"
 Deduced_Data_Type = "float64"
 
 [q0309]
@@ -465,7 +465,7 @@ Deduced_Data_Type = "float64"
 
 [q0310]
 name = "Business enterprises in group outside UK- defence"
-old_name = "243"
+old_name = "243_defence"
 Deduced_Data_Type = "float64"
 
 [q0311]
@@ -475,7 +475,7 @@ Deduced_Data_Type = "float64"
 
 [q0312]
 name = "Other business enterprises outside UK- defence"
-old_name = "244"
+old_name = "244_defence"
 Deduced_Data_Type = "float64"
 
 [q0313]
@@ -485,7 +485,7 @@ Deduced_Data_Type = "float64"
 
 [q0314]
 name = "Other Governments outside UK- defence"
-old_name = "245"
+old_name = "245_defence"
 Deduced_Data_Type = "float64"
 
 [q0315]
@@ -495,7 +495,7 @@ Deduced_Data_Type = "float64"
 
 [q0316]
 name = "Higher education outside UK- defence"
-old_name = "246"
+old_name = "246_defence"
 Deduced_Data_Type = "float64"
 
 [q0317]
@@ -505,7 +505,7 @@ Deduced_Data_Type = "float64"
 
 [q0318]
 name = "Non-profit outside UK- defence"
-old_name = "247"
+old_name = "247_defence"
 Deduced_Data_Type = "float64"
 
 [q0319]
@@ -515,7 +515,7 @@ Deduced_Data_Type = "float64"
 
 [q0320]
 name = "Commission of EU- defence"
-old_name = "249_ex_319"
+old_name = "249_ex_319_defence"
 Deduced_Data_Type = "float64"
 
 [q0321]
@@ -525,7 +525,7 @@ Deduced_Data_Type = "float64"
 
 [q0322]
 name = "International organisations- defence"
-old_name = "248"
+old_name = "248_defence"
 Deduced_Data_Type = "float64"
 
 [q0323]
@@ -535,7 +535,7 @@ Deduced_Data_Type = "float64"
 
 [q0324]
 name = "Any other orgs outside uk- defence"
-old_name = "249_ex_323"
+old_name = "249_ex_323_defence"
 Deduced_Data_Type = "float64"
 
 [q0325]
@@ -545,7 +545,7 @@ Deduced_Data_Type = "float64"
 
 [q0326]
 name = "Total funding- defence"
-old_name = "218"
+old_name = "218_defence"
 Deduced_Data_Type = "float64"
 
 [q0327]
@@ -555,7 +555,7 @@ Deduced_Data_Type = "float64"
 
 [q0328]
 name = "UK Research council- defence"
-old_name = "214"
+old_name = "214_defence"
 Deduced_Data_Type = "float64"
 
 [q0329]
@@ -565,7 +565,7 @@ Deduced_Data_Type = "float64"
 
 [q0330]
 name = "(New) UK Higher Education- defence"
-old_name = "250"
+old_name = "250_defence"
 Deduced_Data_Type = "float64"
 
 [q0331]
@@ -575,7 +575,7 @@ Deduced_Data_Type = "float64"
 
 [q0332]
 name = "Total expenditure on Covid defence"
-old_name = "332"
+old_name = "332_defence"
 Deduced_Data_Type = "float64"
 
 [q0333]
@@ -585,7 +585,7 @@ Deduced_Data_Type = "float64"
 
 [q0334]
 name = "Covid own funds from UK defence"
-old_name = "334"
+old_name = "334_defence"
 Deduced_Data_Type = "float64"
 
 [q0335]
@@ -595,7 +595,7 @@ Deduced_Data_Type = "float64"
 
 [q0336]
 name = "Covid from UK Gov defence"
-old_name = "336"
+old_name = "336_defence"
 Deduced_Data_Type = "float64"
 
 [q0337]
@@ -605,7 +605,7 @@ Deduced_Data_Type = "float64"
 
 [q0338]
 name = "Covid from UKRI defence"
-old_name = "338"
+old_name = "338_defence"
 Deduced_Data_Type = "float64"
 
 [q0339]
@@ -615,7 +615,7 @@ Deduced_Data_Type = "float64"
 
 [q0340]
 name = "Covid from other UK business enterprises defence"
-old_name = "340"
+old_name = "340_defence"
 Deduced_Data_Type = "float64"
 
 [q0341]
@@ -625,7 +625,7 @@ Deduced_Data_Type = "float64"
 
 [q0342]
 name = "Covid from other UK non profit organsiations defence"
-old_name = "342"
+old_name = "342_defence"
 Deduced_Data_Type = "float64"
 
 [q0343]
@@ -635,7 +635,7 @@ Deduced_Data_Type = "float64"
 
 [q0344]
 name = "Covid from  UK higher education defence"
-old_name = "344"
+old_name = "344_defence"
 Deduced_Data_Type = "float64"
 
 [q0345]
@@ -645,7 +645,7 @@ Deduced_Data_Type = "float64"
 
 [q0346]
 name = "Covid from outside UK defence"
-old_name = "346"
+old_name = "346_defence"
 Deduced_Data_Type = "float64"
 
 [q0501]
@@ -695,7 +695,7 @@ Deduced_Data_Type = "float64"
 
 [q0510]
 name = "FTE Researchers- defence"
-old_name = "405"
+old_name = "405_defence"
 Deduced_Data_Type = "float64"
 
 [q0511]
@@ -705,7 +705,7 @@ Deduced_Data_Type = "float64"
 
 [q0512]
 name = "FTE Technicians- defence"
-old_name = "407"
+old_name = "407_defence"
 Deduced_Data_Type = "float64"
 
 [q0513]
@@ -715,7 +715,7 @@ Deduced_Data_Type = "float64"
 
 [q0514]
 name = "FTE Others- defence"
-old_name = "409"
+old_name = "409_defence"
 Deduced_Data_Type = "float64"
 
 [q0515]
@@ -725,7 +725,7 @@ Deduced_Data_Type = "float64"
 
 [q0516]
 name = "Total FTE- defence"
-old_name = "411"
+old_name = "411_defence"
 Deduced_Data_Type = "float64"
 
 [q0601]
@@ -743,8 +743,8 @@ name = "Region"
 old_name = "Region"
 Deduced_Data_Type = "category"
 
-[""]
-name= "Expenditure by Region"
+["Expenditure by Region"]
+name = "Expenditure by Region"
 old_name = "Expenditure by Region"
 Deduced_Data_Type = "float64"
 
