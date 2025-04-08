@@ -135,7 +135,7 @@ class TestLoadValidateMapper:
             "mapping_paths": {
                 "test_mapper_path": "/path/to/mapper.csv"
             },
-            "global": {
+            "dev_global": {
                 "platform": "network",
             },
         }

@@ -5,17 +5,9 @@
 # max: [int, float]: applies only to int/float dtype, optional (inclusive)
 # min: [int, float]: applies only to int/float dtype, optional (inclusive)
 # filetype: str: applies to only path dtype, optional (using '.' optional)
-global:
+dev_global:
   # Logging settings
-  log_to_file:
-    singular: True
-    dtype: "bool"
-    accept_nonetype: False
   logging_level:
-    singular: True
-    dtype: "str"
-    accept_nonetype: False
-  table_config:
     singular: True
     dtype: "str"
     accept_nonetype: False

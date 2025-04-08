@@ -1,11 +1,9 @@
 config_validation:
   validate: True
   path: src/dev_config_schema.yaml
-global:
+dev_global:
   # Logging settings
-  log_to_file: True # Write logs to .log file
   logging_level: "INFO"
-  table_config: "SingleLine"
   # Environment settings
   dev_test : False
   platform: network # network #whether to load from hdfs, network (Windows) or s3 (CDP)
@@ -114,6 +112,7 @@ schema_paths:
   staged_full_responses_schema: "config/output_schemas/staged_full_responses_schema.toml"
   invalid_unrecognised_postcodes_schema: "config/output_schemas/invalid_unrecognised_postcodes_schema.toml"
   full_responses_mapped_schema: "config/output_schemas/full_responses_mapped_schema.toml"
+  pnp_national_accounts_schema: "config/output_schemas/pnp_national_accounts_schema.toml"
 
 # Export config for users
 mappers:

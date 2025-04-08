@@ -38,14 +38,13 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
     config = config_setup(user_config_path, dev_config_path)
 
     # Set up the logger
-    global_config = config["global"]
-    logger = logger_creator(global_config)
+    logger = logger_creator(config)
 
     # validate the filenames and survey type in the config
     config = file_validation(config)
 
     # Check the environment switch
-    platform = config["global"]["platform"]
+    platform = config["dev_global"]["platform"]
 
     if platform == "s3":
         # create singletion boto3 client object & pass in bucket string
@@ -55,7 +54,7 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
         from src.utils import s3_mods as mods
 
     elif platform == "network":
-        # If the platform is "network" or "hdfs", there is no need for a client.
+        # If the platform is "network" there is no need for a client.
         # Adding a client = None for consistency.
         # config["client"] = None
         from src.utils import local_file_mods as mods

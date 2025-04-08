@@ -46,7 +46,7 @@ def get_amendments(
     # Remove duplicates and sort the list to create numeric_cols
     numeric_cols = sorted(set(concatenated_list))
 
-    non_numeric_cols = ["200", "201", "601", "604"]
+    non_numeric_cols = ["200", "201", "601", "604", "status"]
 
     # numeric_cols_new = [f"{i}_updated" for i in numeric_cols]
     numeric_cols_diff = [f"{i}_diff" for i in numeric_cols]
