@@ -9,7 +9,6 @@ import pandas as pd
 
 import src.staging.staging_helpers as helpers
 from src.staging import validation as val
-from src.utils.helpers import filename_amender
 
 # from src.utils.breakdown_validation import run_breakdown_validation
 
@@ -245,19 +244,9 @@ def run_staging(  # noqa: C901
         if stage_frozen_snapshot or stage_updated_snapshot:
             full_responses = helpers.filter_pnp_data(full_responses, config)
 
-        if config["global"]["output_full_responses"]:
-            survey_type = config["survey"]["survey_type"]
-            StagingMainLogger.info(f"Starting output of staged {survey_type} data...")
-            staging_folder = staging_dict["staging_output_path"]
-            if survey_type == "PNP":
-                staged_filename = filename_amender("staged_full_responses", config)
-            else:
-                staged_filename = filename_amender("staged_BERD_full_responses", config)
-
-            rd_write_csv(f"{staging_folder}/{staged_filename}", full_responses)
-            StagingMainLogger.info(f"Finished output of staged {survey_type} data.")
-        else:
-            StagingMainLogger.info("Skipping output of staged data...")
+        helpers.output_staging_qa(
+            full_responses, config, rd_write_csv, StagingMainLogger
+        )
 
         # Return staged BERD data, additional data and mappers
         return (
@@ -270,7 +259,12 @@ def run_staging(  # noqa: C901
             manual_trim_df,
         )
 
+    # Else- If we are running with the updated snapshot
     else:
+        helpers.output_staging_qa(
+            full_responses, config, rd_write_csv, StagingMainLogger
+        )
+
         return (
             full_responses,
             pd.DataFrame(),
