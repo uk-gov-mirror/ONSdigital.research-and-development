@@ -349,6 +349,32 @@ def filter_pnp_data(full_responses, config):
     return full_responses
 
 
+def remove_defence_for_pnp(full_responses: pd.DataFrame) -> pd.DataFrame:
+    """
+    Remove and log any defence rows for PNP data.
+
+    Args:
+        full_responses (pd.DataFrame): The DataFrame containing the full responses data.
+
+    Returns:
+        pd.DataFrame: The filtered DataFrame with defence removed for PNP data.
+    """
+    defence_cond = full_responses["200"] == "D"
+    defence_rows = full_responses.copy().loc[defence_cond]
+    if len(defence_rows) > 0:
+        def_list = list(defence_rows["reference"].unique())
+        StagingHelperLogger.info(f"Defence rows found in PNP data: {def_list}")
+        # update the full responses df to remove defence rows but leaving
+        # rows with null in col 200
+        full_responses = full_responses.loc[
+            ~defence_cond | (full_responses["200"].isnull())
+        ]
+
+    else:
+        StagingHelperLogger.info("No defence rows found in PNP data")
+    return full_responses
+
+
 def output_staging_qa(full_responses, config, rd_write_csv, StagingMainLogger):
     """
     Output full reponses staged data or skip output based on various config settings.
