@@ -743,7 +743,7 @@ name = "Region"
 old_name = "Region"
 Deduced_Data_Type = "category"
 
-["Expenditure by Region"]
+[""]
 name = "Expenditure by Region"
 old_name = "Expenditure by Region"
 Deduced_Data_Type = "float64"
