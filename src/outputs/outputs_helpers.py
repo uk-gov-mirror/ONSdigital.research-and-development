@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 
 def create_output_df(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
@@ -12,7 +13,7 @@ def create_output_df(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
         column names for the outputs
 
     Returns:
-        (pd.DataFrame): A dataframe consisting of only the
+        (pd.DataFrame): A dataframe of only the
         required short form output data
     """
 
@@ -21,6 +22,11 @@ def create_output_df(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
         output_schema[column_nm]["old_name"]: column_nm
         for column_nm in output_schema.keys()
     }
+
+    # If col is in schema but not in df, add it to the df
+    for col in colname_schema_dict.keys():
+        if col not in df.columns:
+            df[col] = np.nan
 
     # Create subset dataframe with only the required outputs
     output_df = df[colname_schema_dict.keys()].copy()

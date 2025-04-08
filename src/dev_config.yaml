@@ -112,6 +112,7 @@ schema_paths:
   staged_full_responses_schema: "config/output_schemas/staged_full_responses_schema.toml"
   invalid_unrecognised_postcodes_schema: "config/output_schemas/invalid_unrecognised_postcodes_schema.toml"
   full_responses_mapped_schema: "config/output_schemas/full_responses_mapped_schema.toml"
+  pnp_national_accounts_schema: "config/output_schemas/pnp_national_accounts_schema.toml"
 
 # Export config for users
 mappers:
