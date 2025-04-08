@@ -130,7 +130,7 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
 
     if config["global"]["load_updated_snapshot_for_comparison"]:
         MainLogger.info(
-            "Updated SPP snapshot & frozen data comparisson done.\n"
+            "Updated SPP snapshot & frozen data comparison done.\n"
             f"Finishing Pipeline run id {run_id}........."
         )
 

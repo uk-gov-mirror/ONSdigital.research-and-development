@@ -245,7 +245,7 @@ def run_staging(  # noqa: C901
             full_responses = helpers.filter_pnp_data(full_responses, config)
 
         helpers.output_staging_qa(
-            full_responses, config, staging_dict, rd_write_csv, StagingMainLogger
+            full_responses, config, rd_write_csv, StagingMainLogger
         )
 
         # Return staged BERD data, additional data and mappers
@@ -259,9 +259,10 @@ def run_staging(  # noqa: C901
             manual_trim_df,
         )
 
+    # Else- If we are running with the updated snapshot
     else:
         helpers.output_staging_qa(
-            full_responses, config, staging_dict, rd_write_csv, StagingMainLogger
+            full_responses, config, rd_write_csv, StagingMainLogger
         )
 
         return (
