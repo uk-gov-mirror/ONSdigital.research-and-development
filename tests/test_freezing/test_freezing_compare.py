@@ -50,14 +50,15 @@ class TestGetAmendments:
     # Create expected outcome df
     def create_test_expected_outcome_df(self) -> pd.DataFrame:
         """Create a test expected_outcome df."""
-        input_cols = ["reference", "period", "instance", "202", "203", "200", "201", "601", "604", "202_diff", "203_diff", "200_diff", "201_diff", "601_diff", "604_diff", "accept_changes", "frozen_data_file"]
+        input_cols = ["reference", "period", "instance", "202", "203", "200", "201", "601", "604", "status", "202_diff", "203_diff", "200_diff", "201_diff", "601_diff", "604_diff", "status_diff", "accept_changes", "frozen_data_file"]
         data = [
-            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes", 0.0, 0.0, None, None, None, None, False, "frozen_data_v123.csv"],
-            ["B", 202412, None, None, 1.0, "A", "Yes", "B", "Yes", None, 0.0, "A", None,  "B", None, False, "frozen_data_v123.csv"],
-            ["C", 202412, 0.0, 2.0, 2.0, "A", "Yes", "B", "No", 1.0, 0.0, None, None, None, "No", False, "frozen_data_v123.csv"],
-            ["D", 202412, 1.0, 2.0, 3.0, "E", "Yes", "D", "Yes", 0.0, 0.0, "E", None, None, None, False, "frozen_data_v123.csv"],
-            ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes", 6.0, -4.0, None, None, None, "Yes", False, "frozen_data_v123.csv"],
-            ["R", 202412, None, 6.0, 6.0, "E", "Yes", "F", "No", -8.0, -8.0, None, None, None, None, False, "frozen_data_v123.csv"],
+            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes", "clear", 0.0, 0.0, None, None, None, None, None, False, "frozen_data_v123.csv"],
+            ["B", 202412, None, None, 1.0, "A", "Yes", "B", "Yes", "form sent out", None, 0.0, "A", None,  "B", None, None, False, "frozen_data_v123.csv"],
+            ["C", 202412, 0.0, 2.0, 2.0, "A", "Yes", "B", "No", "clear", 1.0, 0.0, None, None, None, "No", None, False, "frozen_data_v123.csv"],
+            ["D", 202412, 1.0, 2.0, 3.0, "E", "Yes", "D", "Yes", "clear", 0.0, 0.0, "E", None, None, None, None, False, "frozen_data_v123.csv"],
+            ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes", "form sent out", 6.0, -4.0, None, None, None, "Yes", None, False, "frozen_data_v123.csv"],
+            ["R", 202412, None, 6.0, 6.0, "E", "Yes", "F", "No", "form sent out", -8.0, -8.0, None, None, None, None, None, False, "frozen_data_v123.csv"],
+            ["X", 202412, 8.0, 2.0, 2.0, "E", "Yes", "F", "Yes", "clear", 0.0, 0.0, None, None, None, None, "clear", False, "frozen_data_v123.csv"],
         ]
         input_expected_outcome_df = pd.DataFrame(data=data, columns=input_cols)
         return input_expected_outcome_df
