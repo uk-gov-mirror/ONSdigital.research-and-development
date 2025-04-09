@@ -790,7 +790,7 @@ Deduced_Data_Type = "float64"
 
 [q0903]
 name = ""
-old_name = "302"
+old_name = "302_defence"
 Deduced_Data_Type = "float64"
 
 [q0904]
@@ -800,7 +800,7 @@ Deduced_Data_Type = "float64"
 
 [q0905]
 name = ""
-old_name = "303"
+old_name = "303_defence"
 Deduced_Data_Type = "float64"
 
 [q0906]
@@ -810,7 +810,7 @@ Deduced_Data_Type = "float64"
 
 [q0907]
 name = ""
-old_name = "304"
+old_name = "304_defence"
 Deduced_Data_Type = "float64"
 
 [q0908]
@@ -820,5 +820,5 @@ Deduced_Data_Type = "float64"
 
 [q0909]
 name = ""
-old_name = "305"
+old_name = "305_defence"
 Deduced_Data_Type = "float64"

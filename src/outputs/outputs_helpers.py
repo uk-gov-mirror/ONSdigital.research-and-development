@@ -26,6 +26,7 @@ def create_output_df(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
     # If col is in schema but not in df, add it to the df
     for col in colname_schema_dict.keys():
         if col not in df.columns:
+            df = df.copy()  # Avoid modifying the original df
             df[col] = np.nan
 
     # Create subset dataframe with only the required outputs
