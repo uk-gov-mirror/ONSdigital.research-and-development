@@ -11,13 +11,20 @@ import os
 import pandas as pd
 import logging
 import pathlib
-import hashlib
 import shutil
 from typing import Union
 
 import yaml
 
 from src.utils.wrappers import time_logger_wrap
+from rdsa_utils.helpers.python import (
+    md5_sum,
+    file_size,
+    file_exists,
+    directory_exists,
+    read_header,
+    create_folder,
+)
 
 # Set up logger
 LocalModLogger = logging.getLogger(__name__)
@@ -83,8 +90,9 @@ def rd_load_json(filepath: str) -> dict:
     return data
 
 
-def rd_file_exists(filepath: str, raise_error=False) -> bool:
+def rd_file_exists(filepath: str) -> bool:
     """Function to check if a file exists on a local network drive
+        using an rdsa_utils function
 
     Args:
         filepath (string): The filepath
@@ -92,16 +100,12 @@ def rd_file_exists(filepath: str, raise_error=False) -> bool:
     Returns:
         bool: A boolean value indicating whether the file exists or not
     """
-    file_exists = os.path.exists(filepath)
-
-    if raise_error and not file_exists:
-        raise FileExistsError(f"File: {filepath} does not exist")
-
-    return file_exists
+    return file_exists(filepath)
 
 
 def rd_file_size(filepath: str) -> int:
     """Function to check the size of a file on a local network drive
+        using an rdsa_utils function
 
     Args:
         filepath (string): The filepath
@@ -109,9 +113,7 @@ def rd_file_size(filepath: str) -> int:
     Returns:
         int: An integer value indicating the size of the file in bytes
     """
-    file_size = os.path.getsize(filepath)
-
-    return file_size
+    return file_size(filepath)
 
 
 def check_file_exists(filename: str, filepath: str) -> bool:
@@ -153,12 +155,12 @@ def check_file_exists(filename: str, filepath: str) -> bool:
 
 
 def rd_mkdir(path):
-    """Creates a directory on a local network drive
+    """Creates a directory on a local network drive using an rdsa_utils function.
 
     Args:
         path (string) -- The path to create
     """
-    os.mkdir(path)
+    create_folder(path)
     return None
 
 
@@ -211,8 +213,8 @@ def rd_md5sum(path: str):
     -------
     The md5sum of the file.
     """
-    with open(path, "rb") as f:
-        return hashlib.md5(f.read()).hexdigest()
+    md5result = md5_sum(path)
+    return md5result
 
 
 def rd_stat_size(path: str):
@@ -234,7 +236,7 @@ def rd_isdir(path: str) -> bool:
     -------
     True if the directory exists. Else False.
     """
-    return os.path.isdir(path)
+    return directory_exists(path)
 
 
 def rd_isfile(path: str) -> bool:
@@ -259,8 +261,7 @@ def rd_read_header(path: str):
     -------
     The first line of the file as a string.
     """
-    with open(path, "r") as f:
-        return f.readline()
+    return read_header(path)
 
 
 def rd_write_string_to_file(content: bytes, path: str):
