@@ -8,7 +8,7 @@ from src.utils.breakdown_validation import get_all_wanted_columns
 from src.outputs.map_output_cols import create_cora_status_col
 from src.outputs.outputs_helpers import create_output_df
 
-# from src.outlier_detection.auto_outliers import normal_round
+from src.outlier_detection.auto_outliers import normal_round
 
 OutputMainLogger = logging.getLogger(__name__)
 
@@ -23,10 +23,12 @@ def divide_by_1000(df, config):
 
     # Apply the transformation to all relevant columns
     df[cols_to_process] = df[cols_to_process].applymap(
-        lambda x: (x / 1000, 0) if x > 0 else x
+        lambda x: x / 1000 if x > 0 else x
     )
-    # Extract the element from the Tuple
-    # Apply the normal_round
+
+    # Cast to float and apply normal_round
+    df[cols_to_process] = df[cols_to_process].astype(float).applymap(normal_round)
+
     return df
 
 
