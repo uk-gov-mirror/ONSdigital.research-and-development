@@ -90,7 +90,7 @@ def rd_load_json(filepath: str) -> dict:
     return data
 
 
-def rd_file_exists(filepath: str) -> bool:
+def rd_file_exists(filepath: str, raise_error=False) -> bool:
     """Function to check if a file exists on a local network drive
         using an rdsa_utils function
 
