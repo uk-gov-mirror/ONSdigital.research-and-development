@@ -249,8 +249,8 @@ def run_staging(  # noqa: C901
         )
 
         # filter out defence rows from PNP data and log affected references
-        if config["survey"]["survey_type"] == "PNP":
-            full_responses = helpers.remove_defence_for_pnp(full_responses)
+        # if config["survey"]["survey_type"] == "PNP":
+        # full_responses = helpers.remove_defence_for_pnp(full_responses)
 
         # Return staged BERD data, additional data and mappers
         return (

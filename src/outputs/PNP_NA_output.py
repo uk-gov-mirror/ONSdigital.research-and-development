@@ -87,6 +87,9 @@ def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
     # Map to the CORA statuses from the statusencoded column
     df = create_cora_status_col(df)
 
+    # Add col 221 into 210 to make Total Capex Civil
+    df["210"] = df["221"] + df["210"]
+
     # Create output dataframe with required columns from schema
     schema_path = config["schema_paths"]["pnp_national_accounts_schema"]
     schema_dict = load_schema(schema_path)
