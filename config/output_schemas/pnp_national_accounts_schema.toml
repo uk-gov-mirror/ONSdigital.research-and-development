@@ -735,7 +735,7 @@ Deduced_Data_Type = "object"
 
 [q0602]
 name = "% of R&D"
-old_name = "% of R&D"
+old_name = "602"
 Deduced_Data_Type = "float64"
 
 [q0603]
