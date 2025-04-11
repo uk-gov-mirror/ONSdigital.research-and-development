@@ -632,8 +632,7 @@ def imputation_prep(df: pd.DataFrame, config: dict):
         df = create_imp_class_col(df, ["200", "201"])
     elif config["survey"]["survey_type"] == "PNP":
         df = create_imp_class_col(df, ["area"], use_cellno=False)
-        # fill nulls in question 200 (civil or defence) with "C"
-        df.loc[df["instance"] > 0, "200"] = df["200"].fillna("C")
+        df = remove_defence_for_pnp(df)
 
     # Get a list of all the target values and breakdown columns from the config
     to_impute_cols = get_imputation_cols(config)
@@ -646,3 +645,29 @@ def imputation_prep(df: pd.DataFrame, config: dict):
         df[f"{col}_imputed"] = df[col]
 
     return df, wrong_604_qa_df
+
+
+def remove_defence_for_pnp(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Remove and log any defence rows for PNP data.
+
+    Args:
+        df (pd.DataFrame): The DataFrame containing the full responses data.
+
+    Returns:
+        pd.DataFrame: The filtered DataFrame with defence removed for PNP data.
+    """
+    # fill nulls in question 200 (civil or defence) with "C"
+    df.loc[df["instance"] > 0, "200"] = df["200"].fillna("C")
+
+    defence_rows = df.copy().loc[df["200"] == "D"]
+    if len(defence_rows) > 0:
+        def_list = list(defence_rows["reference"].unique())
+        ImputationHelpersLogger.info(f"Defence rows found in PNP data: {def_list}")
+        # update the full responses df to remove defence rows but leaving
+        # rows with null in col 200
+        df = df.loc[(df["200"] != "D") | (df["200"].isnull())]
+
+    else:
+        ImputationHelpersLogger.info("No defence rows found in PNP data")
+    return df
