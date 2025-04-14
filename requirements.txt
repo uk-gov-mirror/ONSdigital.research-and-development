@@ -19,4 +19,4 @@ tomli==2.0.1
 typing
 # boto3
 # raz_client
-# rdsa-utils==2.0.2
+rdsa-utils==0.8.0
