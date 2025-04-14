@@ -1029,22 +1029,24 @@ class TestRemoveDefenceForPNP():
             "reference",
             "instance",
             "200",
+            "211",
+            "305",
             "legalstatus",
             "statusencoded",
-            "postcodes_harmonised",
+            "601",
         ]
 
         data = [
-            [49900000404, 0, np.nan, "1", "210", "AB15 3GU"],
-            [49900000406, np.nan, np.nan, "2", "210", "BA1 5DA"],
-            [49900000409, 1, None, "1", "100", "CB1 3NF"],
-            [49900000510, 2, "D",  "7", "201", "BA1 5DA"],
-            [49900000510, 3, "D",  "7", "201", np.nan],
-            [49912758922, 3, "C", "1", "303", "DE72 3AU"],
-            [49900187320, 4, "C", "2", "304", "NP30 7ZZ"],
-            [49900184433, 1, "D", "7", "210", "CF10 BZZ"],
-            [49911791786, 1, np.nan, "4", "201", "CF10 BZZ"],
-            [49901183959, 4, "C", "1", "309", "SA50 5BE"],
+            [49900000404, 0, np.nan, 0, 0, "1", "210", "AB15 3GU"],
+            [49900000406, np.nan, np.nan, np.nan, np.nan, "2", "210", "BA1 5DA"],
+            [49900000409, 1, None, 100, 0, "1", "100", "CB1 3NF"],
+            [49900000510, 2, "D", 200, 0, "7", "201", "BA1 5DA"], # should be kept
+            [49900000510, 3, "D", 300, 0, "7", "201", np.nan], # should be removed
+            [49912758922, 3, "C", 0, 0, "1", "303", "DE72 3AU"],
+            [49900187320, 4, "C", 0, 0, "2", "304", "NP30 7ZZ"],
+            [49900184433, 1, "D", 0, 10, "7", "210", np.nan], # should be removed
+            [49911791786, 1, np.nan, 0, 0, "4", "201", "CF10 BZZ"],
+            [49901183959, 4, "C", 0, 0, "1", "309", "SA50 5BE"],
         ]
 
         input_df = pandasDF(data=data, columns=input_columns)
@@ -1056,19 +1058,22 @@ class TestRemoveDefenceForPNP():
             "reference",
             "instance",
             "200",
+            "211",
+            "305",
             "legalstatus",
             "statusencoded",
-            "postcodes_harmonised",
+            "601",
         ]
 
         data = [
-            [49900000404, 0, np.nan, "1", "210", "AB15 3GU"],
-            [49900000406, np.nan, np.nan, "2", "210", "BA1 5DA"],
-            [49900000409, 1, "C", "1", "100", "CB1 3NF"],
-            [49912758922, 3, "C", "1", "303", "DE72 3AU"],
-            [49900187320, 4, "C", "2", "304", "NP30 7ZZ"],
-            [49911791786, 1, "C", "4", "201", "CF10 BZZ"],
-            [49901183959, 4, "C", "1", "309", "SA50 5BE"],
+            [49900000404, 0, np.nan, 0, 0, "1", "210", "AB15 3GU"],
+            [49900000406, np.nan, np.nan, np.nan, np.nan, "2", "210", "BA1 5DA"],
+            [49900000409, 1, "C", 100, 0, "1", "100", "CB1 3NF"],
+            [49900000510, 2, "D", np.nan, 0, "7", "201", "BA1 5DA"], # should be kept
+            [49912758922, 3, "C", 0, 0, "1", "303", "DE72 3AU"],
+            [49900187320, 4, "C", 0, 0, "2", "304", "NP30 7ZZ"],
+            [49911791786, 1, "C", 0, 0, "4", "201", "CF10 BZZ"],
+            [49901183959, 4, "C", 0, 0, "1", "309", "SA50 5BE"],
         ]
         exp_output_df = pandasDF(data=data, columns=exp_output_columns)
         return exp_output_df
@@ -1077,7 +1082,9 @@ class TestRemoveDefenceForPNP():
         """Test for the remove_defence_for_pnp function."""
         exp_df = self.create_exp_output_df()
         input_df = self.create_input_df()
-        result_df = remove_defence_for_pnp(input_df)
+
+        to_impute_cols = ["211"]
+        result_df = remove_defence_for_pnp(input_df, to_impute_cols)
         pd.testing.assert_frame_equal(
             result_df.reset_index(drop=True), exp_df.reset_index(drop=True)
         )
@@ -1087,7 +1094,7 @@ class TestRemoveDefenceForPNP():
         defence_rows = [49900000510, 49900184433]
 
         with patch("src.imputation.imputation_helpers.ImputationHelpersLogger") as mock_logger:
-            remove_defence_for_pnp(input_df)
+            remove_defence_for_pnp(input_df, to_impute_cols)
             mock_logger.info.assert_called_with(
                 f"Defence rows found in PNP data: {defence_rows}"
             )
