@@ -23,11 +23,13 @@ def create_output_df(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
         for column_nm in output_schema.keys()
     }
 
-    # If col is in schema but not in df, add it to the df
-    for col in colname_schema_dict.keys():
-        if col not in df.columns:
-            df = df.copy()  # Avoid modifying the original df
-            df[col] = np.nan
+    # Identify missing columns and add them as nulls
+    missing_cols = [col for col in colname_schema_dict.keys() if col not in df.columns]
+    if missing_cols:
+        df = pd.concat(
+            [df, pd.DataFrame({col: np.nan for col in missing_cols}, index=df.index)],
+            axis=1,
+        )
 
     # Create subset dataframe with only the required outputs
     output_df = df[colname_schema_dict.keys()].copy()
