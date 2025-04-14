@@ -248,10 +248,6 @@ def run_staging(  # noqa: C901
             full_responses, config, rd_write_csv, StagingMainLogger
         )
 
-        # filter out defence rows from PNP data and log affected references
-        if config["survey"]["survey_type"] == "PNP":
-            full_responses = helpers.remove_defence_for_pnp(full_responses)
-
         # Return staged BERD data, additional data and mappers
         return (
             full_responses,
@@ -265,7 +261,6 @@ def run_staging(  # noqa: C901
 
     # Else- If we are running with the updated snapshot
     else:
-        full_responses = helpers.filter_pnp_data(full_responses, config)
         helpers.output_staging_qa(
             full_responses, config, rd_write_csv, StagingMainLogger
         )
