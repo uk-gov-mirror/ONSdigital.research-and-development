@@ -636,7 +636,7 @@ def imputation_prep(df: pd.DataFrame, config: dict):
         df = create_imp_class_col(df, ["200", "201"])
     elif config["survey"]["survey_type"] == "PNP":
         df = create_imp_class_col(df, ["area"], use_cellno=False)
-        df = remove_defence_for_pnp(df, to_impute_cols, config)
+        df = remove_defence_for_pnp(df, to_impute_cols)
 
     # fill zeros
     df = apply_fill_zeros(df, to_impute_cols)
@@ -664,12 +664,15 @@ def update_defence_rows(df: pd.DataFrame, to_impute_cols: list) -> pd.DataFrame:
     """
 
     df = df.copy()
+    # set the imputation columns to null for defence rows
     df.loc[df["200"] == "D", to_impute_cols] = np.nan
 
     rows_to_save_cond = df["601"].notnull()
     non_defence_cond = (df["200"] == "C") | (df["200"].isnull())
 
     df = df.copy().loc[rows_to_save_cond | non_defence_cond]
+    # if there are any defence rows where we need to keep postcode data, set 200 to null
+    df.loc[df["200"] == "D", "200"] = np.nan
     return df
 
 
