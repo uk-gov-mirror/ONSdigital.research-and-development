@@ -286,7 +286,7 @@ Deduced_Data_Type = "Int64"
 [q0202]
 name = "Total Capex- civil"
 old_name = "210"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "float64"
 
 [q0203]
 name = "Total Capex- defence"
@@ -430,12 +430,12 @@ Deduced_Data_Type = "float64"
 
 [q0303]
 name = "UK Gov- civil"
-old_name = "214_ex_303"
+old_name = "214"
 Deduced_Data_Type = "float64"
 
 [q0304]
 name = "UK Gov- defence"
-old_name = "214_ex_303_defence"
+old_name = "214_defence"
 Deduced_Data_Type = "float64"
 
 [q0305]
@@ -510,12 +510,12 @@ Deduced_Data_Type = "float64"
 
 [q0319]
 name = "Commission of EU- civil"
-old_name = "249_ex_319"
+old_name = 319
 Deduced_Data_Type = "float64"
 
 [q0320]
 name = "Commission of EU- defence"
-old_name = "249_ex_319_defence"
+old_name = "319_defence"
 Deduced_Data_Type = "float64"
 
 [q0321]
@@ -530,12 +530,12 @@ Deduced_Data_Type = "float64"
 
 [q0323]
 name = "Any other orgs outside uk- civil"
-old_name = "249_ex_323"
+old_name = "249"
 Deduced_Data_Type = "float64"
 
 [q0324]
 name = "Any other orgs outside uk- defence"
-old_name = "249_ex_323_defence"
+old_name = "249_defence"
 Deduced_Data_Type = "float64"
 
 [q0325]
@@ -550,12 +550,12 @@ Deduced_Data_Type = "float64"
 
 [q0327]
 name = "UK Research council- civil"
-old_name = "214"
+old_name = "327"
 Deduced_Data_Type = "float64"
 
 [q0328]
 name = "UK Research council- defence"
-old_name = "214_defence"
+old_name = "327_defence"
 Deduced_Data_Type = "float64"
 
 [q0329]
@@ -735,7 +735,7 @@ Deduced_Data_Type = "object"
 
 [q0602]
 name = "% of R&D"
-old_name = "% of R&D"
+old_name = "602"
 Deduced_Data_Type = "float64"
 
 [q0603]
@@ -790,7 +790,7 @@ Deduced_Data_Type = "float64"
 
 [q0903]
 name = ""
-old_name = "302"
+old_name = "302_defence"
 Deduced_Data_Type = "float64"
 
 [q0904]
@@ -800,7 +800,7 @@ Deduced_Data_Type = "float64"
 
 [q0905]
 name = ""
-old_name = "303"
+old_name = "303_defence"
 Deduced_Data_Type = "float64"
 
 [q0906]
@@ -810,7 +810,7 @@ Deduced_Data_Type = "float64"
 
 [q0907]
 name = ""
-old_name = "304"
+old_name = "304_defence"
 Deduced_Data_Type = "float64"
 
 [q0908]
@@ -820,5 +820,5 @@ Deduced_Data_Type = "float64"
 
 [q0909]
 name = ""
-old_name = "305"
+old_name = "305_defence"
 Deduced_Data_Type = "float64"
