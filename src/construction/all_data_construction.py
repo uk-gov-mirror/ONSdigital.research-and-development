@@ -72,7 +72,7 @@ def all_data_construction(  # noqa: C901
         )
 
     # Drop columns without constructed values
-    construction_df = construction_df.dropna(axis="columns", how="all")
+    construction_df = construction_df.copy().dropna(axis="columns", how="all")
     if "statusencoded" in construction_df.columns:
         construction_df["statusencoded"] = (
             construction_df["statusencoded"].astype(str).str.split(".").str[0]

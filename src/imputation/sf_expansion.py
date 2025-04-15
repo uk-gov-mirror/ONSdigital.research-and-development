@@ -5,7 +5,6 @@ import pandas as pd
 import logging
 
 from src.imputation.imputation_helpers import split_df_on_imp_class, concat_with_bool
-from src.utils.wrappers import df_change_func_wrap
 
 SFExpansionLogger = logging.getLogger(__name__)
 
@@ -185,7 +184,6 @@ def prepare_short_form_constructed(df: pd.DataFrame, master_cols: List) -> pd.Da
     return df
 
 
-@df_change_func_wrap
 def run_sf_expansion(df: pd.DataFrame, config: dict) -> pd.DataFrame:
     """Calculate the expansion imputated values for short forms using long form data."""
     # Get dictionary of short form master keys (or target variables)
