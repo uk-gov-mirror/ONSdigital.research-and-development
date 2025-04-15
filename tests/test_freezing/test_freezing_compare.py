@@ -5,7 +5,7 @@ from pandas.testing import assert_frame_equal
 import logging
 import numpy as np
 
-from src.freezing.freezing_compare import get_amendments, get_additions
+from src.freezing.freezing_compare import get_amendments, get_additions_deletions
 from src.freezing.freezing_compare import bring_together_split_cases
 
 # create a test logger to pass to functions
@@ -119,7 +119,7 @@ class TestGetAmendments:
 
         # Run the function
         result = get_amendments(
-            input_frozen_df, input_amendments_df, test_logger, config
+            input_frozen_df, input_amendments_df, config
         )
 
         # Check the output
@@ -129,7 +129,7 @@ class TestGetAmendments:
 
 
 class TestGetAdditions:
-    """Tests for get_additions()."""
+    """Tests for get_additions_deletions()."""
 
     # Create config for test
     def create_config(self) -> dict:
@@ -191,8 +191,8 @@ class TestGetAdditions:
         input_expected_outcome_df = pd.DataFrame(data=data, columns=input_cols)
         return input_expected_outcome_df
 
-    def test_get_additions(self):
-        """Test for get_additions()."""
+    def test_get_additions_deletions(self):
+        """Test for get_additions_deletions()."""
         # Create test dataframes
         input_frozen_df = self.create_test_frozen_df()
         input_additions_df = self.create_test_additions_df()
@@ -200,13 +200,13 @@ class TestGetAdditions:
         config = self.create_config()
 
         # Run the function
-        result = get_additions(
-            input_frozen_df, input_additions_df, test_logger, config
+        result_additions, result_deletions = get_additions_deletions(
+            input_frozen_df, input_additions_df, config
         )
 
         # Check the output
         assert_frame_equal(
-            expected_outcome_df, result.reset_index(drop=True)
+            expected_outcome_df, result_additions.reset_index(drop=True)
         )
 
 
@@ -266,12 +266,14 @@ class TestBringTogetherSplitCases:
         # Create test dataframes
         input_additions_df = self.create_test_additions_df()
         input_amendments_df = self.create_test_amendments_df()
+        input_deletions_df = pd.DataFrame()  # Empty DataFrame for deletions
         expected_additions_df = self.create_expected_additions_df()
         expected_amendments_df = self.create_expected_amendments_df()
+        expected_deletions_df = pd.DataFrame()
 
         # Run the function
-        result_additions_df, result_amendments_df = bring_together_split_cases(
-            input_additions_df, input_amendments_df, test_logger
+        result_amendments_df, result_additions_df, result_deletions_df = bring_together_split_cases(
+            input_amendments_df, input_additions_df, input_deletions_df
         )
 
         # Check the output

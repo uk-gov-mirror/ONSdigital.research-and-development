@@ -57,7 +57,6 @@ def run_freezing(
             updated_snapshot,
             config,
             write_csv,
-            FreezingLogger,
         )
 
         return None

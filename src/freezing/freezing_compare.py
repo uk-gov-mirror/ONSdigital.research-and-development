@@ -7,11 +7,12 @@ from src.staging.staging_helpers import filter_pnp_data
 from src.utils.breakdown_validation import get_equality_dicts
 from src.utils.helpers import filename_amender
 
+FreezingLogger = logging.getLogger(__name__)
+
 
 def get_amendments(
     frozen_csv: pd.DataFrame,
     updated_snapshot: pd.DataFrame,
-    FreezingLogger: logging.Logger,
     config: dict,
 ) -> pd.DataFrame:
     """Get amended records from updated snapshot.
@@ -23,7 +24,6 @@ def get_amendments(
         frozen_csv (pd.DataFrame): The staged and validated frozen data.
         updated_snapshot (pd.DataFrame): The staged and validated updated
             snapshot data.
-        FreezingLogger (logging.Logger): The logger to log to.
         config (dict): The pipeline configuration.
 
     Returns:
@@ -119,16 +119,64 @@ def get_amendments(
 
         return amendments_df
     else:
+        # If there are no amendments, return an empty dataframe
         FreezingLogger.info("No amendments found.")
-        return None
+        return pd.DataFrame()
 
 
-def get_additions(
+def process_additions_deletions(
+    merge_df: pd.DataFrame, config: dict, add_or_del: str
+) -> pd.DataFrame:
+    """Process additions and deletions.
+
+    This function processes the additions and deletions dataframes by removing
+    the columns that are not needed for the final output.
+
+    Args:
+        df (pd.DataFrame): The merged frozen and updated snapshot dataframes
+        config (dict): The pipeline configuration
+        add_or_del (str): Whether to process additions or deletions
+            ("additions" or "deletions")
+
+    Returns:
+        pd.DataFrame: The processed dataframe.
+    """
+    if add_or_del == "additions":
+        merge_type = "right_only"
+        suffix = "_old"
+    elif add_or_del == "deletions":
+        merge_type = "left_only"
+        suffix = "_new"
+    else:
+        raise ValueError("add_or_del must be either 'additions' or 'deletions'")
+
+    df = merge_df[merge_df._merge == merge_type].copy()
+    df = df.drop(columns=["_merge"])
+    # Remove the old columns that are not needed for the final output
+    df = df[df.columns[~df.columns.str.endswith(suffix)]]
+    # Rename the remaining columns to remove any further suffixes
+    df.columns = df.columns.str.replace("_old", "").str.replace("_new", "")
+
+    # Filter for either BERD or PNP data
+    df = filter_pnp_data(df, config)
+
+    # Add a column for indicating if the changes are accepted or not
+    # and a column for the frozen data file name
+    frozen_data_file = config["freezing_paths"]["frozen_data_staged_path"]
+    if len(df) > 0:
+        df["accept_changes"] = False
+        df["frozen_data_file"] = frozen_data_file.rsplit("/", 1)[-1]
+        return df
+    else:
+        FreezingLogger.info("No additions found.")
+        return pd.DataFrame()
+
+
+def get_additions_deletions(
     frozen_csv: pd.DataFrame,
     updated_snapshot: pd.DataFrame,
-    FreezingLogger: logging.Logger,
     config: dict,
-) -> pd.DataFrame:
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Get added records from the updated snapshot.
 
     Get all records that are present in the updated snapshot but not the main
@@ -136,66 +184,45 @@ def get_additions(
     Args:
         frozen_csv (pd.DataFrame): The staged and validated frozen data.
         updated_snapshot (pd.DataFrame): The staged and validated updated snapshot data.
-        FreezingLogger (logging.Logger): The logger to log to.
         config (dict): The pipeline configuration.
 
     Returns:
         additions_df (pd.DataFrame): The new records identified in
             the updated snapshot data.
     """
-    FreezingLogger.info("Looking for new records in the updated snapshot.")
+    FreezingLogger.info("Looking for new or deleted records in the updated snapshot.")
     key_cols = ["reference", "period", "instance"]
 
-    # To do a right anti-join, we need to do a full outer join first, then
-    # take only rows that were marked as right-only by the indicator. After
-    # that, there will be copies of every column in both, but for the
-    # right-only rows the columns from the left df will be null, so they're
-    # all dropped afterwards.
     outer_join = pd.merge(
         frozen_csv,
         updated_snapshot,
         on=key_cols,
         how="outer",
-        suffixes=("_old", ""),
+        suffixes=("_old", "_new"),
         indicator=True,
     )
-    additions_df = outer_join[(outer_join._merge == "right_only")].drop(
-        "_merge", axis=1
-    )
-    additions_df = additions_df[
-        additions_df.columns[~additions_df.columns.str.endswith("_old")]
-    ]
+    additions_df = process_additions_deletions(outer_join, config, "additions")
+    deletions_df = process_additions_deletions(outer_join, config, "deletions")
 
-    # filter for either BERD or PNP data
-    additions_df = filter_pnp_data(additions_df, config)
-
-    if additions_df.shape[0] > 0:
-        additions_df["accept_changes"] = False
-        additions_df["frozen_data_file"] = config["freezing_paths"][
-            "frozen_data_staged_path"
-        ].rsplit("/", 1)[-1]
-        return additions_df
-    else:
-        FreezingLogger.info("No additions found.")
-        return None
+    return additions_df, deletions_df
 
 
 def output_freezing_files(
     amendments_df: pd.DataFrame,
     additions_df: pd.DataFrame,
+    deletions_df: pd.DataFrame,
     config: dict,
     write_csv: Callable,
-    FreezingLogger: logging.Logger,
 ) -> bool:
     """Save CSVs of amendments and additions for user approval.
 
     Args:
         amendments_df (pd.DataFrame): The records that have changed.
         additions_df (pd.DataFrame): The records that have been added.
+        deletions_df (pd.DataFrame): The records that have been deleted.
         config (dict): The pipeline configuration
         write_csv (callable): Function to write to a csv file. This will be the
             hdfs or network version depending on settings.
-        FreezingLogger (logging.Logger): The logger to log to.
 
     Returns:
         bool: True if the files were written successfully.
@@ -207,17 +234,22 @@ def output_freezing_files(
     FreezingLogger.info("Outputting changes to review file(s).")
 
     # Check if the dataframes are empty before writing
-    if amendments_df is not None:
+    if not amendments_df.empty:
         filename = filename_amender("freezing_amendments_to_review", config)
         write_csv(
             os.path.join(freezing_changes_to_review_path, filename), amendments_df
         )
 
-    if additions_df is not None:
+    if not additions_df.empty:
         filename = filename_amender("freezing_additions_to_review", config)
         write_csv(os.path.join(freezing_changes_to_review_path, filename), additions_df)
 
-    if amendments_df is None and additions_df is None:
+    if not deletions_df.empty:
+        filename = filename_amender("freezing_deletions_to_review", config)
+        write_csv(os.path.join(freezing_changes_to_review_path, filename), deletions_df)
+
+    # If all three dataframes are empty, log that there are no changes to review
+    if amendments_df.empty and additions_df.empty and deletions_df.empty:
         FreezingLogger.info("No changes to review found.")
         return False
     else:
@@ -226,35 +258,50 @@ def output_freezing_files(
 
 
 def bring_together_split_cases(
-    additions_df: pd.DataFrame,
     amendments_df: pd.DataFrame,
-    FreezingLogger: logging.Logger,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    additions_df: pd.DataFrame,
+    deletions_df: pd.DataFrame,
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Checks for references in both the additions and amendments.
     If a reference is found in both: move all the relevant rows into
     amendments and remove from additions.
 
     Args:
-        additions_df (pd.DataFrame): The records that have been added.
         amendments_df (pd.DataFrame): The records that have changed.
-        FreezingLogger (logging.Logger): The logger to log to.
+        additions_df (pd.DataFrame): The records that have been added.
+        deletions_df (pd.DataFrame): The records that have been deleted.
 
     Returns:
-        Tuple[pd.DataFrame, pd.DataFrame]: The updated additions and amendments
-            dataframes.
+        Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]: The amendments,
+            additions and deletions dataframes.
     """
-    if additions_df is not None and amendments_df is not None:
-        split_cases = additions_df[
+    if not additions_df.empty:
+        addition_split_cases = additions_df[
             additions_df["reference"].isin(amendments_df["reference"])
         ]
-        if not split_cases.empty:
-            FreezingLogger.info("Split cases found and being brought together...")
+        if not addition_split_cases.empty:
+            # remove the split cases from the additions df
             additions_df = additions_df[
-                ~additions_df.reference.isin(split_cases.reference)
+                ~additions_df.reference.isin(addition_split_cases.reference)
             ]
-            amendments_df = amendments_df.append(split_cases, ignore_index=True)
-            return additions_df, amendments_df
-    return additions_df, amendments_df
+            # concatenate the split cases to the amendments dataframe
+            amendments_df = pd.concat(
+                [amendments_df, addition_split_cases], ignore_index=True
+            )
+    if not deletions_df.empty:
+        deletion_split_cases = deletions_df[
+            deletions_df["reference"].isin(amendments_df["reference"])
+        ]
+        if not deletion_split_cases.empty:
+            # remove the split cases from the deletions df
+            deletions_df = deletions_df[
+                ~deletions_df.reference.isin(deletion_split_cases.reference)
+            ]
+            # concatenate the split cases to the amendments dataframe
+            amendments_df = pd.concat(
+                [amendments_df, deletion_split_cases], ignore_index=True
+            )
+    return amendments_df, additions_df, deletions_df
 
 
 def run_comparison(
@@ -262,7 +309,6 @@ def run_comparison(
     updated_snapshot: pd.DataFrame,
     config: dict,
     write_csv: Callable,
-    FreezingLogger: logging.Logger,
 ) -> None:
     """Main function to run comparison of frozen data and updated snapshot.
     Function outputs two csv files, one for additions and one for amendments.
@@ -272,20 +318,16 @@ def run_comparison(
         updated_snapshot (pd.DataFrame): The staged and validated updated snapshot data.
         config (dict): The pipeline configuration
         write_csv (callable): Function to write to a csv file.
-        FreezingLogger (logging.Logger): The logger to log to.
 
     Returns:
         None
     """
-    additions_df = get_additions(
-        frozen_data_for_comparison, updated_snapshot, FreezingLogger, config
+    additions_df, deletions_df = get_additions_deletions(
+        frozen_data_for_comparison, updated_snapshot, config
     )
-    amendments_df = get_amendments(
-        frozen_data_for_comparison, updated_snapshot, FreezingLogger, config
-    )
-    additions_df, amendments_df = bring_together_split_cases(
-        additions_df, amendments_df, FreezingLogger
-    )
-    output_freezing_files(
-        amendments_df, additions_df, config, write_csv, FreezingLogger
-    )
+    amendments_df = get_amendments(frozen_data_for_comparison, updated_snapshot, config)
+    if not amendments_df.empty:
+        amendments_df, additions_df, deletions_df = bring_together_split_cases(
+            amendments_df, additions_df, deletions_df
+        )
+    output_freezing_files(amendments_df, additions_df, deletions_df, config, write_csv)
