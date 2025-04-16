@@ -96,15 +96,15 @@ def run_imputation(  # noqa: C901
     if "is_constructed" in df.columns:
         imputed_df = pd.concat([imputed_df, constructed_df])
 
-    # Run short form expansion imputation for BERD surveys
-    if config["survey"]["survey_type"] == "BERD":
-        imputed_df = run_sf_expansion(imputed_df, config)
-
     # join manually trimmed columns back to the imputed df
     if not trimmed_df.empty:
         (imputed_df, qa_df, links_df) = mimp.join_manual_trim_df_for_qa(
             imputed_df, qa_df, links_df, trimmed_df, config
         )
+
+    # Run short form expansion imputation for BERD surveys
+    if config["survey"]["survey_type"] == "BERD":
+        imputed_df = run_sf_expansion(imputed_df, config)
 
     imputed_df = imputed_df.sort_values(
         ["reference", "instance"], ascending=[True, True]
