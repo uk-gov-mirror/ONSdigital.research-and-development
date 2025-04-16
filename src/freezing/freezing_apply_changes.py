@@ -3,7 +3,7 @@ from typing import Callable, Dict
 
 import pandas as pd
 
-from src.freezing.freezing_utils import _add_last_frozen_column
+from src.freezing.freezing_utils import _add_last_frozen_column, validate_additions_df
 from src.utils.breakdown_validation import get_all_wanted_columns
 
 
@@ -32,14 +32,18 @@ def apply_freezing(
     freezing_paths = config["freezing_paths"]
     amendments_filepath = freezing_paths["freezing_amendments_path"]
     additions_filepath = freezing_paths["freezing_additions_path"]
+    deletions_filepath = freezing_paths["freezing_deletions_path"]
 
     # Check if the freezing files exist
     amendments_exist = check_file_exists(amendments_filepath)
     additions_exist = check_file_exists(additions_filepath)
+    deletions_exist = check_file_exists(deletions_filepath)
 
     # If each file exists, read it and call the function to apply them
-    if not (amendments_exist or additions_exist):
-        FreezingLogger.info("No amendments or additions to apply, skipping...")
+    if not amendments_exist and not additions_exist and not deletions_exist:
+        FreezingLogger.info(
+            "No amendments, additions or deletions to apply, skipping..."
+        )
         return main_df
 
     # apply amendments
@@ -59,71 +63,16 @@ def apply_freezing(
 
     # apply additions
     if additions_exist:
-        additions_df = read_csv(additions_filepath)
-        if additions_df.empty:
+        deletions_df = read_csv(additions_filepath)
+        if deletions_df.empty:
             FreezingLogger.warning(
                 f"Additions file {additions_filepath} is empty, skipping..."
             )
         else:
-            additions_df["instance"] = additions_df["instance"].astype("Int64")
-            main_df = apply_additions(main_df, additions_df, config, FreezingLogger)
+            deletions_df["instance"] = deletions_df["instance"].astype("Int64")
+            main_df = apply_additions(main_df, deletions_df, config, FreezingLogger)
 
     return main_df
-
-
-def validate_any_refinst_in_frozen(
-    frozen_df: pd.DataFrame,
-    df2: pd.DataFrame,
-) -> bool:
-    """Validate that any of the ref/inst combinations from df2 are in the frozen df.
-
-    Args:
-        frozen_df (pd.DataFrame): The frozen csv df
-        df2 (pd.DataFrame): A second dataframe.
-
-    Returns:
-        bool: Whether any ref/inst combs from df2 are in frozen_df.
-    """
-    frozen_copy = frozen_df.copy()
-    df2_copy = df2.copy()
-    frozen_copy["refinst"] = frozen_copy["reference"].astype(str) + frozen_copy[
-        "instance"
-    ].astype(str)
-    df2_copy["refinst"] = df2_copy["reference"].astype(str) + df2_copy[
-        "instance"
-    ].astype(str)
-    result = any([x in list(frozen_copy["refinst"]) for x in list(df2_copy["refinst"])])
-    return result
-
-
-def validate_additions_df(
-    frozen_df: pd.DataFrame,
-    additions_df: pd.DataFrame,
-    FreezingLogger: logging.Logger,
-) -> None:
-    """Validate the additions df.
-
-    Args:
-        frozen_df (pd.DataFrame): The frozen csv df.
-        additions_df (pd.DataFrame): The additions df.
-        FreezingLogger (logging.Logger): The logger to log to.
-
-    Returns:
-        bool: Whether or not the additions df is valid.
-    """
-    # check that the ref/inst combos are not staged frozen data
-    FreezingLogger.info(
-        "Checking if any ref/inst in the additions df are in the frozen data..."
-    )
-
-    any_present = validate_any_refinst_in_frozen(frozen_df, additions_df)
-    if any_present:
-        FreezingLogger.info(
-            "Some reference/instance combinations from the additions file are "
-            "present in the frozen data."
-        )
-        return False
-    return True
 
 
 def apply_amendments(
@@ -214,7 +163,9 @@ def apply_additions(
     if not validate_additions_df(main_df, additions_df, FreezingLogger):
         FreezingLogger.info("Skipping additions since the additions csv is invalid...")
         return main_df
-    # Drop records where accept_changes is False and if any remain, add them to main df
+    # References in the additions data frame do not exist in the frozen data
+    # The exception to this is status "Form sent out", where no return was given.
+    # If any row is marked True, then all rows with that reference are included.
     changes_refs = additions_df[
         additions_df.accept_changes.isin([True])
     ].reference.unique()
@@ -248,13 +199,74 @@ def apply_additions(
     return added_df
 
 
+def apply_deletions(
+    main_df: pd.DataFrame,
+    deletions_df: pd.DataFrame,
+    config: Dict,
+    FreezingLogger: logging.Logger,
+) -> pd.DataFrame:
+    """Apply additions to the main snapshot.
+
+    Args:
+        main_df (pd.DataFrame): The main snapshot.
+        deletions_df (pd.DataFrame): The additions to apply.
+        config (dict): The pipeline configuration.
+        FreezingLogger (logging.Logger): The logger.
+
+    Returns:
+        added_df (pd.DataFrame): The main snapshot with additions applied.
+    """
+    # Fill nulls in the boolean column with False as a safeguard
+    deletions_df["accept_changes"] = (
+        deletions_df["accept_changes"].fillna(False).astype(bool)
+    )
+
+    # For long forms, if the instance 0 is in the deletions data, then all instances
+    # must be deleted. Get a list of references this refers to
+    delete_all_df = deletions_df[
+        deletions_df.accept_changes.isin([True]) & (deletions_df.instance == 0)
+    ]
+    refs_to_delete = delete_all_df.reference.unique()
+    # Ensure all rows in the references to delete have accept_changes = True
+    deletions_df.loc[deletions_df.reference.isin(refs_to_delete), "accept_changes"] = (
+        True
+    )
+
+    # prepare the deletions_df for merging by filtering for the rows to delete
+    accepted_deletions_df = deletions_df.copy()[
+        deletions_df.accept_changes.isin([True])
+    ]  # noqa E501
+    rows_deleted = accepted_deletions_df.shape[0]
+    if rows_deleted == 0:
+        FreezingLogger.info("Deletions file contained no records marked for inclusion")
+        return main_df
+
+    # join the deletions data to the main (frozen) dataframe
+    merged_df = main_df.merge(
+        accepted_deletions_df[["reference", "instance", "accept_changes"]],
+        how="left",
+        on=["reference", "instance"],
+    )
+
+    # Filter the merged dataframe to remove rows with accept_changes = True
+    reduced_df = merged_df[
+        merged_df["accept_changes"].isna() | (merged_df["accept_changes"].isin([False]))
+    ]
+
+    reduced_df = _add_last_frozen_column(reduced_df, config)
+
+    FreezingLogger.info(f"{rows_deleted} record(s) added during freezing")
+
+    return reduced_df
+
+
 def apply_deletions_604(main_df, accepted_amendments_df, config):
     """Apply deletions for 604.
 
     Checks if accepted_amendments_df contains any rows where
     instance = 0 and 604 = No. If one or more rows meet this condition,
     accepted_amendments_df is filtered for conditions where instance = 0,
-    and 604 = No creating flagged_df. The flagged references and periods
+    and 604 = No, creating flagged_df. The flagged references and periods
     are then used to filter main_df for rows where instance is greater than 0.
 
     Args:

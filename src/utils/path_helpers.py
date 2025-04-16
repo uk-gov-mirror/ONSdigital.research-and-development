@@ -231,6 +231,9 @@ def create_freezing_config(config: dict) -> dict:
     freezing_dict["freezing_additions_path"] = (
         f"{survey_path}{paths['freezing_additions_path']}"
     )
+    freezing_dict["freezing_deletions_path"] = (
+        f"{survey_path}{paths['freezing_deletions_path']}"
+    )
     freezing_dict["freezing_amendments_path"] = (
         f"{survey_path}{paths['freezing_amendments_path']}"
     )
