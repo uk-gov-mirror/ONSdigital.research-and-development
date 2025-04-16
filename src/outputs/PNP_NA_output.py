@@ -94,8 +94,8 @@ def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
     output = create_na_output(output, schema_dict)
 
     # Outputting the CSV file
-    filename = filename_amender("output_PNP_national_accounts", config)
-    write_csv(f"{output_path}/output_PNP_national_accounts/{filename}", output)
+    filename = filename_amender("output_pnp_national_accounts", config)
+    write_csv(f"{output_path}/output_pnp_national_accounts/{filename}", output)
 
     # Return the processed DataFrame for QA
     return output

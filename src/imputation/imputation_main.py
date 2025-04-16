@@ -57,19 +57,14 @@ def run_imputation(  # noqa: C901
     # Convert shortform responses to longform format
     df = run_short_to_long(df)
 
-    # remove records that have had construction applied before imputation
-    if "is_constructed" in df.columns:
-        constructed_df = df.copy().loc[
-            df["is_constructed"].isin([True]) & df["force_imputation"].isin([False])
-        ]
-        constructed_df["imp_marker"] = "constructed"
-
-        df = df.copy().loc[
-            ~(df["is_constructed"].isin([True]) & df["force_imputation"].isin([False]))
-        ]
-
     # create extra columns for imputation and fix data issues
     df, wrong_604_qa_df = hlp.imputation_prep(df, config)
+
+    # remove records that have had construction applied before imputation
+    if "is_constructed" in df.columns:
+        cond = df["is_constructed"].isin([True]) & df["force_imputation"].isin([False])
+        constructed_df = df.copy().loc[cond]
+        df = df.copy().loc[~cond]
 
     # Load manual imputation file
     df = mimp.merge_manual_imputation(df, manual_trimming_df)

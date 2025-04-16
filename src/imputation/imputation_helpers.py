@@ -574,6 +574,13 @@ def imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
     df.loc[clear_responders_mask, "imp_marker"] = "R"
     df.loc[~clear_responders_mask, "imp_marker"] = "no_imputation"
 
+    # update the imp_marker for constructed rows where force_imputation is False
+    if ("is_constructed" in df.columns) and ("force_imputation" in df.columns):
+        df.loc[
+            (df["is_constructed"].isin([True]) & df["force_imputation"].isin([False])),
+            "imp_marker",
+        ] = "constructed"
+
     return df
 
 
