@@ -57,19 +57,14 @@ def run_imputation(  # noqa: C901
     # Convert shortform responses to longform format
     df = run_short_to_long(df)
 
-    # remove records that have had construction applied before imputation
-    if "is_constructed" in df.columns:
-        constructed_df = df.copy().loc[
-            df["is_constructed"].isin([True]) & df["force_imputation"].isin([False])
-        ]
-        constructed_df["imp_marker"] = "constructed"
-
-        df = df.copy().loc[
-            ~(df["is_constructed"].isin([True]) & df["force_imputation"].isin([False]))
-        ]
-
     # create extra columns for imputation and fix data issues
     df, wrong_604_qa_df = hlp.imputation_prep(df, config)
+
+    # remove records that have had construction applied before imputation
+    if "is_constructed" in df.columns:
+        cond = df["is_constructed"].isin([True]) & df["force_imputation"].isin([False])
+        constructed_df = df.copy().loc[cond]
+        df = df.copy().loc[~cond]
 
     # Load manual imputation file
     df = mimp.merge_manual_imputation(df, manual_trimming_df)
@@ -101,15 +96,15 @@ def run_imputation(  # noqa: C901
     if "is_constructed" in df.columns:
         imputed_df = pd.concat([imputed_df, constructed_df])
 
+    # Run short form expansion imputation for BERD surveys
+    if config["survey"]["survey_type"] == "BERD":
+        imputed_df = run_sf_expansion(imputed_df, config)
+
     # join manually trimmed columns back to the imputed df
     if not trimmed_df.empty:
         (imputed_df, qa_df, links_df) = mimp.join_manual_trim_df_for_qa(
             imputed_df, qa_df, links_df, trimmed_df, config
         )
-
-    # Run short form expansion imputation for BERD surveys
-    if config["survey"]["survey_type"] == "BERD":
-        imputed_df = run_sf_expansion(imputed_df, config)
 
     imputed_df = imputed_df.sort_values(
         ["reference", "instance"], ascending=[True, True]

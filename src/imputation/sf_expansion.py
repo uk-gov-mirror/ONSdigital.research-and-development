@@ -192,7 +192,7 @@ def run_sf_expansion(df: pd.DataFrame, config: dict) -> pd.DataFrame:
     master_values = list(breakdown_dict)
 
     # Prepare constructed short-form entries for sf expansion imputation
-    df = prepare_short_form_constructed(df, master_values)
+    # df = prepare_short_form_constructed(df, master_values)
 
     # Remove records that have the reference list variables
     # and those that have "nan" in the imp class

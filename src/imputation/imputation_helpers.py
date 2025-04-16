@@ -574,6 +574,13 @@ def imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
     df.loc[clear_responders_mask, "imp_marker"] = "R"
     df.loc[~clear_responders_mask, "imp_marker"] = "no_imputation"
 
+    # update the imp_marker for constructed rows where force_imputation is False
+    if ("is_constructed" in df.columns) and ("force_imputation" in df.columns):
+        df.loc[
+            (df["is_constructed"].isin([True]) & df["force_imputation"].isin([False])),
+            "imp_marker",
+        ] = "constructed"
+
     return df
 
 
@@ -621,10 +628,6 @@ def imputation_prep(df: pd.DataFrame, config: dict):
     Returns:
         pd.DataFrame: dataframe with extra columns added and data issues fixed.
     """
-    # Create an 'instance' of value 1 for non-responders and refs with 'No R&D'
-    df = instance_fix(df)
-    df, wrong_604_qa_df = create_r_and_d_instance(df)
-
     # Add a column for imputation marker
     df = imputation_marker(df)
 
@@ -644,6 +647,10 @@ def imputation_prep(df: pd.DataFrame, config: dict):
     # Create new columns to hold the imputed values
     for col in to_impute_cols:
         df[f"{col}_imputed"] = df[col]
+
+    # Create an 'instance' of value 1 for non-responders and refs with 'No R&D'
+    df = instance_fix(df)
+    df, wrong_604_qa_df = create_r_and_d_instance(df)
 
     return df, wrong_604_qa_df
 
