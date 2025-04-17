@@ -23,7 +23,6 @@ from src.staging.staging_helpers import (
     getmappername,
     load_validate_mapper,
     load_snapshot_feather,
-    load_val_snapshot_json,
     df_to_feather,
     stage_validate_harmonise_postcodes,
     filter_pnp_data,

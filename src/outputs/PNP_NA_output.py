@@ -8,6 +8,7 @@ from src.utils.breakdown_validation import get_all_wanted_columns
 from src.outputs.map_output_cols import create_cora_status_col
 from src.outputs.outputs_helpers import create_output_df
 
+
 OutputMainLogger = logging.getLogger(__name__)
 
 
@@ -82,6 +83,10 @@ def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
     # Map to the CORA statuses from the statusencoded column
     df = create_cora_status_col(df)
 
+    # Add col 221 into 210 to make Total Capex Civil
+    for col in ["210", "211"]:
+        df[col] += df["221"]
+
     # Create output dataframe with required columns from schema
     schema_path = config["schema_paths"]["pnp_national_accounts_schema"]
     schema_dict = load_schema(schema_path)
@@ -89,8 +94,8 @@ def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
     output = create_na_output(output, schema_dict)
 
     # Outputting the CSV file
-    filename = filename_amender("output_PNP_national_accounts", config)
-    write_csv(f"{output_path}/output_PNP_national_accounts/{filename}", output)
+    filename = filename_amender("output_pnp_national_accounts", config)
+    write_csv(f"{output_path}/output_pnp_national_accounts/{filename}", output)
 
     # Return the processed DataFrame for QA
     return output
