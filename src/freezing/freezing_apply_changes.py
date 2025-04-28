@@ -109,8 +109,8 @@ def apply_amendments(
     accepted_amendments_df = accepted_amendments_df.drop(
         columns=[col for col in accepted_amendments_df.columns if col.endswith("_diff")]
     )
-
-    accepted_amendments_df = accepted_amendments_df.drop("accept_changes", axis=1)
+    to_drop_cols = ["accept_changes", "change_type"]
+    accepted_amendments_df = accepted_amendments_df.drop(to_drop_cols, axis=1)
 
     # rename columns
     accepted_amendments_df.columns = [

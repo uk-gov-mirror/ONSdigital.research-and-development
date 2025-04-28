@@ -5,7 +5,7 @@ import pandas as pd
 
 from src.staging.staging_helpers import filter_pnp_data
 from src.utils.breakdown_validation import get_equality_dicts
-from src.utils.helpers import filename_amender
+from src.utils.helpers import filename_amender, order_dataframe_for_output
 
 FreezingLogger = logging.getLogger(__name__)
 
@@ -112,6 +112,7 @@ def get_amendments(
         ]
 
         # Add markers
+        amendments_df["change_type"] = "amendment"
         amendments_df["accept_changes"] = False
         amendments_df["frozen_data_file"] = config["freezing_paths"][
             "frozen_data_staged_path"
@@ -164,6 +165,7 @@ def process_additions_deletions(
     # and a column for the frozen data file name
     frozen_data_file = config["freezing_paths"]["frozen_data_staged_path"]
     if len(df) > 0:
+        df["change_type"] = add_or_del.rstrip("s")
         df["accept_changes"] = False
         df["frozen_data_file"] = frozen_data_file.rsplit("/", 1)[-1]
         return df
@@ -205,56 +207,6 @@ def get_additions_deletions(
     deletions_df = process_additions_deletions(outer_join, config, "deletions")
 
     return additions_df, deletions_df
-
-
-def output_freezing_files(
-    amendments_df: pd.DataFrame,
-    additions_df: pd.DataFrame,
-    deletions_df: pd.DataFrame,
-    config: dict,
-    write_csv: Callable,
-) -> bool:
-    """Save CSVs of amendments and additions for user approval.
-
-    Args:
-        amendments_df (pd.DataFrame): The records that have changed.
-        additions_df (pd.DataFrame): The records that have been added.
-        deletions_df (pd.DataFrame): The records that have been deleted.
-        config (dict): The pipeline configuration
-        write_csv (callable): Function to write to a csv file. This will be the
-            hdfs or network version depending on settings.
-
-    Returns:
-        bool: True if the files were written successfully.
-    """
-
-    freezing_changes_to_review_path = config["freezing_paths"][
-        "freezing_changes_to_review_path"
-    ]
-    FreezingLogger.info("Outputting changes to review file(s).")
-
-    # Check if the dataframes are empty before writing
-    if not amendments_df.empty:
-        filename = filename_amender("freezing_amendments_to_review", config)
-        write_csv(
-            os.path.join(freezing_changes_to_review_path, filename), amendments_df
-        )
-
-    if not additions_df.empty:
-        filename = filename_amender("freezing_additions_to_review", config)
-        write_csv(os.path.join(freezing_changes_to_review_path, filename), additions_df)
-
-    if not deletions_df.empty:
-        filename = filename_amender("freezing_deletions_to_review", config)
-        write_csv(os.path.join(freezing_changes_to_review_path, filename), deletions_df)
-
-    # If all three dataframes are empty, log that there are no changes to review
-    if amendments_df.empty and additions_df.empty and deletions_df.empty:
-        FreezingLogger.info("No changes to review found.")
-        return False
-    else:
-        FreezingLogger.info("File(s) to review output sucessfully.")
-        return True
 
 
 def bring_together_split_cases(
@@ -302,6 +254,61 @@ def bring_together_split_cases(
                 [amendments_df, deletion_split_cases], ignore_index=True
             )
     return amendments_df, additions_df, deletions_df
+
+
+def output_freezing_files(
+    amendments_df: pd.DataFrame,
+    additions_df: pd.DataFrame,
+    deletions_df: pd.DataFrame,
+    config: dict,
+    write_csv: Callable,
+) -> bool:
+    """Save CSVs of amendments and additions for user approval.
+
+    Args:
+        amendments_df (pd.DataFrame): The records that have changed.
+        additions_df (pd.DataFrame): The records that have been added.
+        deletions_df (pd.DataFrame): The records that have been deleted.
+        config (dict): The pipeline configuration
+        write_csv (callable): Function to write to a csv file. This will be the
+            hdfs or network version depending on settings.
+
+    Returns:
+        bool: True if the files were written successfully.
+    """
+
+    freezing_changes_to_review_path = config["freezing_paths"][
+        "freezing_changes_to_review_path"
+    ]
+    FreezingLogger.info("Outputting changes to review file(s).")
+
+    # Check if the dataframes are empty before writing
+    if not amendments_df.empty:
+        # Order the dataframe for output by reference and instance
+        amendments_df = order_dataframe_for_output(amendments_df)
+        # Create the filename using the filename_amender function and write csv file
+        filename = filename_amender("freezing_amendments_to_review", config)
+        write_csv(
+            os.path.join(freezing_changes_to_review_path, filename), amendments_df
+        )
+
+    if not additions_df.empty:
+        additions_df = order_dataframe_for_output(additions_df)
+        filename = filename_amender("freezing_additions_to_review", config)
+        write_csv(os.path.join(freezing_changes_to_review_path, filename), additions_df)
+
+    if not deletions_df.empty:
+        deletions_df = order_dataframe_for_output(deletions_df)
+        filename = filename_amender("freezing_deletions_to_review", config)
+        write_csv(os.path.join(freezing_changes_to_review_path, filename), deletions_df)
+
+    # If all three dataframes are empty, log that there are no changes to review
+    if amendments_df.empty and additions_df.empty and deletions_df.empty:
+        FreezingLogger.info("No changes to review found.")
+        return False
+    else:
+        FreezingLogger.info("File(s) to review output sucessfully.")
+        return True
 
 
 def run_comparison(
