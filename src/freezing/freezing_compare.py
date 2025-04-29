@@ -263,7 +263,7 @@ def output_freezing_files(
     config: dict,
     write_csv: Callable,
 ) -> bool:
-    """Save CSVs of amendments and additions for user approval.
+    """Save CSVs of amendments, additions and deletions for user approval.
 
     Args:
         amendments_df (pd.DataFrame): The records that have changed.
