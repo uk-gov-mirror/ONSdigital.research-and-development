@@ -272,4 +272,4 @@ class TestImputeByClass:
         # Check that missing values in column "200" are imputed
         expected_values = ["C", "C", "C", "D", "D", "D"]
         assert list(pg_result_df["200_imputed"]) == expected_values
-        assert list(pgsic_result_df["200_imputed"]) == pgsic_expected_values
+        assert list(pgsic_result_df["200_imputed"]) == expected_values
