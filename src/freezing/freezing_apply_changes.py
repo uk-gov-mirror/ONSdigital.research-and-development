@@ -72,6 +72,17 @@ def apply_freezing(
             deletions_df["instance"] = deletions_df["instance"].astype("Int64")
             main_df = apply_additions(main_df, deletions_df, config, FreezingLogger)
 
+    # apply deletions
+    if deletions_exist:
+        deletions_df = read_csv(deletions_filepath)
+        if deletions_df.empty:
+            FreezingLogger.warning(
+                f"Deletions file {deletions_filepath} is empty, skipping..."
+            )
+        else:
+            deletions_df["instance"] = deletions_df["instance"].astype("Int64")
+            main_df = apply_deletions(main_df, deletions_df, config, FreezingLogger)
+
     return main_df
 
 
@@ -223,23 +234,23 @@ def apply_deletions(
 
     # For long forms, if the instance 0 is in the deletions data, then all instances
     # must be deleted. Get a list of references this refers to
-    delete_all_df = deletions_df[
-        deletions_df.accept_changes.isin([True]) & (deletions_df.instance == 0)
-    ]
+    deletions_cond = deletions_df.accept_changes.isin([True])
+    delete_all_df = deletions_df[deletions_cond & (deletions_df.instance == 0)]
     refs_to_delete = delete_all_df.reference.unique()
     # Ensure all rows in the references to delete have accept_changes = True
     deletions_df.loc[deletions_df.reference.isin(refs_to_delete), "accept_changes"] = (
         True
     )
-
     # prepare the deletions_df for merging by filtering for the rows to delete
-    accepted_deletions_df = deletions_df.copy()[
-        deletions_df.accept_changes.isin([True])
-    ]  # noqa E501
+    accepted_deletions_df = deletions_df.copy()[deletions_cond]
     rows_deleted = accepted_deletions_df.shape[0]
     if rows_deleted == 0:
         FreezingLogger.info("Deletions file contained no records marked for inclusion")
         return main_df
+
+    # Replace nulls in the 'instance' column with a placeholder value (-1)
+    main_df["instance"] = main_df["instance"].fillna(-1)
+    deletions_df["instance"] = deletions_df["instance"].fillna(-1)
 
     # join the deletions data to the main (frozen) dataframe
     merged_df = main_df.merge(
@@ -248,8 +259,11 @@ def apply_deletions(
         on=["reference", "instance"],
     )
 
+    # Restore nulls in the 'instance' column
+    merged_df["instance"] = merged_df["instance"].replace(-1, pd.NA)
+
     # Filter the merged dataframe to remove rows with accept_changes = True
-    reduced_df = merged_df[
+    reduced_df = merged_df.copy()[
         merged_df["accept_changes"].isna() | (merged_df["accept_changes"].isin([False]))
     ]
 
