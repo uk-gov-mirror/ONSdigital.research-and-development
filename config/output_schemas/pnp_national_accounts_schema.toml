@@ -741,7 +741,7 @@ Deduced_Data_Type = "float64"
 [q0603]
 name = "Region"
 old_name = "Region"
-Deduced_Data_Type = "category"
+Deduced_Data_Type = "str"
 
 ["exp_by_region"]
 name = "Expenditure by Region"
