@@ -216,16 +216,16 @@ def apply_deletions(
     config: Dict,
     FreezingLogger: logging.Logger,
 ) -> pd.DataFrame:
-    """Apply additions to the main snapshot.
+    """Apply deletions to the main snapshot.
 
     Args:
         main_df (pd.DataFrame): The main snapshot.
-        deletions_df (pd.DataFrame): The additions to apply.
+        deletions_df (pd.DataFrame): The deletions to apply.
         config (dict): The pipeline configuration.
         FreezingLogger (logging.Logger): The logger.
 
     Returns:
-        added_df (pd.DataFrame): The main snapshot with additions applied.
+        deleted_df (pd.DataFrame): The main snapshot with deletions applied.
     """
     # Fill nulls in the boolean column with False as a safeguard
     deletions_df["accept_changes"] = (
@@ -269,7 +269,7 @@ def apply_deletions(
 
     reduced_df = _add_last_frozen_column(reduced_df, config)
 
-    FreezingLogger.info(f"{rows_deleted} record(s) added during freezing")
+    FreezingLogger.info(f"{rows_deleted} record(s) removed during freezing")
 
     return reduced_df
 
