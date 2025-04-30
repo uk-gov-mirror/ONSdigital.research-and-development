@@ -2,7 +2,6 @@
 
 import logging
 import pandas as pd
-import numpy as np
 from typing import List, Tuple
 from itertools import chain
 
@@ -574,13 +573,6 @@ def imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
     df.loc[clear_responders_mask, "imp_marker"] = "R"
     df.loc[~clear_responders_mask, "imp_marker"] = "no_imputation"
 
-    # update the imp_marker for constructed rows where force_imputation is False
-    if ("is_constructed" in df.columns) and ("force_imputation" in df.columns):
-        df.loc[
-            (df["is_constructed"].isin([True]) & df["force_imputation"].isin([False])),
-            "imp_marker",
-        ] = "constructed"
-
     return df
 
 
@@ -602,20 +594,30 @@ def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
     ]
 
     # Convert columns to boolean type in all dataframes if they exist
-    for df in dfs:
+    for i in range(len(dfs)):
+        df = dfs[i].copy()  # Create a copy of the DataFrame
         for col in bool_columns:
             if col in df.columns:
-                df[col] = df[col].fillna(False).astype(bool)
+                # If the column is of type object and contains only True/False values,
+                # convert it to bool
+                if (
+                    df[col].dtype == "object"
+                    and df[col].fillna(False).isin([True, False]).all()
+                ):
+                    df[col] = df[col].astype(bool)
+        dfs[i] = df  # Update the DataFrame in the list
 
-    # Concatenate the DataFrames
+    # Concatenate the dataframes
     concatenated_df = pd.concat(dfs, ignore_index=True)
+    print(concatenated_df.shape)
+
+    # Create a copy to avoid modifying the original dataframe
+    concatenated_df = concatenated_df.copy()
 
     # Ensure the boolean columns retain their type in the concatenated DataFrame
     for col in bool_columns:
         if col in concatenated_df.columns:
             concatenated_df[col] = concatenated_df[col].fillna(False).astype(bool)
-
-    return concatenated_df
 
 
 def imputation_prep(df: pd.DataFrame, config: dict):
@@ -635,15 +637,16 @@ def imputation_prep(df: pd.DataFrame, config: dict):
     # Add a column for imputation marker
     df = imputation_marker(df)
 
-    # Get a list of all the target values and breakdown columns from the config
-    to_impute_cols = get_imputation_cols(config)
-
     # Create imp_class column
     if config["survey"]["survey_type"] == "BERD":
         df = create_imp_class_col(df, ["200", "201"])
     elif config["survey"]["survey_type"] == "PNP":
         df = create_imp_class_col(df, ["area"], use_cellno=False)
-        df = remove_defence_for_pnp(df, to_impute_cols)
+        # fill nulls in question 200 (civil or defence) with "C"
+        df.loc[df["instance"] > 0, "200"] = df["200"].fillna("C")
+
+    # Get a list of all the target values and breakdown columns from the config
+    to_impute_cols = get_imputation_cols(config)
 
     # fill zeros
     df = apply_fill_zeros(df, to_impute_cols)
@@ -653,58 +656,3 @@ def imputation_prep(df: pd.DataFrame, config: dict):
         df[f"{col}_imputed"] = df[col]
 
     return df, wrong_604_qa_df
-
-
-def update_defence_rows(df: pd.DataFrame, to_impute_cols: list) -> pd.DataFrame:
-    """
-    Update rows with defence data to so the impute variables are null.
-
-    However, if there no postcode in col 601, the defence rows should be removed.
-
-    Args:
-        df (pd.DataFrame): The DataFrame containing the full responses data.
-        to_impute_cols (list): List of columns to be imputed.
-        config (dict): The configuration settings.
-
-    Returns:
-        pd.DataFrame: The DataFrame with updated defence rows.
-    """
-
-    df = df.copy()
-    # set the imputation columns to null for defence rows
-    df.loc[df["200"] == "D", to_impute_cols] = np.nan
-
-    rows_to_save_cond = df["601"].notnull()
-    non_defence_cond = (df["200"] == "C") | (df["200"].isnull())
-
-    df = df.copy().loc[rows_to_save_cond | non_defence_cond]
-    # if there are any defence rows where we need to keep postcode data, set 200 to null
-    df.loc[df["200"] == "D", "200"] = np.nan
-    return df
-
-
-def remove_defence_for_pnp(df: pd.DataFrame, to_impute_cols: list) -> pd.DataFrame:
-    """
-    Remove and log any defence rows for PNP data.
-
-    Args:
-        df (pd.DataFrame): The DataFrame containing the full responses data.
-
-    Returns:
-        pd.DataFrame: The filtered DataFrame with defence removed for PNP data.
-    """
-    # fill nulls in question 200 (civil or defence) with "C"
-    df.loc[df["instance"] > 0, "200"] = df["200"].fillna("C")
-
-    defence_rows = df.copy().loc[df["200"] == "D"]
-    if len(defence_rows) > 0:
-        def_list = list(defence_rows["reference"].unique())
-        ImputationHelpersLogger.info(f"Defence rows found in PNP data: {def_list}")
-
-        # update the full responses df to remove defence rows but leaving
-        # rows with other important data (eg, purchase data, postcodes)
-        df = update_defence_rows(df, to_impute_cols)
-
-    else:
-        ImputationHelpersLogger.info("No defence rows found in PNP data")
-    return df
