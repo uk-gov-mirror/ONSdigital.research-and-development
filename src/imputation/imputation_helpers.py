@@ -593,7 +593,8 @@ def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
         "211_trim",
     ]
 
-    # Convert columns to boolean type in all dataframes if they exist
+    # Convert columns specified in bool_columns list to boolean type in all dataframes
+    # if they exist
     for i in range(len(dfs)):
         df = dfs[i].copy()  # Create a copy of the DataFrame
         for col in bool_columns:
@@ -607,8 +608,8 @@ def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
                     df[col] = df[col].astype(bool)
         dfs[i] = df  # Update the DataFrame in the list
 
-    # Ensure that all bool-like object columns are explicitly cast to bool before
-    # concatenation
+    # Ensure that all bool-like object columns that exist in the dataframes are
+    # explicitly cast to bool before concatenation
 
     for df in dfs:
         check_for_object_columns(df)
