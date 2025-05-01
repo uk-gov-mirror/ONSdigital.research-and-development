@@ -1156,7 +1156,7 @@ Possible_Categorical_Values = [ "002",]
 
 [formid]
 Description = "nan"
-Deduced_Data_Type = "category"
+Deduced_Data_Type = "int"
 Nullable = false
 Current_Data_Type = "Int64"
 Length = 2
@@ -1166,7 +1166,7 @@ Possible_Categorical_Values = [ 20, 21,]
 
 [status]
 Description = "nan"
-Deduced_Data_Type = "category"
+Deduced_Data_Type = "str"
 Nullable = false
 Current_Data_Type = "str"
 Length = ">=1"
@@ -1216,7 +1216,7 @@ Possible_Categorical_Values = [ "0001", "0006",]
 
 [checkletter]
 Description = "nan"
-Deduced_Data_Type = "category"
+Deduced_Data_Type = "str"
 Nullable = false
 Current_Data_Type = "str"
 Length = 1
@@ -1376,7 +1376,7 @@ Possible_Categorical_Values = [ 0,]
 
 [currency]
 Description = "nan"
-Deduced_Data_Type = "category"
+Deduced_Data_Type = "str"
 Nullable = false
 Current_Data_Type = "str"
 Length = "nan"
@@ -1446,7 +1446,7 @@ Possible_categorical_Values = [ "nan",]
 
 [legalstatus]
 Description = "nan"
-Deduced_Data_Type = "category"
+Deduced_Data_Type = "int"
 Nullable = false
 Current_Data_Type = "str"
 Length = "nan"
@@ -1456,7 +1456,7 @@ Possible_Categorical_Values = [ 1, 2, 3, 4,]
 
 [reportingunitmarker]
 Description = "nan"
-Deduced_Data_Type = "category"
+Deduced_Data_Type = "str"
 Nullable = false
 Current_Data_Type = "str"
 Length = "nan"
@@ -1466,7 +1466,7 @@ Possible_Categorical_Values = [ "L", "E",]
 
 [region]
 Description = "nan"
-Deduced_Data_Type = "category"
+Deduced_Data_Type = "str"
 Nullable = false
 Current_Data_Type = "str"
 Length = "nan"
@@ -1546,7 +1546,7 @@ Possible_categorical_Values = [ "nan",]
 
 [statusencoded]
 Description = "nan"
-Deduced_Data_Type = "category"
+Deduced_Data_Type = "int"
 Nullable = false
 Current_Data_Type = "Int64"
 Length = 3

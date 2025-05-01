@@ -130,7 +130,7 @@ def pg_to_pg_mapper(
     df[pg_column] = df[pg_column].map(map_dict)
 
     # Then convert the pg column and the new column to categorigal datatypes
-    df = df.astype({pg_column: "category", "pg_numeric": "category"})
+    # df = df.astype({pg_column: "category", "pg_numeric": "category"})
     return df
 
 
