@@ -12,67 +12,10 @@ from pandas.testing import assert_frame_equal
 import datetime
 
 from src.freezing.freezing_apply_changes import (
-    validate_any_refinst_in_frozen,
     apply_amendments,
     apply_additions,
     apply_deletions_604
 )
-
-def create_refinst_df(data: list) -> pd.DataFrame:
-    """Create a dataframe with reference/instance columns.
-
-    Args:
-        data (list): The data for the dataframe
-
-    Returns:
-        pd.DataFrame: The created dataframe.
-    """
-    columns = ["reference", "instance", "value"]
-    df = pd.DataFrame(columns=columns, data=data)
-    return df
-
-
-@pytest.fixture(scope="function")
-def dummy_refinst_df() -> pd.DataFrame:
-    """A dummy dataframe containing reference+instance."""
-    data = [
-        [0, 1, True],
-        [0, 2, False],
-        [1, 1, False],
-        [2, 0, True],
-        [3, 1, False],
-    ]
-    df = create_refinst_df(data)
-    return df
-
-
-class TestValidateAnyRefinstInFrozen(object):
-    """Tests for validate_any_refinst_in_frozen."""
-
-    def test_validate_any_refinst_in_frozen_true(self, dummy_refinst_df):
-        """A test for validate_any_refinst_in_frozen returning 'True'."""
-        df2 = create_refinst_df(data=[
-                [0, 1, True], # present
-                [5, 1, True], # not present
-            ]
-        )
-        result = validate_any_refinst_in_frozen(dummy_refinst_df, df2)
-        assert result == True, (
-            "validate_any_refinst_in_frozen (true) not behaving as expected."
-            )
-
-
-    def test_validate_any_refinst_in_frozen_false(self, dummy_refinst_df):
-        """A test for validate_any_refinst_in_frozen returning 'False'."""
-        df2 = create_refinst_df(data=[
-                [0, 3, True], # not present
-                [5, 1, True], # not present
-            ]
-        )
-        result = validate_any_refinst_in_frozen(dummy_refinst_df, df2)
-        assert result == False, (
-            "validate_any_refinst_in_frozen (False) not behaving as expected."
-            )
 
 @pytest.fixture(scope="function")
 def frozen_df() -> pd.DataFrame:
@@ -111,13 +54,13 @@ class TestApplyAmendments(object):
     @pytest.fixture(scope="function")
     def dummy_amendments(self) -> pd.DataFrame:
         """A dummy amendments dataframe."""
-        columns = ["reference", "instance", "num_updated", "non_num_updated", "accept_changes", "status", "num_diff", "604"]
+        columns = ["reference", "instance", "num_updated", "non_num_updated", "change_type", "accept_changes", "status", "num_diff", "604"]
         data = [
-            [0, 1.0, 3, True, True, "clear", 2, "Yes"],
-            [0, 2.0, 4, True, False, "clear", 2, "Yes"],
-            [8, 4, 8, True, True, "clear", 2, "Yes"],
-            [12, 1.0, 9, True, False, "clear", 2, "Yes"],
-            [14, 4.0, 26, True, False, "clear", 2, "Yes"],
+            [0, 1.0, 3, True, "amendment", True, "clear", 2, "Yes"],
+            [0, 2.0, 4, True, "amendment", False, "clear", 2, "Yes"],
+            [8, 4, 8, True, "amendment", True, "clear", 2, "Yes"],
+            [12, 1.0, 9, True, "amendment", False, "clear", 2, "Yes"],
+            [14, 4.0, 26, True, "amendment", False, "clear", 2, "Yes"],
         ]
         df = pd.DataFrame(columns=columns, data=data)
         return df
@@ -154,7 +97,7 @@ class TestApplyAmendments(object):
 
     def test_apply_amendments(self, frozen_df, dummy_amendments):
         """General tests for apply_amendments"""
-        amended = apply_amendments(frozen_df, dummy_amendments, {"filename_items": {"run_id": "1"}}, test_logger)
+        amended = apply_amendments(frozen_df, dummy_amendments, {"filename_items": {"run_id": "1"}})
         amended.sort_values(by=["reference", "instance"], ascending=True, inplace=True)
         expected = self.expected_amended()
 
@@ -170,7 +113,7 @@ class TestApplyAmendments(object):
         with caplog.at_level(logging.INFO):
             # alter additions
             dummy_amendments["accept_changes"] = False
-            result = apply_amendments(frozen_df, dummy_amendments, {"filename_items": {"run_id": "1"}}, test_logger)
+            result = apply_amendments(frozen_df, dummy_amendments, {"filename_items": {"run_id": "1"}})
             assert_frame_equal(result, frozen_df), (
                 "Original df not returned when no amendments are found."
             )
@@ -229,7 +172,7 @@ class TestApplyAdditions(object):
 
     def test_apply_additions(self, frozen_df, dummy_additions):
         """General tests for apply_additions"""
-        amended = apply_additions(frozen_df, dummy_additions, {"filename_items": {"run_id": "1"}}, test_logger)
+        amended = apply_additions(frozen_df, dummy_additions, {"filename_items": {"run_id": "1"}})
         amended.drop("last_frozen", axis=1, inplace=True)
         amended.sort_values(by=["reference", "instance"], ascending=True, inplace=True)
         expected = self.expected_additions()
@@ -242,7 +185,7 @@ class TestApplyAdditions(object):
         with caplog.at_level(logging.INFO):
             # alter amendments
             dummy_additions["reference"] = 1
-            result = apply_additions(frozen_df, dummy_additions, {"filename_items": {"run_id": "1"}}, test_logger)
+            result = apply_additions(frozen_df, dummy_additions, {"filename_items": {"run_id": "1"}})
             assert_frame_equal(result, frozen_df), (
                 "Original df not returned when additions are invalid"
             )
@@ -260,7 +203,7 @@ class TestApplyAdditions(object):
         with caplog.at_level(logging.INFO):
             # alter amendments
             dummy_additions["accept_changes"] = False
-            result = apply_additions(frozen_df, dummy_additions, {"filename_items": {"run_id": "1"}}, test_logger)
+            result = apply_additions(frozen_df, dummy_additions, {"filename_items": {"run_id": "1"}})
             assert_frame_equal(result, frozen_df), (
                 "Original df not returned when additions are invalid..."
             )

@@ -74,6 +74,7 @@ def config():
             "freezing_changes_to_review_path": "02_freezing/changes_to_review/review.csv",
             "freezing_amendments_path": "02_freezing/freezing_updates/updates.csv",
             "freezing_additions_path": "02_freezing/freezing_updates/additions.csv",
+            "freezing_deletions_path": "02_freezing/freezing_updates/deletions.csv",
         },
         "staging_paths": {
             "folder": "01_staging",
@@ -93,6 +94,7 @@ def config():
             "freezing_changes_to_review_path": "changes_to_review",
             "freezing_amendments_path": "freezing_updates",
             "freezing_additions_path": "freezing_updates",
+            "freezing_deletions_path": "freezing_updates",
         },
         "2022_mappers": {
             "mappers_version": "v1",
@@ -141,8 +143,9 @@ def test_get_paths(config):
         "berd_frozen_data_staged_path": "02_freezing/frozen_data_staged/staged.csv",
         "pnp_frozen_data_staged_path": "02_freezing/frozen_data_staged/staged.csv",
         "freezing_changes_to_review_path": "02_freezing/changes_to_review/review.csv",
-        "freezing_amendments_path": "02_freezing/freezing_updates/updates.csv",
         "freezing_additions_path": "02_freezing/freezing_updates/additions.csv",
+        "freezing_deletions_path": "02_freezing/freezing_updates/deletions.csv",
+        "freezing_amendments_path": "02_freezing/freezing_updates/updates.csv",
         "year": 2022,
         "survey_path": "R:/DAP_emulation/2022_surveys/PNP/",
     }
