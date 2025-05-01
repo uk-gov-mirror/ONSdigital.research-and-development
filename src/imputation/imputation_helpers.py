@@ -615,7 +615,6 @@ def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
 
     # Concatenate the dataframes
     concatenated_df = pd.concat(dfs, ignore_index=True)
-    print(concatenated_df.shape)
 
     # Create a copy to avoid modifying the original dataframe
     concatenated_df = concatenated_df.copy()
@@ -644,10 +643,7 @@ def check_for_object_columns(df: pd.DataFrame) -> pd.DataFrame:
     # before concatenation
 
     for col in df:
-        if (
-            df[col].dtype == "object"
-            and df[col].fillna(False).isin([True, False]).all()
-        ):
+        if df[col].dtype == "object" and df[col].isin([True, False]).all():
             df[col] = df[col].astype(bool)
 
     return df
