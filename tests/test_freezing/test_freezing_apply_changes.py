@@ -97,7 +97,7 @@ class TestApplyAmendments(object):
 
     def test_apply_amendments(self, frozen_df, dummy_amendments):
         """General tests for apply_amendments"""
-        amended = apply_amendments(frozen_df, dummy_amendments, {"filename_items": {"run_id": "1"}}, test_logger)
+        amended = apply_amendments(frozen_df, dummy_amendments, {"filename_items": {"run_id": "1"}})
         amended.sort_values(by=["reference", "instance"], ascending=True, inplace=True)
         expected = self.expected_amended()
 
@@ -113,7 +113,7 @@ class TestApplyAmendments(object):
         with caplog.at_level(logging.INFO):
             # alter additions
             dummy_amendments["accept_changes"] = False
-            result = apply_amendments(frozen_df, dummy_amendments, {"filename_items": {"run_id": "1"}}, test_logger)
+            result = apply_amendments(frozen_df, dummy_amendments, {"filename_items": {"run_id": "1"}})
             assert_frame_equal(result, frozen_df), (
                 "Original df not returned when no amendments are found."
             )
@@ -172,7 +172,7 @@ class TestApplyAdditions(object):
 
     def test_apply_additions(self, frozen_df, dummy_additions):
         """General tests for apply_additions"""
-        amended = apply_additions(frozen_df, dummy_additions, {"filename_items": {"run_id": "1"}}, test_logger)
+        amended = apply_additions(frozen_df, dummy_additions, {"filename_items": {"run_id": "1"}})
         amended.drop("last_frozen", axis=1, inplace=True)
         amended.sort_values(by=["reference", "instance"], ascending=True, inplace=True)
         expected = self.expected_additions()
@@ -185,7 +185,7 @@ class TestApplyAdditions(object):
         with caplog.at_level(logging.INFO):
             # alter amendments
             dummy_additions["reference"] = 1
-            result = apply_additions(frozen_df, dummy_additions, {"filename_items": {"run_id": "1"}}, test_logger)
+            result = apply_additions(frozen_df, dummy_additions, {"filename_items": {"run_id": "1"}})
             assert_frame_equal(result, frozen_df), (
                 "Original df not returned when additions are invalid"
             )
@@ -203,7 +203,7 @@ class TestApplyAdditions(object):
         with caplog.at_level(logging.INFO):
             # alter amendments
             dummy_additions["accept_changes"] = False
-            result = apply_additions(frozen_df, dummy_additions, {"filename_items": {"run_id": "1"}}, test_logger)
+            result = apply_additions(frozen_df, dummy_additions, {"filename_items": {"run_id": "1"}})
             assert_frame_equal(result, frozen_df), (
                 "Original df not returned when additions are invalid..."
             )

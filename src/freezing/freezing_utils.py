@@ -26,6 +26,24 @@ def _add_last_frozen_column(frozen_df: pd.DataFrame, config: dict) -> pd.DataFra
     return frozen_df
 
 
+def drop_cols(
+    df: pd.DataFrame, cols: list = ["change_type", "accept_changes"]
+) -> pd.DataFrame:
+    """Drop columns from a dataframe.
+
+    Args:
+        df (pd.DataFrame): The dataframe to drop columns from.
+        cols (list): The columns to drop.
+
+    Returns:
+        pd.DataFrame: The dataframe with the columns dropped.
+    """
+    for col in cols:
+        if col in df.columns:
+            df = df.drop(col, axis=1)
+    return df
+
+
 def validate_any_refinst_in_frozen(
     frozen_df: pd.DataFrame,
     df2: pd.DataFrame,

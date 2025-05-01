@@ -2,9 +2,16 @@ import logging
 from typing import Callable, Dict
 
 import pandas as pd
+import numpy as np
 
-from src.freezing.freezing_utils import _add_last_frozen_column, validate_additions_df
+from src.freezing.freezing_utils import (
+    _add_last_frozen_column,
+    validate_additions_df,
+    drop_cols,
+)
 from src.utils.breakdown_validation import get_all_wanted_columns
+
+FreezingApplyLogger = logging.getLogger(__name__)
 
 
 def apply_freezing(
@@ -12,7 +19,6 @@ def apply_freezing(
     config: Dict,
     check_file_exists: Callable,
     read_csv: Callable,
-    FreezingLogger: logging.Logger,
 ) -> pd.DataFrame:
     """Read user-edited freezing files and apply them to the main snapshot.
     Args:
@@ -22,7 +28,6 @@ def apply_freezing(
             be the hdfs or network version depending on settings.
         read_csv (callable): Function to read a csv file. This will be the hdfs or
             network version depending on settings.
-        FreezingLogger (logging.Logger): The logger to log to.
 
     Returns:
         constructed_df (pd.DataFrame): As main_df but with records amended and added
@@ -41,7 +46,7 @@ def apply_freezing(
 
     # If each file exists, read it and call the function to apply them
     if not amendments_exist and not additions_exist and not deletions_exist:
-        FreezingLogger.info(
+        FreezingApplyLogger.info(
             "No amendments, additions or deletions to apply, skipping..."
         )
         return main_df
@@ -50,39 +55,33 @@ def apply_freezing(
     if amendments_exist:
         amendments_df = read_csv(amendments_filepath)
         if amendments_df.empty:
-            FreezingLogger.warning(
+            FreezingApplyLogger.warning(
                 f"Amendments file ({amendments_filepath}) is empty, skipping..."
             )
         else:
-            main_df = apply_amendments(
-                main_df,
-                amendments_df,
-                config,
-                FreezingLogger,
-            )
+            main_df = apply_amendments(main_df, amendments_df, config)
 
     # apply additions
     if additions_exist:
         deletions_df = read_csv(additions_filepath)
         if deletions_df.empty:
-            FreezingLogger.warning(
+            FreezingApplyLogger.warning(
                 f"Additions file {additions_filepath} is empty, skipping..."
             )
         else:
-            deletions_df["instance"] = deletions_df["instance"].astype("Int64")
-            main_df = apply_additions(main_df, deletions_df, config, FreezingLogger)
+            main_df = apply_additions(main_df, deletions_df, config)
 
     # apply deletions
     if deletions_exist:
         deletions_df = read_csv(deletions_filepath)
         if deletions_df.empty:
-            FreezingLogger.warning(
+            FreezingApplyLogger.warning(
                 f"Deletions file {deletions_filepath} is empty, skipping..."
             )
         else:
-            deletions_df["instance"] = deletions_df["instance"].astype("Int64")
-            main_df = apply_deletions(main_df, deletions_df, config, FreezingLogger)
-
+            main_df = apply_deletions(main_df, deletions_df, config)
+    # retore nulls in the instance column
+    main_df["instance"] = main_df["instance"].replace(-1, np.nan)
     return main_df
 
 
@@ -90,7 +89,6 @@ def apply_amendments(
     main_df: pd.DataFrame,
     amendments_df: pd.DataFrame,
     config: Dict,
-    FreezingLogger: logging.Logger,
 ) -> pd.DataFrame:
     """Apply amendments to the main snapshot.
 
@@ -98,12 +96,10 @@ def apply_amendments(
         main_df (pd.DataFrame): The main snapshot.
         amendments_df (pd.DataFrame): The amendments to apply.
         config (dict): The pipeline configuration.
-        FreezingLogger (logging.Logger): The logger.
 
     Returns:
         amended_df (pd.DataFrame): The main snapshot with amendments applied.
     """
-
     # Get references where accept_changes is True
     changes_refs = amendments_df[
         amendments_df.accept_changes.isin([True])
@@ -113,15 +109,30 @@ def apply_amendments(
     accepted_amendments_df = amendments_df[amendments_df.reference.isin(changes_refs)]
 
     if accepted_amendments_df.shape[0] == 0:
-        FreezingLogger.info("Amendments file contained no records marked for inclusion")
+        FreezingApplyLogger.info(
+            "Amendments file contained no records marked for inclusion"
+        )
         return main_df
+
+    # Separate out the rows to be deleted
+    # fill nulls in the boolean column with "amendment" as a safeguard
+    accepted_amendments_df["change_type"] = (
+        accepted_amendments_df["change_type"].fillna("amendment").astype(str)
+    )
+    deletion_cond = accepted_amendments_df["change_type"].isin(["deletion"])
+    # Separate the dataframe into deletion rows and non-deletion rows
+    delete_rows_df = accepted_amendments_df.copy()[deletion_cond]
+    accepted_amendments_df = accepted_amendments_df.copy()[~deletion_cond]
+
+    # apply the deletions to the main df
+    main_df = apply_deletions(main_df, delete_rows_df, config)
 
     # Drop the diff columns and accept_changes col
     accepted_amendments_df = accepted_amendments_df.drop(
         columns=[col for col in accepted_amendments_df.columns if col.endswith("_diff")]
     )
-    to_drop_cols = ["accept_changes", "change_type"]
-    accepted_amendments_df = accepted_amendments_df.drop(to_drop_cols, axis=1)
+    # drop other unwanted columns
+    accepted_amendments_df = drop_cols(accepted_amendments_df)
 
     # rename columns
     accepted_amendments_df.columns = [
@@ -144,7 +155,7 @@ def apply_amendments(
     # add amended records to main df
     amended_df = pd.concat([main_df, accepted_amendments_df])
 
-    FreezingLogger.info(
+    FreezingApplyLogger.info(
         f"{accepted_amendments_df.shape[0]} record(s) amended during freezing"
     )
 
@@ -158,7 +169,6 @@ def apply_additions(
     main_df: pd.DataFrame,
     additions_df: pd.DataFrame,
     config: Dict,
-    FreezingLogger: logging.Logger,
 ) -> pd.DataFrame:
     """Apply additions to the main snapshot.
 
@@ -166,13 +176,14 @@ def apply_additions(
         main_df (pd.DataFrame): The main snapshot.
         additions_df (pd.DataFrame): The additions to apply.
         config (dict): The pipeline configuration.
-        FreezingLogger (logging.Logger): The logger.
 
     Returns:
         added_df (pd.DataFrame): The main snapshot with additions applied.
     """
-    if not validate_additions_df(main_df, additions_df, FreezingLogger):
-        FreezingLogger.info("Skipping additions since the additions csv is invalid...")
+    if not validate_additions_df(main_df, additions_df, FreezingApplyLogger):
+        FreezingApplyLogger.info(
+            "Skipping additions since the additions csv is invalid..."
+        )
         return main_df
     # References in the additions data frame do not exist in the frozen data
     # The exception to this is status "Form sent out", where no return was given.
@@ -197,15 +208,17 @@ def apply_additions(
         )
     ]
 
-    accepted_additions_df = accepted_additions_df.drop("accept_changes", axis=1)
+    accepted_additions_df = drop_cols(accepted_additions_df)
     if accepted_additions_df.shape[0] > 0:
         accepted_additions_df = _add_last_frozen_column(accepted_additions_df, config)
         added_df = pd.concat([main_df, accepted_additions_df], ignore_index=True)
-        FreezingLogger.info(
+        FreezingApplyLogger.info(
             f"{accepted_additions_df.shape[0]} record(s) added during freezing"
         )
     else:
-        FreezingLogger.info("Additions file contained no records marked for inclusion")
+        FreezingApplyLogger.info(
+            "Additions file contained no records marked for inclusion"
+        )
         return main_df
     return added_df
 
@@ -214,7 +227,6 @@ def apply_deletions(
     main_df: pd.DataFrame,
     deletions_df: pd.DataFrame,
     config: Dict,
-    FreezingLogger: logging.Logger,
 ) -> pd.DataFrame:
     """Apply deletions to the main snapshot.
 
@@ -222,7 +234,6 @@ def apply_deletions(
         main_df (pd.DataFrame): The main snapshot.
         deletions_df (pd.DataFrame): The deletions to apply.
         config (dict): The pipeline configuration.
-        FreezingLogger (logging.Logger): The logger.
 
     Returns:
         deleted_df (pd.DataFrame): The main snapshot with deletions applied.
@@ -245,12 +256,14 @@ def apply_deletions(
     accepted_deletions_df = deletions_df.copy()[deletions_cond]
     rows_deleted = accepted_deletions_df.shape[0]
     if rows_deleted == 0:
-        FreezingLogger.info("Deletions file contained no records marked for inclusion")
+        FreezingApplyLogger.info(
+            "Deletions file contained no records marked for inclusion"
+        )
         return main_df
 
     # Replace nulls in the 'instance' column with a placeholder value (-1)
     main_df["instance"] = main_df["instance"].fillna(-1)
-    deletions_df["instance"] = deletions_df["instance"].fillna(-1)
+    accepted_deletions_df["instance"] = accepted_deletions_df["instance"].fillna(-1)
 
     # join the deletions data to the main (frozen) dataframe
     merged_df = main_df.merge(
@@ -258,18 +271,14 @@ def apply_deletions(
         how="left",
         on=["reference", "instance"],
     )
-
-    # Restore nulls in the 'instance' column
-    merged_df["instance"] = merged_df["instance"].replace(-1, pd.NA)
-
     # Filter the merged dataframe to remove rows with accept_changes = True
-    reduced_df = merged_df.copy()[
-        merged_df["accept_changes"].isna() | (merged_df["accept_changes"].isin([False]))
-    ]
+    merged_df["accept_changes"] = merged_df["accept_changes"].fillna(False)
+    reduced_df = merged_df.copy()[merged_df["accept_changes"].isin([False])]
 
     reduced_df = _add_last_frozen_column(reduced_df, config)
+    reduced_df = drop_cols(reduced_df)
 
-    FreezingLogger.info(f"{rows_deleted} record(s) removed during freezing")
+    FreezingApplyLogger.info(f"{rows_deleted} record(s) removed during freezing")
 
     return reduced_df
 
