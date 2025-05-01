@@ -595,8 +595,8 @@ def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
 
     # Convert columns specified in bool_columns list to boolean type in all dataframes
     # if they exist
-    for i in range(len(dfs)):
-        df = dfs[i].copy()  # Create a copy of the DataFrame
+    for df in dfs:
+        df = df.copy()  # Create a copy of the DataFrame
         for col in bool_columns:
             if col in df.columns:
                 # If the column is of type object and contains only True/False values,
@@ -606,7 +606,6 @@ def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
                     and df[col].fillna(False).isin([True, False]).all()
                 ):
                     df[col] = df[col].astype(bool)
-        dfs[i] = df  # Update the DataFrame in the list
 
     # Ensure that all bool-like object columns that exist in the dataframes are
     # explicitly cast to bool before concatenation
@@ -642,6 +641,8 @@ def check_for_object_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
     # Ensure all boolean-like object columns are explicitly cast to bool
     # before concatenation
+
+    df = df.copy()  # Create a copy of the DataFrame
 
     for col in df:
         if df[col].dtype == "object" and df[col].isin([True, False]).all():

@@ -95,7 +95,7 @@ def run_imputation(  # noqa: C901
     # Note that constructed rows need to be included in short form expansion
     if "is_constructed" in df.columns:
         # Check that the column is cast to bool dtype before concatenating
-        dfs = [df, constructed_df, imputed_df]
+        dfs = [constructed_df, imputed_df]
         for df in dfs:
             hlp.check_for_object_columns(df)
         # Concatenate the dataframes
