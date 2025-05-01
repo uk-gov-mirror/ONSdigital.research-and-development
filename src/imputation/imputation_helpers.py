@@ -607,6 +607,12 @@ def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
                     df[col] = df[col].astype(bool)
         dfs[i] = df  # Update the DataFrame in the list
 
+    # Ensure that all bool-like object columns are explicitly cast to bool before
+    # concatenation
+
+    for df in dfs:
+        check_for_object_columns(df)
+
     # Concatenate the dataframes
     concatenated_df = pd.concat(dfs, ignore_index=True)
     print(concatenated_df.shape)
@@ -618,6 +624,33 @@ def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
     for col in bool_columns:
         if col in concatenated_df.columns:
             concatenated_df[col] = concatenated_df[col].fillna(False).astype(bool)
+
+    return concatenated_df
+
+
+def check_for_object_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Check for boolean-like object columns within a dataframe.
+
+    This function modifies the input DataFrame in place by converting
+    boolean-like object columns to boolean type.
+
+    Args:
+        df : Dataframe to check.
+
+    Returns:
+        pd.DataFrame: The dataframe with object columns converted to a bool.
+    """
+    # Ensure all boolean-like object columns are explicitly cast to bool
+    # before concatenation
+
+    for col in df:
+        if (
+            df[col].dtype == "object"
+            and df[col].fillna(False).isin([True, False]).all()
+        ):
+            df[col] = df[col].astype(bool)
+
+    return df
 
 
 def imputation_prep(df: pd.DataFrame, config: dict):
