@@ -6,12 +6,12 @@ Deduced_Data_Type = "str"
 [IDBRPeriod]
 name = ""
 old_name = "period"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [RUReference]
 name = ""
 old_name = "reference"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [FormType]
 name = ""
@@ -81,62 +81,62 @@ Deduced_Data_Type = "float64"
 [Empt]
 name = ""
 old_name = "employment"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [Emptfro]
 name = ""
 old_name = "frozenemployment"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [Entref]
 name = ""
 old_name = "enterprisereference"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [Entgroup]
 name = ""
 old_name = "wowenterprisereference"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [VETs]
 name = ""
 old_name = "VETs"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [FormStatus]
 name = ""
 old_name = "form_status"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [Employees]
 name = ""
 old_name = "employees"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [Formver]
 name = ""
 old_name = "Formver"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [FTEfro]
 name = ""
 old_name = "frozenfteemployment"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [FTE]
 name = ""
 old_name = "fteemployment"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [Updby]
 name = ""
 old_name = "Updby"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [Legalstatus]
 name = ""
 old_name = "legalstatus"
-Deduced_Data_Type = "catergory"
+Deduced_Data_Type = "int"
 
 [Lockdate]
 name = ""
@@ -176,22 +176,22 @@ Deduced_Data_Type = "str"
 [Turnover]
 name = ""
 old_name = "turnover"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [Region]
 name = ""
 old_name = "region"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [RUSICcur]
 name = ""
 old_name = "rusic"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [RUSICprev]
 name = ""
 old_name = "rusicoutdated"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [CellSelection]
 name = ""
@@ -201,7 +201,7 @@ Deduced_Data_Type = "pd.NA"
 [SICcurfro]
 name = ""
 old_name = "frozensic"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [DataSource]
 name = ""
@@ -211,7 +211,7 @@ Deduced_Data_Type = "pd.NA"
 [SICprevfro]
 name = ""
 old_name = "frozensicoutdated"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [SICprev]
 name = ""
@@ -231,7 +231,7 @@ Deduced_Data_Type = "pd.NA"
 [TOfro]
 name = ""
 old_name = "frozenturnover"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [TOIDBR]
 name = ""
@@ -241,12 +241,12 @@ Deduced_Data_Type = "pd.NA"
 [Year]
 name = ""
 old_name = "period_year"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [Instance]
 name = ""
 old_name = "instance"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [q0001]
 name = ""
@@ -271,7 +271,7 @@ Deduced_Data_Type = "str"
 [q0102]
 name = ""
 old_name = "103"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [q0103]
 name = ""
@@ -281,7 +281,7 @@ Deduced_Data_Type = "str"
 [q0201]
 name = ""
 old_name = "604"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "int"
 
 [q0202]
 name = "Total Capex- civil"
