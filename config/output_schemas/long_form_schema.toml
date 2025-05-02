@@ -12,7 +12,7 @@ Deduced_Data_Type = "str"
 
 [form_status]
 old_name = "form_status"
-Deduced_Data_Type = "category"
+Deduced_Data_Type = "str"
 
 [instance]
 old_name = "instance"

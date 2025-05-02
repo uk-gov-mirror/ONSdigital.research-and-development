@@ -408,8 +408,6 @@ class TestFilterPnpData:
         ]
 
         input_df = pandasDF(data=data, columns=input_columns)
-        input_df["legalstatus"].astype("category")
-        input_df["statusencoded"].astype("category")
         return input_df
 
     def create_exp_output_df(self):
@@ -432,16 +430,12 @@ class TestFilterPnpData:
             [49901183959, 4, "1", "309", "SA50 5BE"],
         ]
         exp1_output_df = pandasDF(data=data1, columns=exp_output_columns)
-        exp1_output_df["legalstatus"].astype("category")
-        exp1_output_df["statusencoded"].astype("category")
 
         data2 = [
             [49900000510, 2.0, "7", "201", "BA1 5DA"],
             [49900184433, 1.0, "7", "210", "CF10 BZZ"],
         ]
         exp2_output_df = pandasDF(data=data2, columns=exp_output_columns)
-        exp2_output_df["legalstatus"].astype("category")
-        exp2_output_df["statusencoded"].astype("category")
 
         return exp1_output_df, exp2_output_df
 

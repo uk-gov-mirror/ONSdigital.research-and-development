@@ -98,11 +98,8 @@ class TestPgToPgMapper(object):
             ["0002", "AD", "2020", 50],
         ]
 
-        type_dict = {"201": "category", "pg_numeric": "category"}
-
         # Build the expected result dataframe. Set the dtype of prod group to cat, like the result_df
         expected_result_df = pd.DataFrame(expected_data, columns=expected_columns)
-        expected_result_df = expected_result_df.astype(type_dict)
 
         result_df = pg_to_pg_mapper(test_df.copy(), mapper.copy())
 
@@ -128,9 +125,6 @@ class TestPgToPgMapper(object):
         ]
 
         expected_result_df = pd.DataFrame(expected_data, columns=expected_columns)
-
-        type_dict = {"201": "category", "pg_numeric": "category"}
-        expected_result_df = expected_result_df.astype(type_dict)
 
         result_df = pg_to_pg_mapper(test_df.copy(), mapper.copy())
 
@@ -232,8 +226,6 @@ class TestRunPgConversion(object):
         ]
 
         gb_expected = pd.DataFrame(data=data, columns=columns)
-        gb_expected["201"] = gb_expected["201"].astype("category")
-        gb_expected["pg_numeric"] = gb_expected["pg_numeric"].astype("category")
         return gb_expected
 
     def test_run_pg_conversion(
