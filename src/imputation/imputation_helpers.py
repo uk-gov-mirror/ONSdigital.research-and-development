@@ -577,12 +577,19 @@ def imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
     clear_responders_mask = df.status.isin(["Clear", "Clear - overridden"])
     df.loc[clear_responders_mask, "imp_marker"] = "R"
     df.loc[~clear_responders_mask, "imp_marker"] = "no_imputation"
+    # update the imp_marker for constructed rows where force_imputation is False
+    if ("is_constructed" in df.columns) and ("force_imputation" in df.columns):
+        df.loc[
+            (df["is_constructed"].isin([True]) & df["force_imputation"].isin([False])),
+            "imp_marker",
+        ] = "constructed"
 
     return df
 
 
 def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
-    """Concatenate a list of dataframes and update boolean columns.
+    """Concatenate a list of dataframes and ensure boolean-like columns are properly
+    cast.
 
     Args:
         dfs (list[pd.DataFrame]): List of dataframes to concatenate.
@@ -590,70 +597,31 @@ def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The concatenated dataframe with updated boolean columns.
     """
-    bool_columns = [
-        "manual_trim",
-        "empty_pgsic_group",
-        "empty_pg_group",
-        "305_trim",
-        "211_trim",
-    ]
-
-    # Convert columns specified in bool_columns list to boolean type in all dataframes
-    # if they exist
+    # Dynamically identify boolean-like columns in all DataFrames
+    all_bool_columns = set()
     for df in dfs:
-        df = df.copy()  # Create a copy of the DataFrame
-        for col in bool_columns:
+        for col in df.columns:
+            if (
+                df[col].dtype == "object"
+                and df[col].fillna(False).isin([True, False]).all()
+            ):
+                all_bool_columns.add(col)
+
+    # Ensure boolean-like columns are cast to bool in all DataFrames
+    for df in dfs:
+        for col in all_bool_columns:
             if col in df.columns:
-                # If the column is of type object and contains only True/False values,
-                # convert it to bool
-                if (
-                    df[col].dtype == "object"
-                    and df[col].fillna(False).isin([True, False]).all()
-                ):
-                    df[col] = df[col].astype(bool)
+                df[col] = df[col].astype(bool)
 
-    # Ensure that all bool-like object columns that exist in the dataframes are
-    # explicitly cast to bool before concatenation
-
-    for df in dfs:
-        check_for_object_columns(df)
-
-    # Concatenate the dataframes
+    # Concatenate the DataFrames
     concatenated_df = pd.concat(dfs, ignore_index=True)
 
-    # Create a copy to avoid modifying the original dataframe
-    concatenated_df = concatenated_df.copy()
-
-    # Ensure the boolean columns retain their type in the concatenated DataFrame
-    for col in bool_columns:
+    # Ensure boolean-like columns retain their type in the concatenated DataFrame
+    for col in all_bool_columns:
         if col in concatenated_df.columns:
             concatenated_df[col] = concatenated_df[col].fillna(False).astype(bool)
 
     return concatenated_df
-
-
-def check_for_object_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Check for boolean-like object columns within a dataframe.
-
-    This function modifies the input DataFrame in place by converting
-    boolean-like object columns to boolean type.
-
-    Args:
-        df : Dataframe to check.
-
-    Returns:
-        pd.DataFrame: The dataframe with object columns converted to a bool.
-    """
-    # Ensure all boolean-like object columns are explicitly cast to bool
-    # before concatenation
-
-    df = df.copy()  # Create a copy of the DataFrame
-
-    for col in df:
-        if df[col].dtype == "object" and df[col].isin([True, False]).all():
-            df[col] = df[col].astype(bool)
-
-    return df
 
 
 def imputation_prep(df: pd.DataFrame, config: dict):

@@ -116,6 +116,9 @@ def apply_amendments(
 
     # Separate out the rows to be deleted
     # fill nulls in the boolean column with "amendment" as a safeguard
+    accepted_amendments_df = (
+        accepted_amendments_df.copy()
+    )  # Avoid changing the original df
     accepted_amendments_df["change_type"] = (
         accepted_amendments_df["change_type"].fillna("amendment").astype(str)
     )
