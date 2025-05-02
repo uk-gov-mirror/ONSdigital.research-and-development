@@ -106,11 +106,8 @@ def count_unique_postcodes_in_col(df: pd.DataFrame) -> pd.DataFrame:
     """
     dfa = df.copy()
 
-    # Ensure postcode_col is dtype string
-    dfa[postcode_col] = dfa[postcode_col].astype(str)
-
     dfa = dfa[groupby_cols + [postcode_col]]
-    dfa = dfa[dfa[postcode_col].str.len() > 0]
+    dfa = dfa[dfa[postcode_col].astype(str).str.len() > 0]
     dfa = dfa.drop_duplicates()
     dfb = dfa.groupby(groupby_cols).agg("count").reset_index()
     dfb = dfb.rename({postcode_col: postcode_col + "_count"}, axis="columns")
@@ -306,11 +303,8 @@ def create_sites_df(
     all_cols = groupby_cols + site_cols + geo_cols
     sites_df = df.copy()[all_cols]
 
-    # Ensure the postcode_col is of type string
-    sites_df[postcode_col] = sites_df[postcode_col].astype(str)
-
     # Remove instances that have no postcodes
-    sites_df = sites_df[sites_df[postcode_col].str.len() > 0]
+    sites_df = sites_df[sites_df[postcode_col].astype(str).str.len() > 0]
 
     # Check for postcode duplicates for QA
     count_duplicate_sites(sites_df)
