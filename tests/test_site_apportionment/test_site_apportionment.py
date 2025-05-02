@@ -174,7 +174,7 @@ class TestCountUniquePostcodesInCol:
         result_df = count_unique_postcodes_in_col(input_df)
         expected_output_df = create_exp_postcode_count_output_df
 
-        assert_frame_equal(result_df[expected_output_df.columns], expected_output_df)
+        assert_frame_equal(result_df, expected_output_df, check_dtype=False)
 
 class TestSetPercentages:
     """Tests for the set_percentages function."""
