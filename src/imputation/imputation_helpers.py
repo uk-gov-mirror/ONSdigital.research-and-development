@@ -502,14 +502,16 @@ def tidy_imputation_dataframe(df: pd.DataFrame, config) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The dataframe with the imputed values applied and qa cols dropped.
     """
-    # Create mask for rows that have been imputed
-    imputed_mask = df["imp_marker"].isin(["TMI", "CF", "MoR", "R"])
-
     to_impute_cols = get_imputation_cols(config)
 
-    # Update columns with imputed version
+    # Check that the imputed columns exist in the dataframe
+    missing_cols = [col for col in to_impute_cols if f"{col}_imputed" not in df.columns]
+    if missing_cols:
+        raise KeyError(f"Missing imputed columns for: {missing_cols}")
+
+    # Update columns with imputed version for the whole dataframe
     for col in to_impute_cols:
-        df.loc[imputed_mask, col] = df.loc[imputed_mask, f"{col}_imputed"]
+        df[col] = df[f"{col}_imputed"]
 
     # Remove all qa columns
     to_drop = [
@@ -539,6 +541,9 @@ def tidy_imputation_dataframe(df: pd.DataFrame, config) -> pd.DataFrame:
 def create_new_backdata(backdata: pd.DataFrame, config) -> pd.DataFrame:
     """Create a new backdata dataframe with the required columns from schema.
 
+    The new backdata is created from the current year and is output to be used when
+    running the pipeline in a future year. Eg, if the current run is 2023, the
+    this new backdata will be used for 2024.
     Use the backdata toml schema to select the required columns from the backdata.
     filter for the clear and imputed statuses.
 
@@ -549,7 +554,7 @@ def create_new_backdata(backdata: pd.DataFrame, config) -> pd.DataFrame:
         pd.DataFrame: The filtered backdata with only the required columns.
     """
     # filter for the clear and imputed statuses
-    imp_markers_to_keep: list = ["R", "TMI", "CF", "MoR", "constructed"]
+    imp_markers_to_keep: list = ["R", "TMI", "CF", "MoR"]
     backdata = backdata.loc[backdata["imp_marker"].isin(imp_markers_to_keep)]
 
     # get the wanted columns from the backdata schema
