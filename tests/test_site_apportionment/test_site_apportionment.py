@@ -942,9 +942,13 @@ class TestCreateCategoryDf(object):
         """Test that create_category_df de-duplicates."""
         # reduce input data to the first four rows
         category_df_input = category_df_input.loc[:3]
+        # add an extra row to the input data to create duplicates by concatenation
+        extra_row_df = pd.concat(
+            [category_df_input, category_df_input.iloc[0:1]], ignore_index=True
+        )
         # add duplicate row and pass to create_category_df
         output = create_category_df(
-            category_df_input.append(category_df_input.iloc[0]),
+            extra_row_df,
             self.imp_markers_to_keep,
             category_df_input.columns,
             self.groupby_cols,

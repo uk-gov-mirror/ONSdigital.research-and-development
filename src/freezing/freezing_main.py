@@ -57,7 +57,6 @@ def run_freezing(
             updated_snapshot,
             config,
             write_csv,
-            FreezingLogger,
         )
 
         return None
@@ -66,7 +65,7 @@ def run_freezing(
     elif run_updates_and_freeze:
         frozen_data = read_frozen_csv(config, read_csv)
         prepared_frozen_data = apply_freezing(
-            frozen_data, config, check_file_exists, read_csv, FreezingLogger
+            frozen_data, config, check_file_exists, read_csv
         )
         prepared_frozen_data.reset_index(drop=True, inplace=True)
         prepared_frozen_data["statusencoded"] = prepared_frozen_data[
