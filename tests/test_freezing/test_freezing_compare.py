@@ -5,7 +5,7 @@ from pandas.testing import assert_frame_equal
 import logging
 import numpy as np
 
-from src.freezing.freezing_compare import get_amendments, get_additions
+from src.freezing.freezing_compare import get_amendments, get_additions_deletions
 from src.freezing.freezing_compare import bring_together_split_cases
 
 # create a test logger to pass to functions
@@ -50,15 +50,15 @@ class TestGetAmendments:
     # Create expected outcome df
     def create_test_expected_outcome_df(self) -> pd.DataFrame:
         """Create a test expected_outcome df."""
-        input_cols = ["reference", "period", "instance", "202", "203", "200", "201", "601", "604", "status", "202_diff", "203_diff", "200_diff", "201_diff", "601_diff", "604_diff", "status_diff", "accept_changes", "frozen_data_file"]
+        input_cols = ["reference", "period", "instance", "202", "203", "200", "201", "601", "604", "status", "202_diff", "203_diff", "200_diff", "201_diff", "601_diff", "604_diff", "status_diff", "change_type", "accept_changes", "frozen_data_file"]
         data = [
-            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes", "clear", 0.0, 0.0, None, None, None, None, None, False, "frozen_data_v123.csv"],
-            ["B", 202412, None, None, 1.0, "A", "Yes", "B", "Yes", "form sent out", None, 0.0, "A", None,  "B", None, None, False, "frozen_data_v123.csv"],
-            ["C", 202412, 0.0, 2.0, 2.0, "A", "Yes", "B", "No", "clear", 1.0, 0.0, None, None, None, "No", None, False, "frozen_data_v123.csv"],
-            ["D", 202412, 1.0, 2.0, 3.0, "E", "Yes", "D", "Yes", "clear", 0.0, 0.0, "E", None, None, None, None, False, "frozen_data_v123.csv"],
-            ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes", "form sent out", 6.0, -4.0, None, None, None, "Yes", None, False, "frozen_data_v123.csv"],
-            ["R", 202412, None, 6.0, 6.0, "E", "Yes", "F", "No", "form sent out", -8.0, -8.0, None, None, None, None, None, False, "frozen_data_v123.csv"],
-            ["X", 202412, 8.0, 2.0, 2.0, "E", "Yes", "F", "Yes", "clear", 0.0, 0.0, None, None, None, None, "clear", False, "frozen_data_v123.csv"],
+            ["A", 202412, 2.0, 1.0, 2.0, "A", "Yes", None, "Yes", "clear", 0.0, 0.0, None, None, None, None, None, "amendment", False, "frozen_data_v123.csv"],
+            ["B", 202412, None, None, 1.0, "A", "Yes", "B", "Yes", "form sent out", None, 0.0, "A", None,  "B", None, None, "amendment", False, "frozen_data_v123.csv"],
+            ["C", 202412, 0.0, 2.0, 2.0, "A", "Yes", "B", "No", "clear", 1.0, 0.0, None, None, None, "No", None, "amendment", False, "frozen_data_v123.csv"],
+            ["D", 202412, 1.0, 2.0, 3.0, "E", "Yes", "D", "Yes", "clear", 0.0, 0.0, "E", None, None, None, None, "amendment", False, "frozen_data_v123.csv"],
+            ["E", 202412, None, 10.0, 1.0, "E", "Yes", "F", "Yes", "form sent out", 6.0, -4.0, None, None, None, "Yes", None, "amendment", False, "frozen_data_v123.csv"],
+            ["R", 202412, None, 6.0, 6.0, "E", "Yes", "F", "No", "form sent out", -8.0, -8.0, None, None, None, None, None, "amendment", False, "frozen_data_v123.csv"],
+            ["X", 202412, 8.0, 2.0, 2.0, "E", "Yes", "F", "Yes", "clear", 0.0, 0.0, None, None, None, None, "clear", "amendment", False, "frozen_data_v123.csv"],
         ]
         input_expected_outcome_df = pd.DataFrame(data=data, columns=input_cols)
         return input_expected_outcome_df
@@ -119,7 +119,7 @@ class TestGetAmendments:
 
         # Run the function
         result = get_amendments(
-            input_frozen_df, input_amendments_df, test_logger, config
+            input_frozen_df, input_amendments_df, config
         )
 
         # Check the output
@@ -129,7 +129,7 @@ class TestGetAmendments:
 
 
 class TestGetAdditions:
-    """Tests for get_additions()."""
+    """Tests for get_additions_deletions()."""
 
     # Create config for test
     def create_config(self) -> dict:
@@ -148,13 +148,15 @@ class TestGetAdditions:
     # Create test frozen df
     def create_test_frozen_df(self) -> pd.DataFrame:
         """Create a test frozen df"""
-        input_cols = ["reference", "period", "instance", "other"]
+        input_cols = ["reference", "period", "instance", "other", "legalstatus"]
         data = [
-            ["A", 202412, 2.0, 1.0],
-            ["B", 202412, None, None],
-            ["C", 202412, 0.0, 1.0],
-            ["D", 202412, 1.0, 2.0],
-            ["E", 202412, None, 4.0],
+            ["A", 202412, 2.0, 1.0, "4"],
+            ["B", 202412, None, None, "4"],
+            ["C", 202412, 0.0, 1.0, "4"],
+            ["D", 202412, 1.0, 2.0, "4"],
+            ["E", 202412, None, 4.0, "4"],
+            ["E", 202412, 1.0, 5.0, "4"],
+            ["E", 202412, 2.0, 6.0, "4"],
         ]
         input_frozen_df = pd.DataFrame(data=data, columns=input_cols)
         return input_frozen_df
@@ -179,34 +181,47 @@ class TestGetAdditions:
         input_additions_df = pd.DataFrame(data=data, columns=input_cols)
         return input_additions_df
 
-    # Create expected outcome df
-    def create_test_expected_outcome_df(self) -> pd.DataFrame:
-        """Create a test expected_outcome df."""
-        input_cols = ["reference", "period", "instance", "other", "legalstatus", "accept_changes", "frozen_data_file"]
+    def create_exp_additions_df(self) -> pd.DataFrame:
+        """Create a test expected_outcome df for additions."""
+        input_cols = ["reference", "period", "instance", "other", "legalstatus", "change_type", "accept_changes", "frozen_data_file"]
         data = [
-            ["F", 202412, 1.0, 4.0, "4", False, "frozen_data_v123.csv"],
-            ["G", 202412, None, 4.0, "4", False, "frozen_data_v123.csv"],
-            ["H", 202412, 1.0, None, "4", False, "frozen_data_v123.csv"]
+            ["F", 202412, 1.0, 4.0, "4", "addition", False, "frozen_data_v123.csv"],
+            ["G", 202412, None, 4.0, "4", "addition", False, "frozen_data_v123.csv"],
+            ["H", 202412, 1.0, None, "4", "addition", False, "frozen_data_v123.csv"]
         ]
         input_expected_outcome_df = pd.DataFrame(data=data, columns=input_cols)
         return input_expected_outcome_df
 
-    def test_get_additions(self):
-        """Test for get_additions()."""
+    def create_exp_deletions_df(self) -> pd.DataFrame:
+        """Create a test expected_outcome df for deletions."""
+        input_cols = ["reference", "period", "instance", "other", "legalstatus", "change_type", "accept_changes", "frozen_data_file"]
+        data = [
+            ["E", 202412, 1.0, 5.0, "4", "deletion", False, "frozen_data_v123.csv"],
+            ["E", 202412, 2.0, 6.0, "4", "deletion", False, "frozen_data_v123.csv"],
+        ]
+        input_expected_outcome_df = pd.DataFrame(data=data, columns=input_cols)
+        return input_expected_outcome_df
+
+    def test_get_additions_deletions(self):
+        """Test for get_additions_deletions()."""
         # Create test dataframes
         input_frozen_df = self.create_test_frozen_df()
         input_additions_df = self.create_test_additions_df()
-        expected_outcome_df = self.create_test_expected_outcome_df()
+        expected_additions_df = self.create_exp_additions_df()
+        expected_deletions_df = self.create_exp_deletions_df()
+
         config = self.create_config()
 
-        # Run the function
-        result = get_additions(
-            input_frozen_df, input_additions_df, test_logger, config
+        result_additions, result_deletions = get_additions_deletions(
+            input_frozen_df, input_additions_df, config
         )
 
-        # Check the output
         assert_frame_equal(
-            expected_outcome_df, result.reset_index(drop=True)
+            expected_additions_df, result_additions.reset_index(drop=True)
+        )
+
+        assert_frame_equal(
+            expected_deletions_df, result_deletions.reset_index(drop=True)
         )
 
 
@@ -266,12 +281,14 @@ class TestBringTogetherSplitCases:
         # Create test dataframes
         input_additions_df = self.create_test_additions_df()
         input_amendments_df = self.create_test_amendments_df()
+        input_deletions_df = pd.DataFrame()  # Empty DataFrame for deletions
         expected_additions_df = self.create_expected_additions_df()
         expected_amendments_df = self.create_expected_amendments_df()
+        expected_deletions_df = pd.DataFrame()
 
         # Run the function
-        result_additions_df, result_amendments_df = bring_together_split_cases(
-            input_additions_df, input_amendments_df, test_logger
+        result_amendments_df, result_additions_df, result_deletions_df = bring_together_split_cases(
+            input_amendments_df, input_additions_df, input_deletions_df
         )
 
         # Check the output

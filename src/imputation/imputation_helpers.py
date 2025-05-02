@@ -501,14 +501,16 @@ def tidy_imputation_dataframe(df: pd.DataFrame, config) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The dataframe with the imputed values applied and qa cols dropped.
     """
-    # Create mask for rows that have been imputed
-    imputed_mask = df["imp_marker"].isin(["TMI", "CF", "MoR", "R"])
-
     to_impute_cols = get_imputation_cols(config)
 
-    # Update columns with imputed version
+    # Check that the imputed columns exist in the dataframe
+    missing_cols = [col for col in to_impute_cols if f"{col}_imputed" not in df.columns]
+    if missing_cols:
+        raise KeyError(f"Missing imputed columns for: {missing_cols}")
+
+    # Update columns with imputed version for the whole dataframe
     for col in to_impute_cols:
-        df.loc[imputed_mask, col] = df.loc[imputed_mask, f"{col}_imputed"]
+        df[col] = df[f"{col}_imputed"]
 
     # Remove all qa columns
     to_drop = [

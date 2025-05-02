@@ -10,8 +10,8 @@ global:
   use_backdata: True
   load_ni_data: False
   # Pipeline run type
-  run_with_snapshot: True                 # Run until point of freezing
-  run_with_frozen_data: False              # Run with specified frozen csv
+  run_with_snapshot: True                    # Run until point of freezing
+  run_with_frozen_data: False                 # Run with specified frozen csv
   # Freezing settings
   run_with_snapshot_and_freeze: False         # Last run with frozen snapshot - produces frozen csv
   load_updated_snapshot_for_comparison: False    # Run with new json snapshot, and compare to specified frozen csv
@@ -50,7 +50,7 @@ global:
   output_status_filtered: False
   output_frozen_group: False
   output_intram_totals: False
-  output_pnp_na: True
+  output_pnp_na: False
 s3_paths:
   root: "/bat/res_dev/project_data/"
   # staging input paths
