@@ -107,7 +107,7 @@ def count_unique_postcodes_in_col(df: pd.DataFrame) -> pd.DataFrame:
     dfa = df.copy()
 
     dfa = dfa[groupby_cols + [postcode_col]]
-    dfa = dfa[dfa[postcode_col].astype(str).str.len() > 0]
+    dfa = dfa[dfa[postcode_col].fillna("").str.len() > 0]
     dfa = dfa.drop_duplicates()
     dfb = dfa.groupby(groupby_cols).agg("count").reset_index()
     dfb = dfb.rename({postcode_col: postcode_col + "_count"}, axis="columns")
