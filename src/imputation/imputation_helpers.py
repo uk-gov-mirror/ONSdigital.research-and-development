@@ -603,13 +603,15 @@ def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
     for df in dfs:
         for col in df.columns:
             if (
-                df[col].dtype == "object"
+                df[col].notna().any()  # Ensure the col has at least one non-null value
+                and df[col].dtype == "object"
                 and df[col].fillna(False).isin([True, False]).all()
             ):
                 all_bool_columns.add(col)
 
     # Ensure boolean-like columns are cast to bool in all DataFrames
     for df in dfs:
+        df = df.copy()  # Avoid modifying the original DataFrame
         for col in all_bool_columns:
             if col in df.columns:
                 df[col] = df[col].fillna(False).astype(bool)
