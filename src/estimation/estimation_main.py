@@ -46,6 +46,6 @@ def run_estimation(
         full_qa_filename = filename_amender("full_estimation_qa", config)
         write_csv(f"{est_qa_path}/{cell_qa_filename}", qa_df)
         write_csv(f"{est_qa_path}/{full_qa_filename}", estimated_df)
-    EstMainLogger.info("Finished estimation weights calculation.")
+    EstMainLogger.success("Finished estimation weights calculation.")
 
     return weighted_df

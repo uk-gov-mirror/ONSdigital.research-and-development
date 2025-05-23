@@ -328,10 +328,6 @@ def create_r_and_d_instance(
 
     # check that the fix has worked and drop duplicates for now if not
     final_df, check_df = check_604_fix(updated_df)
-    # TODO: it shouldn't be necessary to drop duplicates if the fix works properly.
-    ImputationHelpersLogger.info("The following references are 'No R&D' ")
-    ImputationHelpersLogger.info("but have too many rows- duplicates will be dropped:")
-    ImputationHelpersLogger.info(check_df)
 
     return final_df, mult_604_qa_df
 
@@ -340,11 +336,8 @@ def split_df_on_trim(df: pd.DataFrame, trim_bool_col: str) -> pd.DataFrame:
     """Splits the dataframe in based on if it was trimmed or not"""
 
     if not df.empty:
-        # TODO: remove this temporary fix to cast Nans to False
         df_copy = df.copy()
         df_copy.loc[:, trim_bool_col] = df_copy.loc[:, trim_bool_col].fillna(False)
-        # df[trim_bool_col] = df.copy()[trim_bool_col].fillna(False)
-        # df.loc[:,trim_bool_col] = df.copy().loc[:,trim_bool_col].fillna(False)
 
         df_not_trimmed = df_copy.loc[~df_copy[trim_bool_col]]
         df_trimmed = df_copy.loc[df_copy[trim_bool_col]]
@@ -610,14 +603,16 @@ def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
                 all_bool_columns.add(col)
 
     # Ensure boolean-like columns are cast to bool in all DataFrames
+    dfs_bool = []
     for df in dfs:
         df = df.copy()  # Avoid modifying the original DataFrame
         for col in all_bool_columns:
             if col in df.columns:
                 df[col] = df[col].fillna(False).astype(bool)
+        dfs_bool.append(df)
 
     # Concatenate the DataFrames
-    concatenated_df = pd.concat(dfs, ignore_index=True)
+    concatenated_df = pd.concat(dfs_bool, ignore_index=True)
 
     # Ensure boolean-like columns retain their type in the concatenated DataFrame
     for col in all_bool_columns:

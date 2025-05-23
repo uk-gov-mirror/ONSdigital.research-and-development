@@ -60,7 +60,7 @@ def run_outputs(  # noqa: C901
             config,
             write_csv,
         )
-        OutputMainLogger.info("Finished short form output.")
+        OutputMainLogger.success("Finished short form output.")
 
     # Instance 0 should now be removed from all subsequent outputs
     outputs_df = outputs_df.copy().loc[outputs_df.instance != 0]
@@ -73,7 +73,7 @@ def run_outputs(  # noqa: C901
             config,
             write_csv,
         )
-        OutputMainLogger.info("Finished long form output.")
+        OutputMainLogger.success("Finished long form output.")
 
     # Filter out records that answer "no R&D" for all subsequent outputs
     tau_outputs_df = tau_outputs_df.copy().loc[~(tau_outputs_df["604"] == "No")]
@@ -88,7 +88,7 @@ def run_outputs(  # noqa: C901
             intram_tot_dict,
             write_csv,
         )
-        OutputMainLogger.info("Finished TAU output.")
+        OutputMainLogger.success("Finished TAU output.")
 
     # Running GB SAS output
     if config["global"]["output_gb_sas"]:
@@ -99,7 +99,7 @@ def run_outputs(  # noqa: C901
             intram_tot_dict,
             write_csv,
         )
-        OutputMainLogger.info("Finished GB SAS output.")
+        OutputMainLogger.success("Finished GB SAS output.")
 
     # Running NI SAS output
     if config["global"]["output_ni_sas"]:
@@ -112,7 +112,7 @@ def run_outputs(  # noqa: C901
                 config,
                 write_csv,
             )
-            OutputMainLogger.info("Finished NI SAS output.")
+            OutputMainLogger.success("Finished NI SAS output.")
 
     # Running Intram by PG output (GB)
     if config["global"]["output_intram_by_pg_gb"]:
@@ -126,7 +126,7 @@ def run_outputs(  # noqa: C901
             write_csv,
             uk_output=False,
         )
-        OutputMainLogger.info("Finished Intram by PG (GB) output.")
+        OutputMainLogger.success("Finished Intram by PG (GB) output.")
 
     # Running Intram by PG output (UK)
     if config["global"]["output_intram_by_pg_uk"]:
@@ -145,7 +145,7 @@ def run_outputs(  # noqa: C901
                 write_csv,
                 uk_output=True,
             )
-            OutputMainLogger.info("Finished Intram by PG (UK) output.")
+            OutputMainLogger.success("Finished Intram by PG (UK) output.")
 
     # Running Intram by ITL (GB)
     if config["global"]["output_intram_gb_itl"]:
@@ -157,7 +157,7 @@ def run_outputs(  # noqa: C901
             intram_tot_dict,
             write_csv,
         )
-        OutputMainLogger.info("Finished Intram by ITL (GB) output.")
+        OutputMainLogger.success("Finished Intram by ITL (GB) output.")
 
     # Running Intram by ITL (UK)
     if config["global"]["output_intram_uk_itl"]:
@@ -175,7 +175,7 @@ def run_outputs(  # noqa: C901
                 write_csv,
                 uk_output=True,
             )
-            OutputMainLogger.info("Finished Intram by ITL (UK) output.")
+            OutputMainLogger.success("Finished Intram by ITL (UK) output.")
 
     # Running frozen group
     if config["global"]["output_frozen_group"]:
@@ -187,7 +187,7 @@ def run_outputs(  # noqa: C901
             intram_tot_dict,
             write_csv,
         )
-        OutputMainLogger.info("Finished frozen group output.")
+        OutputMainLogger.success("Finished frozen group output.")
 
     # Running Intram by civil or defence
     if config["global"]["output_intram_by_civil_defence"]:
@@ -197,7 +197,7 @@ def run_outputs(  # noqa: C901
             config,
             write_csv,
         )
-        OutputMainLogger.info("Finished Intram by civil or defence output.")
+        OutputMainLogger.success("Finished Intram by civil or defence output.")
 
     # Running Intram by SIC
     if config["global"]["output_intram_by_sic"]:
@@ -209,21 +209,21 @@ def run_outputs(  # noqa: C901
             write_csv,
             sic_division_detailed,
         )
-        OutputMainLogger.info("Finished Intram by SIC output.")
+        OutputMainLogger.success("Finished Intram by SIC output.")
 
     # Running FTE total QA
     if config["global"]["output_fte_total_qa"]:
         qa_output_total_fte(outputs_df, config, write_csv)
-        OutputMainLogger.info("Finished FTE total QA output.")
+        OutputMainLogger.success("Finished FTE total QA output.")
 
     if config["global"]["output_intram_totals"]:
         output_intram_totals(intram_tot_dict, config, write_csv)
-        OutputMainLogger.info("Finished Intramural totals output.")
+        OutputMainLogger.success("Finished Intramural totals output.")
 
     # Running National Accounts output
     if config["global"]["output_pnp_na"] and config["survey"]["survey_type"] == "PNP":
         OutputMainLogger.info("Starting PNP National Accounts output...")
         output_pnp_na(outputs_df, config, write_csv)
-        OutputMainLogger.info("Finished PNP National Accounts output.")
+        OutputMainLogger.success("Finished PNP National Accounts output.")
 
-    OutputMainLogger.info("Finished Outputs module.")
+    OutputMainLogger.success("Finished Outputs module.")

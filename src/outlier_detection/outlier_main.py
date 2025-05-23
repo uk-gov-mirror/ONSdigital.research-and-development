@@ -61,7 +61,7 @@ def run_outliers(
         filename = filename_amender("auto_outlier", config)
         file_path = auto_outlier_path + filename
         write_csv(file_path, filtered_df)
-        OutlierMainLogger.info("Finished writing CSV to %s", auto_outlier_path)
+        OutlierMainLogger.success("Finished writing CSV to %s", auto_outlier_path)
     else:
         OutlierMainLogger.info("Skipping the output of the automatic outliers file")
 
@@ -80,14 +80,14 @@ def run_outliers(
     OutlierMainLogger.info("Starting Manual Outlier Application")
     outlier_df = df_auto_flagged.merge(df_manual_supplied, on=["reference"], how="left")
     flagged_outlier_df = manual.apply_manual_outliers(outlier_df)
-    OutlierMainLogger.info("Finished Manual Outlier Application")
+    OutlierMainLogger.success("Finished Manual Outlier Application")
 
     # Output the outlier flags for QA
     if config["global"]["output_outlier_qa"]:
         OutlierMainLogger.info("Starting output of Outlier QA data...")
         filename = filename_amender("outliers_qa", config)
         write_csv(f"{outlier_qa_path}/{filename}", flagged_outlier_df)
-        OutlierMainLogger.info("Finished QA output of outliers data.")
+        OutlierMainLogger.success("Finished QA output of outliers data.")
     else:
         OutlierMainLogger.info("Skipping output of Outlier QA data...")
 

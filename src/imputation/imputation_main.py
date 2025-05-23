@@ -111,7 +111,7 @@ def run_imputation(  # noqa: C901
         ["reference", "instance"], ascending=[True, True]
     ).reset_index(drop=True)
 
-    ImputationMainLogger.info("Finished Imputation calculation.")
+    ImputationMainLogger.success("Finished Imputation calculation.")
 
     # Output QA files
     if config["global"]["output_imputation_qa"]:
