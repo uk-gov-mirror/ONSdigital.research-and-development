@@ -286,11 +286,13 @@ Deduced_Data_Type = "int"
 [q0202]
 name = "Total Capex- civil"
 old_name = "210"
+add_col = "q0210"
 Deduced_Data_Type = "float64"
 
 [q0203]
 name = "Total Capex- defence"
 old_name = "210_defence"
+add_col = "q0211"
 Deduced_Data_Type = "float64"
 
 [q0204]
@@ -316,11 +318,13 @@ Deduced_Data_Type = "float64"
 [q0208]
 name = "Equipment and machinery- civil"
 old_name = "209"
+subtract_col = "q0210"
 Deduced_Data_Type = "float64"
 
 [q0209]
 name = "Equipment and machinery- defence"
 old_name = "209_defence"
+subtract_col = "q0211"
 Deduced_Data_Type = "float64"
 
 [q0210]
@@ -376,11 +380,13 @@ Deduced_Data_Type = "float64"
 [q0222]
 name = "Total capex and non-capex- civil"
 old_name = "211"
+add_col = "q0210"
 Deduced_Data_Type = "float64"
 
 [q0223]
 name = "Total capex and non-capex- defence"
 old_name = "211_defence"
+add_col = "q0211"
 Deduced_Data_Type = "float64"
 
 [q0224]
