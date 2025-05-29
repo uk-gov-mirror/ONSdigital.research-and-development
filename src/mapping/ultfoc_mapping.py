@@ -60,7 +60,7 @@ def join_fgn_ownership(
 
     # If we have some unmapped references, report them and fillna with GB
     if num_unmapped:
-        MappingLogger.info(f"Found {num_unmapped} references with blank ultfoc.")
+        MappingLogger.warning(f"Found {num_unmapped} references with blank ultfoc.")
         unmapped_list = unmapped_refs["reference"].tolist()
 
         # Put all references in the single column, with no prefix
@@ -68,7 +68,7 @@ def join_fgn_ownership(
         for ref in unmapped_list:
             report += "\n" + str(ref)
 
-        MappingLogger.info(f"The following references were unmapped:{report}")
+        MappingLogger.warning(f"The following references were unmapped:{report}")
 
         # If there were unmapped ultfoc values, give them GB
         MappingLogger.info("Filling in the unmapped ultfoc with GB")
