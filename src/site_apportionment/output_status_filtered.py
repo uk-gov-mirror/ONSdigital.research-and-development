@@ -80,4 +80,4 @@ def output_status_filtered(
     filename = filename_amender("status_filtered_qa", config)
     write_csv(f"{output_path}/output_status_filtered_qa/{filename}", filtered_df)
 
-    StatusFilteredLogger.info("Finished status filtered output.")
+    StatusFilteredLogger.success("Finished status filtered output.")

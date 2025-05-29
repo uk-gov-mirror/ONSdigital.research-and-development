@@ -9,7 +9,7 @@ import pandas as pd
 from src.utils import runlog
 from src._version import __version__ as version
 from src.utils.config import config_setup, file_validation
-from src.utils.wrappers import logger_creator
+from src.utils.logger import logger_creator
 from src.staging.staging_main import run_staging
 from src.utils.helpers import validate_updated_postcodes
 from src.freezing.freezing_main import run_freezing
@@ -123,12 +123,12 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
         mods.rd_read_csv,
         mods.rd_file_exists,
     )
-    MainLogger.info("Finished Freezing module...")
+    MainLogger.success("Finished Freezing module...")
 
     run_id = runlog_obj.run_id
 
     if config["global"]["load_updated_snapshot_for_comparison"]:
-        MainLogger.info(
+        MainLogger.success(
             "Updated SPP snapshot & frozen data comparison done.\n"
             f"Finishing Pipeline run id {run_id}........."
         )
@@ -139,7 +139,7 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
         return runlog_obj.time_taken
 
     if config["global"]["run_updates_and_freeze"]:
-        MainLogger.info(
+        MainLogger.success(
             "New frozen csv file generated.\n"
             f"Finishing Pipeline run id {run_id}........."
         )
@@ -149,7 +149,7 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
 
         return runlog_obj.time_taken
 
-    MainLogger.info("Finished Data Ingest.")
+    MainLogger.success("Finished Data Ingest.")
 
     # Northern Ireland staging and construction
     load_ni_data = config["global"]["load_ni_data"]
@@ -161,7 +161,7 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
             mods.rd_read_csv,
             mods.rd_write_csv,
         )
-        MainLogger.info("Finished NI Data Ingest.")
+        MainLogger.success("Finished NI Data Ingest.")
     else:
         # If NI data is not loaded, set ni_df to an empty dataframe
         MainLogger.info("NI data not loaded.")
@@ -180,7 +180,7 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
         )
     else:
         MainLogger.info("All data construction is not enabled")
-    MainLogger.info("Finished Construction module...")
+    MainLogger.success("Finished Construction module...")
 
     # Mapping module
     MainLogger.info("Starting Mapping...")
@@ -193,7 +193,7 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
         mods.rd_write_csv,
         mods.rd_file_exists,
     )
-    MainLogger.info("Finished Mapping...")
+    MainLogger.success("Finished Mapping...")
 
     # Imputation module
     MainLogger.info("Starting Imputation...")
@@ -204,7 +204,7 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
         config,
         mods.rd_write_csv,
     )
-    MainLogger.info("Finished Imputation...")
+    MainLogger.success("Finished Imputation...")
 
     # Perform postcode construction now imputation is complete
     run_postcode_construction = config["global"]["run_postcode_construction"]
@@ -230,14 +230,14 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
         outliered_responses_df = run_outliers(
             imputed_df, manual_outliers, config, mods.rd_write_csv
         )
-        MainLogger.info("Finished Outlier module.")
+        MainLogger.success("Finished Outlier module.")
 
         # Estimation module
         MainLogger.info("Starting Estimation...")
         estimated_responses_df = run_estimation(
             outliered_responses_df, config, mods.rd_write_csv
         )
-        MainLogger.info("Finished Estimation module.")
+        MainLogger.success("Finished Estimation module.")
 
     elif config["survey"]["survey_type"] == "PNP":
         MainLogger.info("PNP is set so skipping modules Outliering and Estimation.")
@@ -250,7 +250,7 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
         mods.rd_write_csv,
     )
 
-    MainLogger.info("Finished Site Apportionment module.")
+    MainLogger.success("Finished Site Apportionment module.")
 
     MainLogger.info("Starting Outputs...")
 
@@ -264,7 +264,7 @@ def run_pipeline(user_config_path, dev_config_path):  # noqa C901
         sic_division_detailed,
     )
 
-    MainLogger.info(f"Finishing Pipeline run id {run_id}.........")
+    MainLogger.success(f"Finishing Pipeline run id {run_id}.........")
 
     runlog_obj.write_runlog()
     runlog_obj.mark_mainlog_passed()

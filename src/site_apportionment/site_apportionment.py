@@ -260,6 +260,13 @@ def count_duplicate_sites(sites_df: pd.DataFrame) -> int:
     """
     Counts the number of duplicate sites in the DataFrame.
 
+    NOTE: after much testing, it was discovered that the only time we have duplicate
+    sites is when MoR has been carried out for a long from which was a short form in the
+    previous period. In this case, postcodes were carried forward from the
+    postcodes_harmonised column in the previous period. We will therefore remove
+    the code to print out a list of these postcodes to the screen as it's distracting.
+    This can be revisited later if needed.
+
     Args:
         sites_df (pd.DataFrame): The input DataFrame.
 
@@ -279,10 +286,6 @@ def count_duplicate_sites(sites_df: pd.DataFrame) -> int:
         # display number of duplicate sites
         SitesApportionmentLogger.info(
             f"There are {num_duplicate_sites} duplicate sites."
-        )
-        # shows duplicate site df
-        SitesApportionmentLogger.info(
-            f"Duplicates sites DF: \n{df_duplicate_sites.to_string()}"
         )
 
 
@@ -468,12 +471,6 @@ def consistency_checks(df: pd.DataFrame, intram_dict) -> None:
 
     intram_diff = weighted_intram_total - intram_dict["estimated"]
     print("intram diff in millions: ", intram_diff / 1e6)
-    # if abs(intram_diff) > 1:
-    #     raise ValueError(
-    #         f"Weighted intramural totals do not align. "
-    #          f"Before: {intram_dict['estimated']}, "
-    #         f"After: {weighted_intram_total}"
-    #     )
 
 
 def run_apportion_sites(

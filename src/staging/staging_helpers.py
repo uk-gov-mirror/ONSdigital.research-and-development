@@ -187,7 +187,7 @@ def load_val_snapshot_json(
 
     # Get response rate
     res_rate = "{:.2f}".format(processing.response_rate(contributors_df, responses_df))
-    StagingHelperLogger.info("Finished Data Ingest...")
+    StagingHelperLogger.success("Finished Data Ingest...")
 
     # Validate snapshot data
     val.validate_data_with_schema(contributors_df, "./config/contributors_schema.toml")
@@ -321,7 +321,7 @@ def stage_validate_harmonise_postcodes(
     write_csv(f"{pcodes_folder}/{invalid_filename}", invalid_df)
 
     # Log the end of postcode validation
-    StagingHelperLogger.info("Finished PostCode Validation")
+    StagingHelperLogger.success("Finished PostCode Validation")
 
     return full_responses, postcode_mapper
 
