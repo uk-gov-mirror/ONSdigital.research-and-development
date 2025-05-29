@@ -28,6 +28,33 @@ def divide_by_1000(df, config):
     return df
 
 
+def sum_subtract_cols(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
+    """Adds and subtracts columns based on the configuration.
+
+    Args:
+        df (pd.DataFrame): Dataframe containing all columns
+        output_schema (dict): Schema containing the columns to add and subtract
+
+    Returns:
+        pd.DataFrame: Dataframe with the added and subtracted columns
+    """
+    df = df.copy()
+    # Iterate through the output schema to add or subtract columns
+    for col in output_schema.keys():
+        # if "sum_col" is in the schema, add the column to the "old_name" column"
+        if "sum_col" in output_schema[col]:
+            sum_col = output_schema[col]["sum_col"]
+            orig_col = output_schema[col]["old_name"]
+            df[orig_col] = df[orig_col].fillna(0) + df[sum_col].fillna(0)
+        # if "subtract_col" is in the schema, subtract from the "old_name" column
+        if "subtract_col" in output_schema[col]:
+            subtract_col = output_schema[col]["subtract_col"]
+            orig_col = output_schema[col]["old_name"]
+            df[orig_col] = df[orig_col].fillna(0) - df[subtract_col].fillna(0)
+
+    return df
+
+
 def create_na_output(df: pd.DataFrame, schema_dict: dict) -> pd.DataFrame:
     """Creates the dataframe for outputs with
     the required columns. The naming of the columns comes
@@ -83,14 +110,16 @@ def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
     # Map to the CORA statuses from the statusencoded column
     df = create_cora_status_col(df)
 
-    # Add col 221 into 210 to make Total Capex Civil
-    for col in ["210", "211"]:
-        df[col] += df["221"]
-
     # Create output dataframe with required columns from schema
     schema_path = config["schema_paths"]["pnp_national_accounts_schema"]
     schema_dict = load_schema(schema_path)
+
+    # use the schema to sum and subract columns
+    df = sum_subtract_cols(df, schema_dict)
+    # rename the columns using the schema
     output = create_output_df(df, schema_dict)
+
+    # create an extra row at the top of the file with additional header information
     output = create_na_output(output, schema_dict)
 
     # Outputting the CSV file
