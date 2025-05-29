@@ -174,8 +174,13 @@ def impute_by_class(
     """Impute values by class using the proportions from specified class dictionary.
 
     Args:
+        df (pd.DataFrame): The dataframe to create the imputed column within.
+        class_proportions (Dict[str, Tuple[float, float]]): The proportions of C and D
+            for each class.
+        class_col (str): The name of the column to group by.
 
     Returns:
+        pd.DataFrame: The updated dataframe with imputed C/D values.
     """
 
     def impute_group(group):
