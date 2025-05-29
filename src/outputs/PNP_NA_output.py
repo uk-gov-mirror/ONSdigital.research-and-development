@@ -29,7 +29,7 @@ def divide_by_1000(df, config):
 
 
 def sum_subtract_cols(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
-    """Adds and subtracts columns based on the configuration.
+    """Adds and subtracts column values based on the configuration.
 
     Args:
         df (pd.DataFrame): Dataframe containing all columns
