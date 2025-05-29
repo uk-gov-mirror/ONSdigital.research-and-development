@@ -28,7 +28,7 @@ def divide_by_1000(df, config):
     return df
 
 
-def add_subtract_cols(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
+def sum_subtract_cols(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
     """Adds and subtracts columns based on the configuration.
 
     Args:
@@ -38,18 +38,19 @@ def add_subtract_cols(df: pd.DataFrame, output_schema: dict) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Dataframe with the added and subtracted columns
     """
-    # Note that at this stage, we will assume the dataframe columns are already renamed
     df = df.copy()
     # Iterate through the output schema to add or subtract columns
     for col in output_schema.keys():
-        # see if "add_col" is in the schema and if so, add the column
-        if "add_col" in output_schema[col]:
-            add_col = output_schema[col]["add_col"]
-            df[col] = df[col].fillna(0) + df[add_col].fillna(0)
-        # see if "subtract_col" is in the schema and if so, subtract the column
+        # if "sum_col" is in the schema, add the column to the "old_name" column"
+        if "sum_col" in output_schema[col]:
+            sum_col = output_schema[col]["sum_col"]
+            orig_col = output_schema[col]["old_name"]
+            df[orig_col] = df[orig_col].fillna(0) + df[sum_col].fillna(0)
+        # if "subtract_col" is in the schema, subtract from the "old_name" column
         if "subtract_col" in output_schema[col]:
             subtract_col = output_schema[col]["subtract_col"]
-            df[col] = df[col].fillna(0) - df[subtract_col].fillna(0)
+            orig_col = output_schema[col]["old_name"]
+            df[orig_col] = df[orig_col].fillna(0) - df[subtract_col].fillna(0)
 
     return df
 
@@ -112,11 +113,12 @@ def output_pnp_na(df: pd.DataFrame, config: dict, write_csv: callable):
     # Create output dataframe with required columns from schema
     schema_path = config["schema_paths"]["pnp_national_accounts_schema"]
     schema_dict = load_schema(schema_path)
+
+    # use the schema to sum and subract columns
+    df = sum_subtract_cols(df, schema_dict)
     # rename the columns using the schema
     output = create_output_df(df, schema_dict)
 
-    # now the columns have been renamed, we can add and subtract columns
-    output = add_subtract_cols(output, schema_dict)
     # create an extra row at the top of the file with additional header information
     output = create_na_output(output, schema_dict)
 
