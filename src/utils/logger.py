@@ -5,11 +5,14 @@ SUCCESS_LEVEL_NUM = 25  # Between INFO (20) and WARNING (30)
 logging.addLevelName(SUCCESS_LEVEL_NUM, "SUCCESS")
 
 
+# Define a custom logging method for success messages
+# Here we are adding a method to the logging.Logger class
 def success(self, message, *args, **kwargs):
     if self.isEnabledFor(SUCCESS_LEVEL_NUM):
         self._log(SUCCESS_LEVEL_NUM, message, args, **kwargs)
 
 
+# Patch the logging.Logger class to include the new success method (monkey patching)
 logging.Logger.success = success
 
 
