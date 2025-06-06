@@ -49,7 +49,9 @@ def run_freezing(
     if load_updated_snapshot_for_comparison:
         FreezingLogger.info("Comparing the updated snapshot with the frozen data.")
         updated_snapshot = snapshot_df.copy()
-        frozen_data_for_comparison = read_frozen_csv(config, read_csv)
+        frozen_data_for_comparison = read_frozen_csv(
+            config, read_csv, check_file_exists
+        )
         frozen_data_for_comparison = frozen_data_for_comparison.convert_dtypes()
 
         run_comparison(
@@ -57,16 +59,15 @@ def run_freezing(
             updated_snapshot,
             config,
             write_csv,
-            FreezingLogger,
         )
 
         return None
 
     # Read the freezing files and apply them
     elif run_updates_and_freeze:
-        frozen_data = read_frozen_csv(config, read_csv)
+        frozen_data = read_frozen_csv(config, read_csv, check_file_exists)
         prepared_frozen_data = apply_freezing(
-            frozen_data, config, check_file_exists, read_csv, FreezingLogger
+            frozen_data, config, check_file_exists, read_csv
         )
         prepared_frozen_data.reset_index(drop=True, inplace=True)
         prepared_frozen_data["statusencoded"] = prepared_frozen_data[
@@ -74,7 +75,7 @@ def run_freezing(
         ].astype(str)
 
     elif run_with_frozen_data:
-        prepared_frozen_data = read_frozen_csv(config, read_csv)
+        prepared_frozen_data = read_frozen_csv(config, read_csv, check_file_exists)
         prepared_frozen_data["statusencoded"] = prepared_frozen_data[
             "statusencoded"
         ].astype(str)
@@ -95,19 +96,23 @@ def run_freezing(
     return prepared_frozen_data
 
 
-def read_frozen_csv(config: dict, read_csv: Callable) -> pd.DataFrame:
+def read_frozen_csv(
+    config: dict, read_csv: Callable, check_file_exists: Callable
+) -> pd.DataFrame:
     """Read the frozen data csv in.
 
     Args:
         config (dict): The pipeline configuration.
         read_csv (callable): Function to read a csv file. This will be the s3,
             hdfs or network version depending on settings.
+        check_file_exists (callable): Function to check if file exists.
 
     Returns:
         pd.DataFrame: The frozen data csv.
     """
     frozen_data_staged_path = config["freezing_paths"]["frozen_data_staged_path"]
-    FreezingLogger.info("Loading frozen data...")
+    check_file_exists(frozen_data_staged_path)
+    FreezingLogger.info(f"Loading frozen data from {frozen_data_staged_path}...")
     frozen_csv = read_csv(frozen_data_staged_path)
     validate_data_with_schema(frozen_csv, "./config/frozen_data_staged_schema.toml")
 

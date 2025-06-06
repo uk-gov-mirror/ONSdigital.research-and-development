@@ -59,5 +59,5 @@ def postcode_data_construction(
     construction_logger.info(
         f"Postcode construction edited {construction_df.shape[0]} rows."
     )
-    construction_logger.info("Finished postcode construction")
+    construction_logger.success("Finished postcode construction")
     return updated_snapshot_df

@@ -72,5 +72,5 @@ def run_site_apportionment(
         filename = filename_amender("estimated_apportioned", config)
         write_csv(f"{qa_path}/{filename}", df_out)
 
-    SitesMainLogger.info("Finished apportionment to sites.")
+    SitesMainLogger.success("Finished apportionment to sites.")
     return df_out, intram_tot_dict

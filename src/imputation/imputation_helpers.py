@@ -328,10 +328,6 @@ def create_r_and_d_instance(
 
     # check that the fix has worked and drop duplicates for now if not
     final_df, check_df = check_604_fix(updated_df)
-    # TODO: it shouldn't be necessary to drop duplicates if the fix works properly.
-    ImputationHelpersLogger.info("The following references are 'No R&D' ")
-    ImputationHelpersLogger.info("but have too many rows- duplicates will be dropped:")
-    ImputationHelpersLogger.info(check_df)
 
     return final_df, mult_604_qa_df
 
@@ -340,11 +336,8 @@ def split_df_on_trim(df: pd.DataFrame, trim_bool_col: str) -> pd.DataFrame:
     """Splits the dataframe in based on if it was trimmed or not"""
 
     if not df.empty:
-        # TODO: remove this temporary fix to cast Nans to False
         df_copy = df.copy()
         df_copy.loc[:, trim_bool_col] = df_copy.loc[:, trim_bool_col].fillna(False)
-        # df[trim_bool_col] = df.copy()[trim_bool_col].fillna(False)
-        # df.loc[:,trim_bool_col] = df.copy().loc[:,trim_bool_col].fillna(False)
 
         df_not_trimmed = df_copy.loc[~df_copy[trim_bool_col]]
         df_trimmed = df_copy.loc[df_copy[trim_bool_col]]
@@ -502,14 +495,16 @@ def tidy_imputation_dataframe(df: pd.DataFrame, config) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The dataframe with the imputed values applied and qa cols dropped.
     """
-    # Create mask for rows that have been imputed
-    imputed_mask = df["imp_marker"].isin(["TMI", "CF", "MoR", "R"])
-
     to_impute_cols = get_imputation_cols(config)
 
-    # Update columns with imputed version
+    # Check that the imputed columns exist in the dataframe
+    missing_cols = [col for col in to_impute_cols if f"{col}_imputed" not in df.columns]
+    if missing_cols:
+        raise KeyError(f"Missing imputed columns for: {missing_cols}")
+
+    # Update columns with imputed version for the whole dataframe
     for col in to_impute_cols:
-        df.loc[imputed_mask, col] = df.loc[imputed_mask, f"{col}_imputed"]
+        df[col] = df[f"{col}_imputed"]
 
     # Remove all qa columns
     to_drop = [
@@ -539,6 +534,9 @@ def tidy_imputation_dataframe(df: pd.DataFrame, config) -> pd.DataFrame:
 def create_new_backdata(backdata: pd.DataFrame, config) -> pd.DataFrame:
     """Create a new backdata dataframe with the required columns from schema.
 
+    The new backdata is created from the current year and is output to be used when
+    running the pipeline in a future year. Eg, if the current run is 2023, the
+    this new backdata will be used for 2024.
     Use the backdata toml schema to select the required columns from the backdata.
     filter for the clear and imputed statuses.
 
@@ -549,7 +547,7 @@ def create_new_backdata(backdata: pd.DataFrame, config) -> pd.DataFrame:
         pd.DataFrame: The filtered backdata with only the required columns.
     """
     # filter for the clear and imputed statuses
-    imp_markers_to_keep: list = ["R", "TMI", "CF", "MoR", "constructed"]
+    imp_markers_to_keep: list = ["R", "TMI", "CF", "MoR"]
     backdata = backdata.loc[backdata["imp_marker"].isin(imp_markers_to_keep)]
 
     # get the wanted columns from the backdata schema
@@ -573,7 +571,6 @@ def imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
     clear_responders_mask = df.status.isin(["Clear", "Clear - overridden"])
     df.loc[clear_responders_mask, "imp_marker"] = "R"
     df.loc[~clear_responders_mask, "imp_marker"] = "no_imputation"
-
     # update the imp_marker for constructed rows where force_imputation is False
     if ("is_constructed" in df.columns) and ("force_imputation" in df.columns):
         df.loc[
@@ -585,7 +582,8 @@ def imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
-    """Concatenate a list of dataframes and update boolean columns.
+    """Concatenate a list of dataframes and ensure boolean-like columns are properly
+    cast.
 
     Args:
         dfs (list[pd.DataFrame]): List of dataframes to concatenate.
@@ -593,25 +591,31 @@ def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The concatenated dataframe with updated boolean columns.
     """
-    bool_columns = [
-        "manual_trim",
-        "empty_pgsic_group",
-        "empty_pg_group",
-        "305_trim",
-        "211_trim",
-    ]
-
-    # Convert columns to boolean type in all dataframes if they exist
+    # Dynamically identify boolean-like columns in all DataFrames
+    all_bool_columns = set()
     for df in dfs:
-        for col in bool_columns:
+        for col in df.columns:
+            if (
+                df[col].notna().any()  # Ensure the col has at least one non-null value
+                and df[col].dtype == "object"
+                and df[col].fillna(False).isin([True, False]).all()
+            ):
+                all_bool_columns.add(col)
+
+    # Ensure boolean-like columns are cast to bool in all DataFrames
+    dfs_bool = []
+    for df in dfs:
+        df = df.copy()  # Avoid modifying the original DataFrame
+        for col in all_bool_columns:
             if col in df.columns:
                 df[col] = df[col].fillna(False).astype(bool)
+        dfs_bool.append(df)
 
     # Concatenate the DataFrames
-    concatenated_df = pd.concat(dfs, ignore_index=True)
+    concatenated_df = pd.concat(dfs_bool, ignore_index=True)
 
-    # Ensure the boolean columns retain their type in the concatenated DataFrame
-    for col in bool_columns:
+    # Ensure boolean-like columns retain their type in the concatenated DataFrame
+    for col in all_bool_columns:
         if col in concatenated_df.columns:
             concatenated_df[col] = concatenated_df[col].fillna(False).astype(bool)
 
@@ -643,6 +647,7 @@ def imputation_prep(df: pd.DataFrame, config: dict):
         df = create_imp_class_col(df, ["200", "201"])
     elif config["survey"]["survey_type"] == "PNP":
         df = create_imp_class_col(df, ["area"], use_cellno=False)
+        # fill nulls in question 200 (civil or defence) with "C"
         df = remove_defence_for_pnp(df, to_impute_cols)
 
     # fill zeros

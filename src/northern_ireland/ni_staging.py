@@ -26,7 +26,7 @@ def read_ni_files(
 
     NIStagingLogger.info("Loading NI data from csv...")
     ni_full_response_df = read_csv(ni_full_response_file)
-    NIStagingLogger.info("Finished reading NI data.")
+    NIStagingLogger.success("Finished reading NI data.")
 
     return ni_full_response_df
 
@@ -99,7 +99,7 @@ def run_ni_staging(
         staging_folder = config["ni_paths"]["ni_staging_output_path"]
         staged_filename = filename_amender("staged_NI_full_responses", config)
         write_csv(os.path.join(staging_folder, staged_filename), ni_responses_df)
-        NIStagingLogger.info("Finished output of staged NI data.")
+        NIStagingLogger.success("Finished output of staged NI data.")
     else:
         NIStagingLogger.info("Skipping output of staged NI data...")
 

@@ -140,7 +140,7 @@ def run_mapping(
         MappingMainLogger.info("Outputting Mapping QA files.")
         full_responses_filename = filename_amender("full_responses_mapped", config)
         rd_write_csv(os.path.join(qa_path, full_responses_filename), full_responses)
-    MappingMainLogger.info("Finished Mapping QA calculation.")
+    MappingMainLogger.success("Finished Mapping QA calculation.")
 
     if config["global"]["output_mapping_ni_qa"] and not ni_full_responses.empty:
         MappingMainLogger.info("Outputting Mapping NI QA files.")
@@ -150,7 +150,7 @@ def run_mapping(
         rd_write_csv(
             os.path.join(qa_path, full_responses_NI_filename), ni_full_responses
         )
-    MappingMainLogger.info("Finished Mapping NI QA calculation.")
+    MappingMainLogger.success("Finished Mapping NI QA calculation.")
 
     # return mapped_df
     return (full_responses, ni_full_responses, itl_mapper)

@@ -35,6 +35,8 @@ from src.utils.local_file_mods import (
     rd_write_csv as write_csv,
 )
 
+from src.utils.logger import logger_creator
+
 
 def match_col_type(df1: pd.DataFrame, df2: pd.DataFrame, col_name: str, _type: str):
     """Convert DataFrame columns of the same name to matching types."""
@@ -124,8 +126,12 @@ class TestLoadValidateMapper:
         mock_file_exists_func,
     ):
         # Create a logger for this test
-        test_logger = logging.getLogger("test_load_validate_mapper")
+        config = {"dev_global": {"logging_level": "DEBUG"}}
+        test_logger = logger_creator(config)
         test_logger.setLevel(logging.DEBUG)
+        # add a success leve for the test_logger
+
+
 
         # Mock data
         mapper_path_key = "test_mapper_path"
@@ -408,8 +414,6 @@ class TestFilterPnpData:
         ]
 
         input_df = pandasDF(data=data, columns=input_columns)
-        input_df["legalstatus"].astype("category")
-        input_df["statusencoded"].astype("category")
         return input_df
 
     def create_exp_output_df(self):
@@ -432,16 +436,12 @@ class TestFilterPnpData:
             [49901183959, 4, "1", "309", "SA50 5BE"],
         ]
         exp1_output_df = pandasDF(data=data1, columns=exp_output_columns)
-        exp1_output_df["legalstatus"].astype("category")
-        exp1_output_df["statusencoded"].astype("category")
 
         data2 = [
             [49900000510, 2.0, "7", "201", "BA1 5DA"],
             [49900184433, 1.0, "7", "210", "CF10 BZZ"],
         ]
         exp2_output_df = pandasDF(data=data2, columns=exp_output_columns)
-        exp2_output_df["legalstatus"].astype("category")
-        exp2_output_df["statusencoded"].astype("category")
 
         return exp1_output_df, exp2_output_df
 

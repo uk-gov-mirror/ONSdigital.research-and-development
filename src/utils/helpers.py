@@ -252,3 +252,27 @@ def filename_amender(filename, config):
         filename = f"{survey_year}_{filename}_{tdate}_v{run_id}.csv"
 
     return filename
+
+
+def order_dataframe_for_output(
+    df: pd.DataFrame, cols=["reference", "instance"]
+) -> pd.DataFrame:
+    """Order the dataframe for output.
+
+    Args:
+        df (pd.DataFrame): The dataframe to order.
+        cols (list): The columns to order by. Defaults to ["reference", "instance"]
+
+    Returns:
+        pd.DataFrame: The ordered dataframe.
+    """
+    # Check if the columns exist in the dataframe
+    for col in cols:
+        if col not in df.columns:
+            raise ValueError(f"Column {col} not found in dataframe.")
+
+    # Order the dataframe by the specified columns
+    df = df.sort_values(by=cols, ascending=True)
+    df = df.reset_index(drop=True)
+
+    return df

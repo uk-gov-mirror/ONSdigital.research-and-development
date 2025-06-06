@@ -4,13 +4,11 @@ import pandas as pd
 import numpy as np
 
 import logging
-from src.utils.wrappers import time_logger_wrap, exception_wrap
 
 # Set up logging
 ValidationLogger = logging.getLogger(__name__)
 
 
-@exception_wrap
 def load_schema(file_path: str = "./config/contributors_schema.toml") -> dict:
     """Load the data schema from toml file into a dictionary
 
@@ -42,7 +40,6 @@ def load_schema(file_path: str = "./config/contributors_schema.toml") -> dict:
         return None
 
 
-@exception_wrap
 def check_data_shape(
     data_df: pd.DataFrame,
     contributor_schema: str = "./config/contributors_schema.toml",
@@ -130,23 +127,41 @@ def validate_data_with_schema(survey_df: pd.DataFrame, schema_path: str):  # noq
 
     # Cast each column individually and catch any errors
     for column in dtypes_dict.keys():
+        # Check whether the column is in the dataframe
+        if column not in survey_df.columns:
+            ValidationLogger.warning(
+                f"Column '{column}' is not present in the DataFrame. Skipping."
+            )
+            continue
+        designated_dtype = dtypes_dict[column]
+        # in debug mode output the column name and dtype
+        ValidationLogger.debug(
+            f"Validating column '{column}' with designated dtype '{designated_dtype}'"
+        )
         # Fix for the columns which contain empty strings. We want to cast as NaN
-        if dtypes_dict[column] == "pd.NA":
+        if designated_dtype == "pd.NA":
             # Replace whatever is in that column with np.nan
             survey_df[column] = np.nan
             dtypes_dict[column] = "float64"
 
         try:
-            if dtypes_dict[column] == "Int64":
+            # we no longer want to use "Int64" in the pipeline as it causes many probs
+            if designated_dtype in ["Int64", "int64", "int"]:
                 # Convert non-integer string to NaN
                 survey_df[column] = survey_df[column].apply(
                     pd.to_numeric, errors="coerce"
                 )
-                # Cast columns to Int64
-                survey_df[column] = survey_df[column].astype(pd.Int64Dtype())
-            elif dtypes_dict[column] == "str":
+                # see if there are any nulls in the column, if so convert to float
+                if survey_df[column].isnull().any():
+                    survey_df[column] = survey_df[column].astype("float64")
+                # otherwise cast as int64 (small i)
+                else:
+                    survey_df[column] = survey_df[column].astype("int64")
+            elif designated_dtype == "str":
+                # use the pandas string type for better performance
+                # and to avoid issues with mixed types
                 survey_df[column] = survey_df[column].astype("string")
-            elif "datetime" in dtypes_dict[column]:
+            elif "datetime" in designated_dtype:
                 try:
                     survey_df[column] = pd.to_datetime(
                         survey_df[column], errors="coerce", dayfirst=True
@@ -157,14 +172,12 @@ def validate_data_with_schema(survey_df: pd.DataFrame, schema_path: str):  # noq
                         " the data."
                     )
             else:
-                survey_df[column] = survey_df[column].astype(dtypes_dict[column])
+                survey_df[column] = survey_df[column].astype(designated_dtype)
         except Exception as e:
-            ValidationLogger.error(e)
+            ValidationLogger.error(f"{column}: {e}")
     ValidationLogger.info("Validation successful")
 
 
-@time_logger_wrap
-@exception_wrap
 def combine_schemas_validate_full_df(
     survey_df: pd.DataFrame, contributor_schema: "str", wide_response_schema: "str"
 ):
@@ -228,7 +241,6 @@ def combine_schemas_validate_full_df(
     ValidationLogger.info("Finished data type casting process")
 
 
-@exception_wrap
 def validate_many_to_one(*args) -> pd.DataFrame:
     """
     Validates a many-to-one mapper DataFrame.
@@ -287,7 +299,6 @@ def validate_many_to_one(*args) -> pd.DataFrame:
         raise ValueError("Many-to-one mapper validation failed: " + str(ve))
 
 
-@exception_wrap
 def validate_cora_df(df: pd.DataFrame) -> pd.DataFrame:
     """
     Validates cora mapper df:

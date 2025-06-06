@@ -94,7 +94,8 @@ def run_imputation(  # noqa: C901
     # join constructed rows back to the imputed df
     # Note that constructed rows need to be included in short form expansion
     if "is_constructed" in df.columns:
-        imputed_df = pd.concat([imputed_df, constructed_df])
+        # Check that the column is cast to bool dtype and concatenate
+        imputed_df = hlp.concat_with_bool([imputed_df, constructed_df])
 
     # join manually trimmed columns back to the imputed df
     if not trimmed_df.empty:
@@ -110,7 +111,7 @@ def run_imputation(  # noqa: C901
         ["reference", "instance"], ascending=[True, True]
     ).reset_index(drop=True)
 
-    ImputationMainLogger.info("Finished Imputation calculation.")
+    ImputationMainLogger.success("Finished Imputation calculation.")
 
     # Output QA files
     if config["global"]["output_imputation_qa"]:
