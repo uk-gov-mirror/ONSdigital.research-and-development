@@ -21,15 +21,19 @@ import json
 import logging
 
 import pandas as pd
-from io import StringIO, TextIOWrapper
+from io import StringIO
 
 from rdsa_utils.cdp.helpers.s3_utils import (
     file_exists,
-    create_folder_on_s3,
+    file_size,
+    create_folder,
+    md5_sum,
     delete_file,
     is_s3_directory,
     copy_file,
     move_file,
+    read_header,
+    write_string_to_file,
 )
 from src.utils.singleton_boto import SingletonBoto
 
@@ -115,7 +119,7 @@ def rd_load_json(filepath: str) -> dict:
 
 
 def rd_file_exists(filepath: str, raise_error=False) -> bool:
-    """Function to check file exists in s3.
+    """Function to check file exists in s3 using an rdsa_utils function.
 
     Args:
         filepath (str): The filepath in s3.
@@ -146,8 +150,7 @@ def rd_mkdir(path: str) -> None:
         None
     """
 
-    _ = create_folder_on_s3(
-        # client=config["client"],
+    _ = create_folder(
         s3_client,
         bucket_name=s3_bucket,
         folder_path=path,
@@ -167,7 +170,7 @@ def rd_read_feather(filepath):
 
 
 def rd_file_size(filepath: str) -> int:
-    """Function to check the size of a file on s3 bucket.
+    """Function to check the size of a file on s3 bucket using an rdsa_utils function.
 
     Args:
         filepath (string) -- The filepath in s3 bucket
@@ -177,15 +180,14 @@ def rd_file_size(filepath: str) -> int:
         of the file in bytes
     """
 
-    _response = s3_client.head_object(Bucket=s3_bucket, Key=filepath)
-    file_size = _response["ContentLength"]
+    filesize = file_size(client=s3_client, bucket_name=s3_bucket, object_name=filepath)
 
-    return file_size
+    return filesize
 
 
 def rd_delete_file(filepath: str) -> bool:
     """
-    Delete a file from s3 bucket.
+    Delete a file from s3 bucket using an rsa_utils function.
     Args:
         filepath (string): The filepath in s3 bucket to be deleted
     Returns:
@@ -197,24 +199,21 @@ def rd_delete_file(filepath: str) -> bool:
 
 def rd_md5sum(filepath: str) -> str:
     """
-    Get md5sum of a specific file on s3.
+    Get md5sum of a specific file on s3 using an rdsa_utils function.
     Args:
         filepath (string): The filepath in s3 bucket.
     Returns:
         md5result (int): The control sum md5.
     """
 
-    try:
-        md5result = s3_client.head_object(Bucket=s3_bucket, Key=filepath)["ETag"][1:-1]
-    except s3_client.exceptions.ClientError as e:
-        s3_logger.error(f"Failed to compute the md5 checksum: {str(e)}")
-        md5result = None
+    md5result = md5_sum(s3_client, s3_bucket, filepath)
+
     return md5result
 
 
 def rd_isdir(dirpath: str) -> bool:
     """
-    Test if directory exists in s3 bucket.
+    Test if directory exists in s3 bucket using an rdsa_utils function.
 
     Args:
         dirpath (string): The "directory" path in s3 bucket.
@@ -222,10 +221,6 @@ def rd_isdir(dirpath: str) -> bool:
         status (bool): True if the dirpath is a directory, false otherwise.
 
     """
-    # The directory name must end with forward slash
-    if not dirpath.endswith("/"):
-        dirpath = dirpath + "/"
-
     # Any slashes at the beginning should be removed
     while dirpath.startswith("/"):
         dirpath = dirpath[1:]
@@ -271,41 +266,29 @@ def rd_stat_size(path: str) -> int:
 
 def rd_read_header(path: str) -> str:
     """
-    Reads the first line of a file on s3. Gets the entire file using boto3 get_objects,
-    converts its body into an input stream, reads the first line and remove the carriage
-    return character (backslash-n) from the end.
+    Reads the first line of a file on s3 using an rdsa_utils function.
 
     Args:
         filepath (string): The "directory" path in s3 bucket.
 
     Returns:
-        status (bool): True if the dirpath is a directory, false otherwise.
+        content (string): The first line of the file.
     """
-    # Create an input/output stream pointer, same as open
-    stream = TextIOWrapper(s3_client.get_object(Bucket=s3_bucket, Key=path)["Body"])
-
-    # Read the first line from the stream
-    response = stream.readline()
-
-    # Remove the last character (carriage return, or new line)
-    response = response[:-1]
-
-    return response
+    return read_header(client=s3_client, bucket_name=s3_bucket, object_name=path)
 
 
 def rd_write_string_to_file(content: bytes, filepath: str):
     """
-    Writes a string into the specified file path
+    Writes a string into the specified file path using rdsa_utils function.
     """
 
-    # Put context to a new Input-Output buffer
-    str_buffer = StringIO(content.decode("utf-8"))
+    write_string_to_file(
+        client=s3_client,
+        bucket_name=s3_bucket,
+        object_name=filepath,
+        object_content=content,
+    )
 
-    # "Rewind" the stream to the start of the buffer
-    str_buffer.seek(0)
-
-    # Write the buffer into the s3 bucket
-    _ = s3_client.put_object(Bucket=s3_bucket, Body=str_buffer.getvalue(), Key=filepath)
     return None
 
 
