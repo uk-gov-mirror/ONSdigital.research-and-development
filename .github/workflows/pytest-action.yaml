@@ -1,5 +1,8 @@
 name: Run pytest on pull request to develop
 
+permissions:
+  contents: read
+  pull_requests: write
 # runs on every pull request to develop
 on:
   pull_request:
