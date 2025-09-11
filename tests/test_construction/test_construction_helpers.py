@@ -167,9 +167,9 @@ def test_clean_construction_type():
     msg = "Cleaned construction type not as expected"
     assert clean_construction_type("new") == "new", msg
     assert clean_construction_type("Short to Long") == "short_to_long", msg
-    assert clean_construction_type("  ") is np.NaN, msg
-    assert clean_construction_type("") is np.NaN, msg
-    assert clean_construction_type(None) is np.NaN, msg
+    assert clean_construction_type("  ") is np.nan, msg
+    assert clean_construction_type("") is np.nan, msg
+    assert clean_construction_type(None) is np.nan, msg
 
 
 class TestFinaliseFormsGB:
