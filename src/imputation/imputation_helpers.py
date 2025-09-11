@@ -68,7 +68,7 @@ def create_imp_class_col(
 
     # Ensure cols are treated as strings to handle mixed data types and missing values
     # Nulls will automatically be converted to "nan" when cast to str
-    df_copy = df[column_list].copy().astype(str)
+    df_copy = df[column_list].copy().fillna("nan").astype(str)
 
     # create a new column with the concatenation of the columns in column_list with  "_"
     df[class_name] = df_copy.agg("_".join, axis=1)
