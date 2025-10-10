@@ -214,10 +214,10 @@ class TestValidateColumnsNotEmpty(object):
         # create nan col
         all_construction_df.loc[
             all_construction_df.reference==0, "reference"
-        ] = np.NaN
+        ] = np.nan
         all_construction_df.loc[
             all_construction_df.instance==1, "instance"
-        ] = np.NaN
+        ] = np.nan
         msg = "Column.*'reference', 'instance'.* are all empty"
         with pytest.raises(ValueError, match=msg):
             validate_columns_not_empty(
