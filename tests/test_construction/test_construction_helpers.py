@@ -159,7 +159,7 @@ class TestPrepareShortToLong:
         # Check the output
         assert_frame_equal(
             snapshot_output.reset_index(drop=True), expected_snapshot_output
-        ), "Snapshot output is not as expected"
+        )
 
 
 def test_clean_construction_type():
@@ -167,9 +167,9 @@ def test_clean_construction_type():
     msg = "Cleaned construction type not as expected"
     assert clean_construction_type("new") == "new", msg
     assert clean_construction_type("Short to Long") == "short_to_long", msg
-    assert clean_construction_type("  ") is np.nan, msg
-    assert clean_construction_type("") is np.nan, msg
-    assert clean_construction_type(None) is np.nan, msg
+    assert clean_construction_type("  ") is None, msg
+    assert clean_construction_type("") is None, msg
+    assert clean_construction_type(None) is None, msg
 
 
 class TestFinaliseFormsGB:

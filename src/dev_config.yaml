@@ -118,7 +118,7 @@ schema_paths:
 
 # other config settings
 staging:
-  sic_cols: ["frozensicoutdated","rusicoutdated", "frozensic", "rusic"]
+  sic_cols: ["frozensicoutdated","rusicoutdated", "frozensic", "rusic", "SIC 2007_CODE"]
 mappers:
   geo_cols: ["ITL221CD", "ITL221NM", "ITL121CD", "ITL121NM"]
   gb_itl: "LAU121CD"

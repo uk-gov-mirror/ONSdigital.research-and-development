@@ -88,6 +88,7 @@ def run_mapping(
         rd_read_csv,
     )
     val.validate_many_to_one(sic_pg_num, "SIC 2007_CODE", "2016 > Form PG")
+    sic_pg_num = stage_hlp.sic_fixer(sic_pg_num, config)
 
     # For survey year only 2022 it's necessary to update the reference list
     year = config["survey"]["survey_year"]
