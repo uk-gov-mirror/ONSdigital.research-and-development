@@ -37,10 +37,8 @@ def read_construction_file(
             logger.info(f"Successfully read construction file from {path}.")
             return construction_df
         except pd.errors.EmptyDataError:
-            logger.warning(f"Construction file {path} is empty, skipping...")
-            return None
-    logger.warning("Construction file not found, skipping construction...")
-    return None
+            logger.warning(f"Construction file at {path} is empty.")
+            return pd.DataFrame()
 
 
 def prepare_forms_gb(
@@ -151,7 +149,7 @@ def prepare_short_to_long(
     return updated_snapshot_df, unique_references
 
 
-def clean_construction_type(value: str) -> str:
+def clean_construction_type(value: str) -> str | None:
     """Simple cleaning on construction_type values
 
     Args:
@@ -162,10 +160,10 @@ def clean_construction_type(value: str) -> str:
     """
     # basic formatting
     if pd.isna(value):
-        return np.nan
+        return None
     cleaned = value.lower().strip()
     if cleaned == "":
-        return np.nan
+        return None
     # remove whitespaces
     cleaned = "_".join(cleaned.split())
     return cleaned

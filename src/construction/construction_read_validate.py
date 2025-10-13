@@ -15,6 +15,7 @@ from src.construction.construction_validation import (
 )
 
 from src.staging.validation import validate_data_with_schema
+from src.staging.staging_helpers import sic_fixer
 
 construction_logger = logging.getLogger(__name__)
 
@@ -63,6 +64,10 @@ def read_validate_all_construction_files(
         read_csv_func=read_csv,
         file_exists_func=check_file_exists,
     )
+    # Update SIC columns to five-digit strings
+    if not construction_df.empty:
+        construction_df = sic_fixer(construction_df, config)
+
     # NI data has no instance but needs an instance of 1
     if is_northern_ireland:
         construction_df["instance"] = 1
