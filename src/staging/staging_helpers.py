@@ -52,6 +52,24 @@ def fix_anon_data(responses_df: pd.DataFrame, config: dict) -> pd.DataFrame:
     return responses_df
 
 
+def sic_fixer(df: pd.DataFrame, config: dict) -> pd.DataFrame:
+    """Ensure all SIC-related columns are strings and zero-padded.
+
+    Args:
+        df (pd.DataFrame): The DataFrame containing SIC-related columns.
+        config (dict): A dictionary containing configuration details.
+
+    Returns:
+        pd.DataFrame: The DataFrame with SIC-related columns as zero-padded strings.
+    """
+    sic_cols = config["staging"]["sic_cols"]
+    for col in sic_cols:
+        if col in df.columns:
+            df[col] = df[col].astype(str).str.zfill(5)
+
+    return df
+
+
 def getmappername(mapper_path_key: str, split: bool) -> str:
     """
     Extracts the mapper name from a given path key.

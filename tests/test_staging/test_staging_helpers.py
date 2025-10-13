@@ -20,6 +20,7 @@ import pyarrow.feather as feather
 # Local Imports
 from src.staging.staging_helpers import (
     fix_anon_data,
+    sic_fixer,
     getmappername,
     load_validate_mapper,
     load_snapshot_feather,
@@ -28,10 +29,8 @@ from src.staging.staging_helpers import (
     filter_pnp_data,
 )
 from src.utils.local_file_mods import (
-    rd_file_exists as check_file_exists,
     rd_read_feather as read_feather,
     rd_write_feather as write_feather,
-    rd_read_csv as read_csv,
     rd_write_csv as write_csv,
 )
 
@@ -96,6 +95,44 @@ class TestFixAnonData(object):
         )
         assert output.equals(expected_output), "fix_anon_data not behaving as expected."
 
+
+class TestSicFixer(object):
+    """Tests for sic_fixer."""
+
+    def config_df(self):
+        """Config used for sic_fixer tests."""
+        config = {
+            "staging": {"sic_cols": ["frozensicoutdated", "rusicoutdated", "frozensic", "rusic"]}
+        }
+        return config
+
+    def input_df(self):
+        """Input data for sic_fixer tests."""
+        columns = ["rusic", "frozensic", "other_col"]
+        data = [
+            [12345, "54321", "A"],
+            [2345, "65432", "B"],
+            [34567, "76543", "C"],
+            [45678, "7654", "D"],
+            [56789, "98765", "E"],
+            [67890, np.nan, "F"],
+        ]
+        df = pd.DataFrame(columns=columns, data=data)
+        return df
+
+    def expected_output_df(self):
+        """Expected output for sic_fixer tests."""
+        columns = ["rusic", "frozensic", "other_col"]
+        data = [
+            ["12345", "54321", "A"],
+            ["02345", "65432", "B"],
+            ["34567", "76543", "C"],
+            ["45678", "07654", "D"],
+            ["56789", "98765", "E"],
+            ["67890", np.nan, "F"],
+        ]
+        df = pd.DataFrame(columns=columns, data=data)
+        return df
 
 class TestGetMapperName(object):
     """Tests for getmappername."""
