@@ -109,7 +109,7 @@ Possible_Categorical_Values = ["T", "H", "F", "J", "D", "A", "K", "C", "B", "L",
 
 [frozensicoutdated]
 Description = "nan"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "str"
 Nullable = false
 Current_Data_Type = "str"
 Length = "nan"
@@ -119,7 +119,7 @@ Possible_Categorical_Values = ["nan"]
 
 [rusicoutdated]
 Description = "nan"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "str"
 Nullable = false
 Current_Data_Type = "str"
 Length = "nan"
@@ -129,7 +129,7 @@ Possible_Categorical_Values = ["nan"]
 
 [frozensic]
 Description = "nan"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "str"
 Nullable = false
 Current_Data_Type = "str"
 Length = "nan"
@@ -139,7 +139,7 @@ Possible_Categorical_Values = ["nan"]
 
 [rusic]
 Description = "nan"
-Deduced_Data_Type = "Int64"
+Deduced_Data_Type = "str"
 Nullable = false
 Current_Data_Type = "str"
 Length = "nan"
