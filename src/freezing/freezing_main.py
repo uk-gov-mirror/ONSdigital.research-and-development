@@ -7,6 +7,7 @@ import pandas as pd
 from src.freezing.freezing_utils import _add_last_frozen_column
 from src.freezing.freezing_apply_changes import apply_freezing
 from src.staging.validation import validate_data_with_schema
+from src.staging.staging_helpers import sic_fixer
 from src.utils.helpers import convert_formtype
 from src.freezing.freezing_compare import run_comparison
 from src.utils.helpers import filename_amender
@@ -116,6 +117,9 @@ def read_frozen_csv(
     frozen_csv = read_csv(frozen_data_staged_path)
     validate_data_with_schema(frozen_csv, "./config/frozen_data_staged_schema.toml")
 
+    # Fix any SIC codes that are not 4 digits long and ensure string type
+    frozen_csv = sic_fixer(frozen_csv, config)
+    # Ensure formtype is in the expected format
     frozen_csv["formtype"] = frozen_csv["formtype"].apply(convert_formtype)
     FreezingLogger.info(f"Frozen data successfully read from {frozen_data_staged_path}")
     return frozen_csv
