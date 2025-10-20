@@ -5,14 +5,11 @@ import pytest
 
 import pandas as pd
 from pandas._testing import assert_frame_equal
-
-from typing import  Dict, Any
+from typing import  Any
 from datetime import date
 import logging
 from unittest.mock import patch
 
-# Third Party Imports
-import pandas as pd
 import numpy as np
 from pandas import DataFrame as pandasDF
 import pyarrow.feather as feather
@@ -270,7 +267,7 @@ class TestStageValidateHarmonisePostcodes(object):
     """Tests for stage_validate_harmonise_postcodes."""
 
     @pytest.fixture(scope="function")
-    def config(self, tmp_path) -> Dict[str, Any]:
+    def config(self, tmp_path) -> dict[str, Any]:
         """Test config."""
         config = {
             "global": {"postcode_csv_check": True},

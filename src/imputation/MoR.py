@@ -251,8 +251,8 @@ def calculate_links(gr_df, target_vars, config):
 
     Args:
         gr_df (pd.DataFrame): DataFrame of growth rates for each target variable
-        target_vars ([string]): List of target variables to use.
-        config (Dict): Confuration settings.
+        target_vars ([string]): list of target variables to use.
+        config (dict): Confuration settings.
 
     Returns:
         pd.DataFrame: DataFrame with calculated links for each imp_class
@@ -306,8 +306,8 @@ def group_calc_link(group, target_vars, config):
 
     Args:
         group (pd.core.groupby.DataFrameGroupBy): Imputation class group
-        link_vars ([string]): List of the linked variables.
-        config (Dict): Confuration settings
+        link_vars ([string]): list of the linked variables.
+        config (dict): Confuration settings
 
     Returns:
         pd.core.groupby.DataFrameGroupBy: Group with calculated links.
@@ -354,8 +354,8 @@ def apply_links(cf_df, links_df, target_vars, config, formtype):
     Args:
         cf_df (pd.DataFrame): DataFrame of carried forwards values.
         links_df (pd.DataFrame): DataFrame containing calculated links.
-        target_vars ([string]): List of target variables.
-        config (Dict): Dictorary of configuration.
+        target_vars ([string]): list of target variables.
+        config (dict): dictorary of configuration.
         formtype (str): whether the formtype is long or short.
 
     Returns:
@@ -419,7 +419,7 @@ def calculate_mor(cf_df, remainder_df, backdata, config, formtype):
         cf_df (pd.DataFrame): DataFrame of carried forwards values to impute.
         remainder_df (pd.DataFrame): DataFrame of remaining values.
         backdata (pd.DataFrame): One period of backdata.
-        config (Dict): The configuration settings for the pipeline.
+        config (dict): The configuration settings for the pipeline.
         formtype (str): The formtype of the data being imputed, long or short.
 
     Returns:

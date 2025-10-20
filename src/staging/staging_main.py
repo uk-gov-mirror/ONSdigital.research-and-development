@@ -2,7 +2,7 @@
 
 # Core imports
 import logging
-from typing import Callable, Tuple
+from collections.abc import Callable
 import os
 
 import pandas as pd
@@ -23,7 +23,7 @@ def run_staging(  # noqa: C901
     rd_write_csv: callable,
     rd_read_feather: Callable,
     rd_write_feather: Callable,
-) -> Tuple:
+) -> tuple:
     """Run the staging and validation module.
 
     The snapshot data is ingested from a json file, and parsed into dataframes,

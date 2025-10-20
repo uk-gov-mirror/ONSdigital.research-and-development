@@ -1,7 +1,7 @@
 """Read and validate construction files the construction module."""
 
 import logging
-from typing import Callable, Tuple
+from collections.abc import Callable
 
 import pandas as pd
 
@@ -25,7 +25,7 @@ def read_validate_all_construction_files(
     read_csv: Callable,
     construction_logger,
     is_northern_ireland: bool = False,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Read and validate construction files for the construction module.
 
     Function reads config to determine which constructions are required/if it
@@ -82,7 +82,7 @@ def read_validate_all_construction_files(
 
 def read_validate_postcode_construction_file(
     config: dict, check_file_exists: Callable, read_csv: Callable, construction_logger
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Read and validate construction files for the construction module.
 
     Function reads config to determine which constructions are required/if it
