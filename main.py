@@ -15,8 +15,8 @@ def setup_environment():
     return src
 
 
-user_path = os.path.join("src", "user_config.yaml")
-dev_path = os.path.join("src", "dev_config.yaml")
+user_path = os.path.join("config", "test_configs/test_user_config.yaml")
+dev_path = os.path.join("config", "test_configs/test_dev_config.yaml")
 
 src = setup_environment()
 run_time = src.run_pipeline(user_path, dev_path)
