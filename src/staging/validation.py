@@ -105,6 +105,39 @@ def check_data_shape(
     return cols_match
 
 
+def validate_bool_cols(bool_column: pd.Series, nullable: bool = True) -> pd.Series:
+    """
+    Validates a boolean column in a DataFrame.
+
+    If `nullable` is False, any null values in the column are filled with False and
+    the datatype is set to `bool` (which does not allow nulls).
+    If `nullable` is True, the datatype is set to pandas' nullable `boolean` type.
+
+    Args:
+        bool_column (pd.Series): The boolean column to validate.
+        nullable (bool): Whether the column is allowed to have null values.
+
+    Returns:
+        pd.Series: The validated boolean column.
+    """
+    bool_mapping = {
+        "True": True,
+        "False": False,
+        "TRUE": True,
+        "FALSE": False,
+        "true": True,
+        "false": False,
+    }
+    # Map the values in the boolean column to their corresponding boolean values
+    validated_column = bool_column.astype("string").map(bool_mapping)
+    if not nullable:
+        validated_column = validated_column.fillna(False).astype(bool)
+    else:
+        validated_column = validated_column.astype("boolean")
+
+    return validated_column
+
+
 def validate_data_with_schema(survey_df: pd.DataFrame, schema_path: str):  # noqa: C901
     """Takes the schema from the toml file and validates the survey data df.
 
@@ -135,9 +168,11 @@ def validate_data_with_schema(survey_df: pd.DataFrame, schema_path: str):  # noq
             continue
         designated_dtype = dtypes_dict[column]
         # in debug mode output the column name and dtype
-        ValidationLogger.debug(
-            f"Validating column '{column}' with designated dtype '{designated_dtype}'"
-        )
+        if designated_dtype in ["bool", "boolean"]:
+            ValidationLogger.debug(
+                f"Validating column '{column}' with designated dtype "
+                f"'{designated_dtype}'"
+            )
         # Fix for the columns which contain empty strings. We want to cast as NaN
         if designated_dtype == "pd.NA":
             # Replace whatever is in that column with np.nan
@@ -161,6 +196,20 @@ def validate_data_with_schema(survey_df: pd.DataFrame, schema_path: str):  # noq
                 # use the pandas string type for better performance
                 # and to avoid issues with mixed types
                 survey_df[column] = survey_df[column].astype("string")
+            elif designated_dtype == "bool":
+                survey_df[column] = validate_bool_cols(
+                    survey_df[column], nullable=False
+                )
+                ValidationLogger.debug(
+                    f"Validated column '{column}' with designated dtype "
+                    f"'{designated_dtype}'"
+                )
+            elif designated_dtype == "boolean":
+                survey_df[column] = validate_bool_cols(survey_df[column], nullable=True)
+                ValidationLogger.debug(
+                    f"Validated column '{column}' with designated dtype "
+                    f"'{designated_dtype}'"
+                )
             elif "datetime" in designated_dtype:
                 try:
                     survey_df[column] = pd.to_datetime(
