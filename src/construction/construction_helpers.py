@@ -160,15 +160,12 @@ def clean_construction_type(value: str) -> str:
     Returns:
         str: The cleaned value.
     """
-    # basic formatting
     if pd.isna(value):
-        return
-    cleaned = value.lower().strip()
-    if cleaned == "":
-        return np.nan
-    # remove whitespaces
-    cleaned = "_".join(cleaned.split())
-    return cleaned
+        return value
+    else:
+        cleaned = value.lower().strip()
+        cleaned = cleaned.replace("-", "_").replace(" ", "_")
+        return cleaned
 
 
 def finalise_forms_gb(updated_snapshot_df: pd.DataFrame) -> pd.DataFrame:

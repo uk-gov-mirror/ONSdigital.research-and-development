@@ -166,6 +166,10 @@ def validate_data_with_schema(survey_df: pd.DataFrame, schema_path: str):  # noq
                 f"Column '{column}' is not present in the DataFrame. Skipping."
             )
             continue
+        # ensure consistancy in dealing with nulls
+        survey_df[column] = survey_df[column].replace(["<NA>", "<na>", ""], np.nan)
+
+        # work with dtypes
         designated_dtype = dtypes_dict[column]
         # in debug mode output the column name and dtype
         if designated_dtype in ["bool", "boolean"]:
