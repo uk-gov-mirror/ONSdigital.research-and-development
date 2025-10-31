@@ -176,6 +176,36 @@ def _process_datetime_cols(df_column: pd.Series) -> pd.Series:
     return df_column
 
 
+def _validate_bool_cols(bool_column: pd.Series, nullable: bool = True) -> pd.Series:
+    """
+    Validates a boolean column in a DataFrame.
+    If `nullable` is False, any null values in the column are filled with False and
+    the datatype is set to `bool` (which does not allow nulls).
+    If `nullable` is True, the datatype is set to pandas' nullable `boolean` type.
+    Args:
+        bool_column (pd.Series): The boolean column to validate.
+        nullable (bool): Whether the column is allowed to have null values.
+    Returns:
+        pd.Series: The validated boolean column.
+    """
+    bool_mapping = {
+        "True": True,
+        "False": False,
+        "TRUE": True,
+        "FALSE": False,
+        "true": True,
+        "false": False,
+    }
+    # Map the values in the boolean column to their corresponding boolean values
+    validated_column = bool_column.astype("string").map(bool_mapping)
+    if not nullable:
+        validated_column = validated_column.fillna(False).astype(bool)
+    else:
+        validated_column = validated_column.astype("boolean")
+
+    return validated_column
+
+
 def process_data_types(df_column: pd.Series, designated_dtype: str) -> pd.Series:
     """Casts each column in the dataframe to the data type specified in the
     dtype_dict.
@@ -202,6 +232,10 @@ def process_data_types(df_column: pd.Series, designated_dtype: str) -> pd.Series
             # use the pandas string type for better performance
             # and to avoid issues with mixed types
             df_column = df_column.astype("string")
+        # booleans
+        elif designated_dtype in ["bool", "boolean"]:
+            nullable = True if designated_dtype == "boolean" else False
+            df_column = _validate_bool_cols(df_column, nullable=nullable)
         # datetimes
         elif "datetime" in designated_dtype:
             df_column = _process_datetime_cols(df_column)

@@ -13,6 +13,7 @@ from src.staging.validation import (
     validate_many_to_one,
     _process_datetime_cols,
     _process_numeric_cols,
+    _validate_bool_cols,
 )
 
 
@@ -85,6 +86,19 @@ def test_process_datetime_cols():
     assert pd.isna(result[1])
     assert pd.isna(result[2])
     assert result[0] == pd.Timestamp("2020-01-01")
+
+
+def test_validate_bool_cols_with_nulls():
+    s = pd.Series(["True", "False", None, "yes", "no", "maybe"])
+    result = _validate_bool_cols(s, nullable=True)
+    assert result.dtype == "boolean"
+    expected = [True, False, pd.NA, True, False, pd.NA]
+    for i, exp in enumerate(expected):
+        if pd.isna(result[i]):
+            assert pd.isna(result[i])
+        else:
+            # need to use .item() to change numpy bool to python bool for comparison
+            assert result[i].item() is exp
 
 
 # Mock the schema data
