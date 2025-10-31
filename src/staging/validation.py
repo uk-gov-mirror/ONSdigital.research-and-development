@@ -130,9 +130,53 @@ def get_dtypes_schema(schema_path: str) -> dict:
     return dtypes_dict
 
 
-def process_data_types(  # noqa: C901
-    df_column: pd.Series, designated_dtype: str  # noqa: C901
-) -> pd.Series:  # noqa: C901
+def _process_numeric_cols(df_column: pd.Series, designated_dtype: str) -> pd.Series:
+    """Helper function to process numeric columns.
+
+    Args:
+        df_column (pd.Series): DataFrame column to be processed
+
+    Returns:
+        pd.Series: Processed DataFrame column
+    """
+    # Convert non-numeric strings to nan
+    df_column = df_column.apply(pd.to_numeric, errors="coerce")
+
+    # we no longer want to use "Int64" in the pipeline as it causes many probs
+    if designated_dtype in ["Int64", "int64", "int"]:
+        # see if there are any nulls in the column, if so convert to float
+        if df_column.isnull().any():
+            df_column = df_column.astype("float64")
+        # otherwise cast as int64 (small i)
+        else:
+            df_column = df_column.astype("int64")
+    else:
+        df_column = df_column.astype("float64")
+
+    return df_column
+
+
+def _process_datetime_cols(df_column: pd.Series) -> pd.Series:
+    """Helper function to process datetime columns.
+
+    Args:
+        df_column (pd.Series): DataFrame column to be processed
+
+    Raises:
+        TypeError: If the column cannot be converted to datetime
+
+    Returns:
+        pd.Series: Processed DataFrame column
+    """
+    try:
+        df_column = pd.to_datetime(df_column, errors="coerce", dayfirst=True)
+    except TypeError:
+        e = f"Failed to convert column '{df_column.name}' to datetime. "
+        raise TypeError(e)
+    return df_column
+
+
+def process_data_types(df_column: pd.Series, designated_dtype: str) -> pd.Series:
     """Casts each column in the dataframe to the data type specified in the
     dtype_dict.
 
@@ -150,36 +194,17 @@ def process_data_types(  # noqa: C901
         f"Validating col '{df_column.name}' with designated dtype '{designated_dtype}'"
     )
     try:
-        # integers
-        # we no longer want to use "Int64" in the pipeline as it causes many probs
-        if designated_dtype in ["Int64", "int64", "int"]:
-            # Convert non-integer string to NaN
-            df_column = df_column.apply(pd.to_numeric, errors="coerce")
-            # see if there are any nulls in the column, if so convert to float
-            if df_column.isnull().any():
-                df_column = df_column.astype("float64")
-            # otherwise cast as int64 (small i)
-            else:
-                df_column = df_column.astype("int64")
-        # floats
-        elif designated_dtype in ["float64", "float"]:
-            df_column = df_column.apply(pd.to_numeric, errors="coerce")
-            df_column = df_column.astype("float64")
+        # numeric
+        if designated_dtype in ["Int64", "int64", "int", "float64", "float"]:
+            df_column = _process_numeric_cols(df_column, designated_dtype)
         # strings
-        elif designated_dtype in ["str", "string"]:
+        elif designated_dtype in ["str", "string", "object"]:
             # use the pandas string type for better performance
             # and to avoid issues with mixed types
             df_column = df_column.astype("string")
-        # objects
-        elif designated_dtype == "object":
-            df_column = df_column.astype("object")
         # datetimes
         elif "datetime" in designated_dtype:
-            try:
-                df_column = pd.to_datetime(df_column, errors="coerce", dayfirst=True)
-            except TypeError:
-                e = f"Failed to convert column '{df_column.name}' to datetime. "
-                raise TypeError(e)
+            df_column = _process_datetime_cols(df_column)
         else:
             e = f"Designated data type '{designated_dtype}' for column "
             e += f"'{df_column.name}' is not recognized."
@@ -197,6 +222,12 @@ def validate_data_with_schema(
     Args:
         survey_df (pd.DataFrame): Survey data in a pd.df format
         schema_path (str): path to the schema toml (should be in config folder)
+        warn_or_raise (str): Whether to 'warn' or 'raise' an error if a column
+            from the schema is missing in the dataframe. Defaults to 'warn'.
+
+    Raises:
+        KeyError: If a column from the schema is missing in the dataframe and
+            warn_or_raise is set to 'raise'.
 
     Returns:
         pd.DataFrame: DataFrame with validated data types
