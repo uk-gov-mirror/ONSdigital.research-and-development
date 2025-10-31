@@ -138,11 +138,6 @@ def validate_data_with_schema(survey_df: pd.DataFrame, schema_path: str):  # noq
         ValidationLogger.debug(
             f"Validating column '{column}' with designated dtype '{designated_dtype}'"
         )
-        # Fix for the columns which contain empty strings. We want to cast as NaN
-        if designated_dtype == "pd.NA":
-            # Replace whatever is in that column with np.nan
-            survey_df[column] = np.nan
-            dtypes_dict[column] = "float64"
 
         try:
             # we no longer want to use "Int64" in the pipeline as it causes many probs
