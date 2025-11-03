@@ -22,6 +22,7 @@ from src.imputation.imputation_helpers import (
     get_mult_604_mask,
     split_df_on_trim,
     remove_defence_for_pnp,
+    get_bool_columns,
 )
 
 
@@ -458,12 +459,26 @@ class TestConcatWithBool:
 
         return df
 
+    def test_get_bool_columns(self):
+        """Test for function get_bool_columns."""
+        df1, df2, df3 = self.input_dfs()
+        expected_bool_cols = {
+            'manual_trim',
+            'empty_pgsic_group',
+            '211_trim',
+            'empty_pg_group',
+            '305_trim',
+        }
+
+        result_bool_cols = get_bool_columns([df1, df2, df3])
+        assert result_bool_cols == expected_bool_cols
+
     def test_concat_with_bool(self):
         """Test for function concat_with_bool."""
         df1, df2, df3 = self.input_dfs()
         expected_df = self.expected_output()
 
-        result_df = concat_with_bool([df1, df2, df3])
+        result_df, bool_cols = concat_with_bool([df1, df2, df3])
         # ignore the order of the columns
         assert_frame_equal(result_df.reset_index(drop=True), expected_df, check_like=True)
 
