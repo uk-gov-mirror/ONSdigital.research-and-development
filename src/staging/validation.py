@@ -105,6 +105,31 @@ def check_data_shape(
     return cols_match
 
 
+def get_dtypes_schema(schema_path: str) -> dict:
+    """Takes the schema from the toml file and returns a dictionary of column names
+    and their data types.
+
+    Args:
+        schema_path (str): path to the schema toml (should be in config folder)
+
+    Returns:
+        dict: Dictionary with column names as keys and data types as values
+    """
+    # Load schema from toml
+    dtypes_schema = load_schema(schema_path)
+
+    if not dtypes_schema:
+        raise FileNotFoundError(f"File at {schema_path} does not exist. Check path")
+
+    # Create a dict for dtypes only
+    dtypes_dict = {
+        column_nm: dtypes_schema[column_nm]["Deduced_Data_Type"]
+        for column_nm in dtypes_schema.keys()
+    }
+
+    return dtypes_dict
+
+
 def validate_bool_cols(bool_column: pd.Series, nullable: bool = True) -> pd.Series:
     """
     Validates a boolean column in a DataFrame.
@@ -138,97 +163,167 @@ def validate_bool_cols(bool_column: pd.Series, nullable: bool = True) -> pd.Seri
     return validated_column
 
 
-def validate_data_with_schema(survey_df: pd.DataFrame, schema_path: str):  # noqa: C901
+def _process_numeric_cols(df_column: pd.Series, designated_dtype: str) -> pd.Series:
+    """Helper function to process numeric columns.
+
+    Args:
+        df_column (pd.Series): DataFrame column to be processed
+
+    Returns:
+        pd.Series: Processed DataFrame column
+    """
+    # Convert non-numeric strings to nan
+    df_column = df_column.apply(pd.to_numeric, errors="coerce")
+
+    # we no longer want to use "Int64" in the pipeline as it causes many probs
+    if designated_dtype in ["Int64", "int64", "int"]:
+        # see if there are any nulls in the column, if so convert to float
+        if df_column.isnull().any():
+            df_column = df_column.astype("float64")
+        # otherwise cast as int64 (small i)
+        else:
+            df_column = df_column.astype("int64")
+    else:
+        df_column = df_column.astype("float64")
+
+    return df_column
+
+
+def _process_datetime_cols(df_column: pd.Series) -> pd.Series:
+    """Helper function to process datetime columns.
+
+    Args:
+        df_column (pd.Series): DataFrame column to be processed
+
+    Raises:
+        TypeError: If the column cannot be converted to datetime
+
+    Returns:
+        pd.Series: Processed DataFrame column
+    """
+    try:
+        df_column = pd.to_datetime(df_column, errors="coerce", dayfirst=True)
+    except TypeError:
+        e = f"Failed to convert column '{df_column.name}' to datetime. "
+        raise TypeError(e)
+    return df_column
+
+
+def _validate_bool_cols(bool_column: pd.Series, nullable: bool = True) -> pd.Series:
+    """
+    Validates a boolean column in a DataFrame.
+    If `nullable` is False, any null values in the column are filled with False and
+    the datatype is set to `bool` (which does not allow nulls).
+    If `nullable` is True, the datatype is set to pandas' nullable `boolean` type.
+    Args:
+        bool_column (pd.Series): The boolean column to validate.
+        nullable (bool): Whether the column is allowed to have null values.
+    Returns:
+        pd.Series: The validated boolean column.
+    """
+    bool_mapping = {
+        "True": True,
+        "False": False,
+        "TRUE": True,
+        "FALSE": False,
+        "true": True,
+        "false": False,
+    }
+    # Map the values in the boolean column to their corresponding boolean values
+    validated_column = bool_column.astype("string").map(bool_mapping)
+    if not nullable:
+        validated_column = validated_column.fillna(False).astype(bool)
+    else:
+        validated_column = validated_column.astype("boolean")
+
+    return validated_column
+
+
+def process_data_types(df_column: pd.Series, designated_dtype: str) -> pd.Series:
+    """Casts each column in the dataframe to the data type specified in the
+    dtype_dict.
+
+    Args:
+        df_column (pd.Series): DataFrame to be processed
+        designated_dtype (str): Designated data type for the column
+
+    Raises:
+        TypeError: If the designated data type is not recognized
+
+    Returns:
+        pd.Series: Processed DataFrame column with correct data type
+    """
+    ValidationLogger.debug(
+        f"Validating col '{df_column.name}' with designated dtype '{designated_dtype}'"
+    )
+    try:
+        # numeric
+        if designated_dtype in ["Int64", "int64", "int", "float64", "float"]:
+            df_column = _process_numeric_cols(df_column, designated_dtype)
+        # strings
+        elif designated_dtype in ["str", "string", "object"]:
+            # use the pandas string type for better performance
+            # and to avoid issues with mixed types
+            df_column = df_column.astype("string")
+        # booleans
+        elif designated_dtype in ["bool", "boolean"]:
+            nullable = True if designated_dtype == "boolean" else False
+            df_column = _validate_bool_cols(df_column, nullable=nullable)
+        # datetimes
+        elif "datetime" in designated_dtype:
+            df_column = _process_datetime_cols(df_column)
+        else:
+            e = f"Designated data type '{designated_dtype}' for column "
+            e += f"'{df_column.name}' is not recognized."
+            raise TypeError(e)
+    except Exception as e:
+        ValidationLogger.error(f"{df_column.name}: {e}")
+    return df_column
+
+
+def validate_data_with_schema(
+    survey_df: pd.DataFrame, schema_path: str, warn_or_raise: str = "warn"
+) -> pd.DataFrame:
     """Takes the schema from the toml file and validates the survey data df.
 
     Args:
         survey_df (pd.DataFrame): Survey data in a pd.df format
         schema_path (str): path to the schema toml (should be in config folder)
+        warn_or_raise (str): Whether to 'warn' or 'raise' an error if a column
+            from the schema is missing in the dataframe. Defaults to 'warn'.
+
+    Raises:
+        KeyError: If a column from the schema is missing in the dataframe and
+            warn_or_raise is set to 'raise'.
+
+    Returns:
+        pd.DataFrame: DataFrame with validated data types
     """
-    ValidationLogger.info(f"Starting validation with {schema_path}")
-    # Load schema from toml
-    dtypes_schema = load_schema(schema_path)
+    # Obtain dtypes dictionary from schema
+    dtypes_dict = get_dtypes_schema(schema_path)
 
-    if not dtypes_schema:
-        raise FileNotFoundError(f"File at {schema_path} does not exist. Check path")
-
-    # Create a dict for dtypes only
-    dtypes_dict = {
-        column_nm: dtypes_schema[column_nm]["Deduced_Data_Type"]
-        for column_nm in dtypes_schema.keys()
-    }
-
-    # Cast each column individually and catch any errors
+    # Cast each column individually, and catch any errors
     for column in dtypes_dict.keys():
         # Check whether the column is in the dataframe
         if column not in survey_df.columns:
-            ValidationLogger.warning(
-                f"Column '{column}' is not present in the DataFrame. Skipping."
-            )
-            continue
-        # ensure consistancy in dealing with nulls
-        survey_df[column] = survey_df[column].replace(["<NA>", "<na>", ""], np.nan)
-
-        # work with dtypes
-        designated_dtype = dtypes_dict[column]
-        # in debug mode output the column name and dtype
-        if designated_dtype in ["bool", "boolean"]:
-            ValidationLogger.debug(
-                f"Validating column '{column}' with designated dtype "
-                f"'{designated_dtype}'"
-            )
-        # Fix for the columns which contain empty strings. We want to cast as NaN
-        if designated_dtype == "pd.NA":
-            # Replace whatever is in that column with np.nan
-            survey_df[column] = np.nan
-            dtypes_dict[column] = "float64"
-
-        try:
-            # we no longer want to use "Int64" in the pipeline as it causes many probs
-            if designated_dtype in ["Int64", "int64", "int"]:
-                # Convert non-integer string to NaN
-                survey_df[column] = survey_df[column].apply(
-                    pd.to_numeric, errors="coerce"
-                )
-                # see if there are any nulls in the column, if so convert to float
-                if survey_df[column].isnull().any():
-                    survey_df[column] = survey_df[column].astype("float64")
-                # otherwise cast as int64 (small i)
-                else:
-                    survey_df[column] = survey_df[column].astype("int64")
-            elif designated_dtype == "str":
-                # use the pandas string type for better performance
-                # and to avoid issues with mixed types
-                survey_df[column] = survey_df[column].astype("string")
-            elif designated_dtype == "bool":
-                survey_df[column] = validate_bool_cols(
-                    survey_df[column], nullable=False
-                )
-                ValidationLogger.debug(
-                    f"Validated column '{column}' with designated dtype "
-                    f"'{designated_dtype}'"
-                )
-            elif designated_dtype == "boolean":
-                survey_df[column] = validate_bool_cols(survey_df[column], nullable=True)
-                ValidationLogger.debug(
-                    f"Validated column '{column}' with designated dtype "
-                    f"'{designated_dtype}'"
-                )
-            elif "datetime" in designated_dtype:
-                try:
-                    survey_df[column] = pd.to_datetime(
-                        survey_df[column], errors="coerce", dayfirst=True
-                    )
-                except TypeError:
-                    raise TypeError(
-                        f"Failed to convert column '{column}' to datetime. Please check"
-                        " the data."
-                    )
+            if warn_or_raise == "raise":
+                raise KeyError(f"Column '{column}' is not present in the DataFrame.")
             else:
-                survey_df[column] = survey_df[column].astype(designated_dtype)
-        except Exception as e:
-            ValidationLogger.error(f"{column}: {e}")
+                ValidationLogger.warning(
+                    f"Column '{column}' is not present in the DataFrame. Skipping."
+                )
+                continue
+
+        # ensure consistent handling of nulls
+        survey_df[column] = survey_df[column].replace(
+            [pd.NA, "", " ", None, "<blank>", "N/A", "NA", "<NA>"], np.nan
+        )
+
+        designated_dtype = dtypes_dict[column]
+        survey_df[column] = process_data_types(survey_df[column], designated_dtype)
+
     ValidationLogger.info("Validation successful")
+    return survey_df
 
 
 def combine_schemas_validate_full_df(
