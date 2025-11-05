@@ -4,9 +4,11 @@ import numpy as np
 import pytest
 import unittest
 
+# import monkeypatched functions
 
-# from unittest.mock import MagicMock, patch
+
 from src.staging.validation import (
+    load_schema,
     check_data_shape,
     validate_data_with_schema,
     combine_schemas_validate_full_df,
@@ -37,9 +39,6 @@ def test_check_data_shape():
 
 def test_load_schema():
     """Test the load_schema function."""
-    # Arrange
-    from src.staging.validation import load_schema
-
     # Act: use pytest to assert the result
     result_1 = load_schema("./config/contributors_schema.toml")
 
@@ -205,8 +204,6 @@ def test_combine_schemas_validate_full_df(mock_load_schemas):
     """Test the validate_data_with_shcema  to data types are correct in
     the source data
     """
-
-    #TODO: This test doesn't really do anything as the function is not returning anything
     # Dumy data for testing
     dumy_data = pd.DataFrame(
         {
@@ -220,31 +217,31 @@ def test_combine_schemas_validate_full_df(mock_load_schemas):
             "q307": [True, False, True],
         }
     )
+
+
     # convert date datetime type
     dumy_data["date"] = pd.to_datetime(dumy_data["date"])
 
+    # create an expected datatypes dictionary for the dumy_data dataframe after validation
+    expected_dtypes = {
+        "reference": "int64",
+        "createdby": "string",
+        "instance": "float64",
+        "date": "datetime64[ns]",
+        "q200": "string",
+        "q201": "int64",
+        "q203": "float64",
+        "q307": "bool",
+    }
+
     # Call the function to be tested
-    combine_schemas_validate_full_df(
+    result_df = combine_schemas_validate_full_df(
         dumy_data, "mock_schema1.toml", "mock_schema2.toml"
     )
 
-    # Check data types after validation
-    # Check if the columns "reference" and "q201" are of integer type
-    are_int_columns = dumy_data[["reference", "q201"]].apply(pd.api.types.is_integer_dtype).all()
-    # Check if the columns "createdby" and "q200" are of string type
-    are_str_columns = dumy_data[["createdby", "q200"]].apply(pd.api.types.is_string_dtype).all()
-    # Check if the columns "instance" and "q203" are of float type
-    are_float_columns = dumy_data[["instance", "q203"]].apply(pd.api.types.is_float_dtype).all()
-    # Check if the columns "date" is of datetime type
-    is_datetime_column = pd.api.types.is_datetime64_any_dtype(dumy_data["date"].dtypes)
-    # Check if the columns "q307" is of boolean type
-    is_bool_column = dumy_data["q307"].dtypes == bool
+    for col, expected_dtype in expected_dtypes.items():
+        assert str(result_df[col].dtype) == expected_dtype, f"{col} should be of type {expected_dtype}"
 
-    assert are_int_columns
-    assert are_str_columns
-    assert are_float_columns
-    assert is_datetime_column
-    assert is_bool_column
 
 
 class TestManyToOne(unittest.TestCase):

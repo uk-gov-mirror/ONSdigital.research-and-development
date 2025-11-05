@@ -482,6 +482,7 @@ class TestConcatWithBool:
         # ignore the order of the columns
         assert_frame_equal(result_df.reset_index(drop=True), expected_df, check_like=True)
 
+
 class TestCreateRAndDInstance:
     """ Unit test for check_r_and_d_instance function """
     def cre_input_df(self) -> pd.DataFrame:
