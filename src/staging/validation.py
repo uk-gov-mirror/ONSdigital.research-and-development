@@ -104,31 +104,6 @@ def check_data_shape(
     return cols_match
 
 
-def get_dtypes_schema(schema_path: str) -> dict:
-    """Takes the schema from the toml file and returns a dictionary of column names
-    and their data types.
-
-    Args:
-        schema_path (str): path to the schema toml (should be in config folder)
-
-    Returns:
-        dict: Dictionary with column names as keys and data types as values
-    """
-    # Load schema from toml
-    dtypes_schema = load_schema(schema_path)
-
-    if not dtypes_schema:
-        raise FileNotFoundError(f"File at {schema_path} does not exist. Check path")
-
-    # Create a dict for dtypes only
-    dtypes_dict = {
-        column_nm: dtypes_schema[column_nm]["Deduced_Data_Type"]
-        for column_nm in dtypes_schema.keys()
-    }
-
-    return dtypes_dict
-
-
 def _process_numeric_cols(df_column: pd.Series, designated_dtype: str) -> pd.Series:
     """Helper function to process numeric columns.
 
@@ -265,8 +240,11 @@ def validate_data_with_schema(
     Returns:
         pd.DataFrame: DataFrame with validated data types
     """
-    # Obtain dtypes dictionary from schema
-    dtypes_dict = get_dtypes_schema(schema_path)
+    dtypes_schema = load_schema(schema_path)
+    dtypes_dict = {
+        column_nm: dtypes_schema[column_nm]["Deduced_Data_Type"]
+        for column_nm in dtypes_schema.keys()
+    }
 
     # Cast each column individually, and catch any errors
     for column in dtypes_dict.keys():
@@ -293,9 +271,15 @@ def validate_data_with_schema(
 
 
 def combine_schemas_validate_full_df(
-    survey_df: pd.DataFrame, contributor_schema: "str", wide_response_schema: "str"
-):
+    survey_df: pd.DataFrame,
+    contributor_schema: "str",
+    wide_response_schema: "str",
+    warn_or_raise: str = "raise",
+) -> pd.DataFrame:
     """Takes the schemas from the toml file and validates the survey data df.
+
+    The survey dataframe is been created by joining contributor and wide response data.
+    Therefore, the two schemas are combined to create a full schema for validation.
 
     Args:
         survey_df (pd.DataFrame): Survey data in a pd.df format
@@ -311,8 +295,8 @@ def combine_schemas_validate_full_df(
     # Create all unique keys from both schema
     full_columns_list = set(dtypes_con_schema) | set(dtypes_res_schema)
 
-    # Create a dict for dtypes only
-    dtypes = {
+    # Create dtypes dictionary for the full schema, both contributor and wide
+    dtypes_dict = {
         column_nm: (
             dtypes_con_schema[column_nm]["Deduced_Data_Type"]
             if column_nm in dtypes_con_schema
@@ -320,39 +304,28 @@ def combine_schemas_validate_full_df(
         )
         for column_nm in full_columns_list
     }
+    # Cast each column individually, and catch any errors
+    for column in dtypes_dict.keys():
+        # Check whether the column is in the dataframe
+        if column not in survey_df.columns:
+            if warn_or_raise == "raise":
+                raise KeyError(f"Column '{column}' is not present in the DataFrame.")
+            else:
+                ValidationLogger.warning(
+                    f"Column '{column}' is not present in the DataFrame. Skipping."
+                )
+                continue
 
-    # Cast each column individually and catch any errors
-    ValidationLogger.info("Starting data type casting process")
-    for column in survey_df.columns:
-        # Fix for the columns which contain empty strings. We want to cast as NaN
-        if dtypes[column] == "pd.NA":
-            # Replace whatever is in that column with np.nan
-            survey_df[column] = np.nan
-            dtypes[column] = "float64"
+        # ensure consistent handling of nulls
+        survey_df[column] = survey_df[column].replace(
+            [pd.NA, "", " ", None, "<blank>", "N/A", "NA", "<NA>"], np.nan
+        )
+        # process the data types
+        designated_dtype = dtypes_dict[column]
+        survey_df[column] = process_data_types(survey_df[column], designated_dtype)
 
-            # Try to cast each column to the required data type
-
-        if dtypes[column] == "Int64":
-            # Convert non-integer string to NaN
-            survey_df[column] = survey_df[column].apply(pd.to_numeric, errors="coerce")
-            # Cast columns to Int64
-            survey_df[column] = survey_df[column].astype("Int64")
-        elif dtypes[column] == "float64":
-            # Convert non-integer string to NaN
-            survey_df[column] = survey_df[column].apply(pd.to_numeric, errors="coerce")
-            # Cast columns to float64
-            survey_df[column] = survey_df[column].astype("float64", errors="ignore")
-        elif dtypes[column] == "str":
-            survey_df[column] = survey_df[column].astype("string")
-        elif pd.api.types.is_datetime64tz_dtype(survey_df[column]):
-            # Remove timezone information because some columns values are
-            # time-zone (tz) aware. To make the column homogeneous, we remove the
-            # tz info where it exists.
-            survey_df[column] = survey_df[column].dt.tz_localize(None)
-            survey_df[column] = survey_df[column].astype(dtypes[column])
-        else:
-            survey_df[column] = survey_df[column].astype(dtypes[column])
-    ValidationLogger.info("Finished data type casting process")
+    ValidationLogger.info("Validation successful")
+    return survey_df
 
 
 def validate_many_to_one(*args) -> pd.DataFrame:

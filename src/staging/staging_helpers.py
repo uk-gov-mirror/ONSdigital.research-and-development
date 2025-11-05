@@ -213,7 +213,7 @@ def load_val_snapshot_json(
         "Finished Data Transmutation and validation of full responses dataframe"
     )
     # Validate and force data types for the full responses df
-    val.combine_schemas_validate_full_df(
+    full_responses = val.combine_schemas_validate_full_df(
         full_responses,
         "./config/contributors_schema.toml",
         "./config/wide_responses.toml",
