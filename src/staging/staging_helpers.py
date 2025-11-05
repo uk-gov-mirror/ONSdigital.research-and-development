@@ -6,8 +6,8 @@ from numpy import random
 import logging
 import re
 import os
-import pathlib
-from typing import Callable, Tuple, Dict, Union
+from collections.abc import Callable
+from rdsa_utils.typing import PathLike
 
 # Our own modules
 from src.staging import validation as val
@@ -174,7 +174,7 @@ def load_val_snapshot_json(
     snapshot_path: str,
     load_json: Callable,
     config: dict,
-) -> Tuple[pd.DataFrame, str]:
+) -> tuple[pd.DataFrame, str]:
     """
     Loads and validates a snapshot of survey data from a JSON file.
 
@@ -237,7 +237,7 @@ def load_val_snapshot_json(
 
 
 def df_to_feather(
-    dir: Union[pathlib.Path, str],
+    dir: PathLike,
     save_name: str,
     df: pd.DataFrame,
     write_feather: Callable,
@@ -246,7 +246,7 @@ def df_to_feather(
     """_summary_
 
     Args:
-        dir (Union[pathlib.Path, str]): The save directory of the feather file.
+        dir (PathLike): The save directory of the feather file.
         save_name (str): The save name of the feather file.
         df (pd.DataFrame): The df to save out as a .feather file.
         write_feather (Callable): A function that write out a feather.
@@ -273,12 +273,12 @@ def df_to_feather(
 
 
 def stage_validate_harmonise_postcodes(
-    config: Dict,
+    config: dict,
     full_responses: pd.DataFrame,
     check_file_exists: Callable,
     read_csv: Callable,
     write_csv: Callable,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Stages, validates, and harmonises the postcode column in the provided
     DataFrame.
@@ -291,7 +291,7 @@ def stage_validate_harmonise_postcodes(
     4. Returns the original DataFrame and the master list of postcodes.
 
     Args:
-        config (Dict): A dictionary containing configuration options.
+        config (dict): A dictionary containing configuration options.
         full_responses (pd.DataFrame): The DataFrame containing the data to be
         validated.
         check_file_exists (Callable): A function that checks if a file exists.
@@ -299,9 +299,9 @@ def stage_validate_harmonise_postcodes(
         write_csv (Callable): A function that writes a DataFrame to a CSV file.
 
     Returns:
-        Tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the original DataFrame
+        tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the original DataFrame
         and the master list of postcodes.
-        Tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the original DataFrame
+        tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the original DataFrame
         and the master list of postcodes.
     """
     # Log the start of postcode validation

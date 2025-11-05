@@ -3,7 +3,7 @@
 import logging
 import pandas as pd
 import numpy as np
-from typing import List, Tuple
+
 from itertools import chain
 
 from src.staging.validation import load_schema
@@ -51,7 +51,7 @@ def create_imp_class_col(
 
     Args:
         df (pd.DataFrame): Full dataframe
-        column_list: List of column names that will be concatenated to form the class.
+        column_list: list of column names that will be concatenated to form the class.
         class_name (str): The name of the column to save the class to.
             Defaults to "imp_class"
         use_cellno (bool): Whether to use the cellno column or not. Default to True.
@@ -83,7 +83,7 @@ def create_notnull_mask(df: pd.DataFrame, col: str) -> pd.Series:
     return df[col].str.len() > 0
 
 
-def create_mask(df: pd.DataFrame, options: List[str]) -> pd.Series:
+def create_mask(df: pd.DataFrame, options: list[str]) -> pd.Series:
     """Create a dataframe mask based on listed options - return Bool column.
 
     Options include:
@@ -104,7 +104,7 @@ def create_mask(df: pd.DataFrame, options: List[str]) -> pd.Series:
 
     Args:
         df (pd.DataFrame): The input dataframe.
-        options (List[str]): List of options to create the mask.
+        options (list[str]): list of options to create the mask.
 
     Returns:
         pd.Series: Boolean mask based on the options.
@@ -140,12 +140,12 @@ def create_mask(df: pd.DataFrame, options: List[str]) -> pd.Series:
     return mask
 
 
-def special_filter(df: pd.DataFrame, options: List[str]) -> pd.DataFrame:
+def special_filter(df: pd.DataFrame, options: list[str]) -> pd.DataFrame:
     """Filter the dataframe based on a list of options commonly used in the pipeline.
 
     Args:
         df (pd.DataFrame): The input dataframe.
-        options (List[str]): List of options to filter the dataframe.
+        options (list[str]): list of options to filter the dataframe.
 
     Returns:
         pd.DataFrame: The filtered dataframe.
@@ -219,7 +219,7 @@ def get_mult_604_mask(df: pd.DataFrame) -> pd.Series:
     return mult_604_mask
 
 
-def fix_604_error(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def fix_604_error(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Filter out rows with 604 error and create qa dataframe with the rows with errors.
 
     Return the filtered data frame and a second qa dataframe with
@@ -297,7 +297,7 @@ def check_604_fix(df) -> pd.DataFrame:
 
 def create_r_and_d_instance(
     df: pd.DataFrame,
-) -> Tuple[pd.DataFrame, pd.DataFrame, List]:
+) -> tuple[pd.DataFrame, pd.DataFrame, list]:
     """Create a duplicate of long form records with no R&D and set instance to 1.
 
     These references initailly have one entry with instance 0.
@@ -349,7 +349,7 @@ def split_df_on_trim(df: pd.DataFrame, trim_bool_col: str) -> pd.DataFrame:
         return df, df
 
 
-def split_df_on_imp_class(df: pd.DataFrame, exclusion_list: List = ["817", "nan"]):
+def split_df_on_imp_class(df: pd.DataFrame, exclusion_list: list = ["817", "nan"]):
     """Split the dataframe based on the imputation class.
 
     Removes records where the imputation class includes strings in the passed list.
@@ -360,7 +360,7 @@ def split_df_on_imp_class(df: pd.DataFrame, exclusion_list: List = ["817", "nan"
 
     Args:
         df (pd.DataFrame): The dataframe to split
-        exclusion_list (List, optional): A list of imputation classes to exclude.
+        exclusion_list (list, optional): A list of imputation classes to exclude.
 
     Returns:
         pd.DataFrame: The filtered dataframe with the invalid imp classes removed
@@ -393,7 +393,7 @@ def apply_fill_zeros(df: pd.DataFrame, target_variables: list) -> pd.DataFrame:
 
     Args:
         df (pd.DataFrame): The dataframe imputation is carried out on.
-        target_variables (List): A list of the target variables.
+        target_variables (list): A list of the target variables.
 
     Returns:
         pd.DataFrame: The same dataframe with required nulls filled with zeros.
@@ -581,12 +581,12 @@ def imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
+def concat_with_bool(dfs: list[pd.DataFrame]) -> pd.DataFrame:
     """Concatenate a list of dataframes and ensure boolean-like columns are properly
     cast.
 
     Args:
-        dfs (list[pd.DataFrame]): List of dataframes to concatenate.
+        dfs (list[pd.DataFrame]): list of dataframes to concatenate.
 
     Returns:
         pd.DataFrame: The concatenated dataframe with updated boolean columns.
@@ -668,7 +668,7 @@ def update_defence_rows(df: pd.DataFrame, to_impute_cols: list) -> pd.DataFrame:
 
     Args:
         df (pd.DataFrame): The DataFrame containing the full responses data.
-        to_impute_cols (list): List of columns to be imputed.
+        to_impute_cols (list): list of columns to be imputed.
         config (dict): The configuration settings.
 
     Returns:

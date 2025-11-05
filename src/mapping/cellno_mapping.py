@@ -38,7 +38,7 @@ def validate_join_cellno_mapper(
     """Validate the join_cellno_mapper function.
 
     Args:
-        responses (Tuple[pd.DataFrame, pd.DataFrame]): The GB & NI responses dataframes
+        responses (tuple[pd.DataFrame, pd.DataFrame]): The GB & NI responses dataframes
         cellno_df (pd.DataFrame): The cellnumber mapper dataframe.
         config (dict): The configuration dictionary.
 

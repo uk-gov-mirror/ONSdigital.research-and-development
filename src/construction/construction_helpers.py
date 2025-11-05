@@ -1,8 +1,9 @@
 """Useful utilities for the construction module."""
 
-import pathlib
 import logging
-from typing import Union, Callable, Tuple
+
+from collections.abc import Callable
+from rdsa_utils.typing import PathLike
 
 import pandas as pd
 import numpy as np
@@ -13,7 +14,7 @@ from src.utils.helpers import convert_formtype
 
 
 def read_construction_file(
-    path: Union[str, pathlib.Path],
+    path: PathLike,
     logger: logging.Logger,
     read_csv_func: Callable,
     file_exists_func: Callable,
@@ -21,7 +22,7 @@ def read_construction_file(
     """Read in a construction file, with related logging.
 
     Args:
-        path (Union[str, pathlib.Path]): The path to read the construction file from.
+        path (PathLike): The path to read the construction file from.
         logger (logging.Logger): The logger to log to.
         read_csv_func (Callable): A function to read in a csv.
         file_exists_func (Callable): A function to check that a file exists.
@@ -43,7 +44,7 @@ def read_construction_file(
 
 def prepare_forms_gb(
     snapshot_df: pd.DataFrame, construction_df: pd.DataFrame
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Prepare GB forms.
 
     Args:
@@ -51,7 +52,7 @@ def prepare_forms_gb(
         construction_df (pd.DataFrame): The construction df (artifical data to be added)
 
     Returns:
-        Tuple[pd.DataFrame, pd.DataFrame]: Both datasets with prepared forms
+        tuple[pd.DataFrame, pd.DataFrame]: Both datasets with prepared forms
     """
     # Convert formtype to "0001" or "0006"
     if "formtype" in construction_df.columns:
@@ -98,7 +99,7 @@ def prepare_short_to_long(
     updated_snapshot_df: pd.DataFrame,
     construction_df: pd.DataFrame,
     unique_references: list,
-) -> Tuple[pd.DataFrame, list]:
+) -> tuple[pd.DataFrame, list]:
     """Create addional instances for short to long construction.
 
     Args:
@@ -107,7 +108,7 @@ def prepare_short_to_long(
         unique_references (list): Empty list to populate.
 
     Returns:
-        Tuple[pd.DataFrame, list]: The updated snapshot df
+        tuple[pd.DataFrame, list]: The updated snapshot df
             and the list of unique references.
     """
     construction_df.loc[
@@ -221,7 +222,7 @@ def finalise_forms_gb(updated_snapshot_df: pd.DataFrame) -> pd.DataFrame:
 
 def add_constructed_nonresponders(
     updated_snapshot_df: pd.DataFrame, construction_df: pd.DataFrame
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Add constructed non-responders to the snapshot dataframe.
 
     Args:
@@ -229,7 +230,7 @@ def add_constructed_nonresponders(
         construction_df (pd.DataFrame): The construction dataframe.
 
     Returns:
-        Tuple[pd.DataFrame, pd.DataFrame]: The updated snapshot dataframe and the
+        tuple[pd.DataFrame, pd.DataFrame]: The updated snapshot dataframe and the
             modified construction dataframe.
     """
     construction_df = construction_df.copy()  # Avoid modifying the original df
@@ -288,7 +289,7 @@ def prep_new_rows(
 
 def replace_values_in_construction(
     updated_snapshot_df: pd.DataFrame, construction_df: pd.DataFrame
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Replace values in the snapshot with those from construction dataframe.
 
     Args:
@@ -296,7 +297,7 @@ def replace_values_in_construction(
         construction_df (pd.DataFrame): The construction dataframe.
 
     Returns:
-        Tuple[pd.DataFrame, pd.DataFrame]: The updated snapshot dataframe and the
+        tuple[pd.DataFrame, pd.DataFrame]: The updated snapshot dataframe and the
             modified construction dataframe.
     """
     # Update the values with the constructed ones

@@ -2,7 +2,7 @@
 
 import logging
 import os
-from typing import Callable, Tuple
+from collections.abc import Callable
 import pandas as pd
 
 from src.staging import validation as val
@@ -16,7 +16,7 @@ def read_ni_files(
     config: dict,
     check_file_exists: Callable,
     read_csv: Callable,
-) -> Tuple:
+) -> tuple:
     """Read in CSV file and schema for NI data."""
     # read in csv file as pandas dataframes
     ni_full_response_file = config["ni_paths"]["ni_full_responses"]

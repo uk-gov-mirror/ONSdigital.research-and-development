@@ -5,8 +5,6 @@ import logging
 import pandas as pd
 import numpy as np
 
-from typing import Any
-
 from src.imputation.imputation_helpers import create_imp_class_col
 
 CivdefLogger = logging.getLogger(__name__)
@@ -14,7 +12,7 @@ CivdefLogger = logging.getLogger(__name__)
 clear_statuses = ["Clear", "Clear - overridden"]
 
 
-def calc_cd_proportions(df: pd.DataFrame) -> tuple[float, float]:
+def calc_cd_proportions(df: pd.DataFrame):  # -> tuple[float, float]:
     """Calc the proportion of civil and defence entries
 
     The proportions are calculated for a dataframe representing a
@@ -30,7 +28,7 @@ def calc_cd_proportions(df: pd.DataFrame) -> tuple[float, float]:
     return proportion_civ, proportion_def
 
 
-def create_civdef_dict(df: pd.DataFrame) -> tuple[dict[str, Any], dict[str, Any]]:
+def create_civdef_dict(df: pd.DataFrame) -> tuple[dict[str, float], pd.DataFrame]:
     """Create dictionaries with values to use for civil and defence imputation.
 
     Two dictionaries are created, one for imputation classes based on both
@@ -42,8 +40,7 @@ def create_civdef_dict(df: pd.DataFrame) -> tuple[dict[str, Any], dict[str, Any]
             imputation class
 
     Returns:
-        tuple[dict[str, Any], dict[str, Any]: Two dictionaries with
-            proportions to use for imputation
+        dict[str, tuple(float, float)]
     """
     # create dictionary to hold civil or defence ratios for each class
     pgsic_dict = {}
