@@ -9,12 +9,15 @@ import logging
 ValidationLogger = logging.getLogger(__name__)
 
 
-def load_schema(file_path: str = "./config/contributors_schema.toml") -> dict:
+def load_schema(file_path: str) -> dict:
     """Load the data schema from toml file into a dictionary
 
     Keyword Arguments:
         file_path -- Path to data schema toml file
         (default: {"./config/contributors_schema.toml"})
+
+    Raises:
+        FileNotFoundError: If the file does not exist
 
     Returns:
         A dict: dictionary containing parsed schema toml file
@@ -30,14 +33,10 @@ def load_schema(file_path: str = "./config/contributors_schema.toml") -> dict:
                 toml_dict = tomli.load(file)
             return toml_dict
         except tomli.TOMLDecodeError as e:
-            ValidationLogger.error(f"Failed to decode TOML file: {e}")
-            return None
+            ValidationLogger.error(f"Error decoding TOML file at {file_path}: {e}")
+            raise
     else:
-        # Return None if file does not exist
-        ValidationLogger.warning(
-            "Validation schema does not exist! Path may be incorrect"
-        )
-        return None
+        raise FileNotFoundError(f"File at {file_path} does not exist. Check path")
 
 
 def check_data_shape(

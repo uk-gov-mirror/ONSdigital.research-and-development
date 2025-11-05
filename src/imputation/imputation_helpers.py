@@ -584,7 +584,7 @@ def imputation_marker(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def get_bool_columns(dfs: List[pd.DataFrame]) -> set:
+def get_bool_columns(dfs: list[pd.DataFrame]) -> set:
     """Identify boolean-like columns in a list of dataframes.
 
     Args:
@@ -598,13 +598,20 @@ def get_bool_columns(dfs: List[pd.DataFrame]) -> set:
         for col in df.columns:
             if (
                 df[col].notna().any()  # Ensure the col has at least one non-null value
+                and df[col].dtype in [bool, "boolean"]
                 and df[col].fillna(False).astype(str).isin(["True", "False"]).all()
+            ):
+                bool_columns.add(col)
+            elif (
+                df[col].notna().any()
+                and df[col].dtype in [object, str, "string"]
+                and df[col].fillna("False").astype(str).isin(["True", "False"]).all()
             ):
                 bool_columns.add(col)
     return bool_columns
 
 
-def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
+def concat_with_bool(dfs: list[pd.DataFrame]) -> pd.DataFrame:
     """Concatenate a list of dataframes and ensure boolean-like columns are properly
     cast.
 
@@ -622,8 +629,15 @@ def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
     for df in dfs:
         df = df.copy()  # Avoid modifying the original DataFrame
         for col in all_bool_columns:
-            if col in df.columns:
+            if (col in df.columns) and (df[col].dtype in [bool, "boolean"]):
                 df[col] = df[col].fillna(False).astype(bool)
+            elif (col in df.columns) and (df[col].dtype in [object, str, "string"]):
+                df[col] = (
+                    df[col]
+                    .fillna("False")
+                    .astype(str)
+                    .map({"True": True, "False": False})
+                )
         dfs_bool.append(df)
 
     # Concatenate the DataFrames
@@ -634,7 +648,7 @@ def concat_with_bool(dfs: List[pd.DataFrame]) -> pd.DataFrame:
         if col in concatenated_df.columns:
             concatenated_df[col] = concatenated_df[col].fillna(False).astype(bool)
 
-    return concatenated_df, all_bool_columns
+    return concatenated_df
 
 
 def imputation_prep(df: pd.DataFrame, config: dict):
