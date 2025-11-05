@@ -41,7 +41,7 @@ def test_load_schema():
     from src.staging.validation import load_schema
 
     # Act: use pytest to assert the result
-    result_1 = load_schema()
+    result_1 = load_schema("./config/contributors_schema.toml")
 
     # Assert
     assert isinstance(result_1, dict)

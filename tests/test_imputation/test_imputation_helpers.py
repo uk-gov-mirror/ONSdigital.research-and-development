@@ -411,15 +411,15 @@ class TestConcatWithBool:
         """Define columns and values for the DataFrames"""
         columns1 = ['manual_trim', 'empty_pgsic_group', '211_trim', 'value']
         values1 = [
-            [True, False, True, 1],
-            [False, True, True, 2],
+            ["True", False, True, 1],
+            ["False", True, True, 2],
             [np.nan, np.nan, np.nan, 3],
         ]
 
         columns2 = ['empty_pg_group', '305_trim', 'value']
         values2 = [
             [True, False, 4],
-            [False, True, 5],
+            [False, "True", 5],
             [np.nan, np.nan, 6]
         ]
 
@@ -427,7 +427,7 @@ class TestConcatWithBool:
         values3 = [
             [True, 7],
             [False, 8],
-            [np.nan, 9],
+            [False, 9],
         ]
 
         # Create DataFrames from the lists of values
@@ -478,7 +478,7 @@ class TestConcatWithBool:
         df1, df2, df3 = self.input_dfs()
         expected_df = self.expected_output()
 
-        result_df, bool_cols = concat_with_bool([df1, df2, df3])
+        result_df = concat_with_bool([df1, df2, df3])
         # ignore the order of the columns
         assert_frame_equal(result_df.reset_index(drop=True), expected_df, check_like=True)
 

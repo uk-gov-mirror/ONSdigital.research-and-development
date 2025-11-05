@@ -115,7 +115,7 @@ def all_data_construction(  # noqa: C901
 
     # Add constructed non-responders (i.e. new rows) to df
     if "construction_type" in construction_df.columns:
-        if "new" in construction_df["construction_type"].values:
+        if "new" in construction_df["construction_type"].dropna().unique():
             updated_snapshot_df, construction_df = add_constructed_nonresponders(
                 updated_snapshot_df, construction_df
             )

@@ -67,7 +67,7 @@ def prepare_forms_gb(
     unique_references = []
     if "construction_type" in construction_df.columns:
         # Prepare the short to long form constructions, if any (N/A to NI)
-        if "short_to_long" in construction_df.construction_type.unique():
+        if "short_to_long" in construction_df.construction_type.dropna().unique():
             snapshot_df, unique_references = prepare_short_to_long(
                 snapshot_df, construction_df, unique_references
             )
