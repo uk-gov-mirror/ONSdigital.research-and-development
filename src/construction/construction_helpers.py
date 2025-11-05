@@ -161,10 +161,10 @@ def clean_construction_type(value: str) -> str | None:
     """
     # basic formatting
     if pd.isna(value):
-        return None
+        return np.nan
     cleaned = value.lower().strip()
     if cleaned == "":
-        return None
+        return np.nan
     # remove whitespaces
     cleaned = "_".join(cleaned.split())
     return cleaned

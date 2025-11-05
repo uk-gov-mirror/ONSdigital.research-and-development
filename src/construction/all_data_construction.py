@@ -55,11 +55,8 @@ def all_data_construction(  # noqa: C901
             lambda x: clean_construction_type(x)
         )
         # validate that 'construction_type' is valid
-        valid_types = ["short_to_long", "new", np.nan, pd.NA, "<NA>", "<na>"]
-        valid_mask = construction_df["construction_type"].isna() | construction_df[
-            "construction_type"
-        ].isin(valid_types)
-        if not valid_mask.all():
+        valid_types = ["short_to_long", "new", np.nan, "<NA>", "<na>"]
+        if False in list(construction_df.construction_type.isin(valid_types)):
             raise ValueError(
                 f"Invalid value for construction_type. Expected one of {valid_types}"
             )
