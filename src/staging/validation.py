@@ -104,6 +104,39 @@ def check_data_shape(
     return cols_match
 
 
+def validate_bool_cols(bool_column: pd.Series, nullable: bool = True) -> pd.Series:
+    """
+    Validates a boolean column in a DataFrame.
+
+    If `nullable` is False, any null values in the column are filled with False and
+    the datatype is set to `bool` (which does not allow nulls).
+    If `nullable` is True, the datatype is set to pandas' nullable `boolean` type.
+
+    Args:
+        bool_column (pd.Series): The boolean column to validate.
+        nullable (bool): Whether the column is allowed to have null values.
+
+    Returns:
+        pd.Series: The validated boolean column.
+    """
+    bool_mapping = {
+        "True": True,
+        "False": False,
+        "TRUE": True,
+        "FALSE": False,
+        "true": True,
+        "false": False,
+    }
+    # Map the values in the boolean column to their corresponding boolean values
+    validated_column = bool_column.astype("string").map(bool_mapping)
+    if not nullable:
+        validated_column = validated_column.fillna(False).astype(bool)
+    else:
+        validated_column = validated_column.astype("boolean")
+
+    return validated_column
+
+
 def _process_numeric_cols(df_column: pd.Series, designated_dtype: str) -> pd.Series:
     """Helper function to process numeric columns.
 
@@ -384,47 +417,6 @@ def validate_many_to_one(*args) -> pd.DataFrame:
 
     except ValueError as ve:
         raise ValueError("Many-to-one mapper validation failed: " + str(ve))
-
-
-def validate_cora_df(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Validates cora mapper df:
-    1. Checks if the DataFrame has exactly two columns.
-    2. Checks if the column headers are "statusencoded" and "form_status".
-    3. Checks the validity of the columns contents.
-    Args:
-        df (pd.DataFrame): The input DataFrame containing "statusencoded"
-        and "form_status" columns.
-    Returns:
-        df (pd.DataFrame): with cols changed to string type
-    """
-    try:
-        # Check if the dataframe has exactly two columns
-        if df.shape[1] != 2:
-            raise ValueError("DataFrame must have exactly two columns")
-
-        # Check if the column headers are "statusencoded" and "form_status"
-        if list(df.columns) != ["statusencoded", "form_status"]:
-            raise ValueError("Column headers must be 'statusencoded' and 'form_status'")
-
-        # Check the contents of the "status" and "form_status" columns
-        status_check = df["statusencoded"].astype("str").str.len() == 3
-        from_status_check = df["form_status"].astype("str").str.len().isin([3, 4])
-
-        # Create the "contents_check" column based on the checks
-        df["contents_check"] = status_check & from_status_check
-
-        # Check if there are any False values in the "contents_check" column
-        if (df["contents_check"] == False).any():  # noqa
-            raise ValueError("Unexpected format within column contents")
-
-        # Drop the "contents_check" column
-        df.drop(columns=["contents_check"], inplace=True)
-
-        return df
-
-    except ValueError as ve:
-        raise ValueError("cora status mapper validation failed: " + str(ve))
 
 
 def flag_no_rand_spenders(df, raise_or_warn):
