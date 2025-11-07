@@ -163,11 +163,12 @@ def _process_numeric_cols(df_column: pd.Series, designated_dtype: str) -> pd.Ser
     return df_column
 
 
-def _process_datetime_cols(df_column: pd.Series) -> pd.Series:
+def _process_datetime_cols(df_column: pd.Series, column_schema: dict) -> pd.Series:
     """Helper function to process datetime columns.
 
     Args:
         df_column (pd.Series): DataFrame column to be processed
+        column_schema (dict): Schema for the column
 
     Raises:
         TypeError: If the column cannot be converted to datetime
@@ -176,7 +177,24 @@ def _process_datetime_cols(df_column: pd.Series) -> pd.Series:
         pd.Series: Processed DataFrame column
     """
     try:
-        df_column = pd.to_datetime(df_column, errors="coerce", dayfirst=True)
+        if column_schema.get("Description"):
+            # it's necessary to specify a format to avoid warnings in coercing datetime
+            if "Datetime format = " in column_schema["Description"]:
+                datetime_format = column_schema["Description"].split(
+                    "Datetime format = "
+                )[1]
+                ValidationLogger.info(
+                    f"Processing datetime column '{df_column.name}' "
+                    f"with format '{datetime_format}'"
+                )
+                df_column = pd.to_datetime(
+                    df_column, format=datetime_format, errors="coerce", dayfirst=True
+                )
+                return df_column
+        else:
+            # where no datetime format is specified, we cast to string as
+            # this our pipeline doesn't actually process the datetime columns
+            df_column = df_column.astype("string")
     except TypeError:
         e = f"Failed to convert column '{df_column.name}' to datetime. "
         raise TypeError(e)
@@ -213,13 +231,16 @@ def _validate_bool_cols(bool_column: pd.Series, nullable: bool = True) -> pd.Ser
     return validated_column
 
 
-def process_data_types(df_column: pd.Series, designated_dtype: str) -> pd.Series:
+def process_data_types(
+    df_column: pd.Series, designated_dtype: str, column_schema: dict
+) -> pd.Series:
     """Casts each column in the dataframe to the data type specified in the
     dtype_dict.
 
     Args:
         df_column (pd.Series): DataFrame to be processed
         designated_dtype (str): Designated data type for the column
+        column_schema (dict): Schema for the column
 
     Raises:
         TypeError: If the designated data type is not recognized
@@ -236,8 +257,8 @@ def process_data_types(df_column: pd.Series, designated_dtype: str) -> pd.Series
             df_column = _process_numeric_cols(df_column, designated_dtype)
         # strings
         elif designated_dtype in ["str", "string", "object"]:
-            # use the pandas string type for better performance
-            # and to avoid issues with mixed types
+            # use the pandas string type for better performance and to avoid issues
+            # with mixed types - also supports pd.NA for better null handling
             df_column = df_column.astype("string")
         # booleans
         elif designated_dtype in ["bool", "boolean"]:
@@ -245,7 +266,7 @@ def process_data_types(df_column: pd.Series, designated_dtype: str) -> pd.Series
             df_column = _validate_bool_cols(df_column, nullable=nullable)
         # datetimes
         elif "datetime" in designated_dtype:
-            df_column = _process_datetime_cols(df_column)
+            df_column = _process_datetime_cols(df_column, column_schema)
         else:
             e = f"Designated data type '{designated_dtype}' for column "
             e += f"'{df_column.name}' is not recognized."
@@ -297,7 +318,9 @@ def validate_data_with_schema(
         )
 
         designated_dtype = dtypes_dict[column]
-        survey_df[column] = process_data_types(survey_df[column], designated_dtype)
+        survey_df[column] = process_data_types(
+            survey_df[column], designated_dtype, dtypes_schema[column]
+        )
 
     ValidationLogger.info("Validation successful")
     return survey_df
@@ -325,8 +348,10 @@ def combine_schemas_validate_full_df(
     dtypes_con_schema = load_schema(contributor_schema)
     dtypes_res_schema = load_schema(wide_response_schema)
 
-    # Create all unique keys from both schema
-    full_columns_list = set(dtypes_con_schema) | set(dtypes_res_schema)
+    # Combine schemas. If there are overlapping columns, res_schema takes precedence
+    dtypes_schema = {**dtypes_con_schema, **dtypes_res_schema}
+
+    full_columns_list = list(dtypes_schema.keys())
 
     # Create dtypes dictionary for the full schema, both contributor and wide
     dtypes_dict = {
@@ -337,6 +362,7 @@ def combine_schemas_validate_full_df(
         )
         for column_nm in full_columns_list
     }
+
     # Cast each column individually, and catch any errors
     for column in dtypes_dict.keys():
         # Check whether the column is in the dataframe
@@ -355,7 +381,9 @@ def combine_schemas_validate_full_df(
         )
         # process the data types
         designated_dtype = dtypes_dict[column]
-        survey_df[column] = process_data_types(survey_df[column], designated_dtype)
+        survey_df[column] = process_data_types(
+            survey_df[column], designated_dtype, dtypes_schema[column]
+        )
 
     ValidationLogger.info("Validation successful")
     return survey_df

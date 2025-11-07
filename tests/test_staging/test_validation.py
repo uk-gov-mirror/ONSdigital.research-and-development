@@ -79,12 +79,37 @@ def test_process_numeric_cols_int_and_float():
 
 
 def test_process_datetime_cols():
-    s = pd.Series(["2020-01-01", "notadate", None])
-    result = _process_datetime_cols(s)
-    assert pd.api.types.is_datetime64_any_dtype(result)
-    assert pd.isna(result[1])
-    assert pd.isna(result[2])
-    assert result[0] == pd.Timestamp("2020-01-01")
+
+    cols = ["col1", "col2", "col3"]
+    input_data = [
+        ["2020-01-01", "2020-01-01 12:00:00", "12/01/2021"],
+        ["invalid_date", "invalid_datetime", "28/02/2020"],
+        ["01/01/2021", None, "31/02/2020"],
+    ]
+    input_df = pd.DataFrame(input_data, columns=cols)
+
+    expected_data = [
+        ["2020-01-01", pd.Timestamp("2020-01-01 12:00:00"), pd.Timestamp("2021-01-12")],
+        ["invalid_date", pd.NaT, pd.Timestamp("2020-02-28")],
+        ["01/01/2021", pd.NaT, pd.NaT],
+    ]
+    expected_df = pd.DataFrame(expected_data, columns=cols)
+
+    schema = {
+        "col1": {"Deduced_Data_Type": "datetime64[ns]"},
+        "col2": {"Deduced_Data_Type": "datetime64[ns]", "Description": "Datetime format = %Y-%m-%d %H:%M:%S"},
+        "col3": {"Deduced_Data_Type": "datetime64[ns]", "Description": "Datetime format = %d/%m/%Y"},
+    }
+
+
+    for col in cols:
+        result = _process_datetime_cols(input_df[col], schema[col])
+        for i in range(len(result)):
+            if pd.isna(expected_df[col][i]):
+                assert pd.isna(result[i])
+            else:
+                assert result[i] == expected_df[col][i]
+
 
 
 def test_validate_bool_cols_with_nulls():
@@ -106,7 +131,7 @@ def mock_load_data(filepath):
         "col1": {"Deduced_Data_Type": "int"},
         "col2": {"Deduced_Data_Type": "str"},
         "col3": {"Deduced_Data_Type": "float"},
-        "col4": {"Deduced_Data_Type": "datetime64[ns]"},
+        "col4": {"Deduced_Data_Type": "datetime64[ns]", "Description": "Datetime format = %Y-%m-%d"},
     }
     return data_type_schema
 
@@ -181,7 +206,7 @@ def mock_load_both_data(filepath):
         "reference": {"Deduced_Data_Type": "int"},
         "createdby": {"Deduced_Data_Type": "str"},
         "instance": {"Deduced_Data_Type": "float"},
-        "date": {"Deduced_Data_Type": "datetime64[ns]"},
+        "date": {"Deduced_Data_Type": "datetime64[ns]", "Description": "Datetime format = %Y-%m-%d"},
     }
     data_type_schema2 = {
         "q200": {"Deduced_Data_Type": "str"},
