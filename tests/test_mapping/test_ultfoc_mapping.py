@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 # Local Imports
-from src.mapping.ultfoc_mapping import join_fgn_ownership
+from r_and_d_ex.mapping.ultfoc_mapping import join_fgn_ownership
 
 
 class TestJoinFgnOwnership(object):

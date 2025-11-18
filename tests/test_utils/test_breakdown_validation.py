@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 import logging
 
-from src.utils.breakdown_validation import (
+from r_and_d_ex.utils.breakdown_validation import (
     get_equality_dicts,
     get_all_wanted_columns,
     run_breakdown_validation,

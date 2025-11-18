@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.mapping.itl_mapping import join_itl_regions
+from r_and_d_ex.mapping.itl_mapping import join_itl_regions
 
 @pytest.fixture(scope="module")
 def config() -> dict:

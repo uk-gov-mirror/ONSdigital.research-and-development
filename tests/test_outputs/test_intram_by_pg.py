@@ -7,8 +7,8 @@ import pandas as pd
 import unittest
 
 # Local Imports
-from src.outputs.intram_by_pg import output_intram_by_pg
-from src.outputs.intram_by_pg import _generate_intarm_by_pg
+from r_and_d_ex.outputs.intram_by_pg import output_intram_by_pg
+from r_and_d_ex.outputs.intram_by_pg import _generate_intarm_by_pg
 
 # create logger (required pass to function)
 TestLogger = logging.getLogger(__name__)

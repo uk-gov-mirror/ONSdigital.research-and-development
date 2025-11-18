@@ -9,8 +9,8 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 
 # Local Imports
-from src.imputation.MoR import run_mor
-from src.imputation.imputation_helpers import get_imputation_cols, create_imp_class_col
+from r_and_d_ex.imputation.MoR import run_mor
+from r_and_d_ex.imputation.imputation_helpers import get_imputation_cols, create_imp_class_col
 
 class TestRunMoRLongForm(object):
     """Tests for run_mor."""

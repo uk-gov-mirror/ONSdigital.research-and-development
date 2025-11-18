@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from pandas._testing import assert_frame_equal
 
-from src.outputs.short_form import create_headcount_cols
+from r_and_d_ex.outputs.short_form import create_headcount_cols
 
 
 class TestCreateHeadcountCols:

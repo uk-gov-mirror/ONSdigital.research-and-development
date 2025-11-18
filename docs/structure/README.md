@@ -9,7 +9,7 @@ structure is explained here:
 ./docs.md
 ./notebooks.md
 ./outputs.md
-./src.md
+./r_and_d_ex.md
 ./tests.md
 ```
 

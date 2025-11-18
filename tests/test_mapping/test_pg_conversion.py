@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 import numpy as np
 
-from src.mapping.pg_conversion import (
+from r_and_d_ex.mapping.pg_conversion import (
     pg_to_pg_mapper,
     sic_to_pg_mapper,
     run_pg_conversion,

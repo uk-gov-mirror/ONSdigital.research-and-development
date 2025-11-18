@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 
 # Local Imports
-from src.outputs.map_output_cols import (
+from r_and_d_ex.outputs.map_output_cols import (
     map_sizebands,
     create_cora_status_col,
     map_to_numeric,

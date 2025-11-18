@@ -3,7 +3,7 @@ import numpy as np
 from pandas import DataFrame as pandasDF
 from pandas._testing import assert_frame_equal
 
-from src.imputation.impute_civ_def import (
+from r_and_d_ex.imputation.impute_civ_def import (
     prep_cd_imp_classes,
     create_civdef_dict,
     calc_cd_proportions,

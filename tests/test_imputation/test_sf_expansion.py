@@ -9,7 +9,7 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 
 # Local Imports
-from src.imputation.sf_expansion import run_sf_expansion
+from r_and_d_ex.imputation.sf_expansion import run_sf_expansion
 
 # This indicates that the tests are a work in progress and should not be run
 pytestmark = pytest.mark.runwip

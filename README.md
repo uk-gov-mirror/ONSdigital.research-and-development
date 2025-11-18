@@ -1,27 +1,26 @@
-# Research and Development Project
+# Copy of the Research and Development pipeline for experimental work
 
-![Code Coverage](https://img.shields.io/badge/Coverage-61%25-yellow.svg)
-
-Calculating national and regional research and development expenditure as part of [national accounts](https://www.ons.gov.uk/economy/nationalaccounts).
-
-Additional information about the aims and objectives of the project will go here when it is available. The project is currently in pre-discovery.
+This repository is a copy of the Research and Development results processing pipeline. It is not intended for production but will be used for development of new tools and processes.
 
 
-## Licence
+## 1. Cloning this repo
+Open your terminal in the folder you want to save your repo in. Note that you don't need to create a folder for the name of the repo, cloning will automatically do this.
+Input the following line into your terminal:
 
-Unless stated otherwise, the codebase is released under the MIT License. This covers
-both the codebase and any sample code in the documentation. The documentation is ©
-Crown copyright and available under the terms of the Open Government 3.0 licence.
+git clone https://github.com/ONSdigital/iabs-results-processing
 
+## 2. Create a virtual environment and install project dependancies
 
-## Acknowledgements
+See the [Setup Technical Details document](docs/contributor_guide/Setup_technical_details.md) for detailed instructions on how to set up a virtual environment and install the project dependancies.
 
-[This project structure is based on the `govcookiecutter` template
-project][govcookiecutter]. Guidance on using the govcookiecutter can be found on [this youtube video](https://www.youtube.com/watch?v=N7_d3k3uQ_M) and in the [documentation here](https://dataingovernment.blog.gov.uk/2021/07/20/govcookiecutter-a-template-for-data-science-projects/).
+# License
 
-Some of the text, especially that covering git configuration and security considerations was adapted from work by David Foster and Rowan Hemsi at ONS.
+<!-- Unless stated otherwise, the codebase is released under [the MIT Licence][mit]. -->
 
-[contributing]: ./docs/contributor_guide/CONTRIBUTING.md
-[govcookiecutter]: https://github.com/best-practice-and-impact/govcookiecutter
-[docs-loading-environment-variables]: ./docs/user_guide/loading_environment_variables.md
-[docs-loading-environment-variables-secrets]: ./docs/user_guide/loading_environment_variables.md#storing-secrets-and-credentials
+The code, unless otherwise stated, is released under [the MIT Licence][mit].
+
+The documentation for this work is subject to [© 2024 Crown Copyright (Office for National Statistics)][copyright] and is available under the terms of the [Open Government 3.0][ogl] licence.
+
+[mit]: https://gitlab-app-l-01/ashe-group/sandpit/-/blob/main/LICENSE
+[copyright]: http://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/
+[ogl]: http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/

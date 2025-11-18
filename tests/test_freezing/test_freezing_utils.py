@@ -5,7 +5,7 @@ from datetime import datetime
 import pandas as pd
 import pytest
 
-from src.freezing.freezing_utils import _add_last_frozen_column, validate_any_refinst_in_frozen
+from r_and_d_ex.freezing.freezing_utils import _add_last_frozen_column, validate_any_refinst_in_frozen
 
 class TestAddLastFrozenColumn(object):
     """Tests for _add_last_frozen_column."""

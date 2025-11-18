@@ -6,7 +6,7 @@ import unittest
 
 
 # from unittest.mock import MagicMock, patch
-from src.staging.validation import (
+from r_and_d_ex.staging.validation import (
     validate_data_with_schema,
     combine_schemas_validate_full_df,
     validate_many_to_one,
@@ -16,7 +16,7 @@ from src.staging.validation import (
 def test_check_data_shape():
     """Test the check_data_shape function."""
     # Arrange
-    from src.staging.validation import check_data_shape
+    from r_and_d_ex.staging.validation import check_data_shape
 
     # Dataframe for test function to use
     dummy_dict = {"col1": [1, 2], "col2": [3, 4]}
@@ -37,7 +37,7 @@ def test_check_data_shape():
 def test_load_schema():
     """Test the load_schema function."""
     # Arrange
-    from src.staging.validation import load_schema
+    from r_and_d_ex.staging.validation import load_schema
 
     # Act: use pytest to assert the result
     result_1 = load_schema()
@@ -66,7 +66,7 @@ def mock_load_data(filepath):
 @pytest.fixture
 def mock_load_schema(monkeypatch):
 
-    monkeypatch.setattr("src.staging.validation.load_schema", mock_load_data)
+    monkeypatch.setattr("r_and_d_ex.staging.validation.load_schema", mock_load_data)
 
 
 def test_validate_data_with_schema(mock_load_schema):
@@ -116,7 +116,7 @@ def mock_load_both_data(filepath):
 @pytest.fixture
 def mock_load_schemas(monkeypatch):
 
-    monkeypatch.setattr("src.staging.validation.load_schema", mock_load_both_data)
+    monkeypatch.setattr("r_and_d_ex.staging.validation.load_schema", mock_load_both_data)
 
 
 def test_combine_schemas_validate_full_df(mock_load_schemas):

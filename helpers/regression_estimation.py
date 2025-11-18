@@ -12,8 +12,8 @@ import sys
 
 sys.path.append("D:/programming_projects/research-and-development")
 #%%
-from src.utils.local_file_mods import read_local_csv as read_csv
-from src.utils.local_file_mods import write_local_csv as write_csv
+from r_and_d_ex.utils.local_file_mods import read_local_csv as read_csv
+from r_and_d_ex.utils.local_file_mods import write_local_csv as write_csv
 
 #%% Configuration settings
 

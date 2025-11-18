@@ -2,7 +2,7 @@
 import pytest
 import logging
 
-from src.utils.path_helpers import (
+from r_and_d_ex.utils.path_helpers import (
     get_paths,
     create_staging_config,
     create_ni_staging_config,

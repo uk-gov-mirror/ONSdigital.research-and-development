@@ -7,7 +7,7 @@ import numpy as np
 from pandas._testing import assert_frame_equal
 
 # Local Imports
-from src.outputs.intram_by_itl import rename_itl, aggregate_itl
+from r_and_d_ex.outputs.intram_by_itl import rename_itl, aggregate_itl
 
 class TestRenameItl(object):
     """Tests for renamed_itl."""

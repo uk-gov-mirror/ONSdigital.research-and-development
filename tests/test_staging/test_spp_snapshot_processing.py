@@ -6,7 +6,7 @@ import pytest
 from typing import Tuple
 
 
-from src.staging.spp_snapshot_processing import (
+from r_and_d_ex.staging.spp_snapshot_processing import (
     create_response_dataframe,
     full_responses,
     response_rate,

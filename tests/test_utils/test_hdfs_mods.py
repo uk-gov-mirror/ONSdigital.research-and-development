@@ -7,7 +7,7 @@ import pytest
 # Import modules to test
 import sys
 
-from src.utils.hdfs_mods import (
+from r_and_d_ex.utils.hdfs_mods import (
     rd_read_csv,
     rd_write_csv,
     rd_load_json,
@@ -36,8 +36,8 @@ class TestReadCsv:
 
         return pd.DataFrame(data)
 
-    @mock.patch("src.utils.hdfs_mods.pd.read_csv")
-    @mock.patch("src.utils.hdfs_mods.hdfs.open")
+    @mock.patch("r_and_d_ex.utils.hdfs_mods.pd.read_csv")
+    @mock.patch("r_and_d_ex.utils.hdfs_mods.hdfs.open")
     def test_rd_read_csv(self, mock_open, mock_read_csv):
         """Test the expected functionality of rd_read_csv.
 
@@ -62,7 +62,7 @@ class TestReadCsv:
 
 
 class TestWriteCsv:
-    @mock.patch("src.utils.hdfs_mods.hdfs")
+    @mock.patch("r_and_d_ex.utils.hdfs_mods.hdfs")
     def test_rd_write_csv(self, mock_hdfs):
         """Test the expected functionality of rd_write_csv."""
 
@@ -105,8 +105,8 @@ class TestLoadJson:
 
         return data
 
-    @mock.patch("src.utils.hdfs_mods.json")
-    @mock.patch("src.utils.hdfs_mods.hdfs")
+    @mock.patch("r_and_d_ex.utils.hdfs_mods.json")
+    @mock.patch("r_and_d_ex.utils.hdfs_mods.hdfs")
     def test_rd_load_json(self, mock_hdfs, mock_json):
         """Test the expected functionality of rd_load_json."""
 
@@ -126,7 +126,7 @@ class TestLoadJson:
 class TestHdfsFileExists:
     """Tests for function to check a file exists in HDFS."""
 
-    @mock.patch("src.utils.hdfs_mods.hdfs.path.exists")
+    @mock.patch("r_and_d_ex.utils.hdfs_mods.hdfs.path.exists")
     def test_rd_file_exists(self, mock_rd_is_file):
         """Mock tests for rd_file_exists function in True and False cases."""
         # check True is returned if file exists
@@ -143,7 +143,7 @@ class TestHdfsFileExists:
 class TestHdfsFileSize:
     """Tests for function to return size of file in HDFS."""
 
-    @mock.patch("src.utils.hdfs_mods.hdfs.path.getsize")
+    @mock.patch("r_and_d_ex.utils.hdfs_mods.hdfs.path.getsize")
     def test_rd_file_size(self, mock_rd_getsize):
         """Mock test for rd_file_size to return size of file in hdfs."""
         mock_rd_getsize.return_value = 300
@@ -154,8 +154,8 @@ class TestHdfsFileSize:
 class TestCheckFileExists:
     """Tests for function to check a file exists in HDFS."""
 
-    @mock.patch("src.utils.hdfs_mods.hdfs.path.getsize")
-    @mock.patch("src.utils.hdfs_mods.hdfs.path.exists")
+    @mock.patch("r_and_d_ex.utils.hdfs_mods.hdfs.path.getsize")
+    @mock.patch("r_and_d_ex.utils.hdfs_mods.hdfs.path.exists")
     def test_check_rd_file_exists(self, mock_rd_is_file, mock_get_filesize):
         """Mock tests for check_rd_file_exists function in True and False cases."""
         # check True is returned if file exists and is non-empty

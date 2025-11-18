@@ -1,6 +1,6 @@
 config_validation:
   validate: True
-  path: src/dev_config_schema.yaml
+  path: r_and_d_ex/dev_config_schema.yaml
 dev_global:
   # Logging settings
   logging_level: "DEBUG"

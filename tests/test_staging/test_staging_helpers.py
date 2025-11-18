@@ -18,7 +18,7 @@ from pandas import DataFrame as pandasDF
 import pyarrow.feather as feather
 
 # Local Imports
-from src.staging.staging_helpers import (
+from r_and_d_ex.staging.staging_helpers import (
     fix_anon_data,
     getmappername,
     load_validate_mapper,
@@ -27,7 +27,7 @@ from src.staging.staging_helpers import (
     stage_validate_harmonise_postcodes,
     filter_pnp_data,
 )
-from src.utils.local_file_mods import (
+from r_and_d_ex.utils.local_file_mods import (
     rd_file_exists as check_file_exists,
     rd_read_feather as read_feather,
     rd_write_feather as write_feather,
@@ -35,7 +35,7 @@ from src.utils.local_file_mods import (
     rd_write_csv as write_csv,
 )
 
-from src.utils.logger import logger_creator
+from r_and_d_ex.utils.logger import logger_creator
 
 
 def match_col_type(df1: pd.DataFrame, df2: pd.DataFrame, col_name: str, _type: str):
@@ -116,9 +116,9 @@ class TestGetMapperName(object):
 class TestLoadValidateMapper:
     """Tests for load_validate_mapper."""
 
-    @patch("src.utils.local_file_mods.rd_file_exists")
-    @patch("src.utils.local_file_mods.rd_read_csv")
-    @patch("src.staging.validation.validate_data_with_schema")
+    @patch("r_and_d_ex.utils.local_file_mods.rd_file_exists")
+    @patch("r_and_d_ex.utils.local_file_mods.rd_read_csv")
+    @patch("r_and_d_ex.staging.validation.validate_data_with_schema")
     def test_load_validate_mapper(
         self,
         mock_val_with_schema_func,

@@ -5,8 +5,8 @@ from pandas.testing import assert_frame_equal
 import logging
 import numpy as np
 
-from src.freezing.freezing_compare import get_amendments, get_additions_deletions
-from src.freezing.freezing_compare import bring_together_split_cases
+from r_and_d_ex.freezing.freezing_compare import get_amendments, get_additions_deletions
+from r_and_d_ex.freezing.freezing_compare import bring_together_split_cases
 
 # create a test logger to pass to functions
 test_logger = logging.getLogger(__name__)

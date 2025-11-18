@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import pytest
 
-from src.outputs.PNP_NA_output import sum_subtract_cols
+from r_and_d_ex.outputs.PNP_NA_output import sum_subtract_cols
 
 class TestAddSubtractCols:
     """Tests for sum_subtract_cols."""

@@ -1,7 +1,7 @@
 # `src` API reference
 
 This page gives an overview of all public `src` objects, functions and methods. All
-classes and functions exposed in `src.*` namespace are public.
+classes and functions exposed in `r_and_d_ex.*` namespace are public.
 
 ```{toctree}
 :maxdepth: 2
@@ -11,5 +11,5 @@ classes and functions exposed in `src.*` namespace are public.
 ./data_processing.md
 ./data_visualisations.md
 ./utils.md
-./src.md
+./r_and_d_ex.md
 ```

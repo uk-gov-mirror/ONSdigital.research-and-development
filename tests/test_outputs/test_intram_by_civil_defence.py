@@ -6,7 +6,7 @@ import pytest
 from unittest.mock import Mock
 
 # Local Imports
-from src.outputs.intram_by_civil_defence import (
+from r_and_d_ex.outputs.intram_by_civil_defence import (
     output_intram_by_civil_defence,
     generate_intram_by_civil_defence,
     _save_output_intram_civil_def_as_csv

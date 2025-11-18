@@ -2,8 +2,8 @@
 import os
 import sys
 my_wd = os.getcwd()
-from src.utils.helpers import tree_to_list
-from src.utils.local_file_mods import rd_file_exists
+from r_and_d_ex.utils.helpers import tree_to_list
+from r_and_d_ex.utils.local_file_mods import rd_file_exists
 
 # Change to the project repository location
 my_repo = "R:/BERD Results System Development 2023/DAP_emulation"
@@ -25,7 +25,7 @@ def make_dir(dir):
 def run_make_dirs(years, surveys, root=""):
     """Creates all directories based on the `tree` structure.
 
-    tree (dict) converted to list of lists by function src.utils.helpers.tree_to_list.
+    tree (dict) converted to list of lists by function r_and_d_ex.utils.helpers.tree_to_list.
     make_dir function is called for item in the list of directories. Itertates through
     years (list) and surveys (list) to create the directories for said years and
     surveys.

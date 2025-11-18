@@ -3,7 +3,7 @@
 import os
 
 from importlib import reload
-from src.utils import postcode_reduction_helper
+from r_and_d_ex.utils import postcode_reduction_helper
 
 reload(postcode_reduction_helper)
 

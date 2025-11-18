@@ -9,7 +9,7 @@ import numpy as np
 from unittest.mock import patch
 
 # Local Imports
-from src.site_apportionment.site_apportionment import (
+from r_and_d_ex.site_apportionment.site_apportionment import (
     count_unique_postcodes_in_col,
     create_notnull_mask,
     set_percentages,
@@ -1035,7 +1035,7 @@ class TestRunApportionSites(object):
         imp_markers_to_keep: list = ["R", "TMI", "CF", "MoR"]
 
         # we will mock the function consistency_checks for simplicity
-        with patch("src.site_apportionment.site_apportionment.consistency_checks") as mock_consistency_checks:
+        with patch("r_and_d_ex.site_apportionment.site_apportionment.consistency_checks") as mock_consistency_checks:
             mock_consistency_checks.return_value = True
 
             results_df = run_apportion_sites(input_df, imp_markers_to_keep, config, intram_tot_dict={})

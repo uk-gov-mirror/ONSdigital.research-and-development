@@ -12,7 +12,7 @@ def setup_environment():
     if not my_wd.endswith(my_repo):
         os.chdir(my_repo)
     # Import the module after changing the directory
-    from src.outputs import export_files
+    from r_and_d_ex.outputs import export_files
 
     reload(export_files)
     return export_files

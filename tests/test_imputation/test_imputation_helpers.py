@@ -5,7 +5,7 @@ from pandas._testing import assert_series_equal, assert_frame_equal
 from unittest.mock import patch
 import pytest
 
-from src.imputation.imputation_helpers import (
+from r_and_d_ex.imputation.imputation_helpers import (
     copy_first_to_group,
     fix_604_error,
     create_r_and_d_instance,
@@ -1093,7 +1093,7 @@ class TestRemoveDefenceForPNP():
         #  before removing them
         defence_rows = [49900000510, 49900184433]
 
-        with patch("src.imputation.imputation_helpers.ImputationHelpersLogger") as mock_logger:
+        with patch("r_and_d_ex.imputation.imputation_helpers.ImputationHelpersLogger") as mock_logger:
             remove_defence_for_pnp(input_df, to_impute_cols)
             mock_logger.info.assert_called_with(
                 f"Defence rows found in PNP data: {defence_rows}"

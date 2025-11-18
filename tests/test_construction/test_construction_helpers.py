@@ -5,7 +5,7 @@ import pytest
 from pandas._testing import assert_frame_equal
 
 
-from src.construction.construction_helpers import (
+from r_and_d_ex.construction.construction_helpers import (
     prepare_forms_gb,
     prepare_short_to_long,
     clean_construction_type,

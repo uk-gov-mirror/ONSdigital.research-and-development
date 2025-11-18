@@ -2,7 +2,7 @@ import numpy as np
 from pandas import DataFrame as pandasDF
 from pandas._testing import assert_frame_equal
 
-from src.imputation.apportionment import (
+from r_and_d_ex.imputation.apportionment import (
     calc_202_totals,
     copy_first_to_group,
     calc_fte_column,

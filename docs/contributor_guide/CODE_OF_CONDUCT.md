@@ -15,7 +15,7 @@ Code][civil-service-code], and are expected to follow it in their contributions.
 
 Where this Code of Conduct says:
 
-- "Project", we mean this `research-and-development` GitHub repository;
+- "Project", we mean this `r_and_d_experimental` GitHub repository;
 - "Maintainer", we mean the `ONSdigital` organisation owners; and
 - "Leadership", we mean both `ONSdigital` organisation owners, line managers, and other
   leadership within the Office for National Statistics.

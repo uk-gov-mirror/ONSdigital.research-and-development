@@ -5,7 +5,7 @@ import pytest
 import pandas as pd
 import numpy as np
 
-from src.construction.construction_validation import (
+from r_and_d_ex.construction.construction_validation import (
     check_for_duplicates,
     validate_construction_references,
     validate_columns_not_empty,

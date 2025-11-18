@@ -11,7 +11,7 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 import datetime
 
-from src.freezing.freezing_apply_changes import (
+from r_and_d_ex.freezing.freezing_apply_changes import (
     apply_amendments,
     apply_additions,
     apply_deletions_604

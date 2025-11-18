@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.utils.defence import type_defence, validate_file_extension
+from r_and_d_ex.utils.defence import type_defence, validate_file_extension
 
 
 class TestTypeDefence(object):

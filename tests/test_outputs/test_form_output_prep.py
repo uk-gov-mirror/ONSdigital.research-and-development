@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 
 # Local Imports
-from src.outputs.form_output_prep import form_output_prep
+from r_and_d_ex.outputs.form_output_prep import form_output_prep
 
 
 class TestFormOutputPrep(object):

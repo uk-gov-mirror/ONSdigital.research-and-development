@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.mapping.ni_mapping import join_itl_regions_ni, create_additional_ni_cols
+from r_and_d_ex.mapping.ni_mapping import join_itl_regions_ni, create_additional_ni_cols
 
 class TestJoinItlRegionsNi(object):
     """Tests for join_itl_regions_ni function."""

@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 
 # Local Imports
-from src.outputs.outputs_helpers import create_output_df, regions, create_period_year
+from r_and_d_ex.outputs.outputs_helpers import create_output_df, regions, create_period_year
 
 
 class TestCreateOutputDF(object):

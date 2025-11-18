@@ -11,14 +11,14 @@ from pandas.testing import assert_frame_equal
 import numpy as np
 
 # Local Imports
-from src.imputation.MoR import (
+from r_and_d_ex.imputation.MoR import (
     is_lf_only,
     mor_preprocessing,
     calculate_growth_rates,
     group_calc_link,
     calculate_links
 )
-from src.imputation.imputation_helpers import get_imputation_cols, create_imp_class_col
+from r_and_d_ex.imputation.imputation_helpers import get_imputation_cols, create_imp_class_col
 
 # pytestmark = pytest.mark.runwip
 

@@ -7,7 +7,7 @@ from typing import Union
 import pandas as pd
 import yaml
 
-from src.utils.local_file_mods import (
+from r_and_d_ex.utils.local_file_mods import (
     rd_read_csv,
     rd_write_csv,
     rd_load_json,

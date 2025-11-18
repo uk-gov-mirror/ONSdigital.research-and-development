@@ -13,8 +13,8 @@ import sys
 sys.path.append("D:/coding_projects/github_repos/research-and-development")
 #%%
 import pandas as pd
-from src.utils.local_file_mods import rd_read_csv as read_csv
-from src.utils.local_file_mods import rd_write_csv as write_csv
+from r_and_d_ex.utils.local_file_mods import rd_read_csv as read_csv
+from r_and_d_ex.utils.local_file_mods import rd_write_csv as write_csv
 
 #%% Configuration settings
 

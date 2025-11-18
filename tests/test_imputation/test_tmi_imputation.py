@@ -9,7 +9,7 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 
 # Local Imports
-from src.imputation.tmi_imputation import run_tmi
+from r_and_d_ex.imputation.tmi_imputation import run_tmi
 
 # This indicates that the tests are a work in progress and should not be run
 pytestmark = pytest.mark.runwip

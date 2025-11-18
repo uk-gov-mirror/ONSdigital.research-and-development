@@ -10,7 +10,7 @@ from unittest.mock import patch
 from pandas.testing import assert_frame_equal
 
 # Local Imports
-from src.outputs.PNP_NA_output import (
+from r_and_d_ex.outputs.PNP_NA_output import (
     divide_by_1000,
     create_na_output
 )

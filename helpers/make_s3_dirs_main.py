@@ -5,9 +5,9 @@ import sys
 # src is in the parent directory so append this to path
 sys.path.append('..')
 
-from src.utils.helpers import tree_to_list
-from src.utils.singleton_boto import SingletonBoto
-import src.utils.s3_mods as mods
+from r_and_d_ex.utils.helpers import tree_to_list
+from r_and_d_ex.utils.singleton_boto import SingletonBoto
+import r_and_d_ex.utils.s3_mods as mods
 
 config = {
     "s3": {
@@ -17,7 +17,7 @@ config = {
 }
 
 boto3_client = SingletonBoto.get_client(config)
-import src.utils.s3_mods as mods
+import r_and_d_ex.utils.s3_mods as mods
 
 def run_make_dirs(years, surveys, root):
 

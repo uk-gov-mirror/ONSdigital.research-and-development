@@ -4,7 +4,7 @@ from pandas._testing import assert_frame_equal
 from pandas import DataFrame as pandasDF
 import pytest
 
-import src.outlier_detection.auto_outliers as auto
+import r_and_d_ex.outlier_detection.auto_outliers as auto
 
 
 # Four tests for `validate_config()`:

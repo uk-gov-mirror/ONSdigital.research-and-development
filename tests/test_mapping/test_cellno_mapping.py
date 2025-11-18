@@ -2,7 +2,7 @@
 import pytest
 import pandas as pd
 
-from src.mapping.cellno_mapping import clean_validate_cellno_mapper
+from r_and_d_ex.mapping.cellno_mapping import clean_validate_cellno_mapper
 
 
 @pytest.fixture(scope="module")

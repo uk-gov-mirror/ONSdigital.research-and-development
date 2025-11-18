@@ -7,7 +7,7 @@ from typing import Union
 
 import yaml
 
-from src.utils.config import (
+from r_and_d_ex.utils.config import (
     safeload_yaml,
     merge_configs,
     validate_config,

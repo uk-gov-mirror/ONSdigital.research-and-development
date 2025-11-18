@@ -3,7 +3,7 @@ import pandas as pd
 
 
 # Local Imports
-from src.mapping.mapping_helpers import (
+from r_and_d_ex.mapping.mapping_helpers import (
     col_validation_checks,
     check_mapping_unique,
     update_ref_list,
@@ -11,7 +11,7 @@ from src.mapping.mapping_helpers import (
     mapper_null_checks
 )
 
-from src.utils.path_helpers import validate_mapping_filenames
+from r_and_d_ex.utils.path_helpers import validate_mapping_filenames
 class TestJoinWithNullCheck(object):
     """Tests for join_with_null_check function."""
 

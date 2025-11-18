@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from src.outlier_detection.manual_outliers import apply_manual_outliers
+from r_and_d_ex.outlier_detection.manual_outliers import apply_manual_outliers
 
 
 class TestManualOutliers:

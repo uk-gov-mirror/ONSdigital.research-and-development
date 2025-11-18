@@ -1,7 +1,7 @@
 """Tests for function in apply_weights"""
 import pandas as pd
 import numpy as np
-import src.estimation.apply_weights as appw
+import r_and_d_ex.estimation.apply_weights as appw
 from pandas._testing import assert_frame_equal
 
 

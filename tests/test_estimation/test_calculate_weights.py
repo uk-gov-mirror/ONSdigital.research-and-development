@@ -3,7 +3,7 @@
 import pandas as pd
 import numpy as np
 import pytest
-import src.estimation.calculate_weights as calw
+import r_and_d_ex.estimation.calculate_weights as calw
 from pandas._testing import assert_frame_equal, assert_series_equal
 
 

@@ -8,7 +8,7 @@ my_repo = "research-and-development"
 if not my_wd.endswith(my_repo):
     os.chdir(my_repo)
 
-from src.utils.singleton_boto import SingletonBoto  # noqa
+from r_and_d_ex.utils.singleton_boto import SingletonBoto  # noqa
 
 config = {
     "s3": {
@@ -18,7 +18,7 @@ config = {
 }
 
 boto3_client = SingletonBoto.get_client(config)
-import src.utils.s3_mods as mods  # noqa
+import r_and_d_ex.utils.s3_mods as mods  # noqa
 
 
 if __name__ == "__main__":

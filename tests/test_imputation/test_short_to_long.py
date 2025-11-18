@@ -2,7 +2,7 @@ import numpy as np
 from pandas._testing import assert_frame_equal
 from pandas import DataFrame as pandasDF
 
-from src.imputation.short_to_long import run_short_to_long
+from r_and_d_ex.imputation.short_to_long import run_short_to_long
 
 
 class TestShortToLong:

@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from src.staging.postcode_validation import (
+from r_and_d_ex.staging.postcode_validation import (
     run_full_postcode_process,
     # validate_postcode_pattern,
     format_postcodes,
@@ -85,7 +85,7 @@ def postcode_mapper():
 # def test_run_full_postcode_process(test_data_df, postcode_mapper, caplog):
 #     # Monkeypatch the get_masterlist function to use the mock implementation
 #     # monkeypatch.setattr(
-#     #     "src.staging.postcode_validation.get_masterlist", mock_get_masterlist
+#     #     "r_and_d_ex.staging.postcode_validation.get_masterlist", mock_get_masterlist
 #     # )
 
 #     # Make a fake path to the masterlist
@@ -191,7 +191,7 @@ def test_check_pcs_real_with_invalid_postcodes(test_data_df, monkeypatch):
 
     # Monkeypatch the get_masterlist function to use the mock implementation
     monkeypatch.setattr(
-        "src.staging.postcode_validation.get_masterlist", mock_get_masterlist
+        "r_and_d_ex.staging.postcode_validation.get_masterlist", mock_get_masterlist
     )
 
     # Use the fake path
@@ -225,7 +225,7 @@ def test_check_pcs_real_with_invalid_postcodes(test_data_df, monkeypatch):
 def test_check_pcs_real_with_valid_postcodes(test_data_df, monkeypatch):
     # Monkeypatch the get_masterlist function to use the mock implementation
     monkeypatch.setattr(
-        "src.staging.postcode_validation.get_masterlist", mock_get_masterlist
+        "r_and_d_ex.staging.postcode_validation.get_masterlist", mock_get_masterlist
     )
 
     # Use the fake path

@@ -6,7 +6,7 @@ import pytest
 def test_user_config_reader():
     """Test the user_config_reader function."""
     # Arrange
-    from src.utils.helpers import user_config_reader
+    from r_and_d_ex.utils.helpers import user_config_reader
 
     # Act: use pytest to assert the result
     result_1 = user_config_reader()
@@ -20,7 +20,7 @@ def test_user_config_reader():
 def test_period_select():
     """Test the preiod_select function."""
     # Arrange
-    from src.utils.helpers import period_select
+    from r_and_d_ex.utils.helpers import period_select
 
     # Act: use pytest to assert the result
     result_1 = period_select()
