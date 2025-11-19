@@ -732,7 +732,7 @@ def remove_defence_for_pnp(df: pd.DataFrame, to_impute_cols: list) -> pd.DataFra
 
     defence_rows = df.copy().loc[df["200"] == "D"]
     if len(defence_rows) > 0:
-        def_list = list(defence_rows["reference"].unique())
+        def_list = [int(x) for x in defence_rows["reference"].unique()]
         ImputationHelpersLogger.info(f"Defence rows found in PNP data: {def_list}")
 
         # update the full responses df to remove defence rows but leaving

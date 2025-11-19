@@ -3,6 +3,7 @@
 import itertools
 import re
 import pandas as pd
+import numpy as np
 
 from src.imputation.imputation_helpers import get_imputation_cols, create_imp_class_col
 from src.imputation.tmi_imputation import trim_bounds
@@ -242,18 +243,21 @@ def calculate_growth_rates(current_df, prev_df, target_vars):
     # Calculate the ratios for the relevant variables
     for target in target_vars:
         # Calculate a growth rate if both the current and previous values are non-zero
-        valid_mask = (gr_df[f"{target}_prev"] != 0) & (gr_df[target] != 0)
-        gr_df.loc[valid_mask, f"{target}_gr"] = (
-            gr_df.loc[valid_mask, target] / gr_df.loc[valid_mask, f"{target}_prev"]
+        gr_df.loc[:, f"{target}_gr"] = np.where(
+            (gr_df[f"{target}_prev"] != 0) & (gr_df[target] != 0),
+            gr_df[target] / gr_df[f"{target}_prev"],
+            np.nan,
         )
     return gr_df
 
 
-def calculate_links(gr_df, target_vars, config):
+def calculate_links(
+    df: pd.DataFrame, target_vars: list[str], config: dict
+) -> pd.DataFrame:
     """Calculate the Means of Ratios (links) for each imp_class
 
     Args:
-        gr_df (pd.DataFrame): DataFrame of growth rates for each target variable
+        df (pd.DataFrame): DataFrame of growth rates for each target variable
         target_vars ([string]): list of target variables to use.
         config (dict): Confuration settings.
 
@@ -261,7 +265,9 @@ def calculate_links(gr_df, target_vars, config):
         pd.DataFrame: DataFrame with calculated links for each imp_class
     """
     # Apply trimming and calculate means for each imp class
-    gr_df = gr_df.groupby("imp_class")
+    gr_df = df.groupby("imp_class")
+
+    # loop through all the target vars in turn
     gr_df = gr_df.apply(group_calc_link, target_vars, config)
 
     # Reorder columns to make QA easier
