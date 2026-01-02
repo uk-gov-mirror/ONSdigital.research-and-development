@@ -22,11 +22,12 @@ class ManifestFileInfo:
 
 @dataclass
 class SPPMetadata:
-    spp_filename: str
-    spp_created_date: str
-    version: int
-    description: str = ""
-    iterationL1: str = ""
+    # include default values to check against
+    spp_filename: str = ""
+    spp_created_date: str = ""
+    version: int = 1
+    description: str = "SPP BERD snapshot files"
+    iterationL1: str = "spp_snapshots"
 
 
 @dataclass
@@ -40,7 +41,7 @@ class SnapshotCandidateFileInfo:
 
 def filter_manifest_files(
     files_dict: dict[str, datetime], target_date: str = "", wanted_str: str = ""
-) -> dict:
+) -> list[ManifestFileInfo]:
     """
     Filter manifest files by target date and/ or filename substring.
 
@@ -64,7 +65,11 @@ def filter_manifest_files(
             for filename, last_mod_date in files_dict.items()
             if last_mod_date.strftime("%Y-%m-%d") == target_date
         }
-    return filtered_files
+    manifest_list = [
+        ManifestFileInfo(mani_filename=fn, mani_last_modified_date=lm)
+        for fn, lm in filtered_files.items()
+    ]
+    return manifest_list
 
 
 def get_spp_file_info_from_manifest(filename: str) -> SPPMetadata:
@@ -81,14 +86,33 @@ def get_spp_file_info_from_manifest(filename: str) -> SPPMetadata:
 
 
 def check_metadata(metadata: SPPMetadata, target_date: str) -> dict:
-    """Check if the created date in metadata matches the target date."""
-    expected_entries = {
-        "created_date": target_date,
-        "description": "SPP BERD snapshot files",
-        "iterationL1": "spp_snapshots",
-    }
+    """Check the created date in metadata matches the target date and other validation.
+
+    As well as checking for the created date, also checks description and iterationL1
+    fields to ensure data is as expected.
+
+    Args:
+        metadata (SPPMetadata): The SPPMetadata object to check.
+        target_date (str): The target date in 'YYYY-MM-DD' format.
+
+    Returns:
+        dict: Dict of mismatched metadata entries, empty if all match.
+    """
+    # create a SPPMetadata object with expected entries. The entries not specified will
+    # be checked against defaults set.
+    if target_date == "":
+        target_date = metadata.spp_created_date  # no check needed
+
+    expected_metadata = SPPMetadata(
+        spp_filename=metadata.spp_filename,  # no check needed
+        spp_created_date=target_date,  # check created matches target date
+        version=metadata.version,  # no check needed
+    )
+
     error_dict = {
-        k: v for k, v in expected_entries.items() if getattr(metadata, k, None) != v
+        k: v
+        for k, v in expected_metadata.__dict__.items()
+        if getattr(metadata, k, None) != v
     }
     if error_dict:
         msg = (
@@ -100,57 +124,29 @@ def check_metadata(metadata: SPPMetadata, target_date: str) -> dict:
     return {}
 
 
-def check_manifest_files_for_date(
-    files_dict: dict, target_date: str, wanted_str: str
-) -> dict:
-    """Check manifest files for a specific target date.
-
-    Args:
-        files_dict (dict): {filename: last_modified_date}
-        target_date (str): The target date in 'YYYY-MM-DD' format.
-
-    Returns:
-        dict: Filtered dictionary with files matching the target date.
-    """
-    correct_date_files = {}
-    for filename, last_mod_date in files_dict.items():
-        if last_mod_date.strftime("%Y-%m-%d") == target_date:
-            # get all the mainfest files with the correct substring
-            new_files_dict = filter_manifest_files(files_dict, wanted_str=wanted_str)
-            # read each manifest file and check the tdzComplete date
-            for filename in new_files_dict.keys():
-                manif_file_dict = rd_load_json(filename)
-                created_date = manif_file_dict["tdzComplete"]
-                if created_date.startswith(target_date):
-                    correct_date_files[filename] = target_date
-                    file_version = manif_file_dict.get("version", "")
-                    if file_version > 1:
-                        correct_date_files[filename] = f"{target_date}_v{file_version}"
-
-
-def test_filtered_files(
-    files_dict: dict, target_date: str
+def check_files(
+    mani_files_list: list[ManifestFileInfo], target_date: str = ""
 ) -> list[SnapshotCandidateFileInfo]:
     """Test filtered files for metadata matching the target date and metadata validity.
     Args:
         files_dict (dict): {filename: last_modified_date}
-        target_date (str): The target date in 'YYYY-MM-DD' format.
+        target_date (str): Target date in 'YYYY-MM-DD' format. If empty, no date check.
 
     Returns:
         dict: Dict with candidate file information if metadata matches target date.
     """
     candidate_file_list = []
-    for filename, last_mod_date in files_dict.items():
-        metadata_dict = get_spp_file_info_from_manifest(filename)
-        error_dict = check_metadata(metadata_dict, target_date)
+    for mani_file_info in mani_files_list:
+        spp_metadata = get_spp_file_info_from_manifest(mani_file_info.mani_filename)
+        error_dict = check_metadata(spp_metadata, target_date)
         if not error_dict:
             # create a CandidateFileInfo object and add to dict
             new_candidate = SnapshotCandidateFileInfo(
-                mani_filename=filename,
-                mani_last_modified_date=last_mod_date,
-                spp_filename=metadata_dict.spp_filename,
-                spp_created_date=metadata_dict.spp_created_date,
-                version=metadata_dict.version,
+                mani_filename=mani_file_info.mani_filename,
+                mani_last_modified_date=mani_file_info.mani_last_modified_date,
+                spp_filename=spp_metadata.spp_filename,
+                spp_created_date=spp_metadata.spp_created_date,
+                version=spp_metadata.version,
             )
             candidate_file_list.append(new_candidate)
     return candidate_file_list
@@ -178,7 +174,7 @@ def get_most_recent_file(file_list: list[SnapshotCandidateFileInfo]) -> str:
 
 def get_lastest_version_file(
     file_list: list[SnapshotCandidateFileInfo],
-) -> tuple[str, int]:
+) -> tuple[str, int, str]:
     """Get filename of the highest version file from a list where filenames the same.
 
     Args:
@@ -192,15 +188,17 @@ def get_lastest_version_file(
         sorted_files = sorted(file_list, key=lambda x: x.version, reverse=True)
         highest_version_file = sorted_files[0].spp_filename
         corresponding_version = sorted_files[0].version
+        corresponding_created_date = sorted_files[0].spp_created_date
     else:
         highest_version_file = file_list[0].spp_filename
         corresponding_version = file_list[0].version
-    return highest_version_file, corresponding_version
+        corresponding_created_date = file_list[0].spp_created_date
+    return highest_version_file, corresponding_version, corresponding_created_date
 
 
 def get_snapshot_name_from_date(
     prefix: str, survey_year: str, spp_date: str
-) -> tuple[str, int]:
+) -> tuple[str, int, str]:
     """Return the name of an spp snapshot delivered on the given date.
 
     Args:
@@ -208,28 +206,52 @@ def get_snapshot_name_from_date(
         spp_date (str): The date the snapshot was last modified (YYYY-MM-DD).
 
     Returns:
-        str: The name of the required spp snapshot.
+        tuple: The name of the spp snapshot, its version, and created date.
     """
     # get a dictionary of all manifest files with the given prefix
     files_dict = rd_list_manifest_files(prefix)
     # filter the manifest files for the given date and wanted string
     wanted_str = f"snapshot-{survey_year}12-002-"
-    files_dict = filter_manifest_files(files_dict, spp_date, wanted_str)
+    filtered_mani_file_list = filter_manifest_files(files_dict, spp_date, wanted_str)
     # check filtered files for metadata matching the target date and metadata validity
-    candidate_file_dict = test_filtered_files(files_dict, spp_date)
+    candidate_file_list = check_files(filtered_mani_file_list, spp_date)
     # if no candidate files are found checking the last modified date, search all files
-    if not candidate_file_dict:
+    if not candidate_file_list:
         files_dict = filter_manifest_files(files_dict, wanted_str=wanted_str)
-        candidate_file_dict = test_filtered_files(files_dict, spp_date)
-        if not candidate_file_dict:
+        candidate_file_list = check_files(filtered_mani_file_list, spp_date)
+        if not candidate_file_list:
             MetadataLogger.error(f"No valid SPP snapshot found for date {spp_date}")
             raise ValueError(f"No valid SPP snapshot found for date {spp_date}")
     # find the most recent file if multiple candidates are found
-    snapshot_name = get_most_recent_file(candidate_file_dict)
+    snapshot_name = get_most_recent_file(candidate_file_list)
     # check whether snapshot filename is unique, if not get the highest version
     duplicate_files = [
-        file for file in candidate_file_dict if file.spp_filename == snapshot_name
+        file for file in candidate_file_list if file.spp_filename == snapshot_name
     ]
-    if len(duplicate_files) > 1:
-        snapshot_name, version = get_lastest_version_file(duplicate_files)
-    return snapshot_name, version
+    snapshot_name, version, created_date = get_lastest_version_file(duplicate_files)
+    return snapshot_name, version, created_date
+
+
+def get_latest_snapshot_name(prefix: str, survey_year: str) -> tuple[str, int, str]:
+    """Return the name of the latest spp snapshot for a given survey year.
+
+    Args:
+        survey_year (str): The survey year the snapshot belongs to.
+
+    Returns:
+        tuple: The name of the latest spp snapshot, its version, and created date.
+    """
+    # get a dictionary of all manifest files with the given prefix
+    files_dict = rd_list_manifest_files(prefix)
+    # filter the manifest files for the wanted string
+    wanted_str = f"snapshot-{survey_year}12-002-"
+    filtered_mani_file_list = filter_manifest_files(files_dict, wanted_str=wanted_str)
+    candidate_file_list = check_files(filtered_mani_file_list, target_date="")
+    # check filtered files for metadata validity
+    snapshot_name = get_most_recent_file(candidate_file_list)
+    # check whether snapshot filename is unique, if not get the highest version
+    duplicate_files = [
+        file for file in candidate_file_list if file.spp_filename == snapshot_name
+    ]
+    snapshot_name, version, created_date = get_lastest_version_file(duplicate_files)
+    return snapshot_name, version, created_date
