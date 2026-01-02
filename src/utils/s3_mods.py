@@ -449,3 +449,32 @@ def rd_search_file(dir_path: str, ending: str) -> str:
             if file.endswith(ending):
                 target_file = str(file)
     return target_file
+
+
+def rd_list_manifest_files(prefix: str) -> dict:
+    """
+    Return manifest filenames and their last modified date with given conditions.
+
+    Args:
+        prefix (str): The prefix path to search for manifest files.
+        target_date (str): The target date in 'YYYY-MM-DD' format.
+
+    Raises:
+        boto3_client.exceptions.ClientError: If there is an error accessing S3.
+
+    Returns:
+        dict: A dictionary with manifest file keys and their last modified dates.
+    """
+    try:
+        manifest_files = {}
+        paginator = s3_client.get_paginator("list_objects_v2")
+        for page in paginator.paginate(Bucket=s3_bucket, Prefix=prefix):
+            for obj in page.get("Contents", []):
+                key = obj["Key"]
+                last_modified = obj["LastModified"]  # This is a datetime object
+                if key.endswith(".mani"):
+                    manifest_files[key] = last_modified
+        return manifest_files
+    except s3_client.exceptions.ClientError as e:
+        s3_logger.error(f"Error listing manifest files with prefix {prefix}: {e}")
+        raise e
