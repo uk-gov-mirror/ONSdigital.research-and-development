@@ -453,11 +453,10 @@ def rd_search_file(dir_path: str, ending: str) -> str:
 
 def rd_list_manifest_files(prefix: str) -> dict:
     """
-    Return manifest filenames and their last modified date with given conditions.
+    Return manifest filenames and their last modified date within a path set by prefix.
 
     Args:
         prefix (str): The prefix path to search for manifest files.
-        target_date (str): The target date in 'YYYY-MM-DD' format.
 
     Raises:
         boto3_client.exceptions.ClientError: If there is an error accessing S3.
