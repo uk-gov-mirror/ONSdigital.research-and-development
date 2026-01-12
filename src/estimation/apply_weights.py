@@ -41,6 +41,6 @@ def apply_weights(
         for col in employment_cols:
             df[col] = df[col] * df["g_weight"]
 
-    df = calc_totals(df, config, "employment", None)
+    df = calc_totals(df, config, "employment", 0)
 
     return df

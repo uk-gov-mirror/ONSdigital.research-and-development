@@ -188,7 +188,7 @@ def calc_totals(
         if len(columns) == 1:
             continue
         summed = df[columns[:-1]].sum(axis=1)
-        if round_value is not None:
+        if round_value > 0:
             df[columns[-1]] = round(summed, round_value)
         else:
             df[columns[-1]] = summed
