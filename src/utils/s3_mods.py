@@ -462,7 +462,8 @@ def rd_list_manifest_files(prefix: str) -> dict:
         boto3_client.exceptions.ClientError: If there is an error accessing S3.
 
     Returns:
-        dict: A dictionary with manifest file keys and their last modified dates.
+        dict: A dictionary with manifest file keys and their last modified dates, sorted
+              by last modified date in descending order.
     """
     try:
         manifest_files = {}
@@ -473,7 +474,13 @@ def rd_list_manifest_files(prefix: str) -> dict:
                 last_modified = obj["LastModified"]  # This is a datetime object
                 if key.endswith(".mani"):
                     manifest_files[key] = last_modified
-        return manifest_files
+
+        # Use lambda to sort dictionary items by their values (last_modified_date)
+        sorted_manifest_files = dict(
+            sorted(manifest_files.items(), key=lambda item: item[1], reverse=True)
+        )
+        return sorted_manifest_files
+
     except s3_client.exceptions.ClientError as e:
         s3_logger.error(f"Error listing manifest files with prefix {prefix}: {e}")
         raise e
