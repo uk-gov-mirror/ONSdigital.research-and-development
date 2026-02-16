@@ -11,6 +11,9 @@ from datetime import datetime
 
 from src.utils.s3_mods import rd_load_json, rd_list_manifest_files
 
+if not logging.getLogger().handlers:
+    logging.basicConfig(level=logging.INFO)
+
 MetadataLogger = logging.getLogger(__name__)
 
 
@@ -94,32 +97,24 @@ def check_metadata(metadata: SPPMetadata, target_date: str) -> dict:
     Returns:
         dict: Dict of mismatched metadata entries, empty if all match.
     """
-    # where no checks are needed, set expected fields to actual values
-    exp_version = metadata.version
-    exp_mani_filename = metadata.mani_filename
-    exp_mani_last_modified_date = metadata.mani_last_modified_date
     # remove the path and .mani extension from the manifest filename for the spp name
-    exp_spp_filename = os.path.basename(exp_mani_filename).replace(".mani", "")
+    exp_spp_filename = os.path.basename(metadata.mani_filename).replace(".mani", "")
     # if no target date is given, check whether the created date is the same as
     # the manifest last modified date
     if target_date == "":
         target_date = metadata.mani_last_modified_date
 
-    # Create an expected SPPMetadata object for checks.
-    expected_metadata = SPPMetadata(
-        mani_filename=exp_mani_filename,
-        mani_last_modified_date=exp_mani_last_modified_date,
-        spp_filename=exp_spp_filename,
-        spp_created_date=target_date,
-        version=exp_version,
-        # the remaining fields will be checked against their default values
-    )
+    check_dict = {
+        "spp_filename": exp_spp_filename,
+        "spp_created_date": target_date,
+    }
 
     error_dict = {
         k: {"expected": v, "found": getattr(metadata, k, None)}
-        for k, v in expected_metadata.__dict__.items()
+        for k, v in check_dict.items()
         if getattr(metadata, k, None) != v
     }
+
     if error_dict:
         msg = (
             f"Metadata check failed for target date {target_date}. "
@@ -152,7 +147,6 @@ def check_files(mani_files_dict: dict, target_date: str = "") -> list[SPPMetadat
     for mani_filename, mani_mod_date in mani_files_dict.items():
         spp_metadata = get_spp_file_info_from_manifest(mani_filename, mani_mod_date)
         error_dict = check_metadata(spp_metadata, target_date)
-        # TODO: if the only error is created date < modified date, continue checking-
         if not error_dict:
             new_candidate = SPPMetadata(
                 mani_filename=mani_filename,
@@ -162,28 +156,32 @@ def check_files(mani_files_dict: dict, target_date: str = "") -> list[SPPMetadat
                 version=spp_metadata.version,
             )
             candidate_file_list.append(new_candidate)
+        # if the only error is created date < modified date, continue checking-
+        # elif "spp_created_date" in error_dict and not "spp_filename" in error_dict:
 
     return candidate_file_list
 
 
-def get_most_recent_file(file_list: list[SPPMetadata]) -> str:
+def get_most_recent_file(file_list: list[SPPMetadata]) -> tuple[str, str]:
     """Get the filename of the most recently modified file from a dictionary.
 
     Args:
         file_dict (dict): {filename: last_modified_date}
 
     Returns:
-        str: The filename (key) of the most recently modified file.
+        tuple: The filename of the most recently modified file with last modified date.
     """
     if len(file_list) > 1:
         # sort the list by last modified date and get the most recent
         sorted_files = sorted(
             file_list, key=lambda x: x.mani_last_modified_date, reverse=True
         )
-        most_recent_file = sorted_files[0].spp_filename
+        most_recent_file = (sorted_files[0].spp_filename,)
+        most_recent_date = sorted_files[0].mani_last_modified_date
     else:
         most_recent_file = file_list[0].spp_filename
-    return most_recent_file
+        most_recent_date = file_list[0].mani_last_modified_date
+    return most_recent_file, most_recent_date
 
 
 def get_lastest_version_file(
@@ -225,7 +223,8 @@ def get_snapshot_name(
     Returns:
         tuple: The name of the spp snapshot, its version, and created date.
     """
-    # get a dictionary of all manifest files with the given prefix
+    # get a dictionary of all manifest files with the given prefix,
+    # sorted by last modified date
     files_dict = rd_list_manifest_files(prefix)
     # filter the manifest files for the given date (if given) and wanted string
     wanted_str = f"snapshot-{survey_year}12-002-"
@@ -233,19 +232,47 @@ def get_snapshot_name(
     # check filtered files for metadata matching the target date and metadata validity
     candidate_file_list = check_files(filtered_mani_file_list, spp_date)
 
-    # if we checked against a target date but no candidate files are found,
-    # try filtering only by wanted string
-    if not (spp_date == "") and not candidate_file_list:
-        files_dict = filter_manifest_files(files_dict, wanted_str=wanted_str)
+    # logical condition for whether to look for latest file rather than target date
+    return_latest = spp_date == ""
+
+    if not candidate_file_list and not return_latest:
+        msg = (
+            f"No valid SPP snapshot found for date {spp_date}.\n"
+            "Now looking for latest snapshot."
+        )
+        MetadataLogger.info(msg)
+        # if we checked against a target date but no candidate files are found,
+        # try filtering only by wanted string and no target date.
+        return_latest = True
+        filtered_mani_file_list = filter_manifest_files(
+            files_dict, wanted_str=wanted_str
+        )
         candidate_file_list = check_files(filtered_mani_file_list, spp_date)
-        if not candidate_file_list:
-            MetadataLogger.error(f"No valid SPP snapshot found for date {spp_date}")
-            raise ValueError(f"No valid SPP snapshot found for date {spp_date}")
+
+    if not candidate_file_list:
+        raise FileNotFoundError(
+            f"No valid SPP snapshot manifest files found with prefix {prefix}."
+        )
+
     # find the most recent file if multiple candidates are found
-    snapshot_name = get_most_recent_file(candidate_file_list)
+    snapshot_name, most_recent_date = get_most_recent_file(candidate_file_list)
     # check whether snapshot filename is unique, if not get the highest version
     duplicate_files = [
         file for file in candidate_file_list if file.spp_filename == snapshot_name
     ]
     snapshot_name, version, created_date = get_lastest_version_file(duplicate_files)
+
+    # log returned values to screen
+    if return_latest:
+        MetadataLogger.info(
+            f"The latest SPP snapshot is: {snapshot_name},"
+            f"version {version},"
+            f"created date {created_date}."
+        )
+    else:
+        MetadataLogger.info(
+            f"The SPP snapshot for date {spp_date} is: {snapshot_name},"
+            f"version {version},"
+            f"created date {created_date}."
+        )
     return snapshot_name, version, created_date
