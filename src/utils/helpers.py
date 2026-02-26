@@ -4,8 +4,6 @@ import yaml
 import tomli
 import pandas as pd
 
-from typing import Union
-
 from src.utils.defence import type_defence
 from src.mapping.itl_mapping import join_itl_regions
 
@@ -91,15 +89,13 @@ def convert_formtype(formtype_value: str) -> str:
         return None
 
 
-def values_in_column(
-    df: pd.DataFrame, col_name: str, values: Union[list, pd.Series]
-) -> bool:
+def values_in_column(df: pd.DataFrame, col_name: str, values: list | pd.Series) -> bool:
     """Determine whether a list of values are all present in a dataframe column.
 
     Args:
         df (pd.DataFrame): The dataframe.
         col_name (str): The column name.
-        values (Union[list, pd.Series]): The values to check.
+        values (list | pd.Series): The values to check.
 
     Returns:
         bool: Whether or values are in the column.

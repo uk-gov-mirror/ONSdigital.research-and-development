@@ -3,8 +3,6 @@
 import logging
 import pandas as pd
 
-from typing import Tuple
-
 BreakdownValidationLogger = logging.getLogger(__name__)
 
 
@@ -187,7 +185,11 @@ def calc_totals(
     for key, columns in equals_checks.items():
         if len(columns) == 1:
             continue
-        df[columns[-1]] = round(df[columns[:-1]].sum(axis=1), round_value)
+        summed = df[columns[:-1]].sum(axis=1)
+        if round_value > 0:
+            df[columns[-1]] = round(summed, round_value)
+        else:
+            df[columns[-1]] = summed
     return df
 
 
@@ -380,7 +382,7 @@ def run_staging_breakdown_validation(df: pd.DataFrame, config: dict) -> None:
 
 def filter_on_condition(
     df: pd.DataFrame, condition: pd.Series
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Function to filter a dataframe based on a condition.
 
     Args:
